@@ -1,4 +1,5 @@
-import main.chart.axis.Axis;
+import axis.Axis;
+import data.Range;
 
 import java.awt.*;
 import java.text.MessageFormat;
@@ -27,7 +28,7 @@ public class ChartWithPreview implements Drawable {
 
         for (Chart preview : previews) {
             for (int i = 0; i < preview.getGraphsAmoiunt(); i++) {
-                 CompressedData compressedData = (CompressedData)(preview.getGraph(i).getDataItemList());
+                // CompressedData compressedData = (CompressedData)(preview.getGraph(i).getData());
                 // compressedData.update();
             }
         }
@@ -103,16 +104,12 @@ public class ChartWithPreview implements Drawable {
         addPreviewPanel(1);
     }
 
-    public void addPreviewGraph(Graph graph, PeriodicData periodicData, int previewIndex){
+ /*   public void addPreviewGraph(Graph graph, PeriodicData periodicData, int previewIndex){
         int compressionRatio = periodicData.getFullSize() / SCREEN_WIDTH;
         CompressedData compressedData = new CompressedData(periodicData, compressionRatio);
         previews.get(previewIndex).addGraph(graph,compressedData);
-    }
+    }*/
 
-    public void addGraph(Graph graph, DataList dataList, int chartPanelIndex) {
-        charts.get(chartPanelIndex).addGraph(graph, dataList);
-
-    }
 
     private Range getMaxRange() {
         double min = Double.MAX_VALUE;
@@ -128,10 +125,10 @@ public class ChartWithPreview implements Drawable {
     private void synchronizeRanges() {
         Range range = getMaxRange();
         for (Chart chart : charts) {
-            chart.getXAxis(0).setRange(range.getMin(), range.getMax());
+            chart.getXAxis(0).setRange(range.getStart(), range.getEnd());
         }
         for (Chart chart : previews) {
-            chart.getXAxis(0).setRange(range.getMin(), range.getMax());
+            chart.getXAxis(0).setRange(range.getStart(), range.getEnd());
         }
     }
 

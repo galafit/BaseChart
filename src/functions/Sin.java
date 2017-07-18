@@ -1,11 +1,13 @@
-package main.chart.functions;
+package functions;
+
+import java.util.function.DoubleFunction;
 
 /**
  * Created by hdablin on 19.06.17.
  */
-public class Sin implements Function2D {
+public class Sin implements DoubleFunction<Double> {
     @Override
-    public double apply(double value) {
+    public Double apply(double value) {
         return 100*Math.sin(value);
     }
 }

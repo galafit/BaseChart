@@ -1,3 +1,5 @@
+import data.Range;
+
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +54,7 @@ public class MultipaneChart implements Drawable {
     private void synchronizeRanges(){
         Range range = getMaxRange();
         for (Chart chart : charts) {
-            chart.getXAxis(0).setRange(range.getMin(), range.getMax());
+            chart.getXAxis(0).setRange(range.getStart(), range.getEnd());
         }
     }
 

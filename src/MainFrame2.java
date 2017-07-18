@@ -1,11 +1,13 @@
-import main.chart.axis.AxisType;
-import main.chart.functions.Function2D;
-import main.chart.functions.Sin;
-import main.chart.functions.Tg;
+import axis.AxisType;
+import data.DataList;
+import data.PointsList;
+import functions.Sin;
+import functions.Tg;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
+import java.util.function.DoubleFunction;
 
 /**
  * Created by hdablin on 24.03.17.
@@ -21,30 +23,39 @@ public class MainFrame2 extends JFrame {
         chart.addYAxis(AxisType.LINEAR, true);
         // chart.addXAxis(AxisType.LINEAR, true);
 
-        PeriodicData periodicData = new PeriodicData(-1,1);
+        DataList<Double> periodicData = new DataList<Double>();
         Random rand = new Random();
         for (int i = -35; i <150 ; i++) {
-            periodicData.addData(rand.nextInt(100));
+            periodicData.addData(new Double(rand.nextInt(100)));
         }
 
-        XYList xyList = new XYList();
+        PointsList<Double> xyList = new PointsList<Double>();
         for (int i = -11; i <100 ; i++) {
-            xyList.addItem(i,rand.nextDouble() * 130);
+           // xyList.addPoint(i,rand.nextDouble() * 130);
+            xyList.addPoint(i,new Double(i));
         }
-        chart.addGraph(new LineGraph(),xyList);
 
-        chart.addGraph(new LineGraph(),periodicData);
-        //chart.addGraph(new LineGraph(), xyList2, 1,1);
+        PointsList<Double> xyList1 = new PointsList<Double>();
+        for (int i = -11; i <100 ; i++) {
+            // xyList.addPoint(i,rand.nextDouble() * 130);
+            xyList1.addPoint(i,new Double(-i));
+        }
 
-      /*  Function2D foo = new Foo();
-        chart.addGraph(new LineGraph(), foo); */
+        Graph graph2 = new LineGraph();
+        graph2.setData(xyList1);
+        chart.addGraph(graph2);
+
+        Graph graph1 = new LineGraph();
+        graph1.setData(xyList);
+        chart.addGraph(graph1);
 
 
+        DoubleFunction<Double> sin = new Sin();
+        Graph g3 = new LineGraph();
+        g3.setFunction(sin);
+        chart.addGraph(g3, 0, 1);
 
-        Function2D sin = new Sin();
-      //  chart.addGraph(new LineGraph(),sin);
-
-        Function2D tg = new Tg();
+        DoubleFunction<Double> tg = new Tg();
         //chart1.addGraph(new LineGraph(), tg);
 
 
@@ -59,11 +70,11 @@ public class MainFrame2 extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
 
-       for (int j = 0; j < 100; j++) {
+     /*  for (int j = 0; j < 100; j++) {
             try {
                 Thread.sleep(1000);
                 for (int i = 0; i < 10; i++) {
-                    periodicData.addData(j * 50);
+                    dataList.addData(new Double(j * 50));
                 }
                 chartPanel.update();
             } catch (InterruptedException e) {
@@ -73,13 +84,13 @@ public class MainFrame2 extends JFrame {
            try {
                Thread.sleep(1000);
                for (int i = 0; i < 10; i++) {
-                   xyList.addItem(i*30,j * 50);
+                   xyList.addPoint(i*30,j * 50.0);
                }
                chartPanel.update();
            } catch (InterruptedException e) {
                e.printStackTrace();
            }
-        }
+        }*/
 
 
 

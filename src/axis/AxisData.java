@@ -1,9 +1,7 @@
-package main.chart.axis;
+package axis;
 
 import java.awt.*;
 import java.text.MessageFormat;
-import java.util.*;
-import java.util.List;
 
 /**
  * Created by hdablin on 05.04.17.

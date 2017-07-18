@@ -1,18 +1,20 @@
-import main.chart.axis.*;
-import main.chart.functions.Function2D;
+
+import axis.Axis;
+import axis.AxisType;
+import axis.LinearAxis;
+import data.PointsList;
 
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-
+import java.util.function.DoubleFunction;
 
 /**
  * Created by hdablin on 24.03.17.
  */
 public class Chart implements Drawable {
     private List<Graph> graphs = new ArrayList<>();
-    private Map<Integer, Function2D> functionMap = new Hashtable<Integer, Function2D>();
     private List<Axis> xAxisList = new ArrayList<>();
     private List<Axis> yAxisList = new ArrayList<>();
     private int chartPadding = 10;
@@ -44,8 +46,8 @@ public class Chart implements Drawable {
         int maxSize = 0;
         // Graphics with functions are not taken into account
         for (int i = 0; i < graphs.size(); i++) {
-            if(functionMap.get(new Integer(i)) == null) {
-                maxSize = Math.max(maxSize, graphs.get(i).getDataSize());
+            if(graphs.get(i).getFunction() == null) {
+                maxSize = (int)Math.max(maxSize, graphs.get(i).getDataSize());
             }
         }
         return maxSize;
@@ -96,12 +98,6 @@ public class Chart implements Drawable {
         xAxisList.add(axis);
     }
 
-    public void update(){
-        for (Graph graph : graphs) {
-            graph.rangeXaxis();
-        }
-    }
-
     public Graph getGraph(int index){
         return graphs.get(index);
     }
@@ -111,41 +107,22 @@ public class Chart implements Drawable {
     }
 
 
-    public void addGraph(Graph graph, DataList data) {
-        addGraph(graph, data, 0, 0);
+    public void addGraph(Graph graph) {
+        addGraph(graph,  0, 0);
     }
 
-    public void addGraph(Graph graph, DataList data, int xAxisIndex, int yAxisIndex) {
-        graph.setData(data);
-        addGraph(graph, xAxisIndex, yAxisIndex);
-
-    }
-    public void addGraph(Graph graph, Function2D function, int xAxisIndex, int yAxisIndex) {
-        addGraph(graph, xAxisIndex, yAxisIndex);
-        functionMap.put(graphs.size() - 1, function);
-    }
-
-    public void addGraph(Graph graph, Function2D function) {
-        addGraph(graph, function, 0, 0);
-    }
-
-    private void addGraph(Graph graph, int xAxisIndex, int yAxisIndex) {
-        graph.setAxis(xAxisList.get(xAxisIndex), yAxisList.get(yAxisIndex));
-        graph.rangeXaxis();
-        boolean isGraphExist = false;
-        for (Graph graph1 : graphs) {
-            if (graph1.getYAxis() == yAxisList.get(yAxisIndex)) {
-                isGraphExist = true;
-                break;
-            }
+    public void update(){
+        for (Graph graph : graphs) {
+            graph.rangeXaxis(xAxisList.get(graph.getxAxisIndex()));
         }
+    }
 
-        if (!isGraphExist) {
-            graph.setColor(yAxisList.get(yAxisIndex).getViewSettings().getAxisColor());
-        } else {
-            graph.setColor(graphicColors[graphs.size() % graphicColors.length]);
-        }
+    public void addGraph(Graph graph,  int xAxisIndex, int yAxisIndex) {
+        graph.setAxisIndexes(xAxisIndex, yAxisIndex);
+        graph.rangeXaxis(xAxisList.get(xAxisIndex));
+        graph.setLineColor(graphicColors[graphs.size() % graphicColors.length]);
         graphs.add(graph);
+
     }
 
     private void alignAxisTicks(List<Axis> axisList, Graphics2D g, Rectangle area) {
@@ -179,34 +156,35 @@ public class Chart implements Drawable {
 
 
     /**
-     * We create XYList for every function. For every area point is calculated corresponding
+     * We create PointsList for every function. For every area point is calculated corresponding
      * value and function(value) and added to the list. So:
      * resultant XYLists contains «area.width» elements. Then those XYLists are added to
      * the corresponding Graphs.
      * @param area
      */
     private void setFunctions(Rectangle area) {
-        Set keys = functionMap.keySet();
-        for (Object key : keys) {
-            Function2D function = functionMap.get(key);
-            Graph graph = graphs.get((Integer) key);
-            Axis xAxis = graph.getXAxis();
-            boolean isEndOnTick = xAxis.isEndOnTick();
-            double lowerPadding = xAxis.getLowerPadding();
-            double upperPadding = xAxis.getUpperPadding();
-            xAxis.setUpperPadding(0);
-            xAxis.setLowerPadding(0);
-            xAxis.setEndOnTick(false);
-            XYList data = new XYList();
-            for (int i = area.x; i <= area.width + area.x; i++) {
-                double value = xAxis.pointsToValue(i, area);
-                data.addItem(value, function.apply(value));
+        for (Graph graph : graphs) {
+            DoubleFunction function = graph.getFunction();
+            if(function != null) {
+                Axis xAxis = xAxisList.get(graph.getxAxisIndex());
+                boolean isEndOnTick = xAxis.isEndOnTick();
+                double lowerPadding = xAxis.getLowerPadding();
+                double upperPadding = xAxis.getUpperPadding();
+                xAxis.setUpperPadding(0);
+                xAxis.setLowerPadding(0);
+                xAxis.setEndOnTick(false);
+                PointsList data = new PointsList();
+                for (int i = area.x; i <= area.width + area.x; i++) {
+                    double value = xAxis.pointsToValue(i, area);
+                    data.addPoint(value, function.apply(value));
+                }
+                graph.setData(data);
+                // restore axis settings
+                xAxis.setEndOnTick(isEndOnTick);
+                xAxis.setLowerPadding(lowerPadding);
+                xAxis.setUpperPadding(upperPadding);
             }
-            graph.setData(data);
-            // restore axis settings
-            xAxis.setEndOnTick(isEndOnTick);
-            xAxis.setLowerPadding(lowerPadding);
-            xAxis.setUpperPadding(upperPadding);
+
         }
     }
 
@@ -265,8 +243,8 @@ public class Chart implements Drawable {
             axis.resetRange();
         }
         for (Graph graph : graphs) {
-            graph.setDataRange(newGraphArea);
-            graph.rangeYaxis();
+            graph.setXRange(newGraphArea, xAxisList.get(graph.getxAxisIndex()));
+            graph.rangeYaxis(yAxisList.get(graph.getyAxisIndex()));
         }
 
     }
@@ -278,8 +256,8 @@ public class Chart implements Drawable {
             axis.resetRange();
         }
         for (Graph graph : graphs) {
-            graph.setDataRange(fullArea);
-            graph.rangeYaxis();
+            graph.setXRange(fullArea, xAxisList.get(graph.getxAxisIndex()));
+            graph.rangeYaxis(yAxisList.get(graph.getyAxisIndex()));
         }
 
         setGraphAreaAndAxisPositions(g2d, fullArea);
@@ -325,7 +303,7 @@ public class Chart implements Drawable {
         g2d.setClip(graphArea);
 
         for (Graph graph : graphs) {
-            graph.draw(g2d, graphArea);
+            graph.draw(g2d, graphArea, xAxisList.get(graph.getxAxisIndex()),yAxisList.get(graph.getyAxisIndex()) );
         }
 
         g2d.setClip(clip);

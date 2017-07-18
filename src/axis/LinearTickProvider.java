@@ -1,4 +1,4 @@
-package main.chart.axis;
+package axis;
 
 import com.sun.istack.internal.Nullable;
 

@@ -1,7 +1,6 @@
-package main.chart.axis;
+package axis;
 
 import java.awt.*;
-import java.util.List;
 
 /**
  * Created by hdablin on 08.04.17.

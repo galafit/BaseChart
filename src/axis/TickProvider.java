@@ -1,4 +1,4 @@
-package main.chart.axis;
+package axis;
 
 /**
  * Created by galafit on 5/7/17.

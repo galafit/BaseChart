@@ -1,4 +1,4 @@
-package main.chart.axis;
+package axis;
 
 import java.awt.*;
 import java.awt.font.TextLayout;

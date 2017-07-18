@@ -1,114 +1,104 @@
-import main.chart.axis.Axis;
+import axis.Axis;
+import data.DataProcessor;
+import data.DataSet;
+import data.PointsList;
+import data.Range;
 
 import java.awt.*;
-import java.util.List;
+import java.util.function.DoubleFunction;
 
 /**
  * Created by hdablin on 26.04.17.
  */
-public abstract class Graph {
-    protected DataList dataItemList;
-    protected Axis xAxis;
-    protected Axis yAxis;
-    protected Color color = Color.GRAY;
+public abstract class Graph<T> {
+    protected Color lineColor = Color.GRAY;
+    protected Color fillColor = Color.GRAY;
+    protected int lineWidth = 1;
+    protected int pointRadious = 1;
+    protected DataProcessor<T> dataProcessor = new DataProcessor<T>();
 
-    public void setData(DataList data){
-        dataItemList = data;
+    private DoubleFunction<T> function;
+    private int xAxisIndex;
+    private int yAxisIndex;
+
+/*    public Graph(DoubleFunction<T> function) {
+        this.function = function;
+    }
+    public Graph(DataSet<T> dataSet) {
+        dataProcessor = new DataProcessor<>(dataSet);
     }
 
-    public DataList getDataItemList() {
-        return dataItemList;
+    public Graph(PointsList<T> pointsList) {
+        dataProcessor = new DataProcessor<T>(pointsList);
+    }*/
+
+    public void setData(DataSet<T> dataSet){
+        dataProcessor.setData(dataSet);
+
     }
 
-    protected void rangeXaxis(){
-        if (xAxis.isAutoScale()){
-            Double xMin = getXmin();
-            Double xMax = getXmax();
-            if(xMin != null && !xMin.isNaN() && xMax != null && !xMax.isNaN()) {
-                xAxis.setRange(xMin, xMax);
+    public void setData(PointsList<T> pointsList){
+        dataProcessor.setData(pointsList);
+
+    }
+
+    public void setFunction(DoubleFunction<T> function) {
+        this.function = function;
+    }
+
+    public DoubleFunction<T> getFunction() {
+        return function;
+    }
+
+
+    int getxAxisIndex() {
+        return xAxisIndex;
+    }
+
+    int getyAxisIndex() {
+        return yAxisIndex;
+    }
+
+     void setAxisIndexes(int xAxisIndex, int yAxisIndex) {
+        this.xAxisIndex = xAxisIndex;
+        this.yAxisIndex = yAxisIndex;
+     }
+
+    protected void rangeYaxis(Axis yAxis){
+        if (yAxis.isAutoScale()){
+            Range yRange = dataProcessor.getYRange();
+            if(yRange != null) {
+                yAxis.setRange(yRange.getStart(), yRange.getEnd());
             }
         }
     }
 
-    protected void setDataRange(Rectangle area){
+    protected void rangeXaxis(Axis xAxis){
+        if (xAxis.isAutoScale()){
+            Range xRange = dataProcessor.getFullXRange();
+            if(xRange != null) {
+                xAxis.setRange(xRange.getStart(), xRange.getEnd());
+            }
+        }
+    }
+
+    public long getDataSize() {
+        return dataProcessor.getFullDataSize();
+    }
+
+    protected void setXRange(Rectangle area, Axis xAxis){
         double xMin = xAxis.pointsToValue(area.x, area);
         double xMax = xAxis.pointsToValue(area.x + area.width, area);
-        if (dataItemList instanceof SliceDataList){
-            SliceDataList sliceDataList = (SliceDataList) dataItemList;
-            sliceDataList.setRange(xMin, xMax);
-        }
-    }
-
-    public int getDataSize(){
-        if (dataItemList != null){
-            if (dataItemList instanceof SliceDataList){
-                SliceDataList sliceDataList = (SliceDataList) dataItemList;
-                return sliceDataList.getFullSize();
-            }
-            return dataItemList.size();
-        }
-        return 0;
+        dataProcessor.setXRange(xMin, xMax);
     }
 
 
-    protected void rangeYaxis(){
-        if (yAxis.isAutoScale()){
-            Double yMin = getYmin();
-            Double yMax = getYmax();
-            if(yMin != null && !yMin.isNaN() && yMax != null && !yMax.isNaN()) {
-                yAxis.setRange(yMin, yMax);
-            }
-        }
+
+
+
+    public void setLineColor(Color lineColor) {
+        this.lineColor = lineColor;
     }
 
-    public Color getColor() {
-        return color;
-    }
-
-    public void setColor(Color color) {
-        this.color = color;
-    }
-
-    public Double getXmin(){
-        if (dataItemList != null) {
-            return dataItemList.getXmin();
-        }
-        return null;
-    }
-
-    public Double getXmax(){
-        if (dataItemList != null) {
-        return dataItemList.getXmax();
-        }
-        return null;
-    }
-
-    public Double getYmin(){
-        if (dataItemList != null) {
-            return dataItemList.getYmin();
-        }
-        return null;
-    }
-
-    public Double getYmax(){
-        if (dataItemList != null) {
-            return dataItemList.getYmax();
-        }
-        return null;
-    }
-
-    public Axis getXAxis() {
-        return xAxis;
-    }
-
-    public Axis getYAxis() {
-        return yAxis;
-    }
-
-    public void setAxis(Axis xAxis, Axis yAxis) {
-        this.xAxis = xAxis;
-        this.yAxis = yAxis;
-    }
-
-    public abstract void draw(Graphics2D g, Rectangle area);
+    public abstract void draw(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis);
 }

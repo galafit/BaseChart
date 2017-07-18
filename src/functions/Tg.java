@@ -1,11 +1,13 @@
-package main.chart.functions;
+package functions;
+
+import java.util.function.DoubleFunction;
 
 /**
  * Created by hdablin on 20.06.17.
  */
-public class Tg implements Function2D {
+public class Tg implements DoubleFunction<Double> {
     @Override
-    public double apply(double value) {
+    public Double apply(double value) {
         return Math.tan(value);
     }
 }
