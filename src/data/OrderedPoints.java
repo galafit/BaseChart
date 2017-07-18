@@ -18,14 +18,14 @@ public class OrderedPoints<Y> implements RangeblePoints<Y> {
         long endIndex = 0;
         long startIndex = 0;
         for (long i = 0; i < points.size(); i++) {
+            startIndex = i;
             if (startXValue <= points.getX(i)) {
-                startIndex = i;
                 break;
             }
         }
         for (long i = startIndex; i < points.size(); i++) {
+            endIndex = i;
             if (endXValue <= points.getX(i)) {
-                endIndex = i;
                 break;
             }
         }

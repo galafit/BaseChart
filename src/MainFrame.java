@@ -39,9 +39,16 @@ public class MainFrame extends JFrame {
         }
 
 
+        PointsList<Double> xyList = new PointsList<Double>();
+        for (int i = -11; i <18000 ; i++) {
+            // xyList.addPoint(i,rand.nextDouble() * 130);
+            xyList.addPoint(i,new Double(-i));
+        }
+
+
 
         Graph g1 = new LineGraph();
-        g1.setData(periodicData);
+        g1.setData(xyList);
 
         chart.addGraph(g1);
 
@@ -63,7 +70,7 @@ public class MainFrame extends JFrame {
         DoubleFunction<Double> sin = new Sin();
         Graph g3 = new LineGraph();
         g3.setFunction(sin);
-       // chart1.addGraph(g3);
+        chart1.addGraph(g3);
 
         DoubleFunction<Double> tg = new Tg();
         Graph g4 = new LineGraph();

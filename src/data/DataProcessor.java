@@ -69,7 +69,7 @@ public class DataProcessor<Y> implements PointsProvider<Y> {
         }
         double max = -Double.MAX_VALUE;
         double min = Double.MAX_VALUE;
-        for (long i = rangeStartIndex; i < rangeLength ; i++) {
+        for (long i = rangeStartIndex; i < rangeStartIndex + rangeLength ; i++) {
             Range extremes = extremesFunction.getExtremes(points.getY(i));
             max = Math.max(max, extremes.getEnd());
             min = Math.min(min, extremes.getStart());
