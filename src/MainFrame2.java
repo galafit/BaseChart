@@ -1,6 +1,6 @@
 import axis.AxisType;
 import data.DataList;
-import data.DataPointList;
+import data.XYList;
 import functions.Sin;
 import functions.Tg;
 import graphs.Graph;
@@ -31,13 +31,13 @@ public class MainFrame2 extends JFrame {
             periodicData.addData(new Double(rand.nextInt(100)));
         }
 
-        DataPointList<Double> xyList = new DataPointList<Double>();
+        XYList<Double> xyList = new XYList<Double>();
         for (int i = -11; i <100 ; i++) {
            // xyList.addPoint(i,rand.nextDouble() * 130);
             xyList.addPoint(i,new Double(i));
         }
 
-        DataPointList<Double> xyList1 = new DataPointList<Double>();
+        XYList<Double> xyList1 = new XYList<Double>();
         for (int i = -11; i <100 ; i++) {
             // xyList.addPoint(i,rand.nextDouble() * 130);
             xyList1.addPoint(i,new Double(-i));

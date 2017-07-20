@@ -1,8 +1,5 @@
 package data;
 
-
-
-
 /**
  * Created by galafit on 15/7/17.
  */
@@ -16,11 +13,11 @@ public class DataProcessor<Y> {
     private int maxVisiblePoint = 500;
 
     public void setData(DataSet<Y> dataSet) {
-        rowPoints = new DataPointRegularSet<Y>(dataSet);
+        rowPoints = new XYRegularSet<Y>(dataSet);
     }
 
-    public void setData(DataPointSet<Y> pointSet) {
-        rowPoints = new DataPointOrderedSet<Y>(pointSet);
+    public void setData(XYSet<Y> pointSet) {
+        rowPoints = new XYOrderedSet<Y>(pointSet);
     }
 
     public void setExtremesFunction(ExtremesFunction<Y> extremesFunction) {
@@ -47,7 +44,7 @@ public class DataProcessor<Y> {
 
     }
 
-    private Range calculateYRange(DataPointSet<Y> points) {
+    private Range calculateYRange(XYSet<Y> points) {
         if(points == null || points.size() == 0) {
             return null;
         }
@@ -82,8 +79,8 @@ public class DataProcessor<Y> {
     }
 
 
-    private DataPointSet<Y> getRangedPoints() {
-        return new DataPointSet<Y>() {
+    private XYSet<Y> getRangedPoints() {
+        return new XYSet<Y>() {
             @Override
             public long size() {
                 return rangeLength;
@@ -101,7 +98,7 @@ public class DataProcessor<Y> {
         };
     }
 
-    public DataPointSet<Y> getProcessedPoints() {
+    public XYSet<Y> getProcessedPoints() {
         return getRangedPoints();
     }
 

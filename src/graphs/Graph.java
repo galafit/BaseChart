@@ -24,19 +24,17 @@ public class Graph<T> {
         setData(dataSet);
     }
 
-    public Graph(DataPointSet<T> pointsSet) {
+    public Graph(XYSet<T> pointsSet) {
         setData(pointsSet);
     }*/
 
 
-    public void setData(DataSet<T> dataSet){
+    public void setData(DataSet<T> dataSet) {
         dataProcessor.setData(dataSet);
-
     }
 
-    public void setData(DataPointSet<T> dataPointSet){
-        dataProcessor.setData(dataPointSet);
-
+    public void setData(XYSet<T> XYSet) {
+        dataProcessor.setData(XYSet);
     }
 
     public void setFunction(DoubleFunction<T> function) {
@@ -47,7 +45,6 @@ public class Graph<T> {
         return function;
     }
 
-
     public int getXAxisIndex() {
         return xAxisIndex;
     }
@@ -56,39 +53,33 @@ public class Graph<T> {
         return yAxisIndex;
     }
 
-     public void setAxisIndexes(int xAxisIndex, int yAxisIndex) {
+    public void setAxisIndexes(int xAxisIndex, int yAxisIndex) {
         this.xAxisIndex = xAxisIndex;
         this.yAxisIndex = yAxisIndex;
-     }
-
-    public void rangeYaxis(Axis yAxis){
-        if (yAxis.isAutoScale()){
-            Range yRange = dataProcessor.getYRange();
-            if(yRange != null) {
-                yAxis.setRange(yRange.getStart(), yRange.getEnd());
-            }
-        }
     }
 
-    public void rangeXaxis(Axis xAxis){
-        if (xAxis.isAutoScale()){
-            Range xRange = dataProcessor.getFullXRange();
-            if(xRange != null) {
-                xAxis.setRange(xRange.getStart(), xRange.getEnd());
-            }
-        }
+    public void setXRange(double xStartValue, double xEndValue) {
+        dataProcessor.setXRange(xStartValue, xEndValue);
     }
+
+    public Range getXFullRange() {
+        return dataProcessor.getFullXRange();
+    }
+
+    public Range getYRange() {
+        return dataProcessor.getYRange();
+    }
+
 
     public long getDataSize() {
         return dataProcessor.getFullDataSize();
     }
 
-    public void setXRange(Rectangle area, Axis xAxis){
+    public void setXRange(Rectangle area, Axis xAxis) {
         double xMin = xAxis.pointsToValue(area.x, area);
         double xMax = xAxis.pointsToValue(area.x + area.width, area);
         dataProcessor.setXRange(xMin, xMax);
     }
-
 
     public void setLineColor(Color lineColor) {
         graphPainter.getSettings().setLineColor(lineColor);

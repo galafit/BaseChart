@@ -3,18 +3,18 @@ package data;
 /**
  * Created by galafit on 15/7/17.
  */
-public class DataPointRegularSet<Y> implements RangableSet<Y> {
+public class XYRegularSet<Y> implements RangableSet<Y> {
     private DataSet<Y> data;
     private double startPoint;
     private double pointInterval;
 
-    public DataPointRegularSet(DataSet<Y> data, double startPoint, double pointInterval) {
+    public XYRegularSet(DataSet<Y> data, double startPoint, double pointInterval) {
         this.data = data;
         this.startPoint = startPoint;
         this.pointInterval = pointInterval;
     }
 
-    public DataPointRegularSet(DataSet<Y> data) {
+    public XYRegularSet(DataSet<Y> data) {
         this(data, 0, 1);
     }
 

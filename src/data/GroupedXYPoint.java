@@ -3,11 +3,11 @@ package data;
 /**
  * Created by galafit on 16/7/17.
  */
-public class GroupedDataPoint<Y> extends DataPoint<Y> {
+public class GroupedXYPoint<Y> extends XYPoint<Y> {
     private long groupStartIndex;
     private int groupLength;
 
-    public GroupedDataPoint(double x, Y y, long groupStartIndex, int groupLength) {
+    public GroupedXYPoint(double x, Y y, long groupStartIndex, int groupLength) {
         super(x, y);
         this.groupStartIndex = groupStartIndex;
         this.groupLength = groupLength;

@@ -1,6 +1,6 @@
 import axis.AxisType;
 import data.DataList;
-import data.DataPointList;
+import data.XYList;
 import functions.Sin;
 import functions.Tg;
 import graphs.AreaGraph;
@@ -26,7 +26,7 @@ public class MainFrame extends JFrame {
         Chart chart = new Chart();
 
 
-        DataPointList<Double> xyList2 = new DataPointList<Double>();
+        XYList<Double> xyList2 = new XYList<Double>();
         for (int i = 0; i <6 ; i++) {
             xyList2.addPoint(4057.0789,new Double(i));
         }
@@ -42,7 +42,7 @@ public class MainFrame extends JFrame {
         }
 
 
-        DataPointList<Double> xyList = new DataPointList<Double>();
+        XYList<Double> xyList = new XYList<Double>();
         for (int i = -11; i <18000 ; i++) {
             // xyList.addPoint(i,rand.nextDouble() * 130);
             xyList.addPoint(i,new Double(-i));

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class Grouper<Y> {
     private static final int SHOULDER = 1; // additional number of elements when we calculate range start and end indexes
     private GroupingFunction<Y> groupingFunction;
-    private ArrayList<GroupedDataPoint<Y>> groupedPoints;
+    private ArrayList<GroupedXYPoint<Y>> groupedPoints;
     private double groupingInterval;
 
     public Grouper(GroupingFunction<Y> groupingFunction) {
@@ -25,12 +25,12 @@ public class Grouper<Y> {
         return Math.floor(value / groupingInterval) * groupingInterval;
     }
 
-    public void groupPoints(DataPointSet<Y> points) {
+    public void groupPoints(XYSet<Y> points, long startIndex, long length) {
         ArrayList<Y> buffer = new ArrayList<Y>();
         if(points.size() > 0) {
             double roundX = getClosestIntervalPrev(points.getX(0));
-            groupedPoints = new ArrayList<GroupedDataPoint<Y>>();
-            for (long i = 0; i < points.size(); i++) {
+            groupedPoints = new ArrayList<GroupedXYPoint<Y>>();
+            for (long i = startIndex; i < startIndex + length; i++) {
                 double x = points.getX(i);
                 if(x < roundX) {
                     // do nothing
@@ -41,7 +41,7 @@ public class Grouper<Y> {
                 else {
                     int groupLength = buffer.size();
                     if(groupLength > 0) {
-                        groupedPoints.add(new GroupedDataPoint<Y>(roundX, groupingFunction.group(buffer), i - (groupLength -1), groupLength));
+                        groupedPoints.add(new GroupedXYPoint<Y>(roundX, groupingFunction.group(buffer), i - (groupLength -1), groupLength));
                         buffer.clear();
                     }
 
@@ -55,8 +55,8 @@ public class Grouper<Y> {
         }
     }
 
-    public DataPointSet<Y> getGroupedPoints() {
-        return new DataPointSet<Y>() {
+    public XYSet<Y> getGroupedPoints() {
+        return new XYSet<Y>() {
             @Override
             public long size() {
                 return groupedPoints.size();

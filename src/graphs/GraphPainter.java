@@ -1,7 +1,7 @@
 package graphs;
 
 import axis.Axis;
-import data.DataPointSet;
+import data.XYSet;
 
 import java.awt.*;
 
@@ -19,5 +19,5 @@ public abstract class GraphPainter<Y> {
         this.settings = settings;
     }
 
-    public abstract void draw(DataPointSet<Y> dataPoints, Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis);
+    public abstract void draw(XYSet<Y> dataPoints, Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis);
 }

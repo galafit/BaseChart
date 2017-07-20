@@ -1,7 +1,7 @@
 package graphs;
 
 import axis.Axis;
-import data.DataPointSet;
+import data.XYSet;
 
 import java.awt.*;
 import java.awt.geom.GeneralPath;
@@ -11,7 +11,7 @@ import java.awt.geom.GeneralPath;
  */
 public class AreaGraphPainter extends GraphPainter<Double> {
     @Override
-    public void draw(DataPointSet<Double> dataPoints, Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
+    public void draw(XYSet<Double> dataPoints, Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
         if (dataPoints == null || dataPoints.size() == 0) {
             return;
         }
