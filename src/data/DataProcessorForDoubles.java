@@ -1,12 +1,11 @@
-package graphs;
+package data;
 
-import data.ExtremesFunction;
-import data.Range;
+import grouping.Average;
 
 /**
  * Created by galafit on 20/7/17.
  */
-public class DoubleGraph extends Graph<Double> {
+public class DataProcessorForDoubles extends DataProcessor<Double> {
     {
         ExtremesFunction<Double> extremesFunction = new ExtremesFunction<Double>() {
             @Override
@@ -14,6 +13,7 @@ public class DoubleGraph extends Graph<Double> {
                 return new Range(value, value);
             }
         };
-        dataProcessor.setExtremesFunction(extremesFunction);
+        setExtremesFunction(extremesFunction);
+        setGroupingFunction(new Average());
     }
 }

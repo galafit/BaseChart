@@ -21,8 +21,6 @@ public class MainFrame extends JFrame {
 
         setTitle("Test chart");
 
-
-
         Chart chart = new Chart();
 
 
@@ -47,8 +45,6 @@ public class MainFrame extends JFrame {
             // xyList.addPoint(i,rand.nextDouble() * 130);
             xyList.addPoint(i,new Double(-i));
         }
-
-
 
         Graph g1 = new LineGraph();
         g1.setData(xyList);
@@ -87,12 +83,9 @@ public class MainFrame extends JFrame {
         chartWithPreview.addChart(chart);
         chartWithPreview.addPreviewPanel();
 
-       // chartWithPreview.addPreviewGraph(new graphs.LineGraph(),periodicData2,0);
-       // chartWithPreview.addPreviewGraph(new graphs.LineGraph(),periodicData,0);
-
-
-
-
+        Graph previewGraph = new LineGraph();
+        previewGraph.setData(periodicData);
+        chartWithPreview.addPreviewGraph(previewGraph,0);
 
 
         PreviewChartPanel chartPanel = new PreviewChartPanel(chartWithPreview);

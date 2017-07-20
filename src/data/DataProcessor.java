@@ -1,5 +1,7 @@
 package data;
 
+import grouping.GroupingFunction;
+
 /**
  * Created by galafit on 15/7/17.
  */
@@ -10,7 +12,13 @@ public class DataProcessor<Y> {
     private long rangeLength;
     private ExtremesFunction<Y> extremesFunction;
 
-    private int maxVisiblePoint = 500;
+    private boolean isGroupingEnabled = true;
+    private Grouper<Y> grouper;
+
+    private XYSet<Y> resultantPoints;
+
+    private int maxVisiblePoint = 1000;
+
 
     public void setData(DataSet<Y> dataSet) {
         rowPoints = new XYRegularSet<Y>(dataSet);
@@ -24,9 +32,13 @@ public class DataProcessor<Y> {
         this.extremesFunction = extremesFunction;
     }
 
+    public void setGroupingFunction(GroupingFunction<Y> groupingFunction) {
+        grouper = new Grouper<Y>(groupingFunction);
+    }
+
     public void setXRange(double startXValue, double endXValue) {
+        rangeLength = 0;
         if(rowPoints == null || rowPoints.size() == 0) {
-            rangeLength = 0;
             return;
         }
         Range rangeIndexes = rowPoints.getIndexRange(startXValue, endXValue);
@@ -35,13 +47,20 @@ public class DataProcessor<Y> {
             long rangeEndIndex = (long) Math.min(rowPoints.size() - 1, rangeIndexes.getEnd() + SHOULDER);
             rangeLength = rangeEndIndex - rangeStartIndex + 1;
         }
+
+        resultantPoints = getRangedPoints();
+        if(isGroupingEnabled) {
+            if(rangeLength > maxVisiblePoint) {
+                grouper.setGroupingInterval(calculateGroupingInterval(startXValue, endXValue));
+                resultantPoints = grouper.groupPoints(rowPoints, rangeStartIndex, rangeLength);
+            }
+        }
     }
 
     private double calculateGroupingInterval(double startXValue, double endXValue) {
         //double min = rowPoints.getX(rangeStartIndex);
         //double max = rowPoints.getX(rangeStartIndex + rangeLength - 1);
         return (endXValue - startXValue) / maxVisiblePoint;
-
     }
 
     private Range calculateYRange(XYSet<Y> points) {
@@ -60,7 +79,7 @@ public class DataProcessor<Y> {
 
 
     public Range getYRange()  {
-        return calculateYRange(getRangedPoints());
+        return calculateYRange(getProcessedPoints());
     }
 
 
@@ -99,7 +118,7 @@ public class DataProcessor<Y> {
     }
 
     public XYSet<Y> getProcessedPoints() {
-        return getRangedPoints();
+       return resultantPoints;
     }
 
 

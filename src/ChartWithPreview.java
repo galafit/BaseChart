@@ -1,5 +1,6 @@
 import axis.Axis;
 import data.Range;
+import graphs.Graph;
 
 import java.awt.*;
 import java.text.MessageFormat;
@@ -104,11 +105,9 @@ public class ChartWithPreview implements Drawable {
         addPreviewPanel(1);
     }
 
- /*   public void addPreviewGraph(graphs.Graph graph, PeriodicData periodicData, int previewIndex){
-        int compressionRatio = periodicData.getFullSize() / SCREEN_WIDTH;
-        CompressedData compressedData = new CompressedData(periodicData, compressionRatio);
-        previews.get(previewIndex).addGraph(graph,compressedData);
-    }*/
+    public void addPreviewGraph(Graph graph, int previewIndex){
+        previews.get(previewIndex).addGraph(graph);
+    }
 
 
     private Range getMaxRange() {
