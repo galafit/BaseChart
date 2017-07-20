@@ -7,15 +7,15 @@ import java.util.ArrayList;
 /**
  * Created by galafit on 17/7/17.
  */
-public class GroupedPoints<Y> implements PointsProvider<Y>{
+public class GroupedDataPointSet<Y> implements SlidingSet<Y> {
+    private RangableSet<Y> rowPoints;
     private static final int SHOULDER = 1; // additional number of elements when we calculate range start and end indexes
-    private RangeblePoints<Y> rowPoints;
     private GroupingFunction<Y> groupingFunction;
-    private ArrayList<GroupedPoint<Y>> groupedPoints;
+    private ArrayList<GroupedDataPoint<Y>> groupedDataPoints;
     private ExtremesFunction<Y> extremesFunction;
     private double groupingInterval;
 
-    public GroupedPoints(RangeblePoints<Y> rowPoints) {
+    public GroupedDataPointSet(RangableSet<Y> rowPoints) {
         this.rowPoints = rowPoints;
     }
 
@@ -23,6 +23,11 @@ public class GroupedPoints<Y> implements PointsProvider<Y>{
         this.groupingInterval = groupingInterval;
     }
 
+    private double getClosestIntervalPrev(double value) {
+        return Math.floor(value / groupingInterval) * groupingInterval;
+    }
+
+    @Override
     public void setXRange(double startXValue, double endXValue) {
         Range range = rowPoints.getIndexRange(startXValue - SHOULDER * groupingInterval, endXValue + - SHOULDER * groupingInterval);
         long startIndex = (long) range.getStart();
@@ -31,7 +36,7 @@ public class GroupedPoints<Y> implements PointsProvider<Y>{
         double roundX = getClosestIntervalPrev(startXValue);
 
         ArrayList<Y> buffer = new ArrayList<Y>();
-        groupedPoints = new ArrayList<GroupedPoint<Y>>();
+        groupedDataPoints = new ArrayList<GroupedDataPoint<Y>>();
         for (long i = startIndex; i <= endIndex ; i++) {
             double x = rowPoints.getX(i);
             if(x < roundX) {
@@ -43,7 +48,7 @@ public class GroupedPoints<Y> implements PointsProvider<Y>{
             else {
                 int groupLength = buffer.size();
                 if(groupLength > 0) {
-                    groupedPoints.add(new GroupedPoint<Y>(roundX, groupingFunction.group(buffer), i - (groupLength -1), groupLength));
+                    groupedDataPoints.add(new GroupedDataPoint<Y>(roundX, groupingFunction.group(buffer), i - (groupLength -1), groupLength));
                     buffer.clear();
                 }
 
@@ -55,24 +60,26 @@ public class GroupedPoints<Y> implements PointsProvider<Y>{
         }
     }
 
-    private double getClosestIntervalPrev(double value) {
-        return Math.floor(value / groupingInterval) * groupingInterval;
+    @Override
+    public long getFullDataSize() {
+        return rowPoints.size();
     }
 
+    @Override
     public Range getYRange() {
-        if(groupedPoints.size() <= 0) {
+        if(groupedDataPoints.size() <= 0) {
             return null;
         }
         double max = -Double.MAX_VALUE;
         double min = Double.MAX_VALUE;
-        for (long i = 0; i < groupedPoints.size() ; i++) {
-            Range extremes = extremesFunction.getExtremes(groupedPoints.get((int)i).getY());
+        for (long i = 0; i < groupedDataPoints.size() ; i++) {
+            Range extremes = extremesFunction.getExtremes(groupedDataPoints.get((int)i).getY());
             max = Math.max(max, extremes.getEnd());
             min = Math.min(min, extremes.getStart());
         }
         return new Range(min, max);
     }
-
+    @Override
     public Range getFullXRange() {
         return new Range(rowPoints.getX(0), rowPoints.getX(rowPoints.size() - 1));
     }
@@ -80,16 +87,16 @@ public class GroupedPoints<Y> implements PointsProvider<Y>{
 
     @Override
     public long size() {
-        return groupedPoints.size();
+        return groupedDataPoints.size();
     }
 
     @Override
     public Double getX(long index) {
-        return groupedPoints.get((int)index).getX();
+        return groupedDataPoints.get((int)index).getX();
     }
 
     @Override
     public Y getY(long index) {
-        return groupedPoints.get((int)index).getY();
+        return groupedDataPoints.get((int)index).getY();
     }
 }

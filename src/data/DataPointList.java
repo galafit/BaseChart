@@ -6,11 +6,18 @@ import java.util.ArrayList;
 /**
  * Created by galafit on 15/7/17.
  */
-public class PointsList<Y> implements  PointsProvider<Y> {
-    private ArrayList<XYPoint<Y>> points = new ArrayList<XYPoint<Y>>();
+public class DataPointList<Y> implements DataPointSet<Y> {
+    private ArrayList<DataPoint<Y>> points = new ArrayList<DataPoint<Y>>();
+
+    public DataPointList() {
+    }
+
+    public DataPointList(ArrayList<DataPoint<Y>> points) {
+        this.points = points;
+    }
 
     public void addPoint(double x, Y y) {
-        points.add(new XYPoint<Y>(x, y));
+        points.add(new DataPoint<Y>(x, y));
     }
 
     @Override

@@ -3,10 +3,10 @@ package data;
 /**
  * Created by galafit on 17/7/17.
  */
-public class OrderedPoints<Y> implements RangeblePoints<Y> {
-    PointsProvider<Y> points;
+public class DataPointOrderedSet<Y> implements RangableSet<Y> {
+    DataPointSet<Y> points;
 
-    public OrderedPoints(PointsProvider<Y> points) {
+    public DataPointOrderedSet(DataPointSet<Y> points) {
         this.points = points;
     }
 

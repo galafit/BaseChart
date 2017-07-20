@@ -1,8 +1,10 @@
 import axis.AxisType;
 import data.DataList;
-import data.PointsList;
+import data.DataPointList;
 import functions.Sin;
 import functions.Tg;
+import graphs.Graph;
+import graphs.LineGraph;
 
 import javax.swing.*;
 import java.awt.*;
@@ -29,13 +31,13 @@ public class MainFrame2 extends JFrame {
             periodicData.addData(new Double(rand.nextInt(100)));
         }
 
-        PointsList<Double> xyList = new PointsList<Double>();
+        DataPointList<Double> xyList = new DataPointList<Double>();
         for (int i = -11; i <100 ; i++) {
            // xyList.addPoint(i,rand.nextDouble() * 130);
             xyList.addPoint(i,new Double(i));
         }
 
-        PointsList<Double> xyList1 = new PointsList<Double>();
+        DataPointList<Double> xyList1 = new DataPointList<Double>();
         for (int i = -11; i <100 ; i++) {
             // xyList.addPoint(i,rand.nextDouble() * 130);
             xyList1.addPoint(i,new Double(-i));
@@ -56,7 +58,7 @@ public class MainFrame2 extends JFrame {
         chart.addGraph(g3, 0, 1);
 
         DoubleFunction<Double> tg = new Tg();
-        //chart1.addGraph(new LineGraph(), tg);
+        //chart1.addGraph(new graphs.LineGraph(), tg);
 
 
         ChartPanel chartPanel = new ChartPanel(chart);

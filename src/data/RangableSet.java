@@ -3,7 +3,7 @@ package data;
 /**
  * Created by galafit on 17/7/17.
  */
-public interface RangeblePoints<Y> extends PointsProvider<Y> {
+public interface RangableSet<Y> extends DataPointSet<Y> {
     //  points inside the interval [startXValue, endXValue]
     public Range getIndexRange(double startXValue, double endXValue);
 }

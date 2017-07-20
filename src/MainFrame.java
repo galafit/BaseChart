@@ -1,8 +1,11 @@
 import axis.AxisType;
 import data.DataList;
-import data.PointsList;
+import data.DataPointList;
 import functions.Sin;
 import functions.Tg;
+import graphs.AreaGraph;
+import graphs.Graph;
+import graphs.LineGraph;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,7 +26,7 @@ public class MainFrame extends JFrame {
         Chart chart = new Chart();
 
 
-        PointsList<Double> xyList2 = new PointsList<Double>();
+        DataPointList<Double> xyList2 = new DataPointList<Double>();
         for (int i = 0; i <6 ; i++) {
             xyList2.addPoint(4057.0789,new Double(i));
         }
@@ -39,7 +42,7 @@ public class MainFrame extends JFrame {
         }
 
 
-        PointsList<Double> xyList = new PointsList<Double>();
+        DataPointList<Double> xyList = new DataPointList<Double>();
         for (int i = -11; i <18000 ; i++) {
             // xyList.addPoint(i,rand.nextDouble() * 130);
             xyList.addPoint(i,new Double(-i));
@@ -53,7 +56,7 @@ public class MainFrame extends JFrame {
         chart.addGraph(g1);
 
        // Function2D foo = new Foo();
-       // chart.addGraph(new LineGraph(), foo);
+       // chart.addGraph(new graphs.LineGraph(), foo);
 
 
         DataList<Double> periodicData2 = new DataList<Double>();
@@ -84,8 +87,8 @@ public class MainFrame extends JFrame {
         chartWithPreview.addChart(chart);
         chartWithPreview.addPreviewPanel();
 
-       // chartWithPreview.addPreviewGraph(new LineGraph(),periodicData2,0);
-       // chartWithPreview.addPreviewGraph(new LineGraph(),periodicData,0);
+       // chartWithPreview.addPreviewGraph(new graphs.LineGraph(),periodicData2,0);
+       // chartWithPreview.addPreviewGraph(new graphs.LineGraph(),periodicData,0);
 
 
 

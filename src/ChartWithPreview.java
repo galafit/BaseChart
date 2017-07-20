@@ -104,7 +104,7 @@ public class ChartWithPreview implements Drawable {
         addPreviewPanel(1);
     }
 
- /*   public void addPreviewGraph(Graph graph, PeriodicData periodicData, int previewIndex){
+ /*   public void addPreviewGraph(graphs.Graph graph, PeriodicData periodicData, int previewIndex){
         int compressionRatio = periodicData.getFullSize() / SCREEN_WIDTH;
         CompressedData compressedData = new CompressedData(periodicData, compressionRatio);
         previews.get(previewIndex).addGraph(graph,compressedData);

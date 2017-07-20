@@ -1,8 +1,7 @@
+package graphs;
+
 import axis.Axis;
-import data.DataProcessor;
-import data.DataSet;
-import data.PointsList;
-import data.Range;
+import data.*;
 
 import java.awt.*;
 import java.util.function.DoubleFunction;
@@ -10,35 +9,33 @@ import java.util.function.DoubleFunction;
 /**
  * Created by hdablin on 26.04.17.
  */
-public abstract class Graph<T> {
-    protected Color lineColor = Color.GRAY;
-    protected Color fillColor = Color.GRAY;
-    protected int lineWidth = 1;
-    protected int pointRadious = 1;
-    protected DataProcessor<T> dataProcessor = new DataProcessor<T>();
-
+public class Graph<T> {
     private DoubleFunction<T> function;
     private int xAxisIndex;
     private int yAxisIndex;
+    protected DataProcessor<T> dataProcessor = new DataProcessor<T>();
+    protected GraphPainter<T> graphPainter;
 
-/*    public Graph(DoubleFunction<T> function) {
+
+  /*  public Graph(DoubleFunction<T> function) {
         this.function = function;
     }
     public Graph(DataSet<T> dataSet) {
-        dataProcessor = new DataProcessor<>(dataSet);
+        setData(dataSet);
     }
 
-    public Graph(PointsList<T> pointsList) {
-        dataProcessor = new DataProcessor<T>(pointsList);
+    public Graph(DataPointSet<T> pointsSet) {
+        setData(pointsSet);
     }*/
+
 
     public void setData(DataSet<T> dataSet){
         dataProcessor.setData(dataSet);
 
     }
 
-    public void setData(PointsList<T> pointsList){
-        dataProcessor.setData(pointsList);
+    public void setData(DataPointSet<T> dataPointSet){
+        dataProcessor.setData(dataPointSet);
 
     }
 
@@ -51,20 +48,20 @@ public abstract class Graph<T> {
     }
 
 
-    int getxAxisIndex() {
+    public int getXAxisIndex() {
         return xAxisIndex;
     }
 
-    int getyAxisIndex() {
+    public int getYAxisIndex() {
         return yAxisIndex;
     }
 
-     void setAxisIndexes(int xAxisIndex, int yAxisIndex) {
+     public void setAxisIndexes(int xAxisIndex, int yAxisIndex) {
         this.xAxisIndex = xAxisIndex;
         this.yAxisIndex = yAxisIndex;
      }
 
-    protected void rangeYaxis(Axis yAxis){
+    public void rangeYaxis(Axis yAxis){
         if (yAxis.isAutoScale()){
             Range yRange = dataProcessor.getYRange();
             if(yRange != null) {
@@ -73,7 +70,7 @@ public abstract class Graph<T> {
         }
     }
 
-    protected void rangeXaxis(Axis xAxis){
+    public void rangeXaxis(Axis xAxis){
         if (xAxis.isAutoScale()){
             Range xRange = dataProcessor.getFullXRange();
             if(xRange != null) {
@@ -86,19 +83,18 @@ public abstract class Graph<T> {
         return dataProcessor.getFullDataSize();
     }
 
-    protected void setXRange(Rectangle area, Axis xAxis){
+    public void setXRange(Rectangle area, Axis xAxis){
         double xMin = xAxis.pointsToValue(area.x, area);
         double xMax = xAxis.pointsToValue(area.x + area.width, area);
         dataProcessor.setXRange(xMin, xMax);
     }
 
 
-
-
-
     public void setLineColor(Color lineColor) {
-        this.lineColor = lineColor;
+        graphPainter.getSettings().setLineColor(lineColor);
     }
 
-    public abstract void draw(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis);
+    public void draw(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
+        graphPainter.draw(dataProcessor.getProcessedPoints(), g, area, xAxis, yAxis);
+    }
 }

@@ -6,31 +6,21 @@ package data;
 /**
  * Created by galafit on 15/7/17.
  */
-public class DataProcessor<Y> implements PointsProvider<Y> {
-    private RangeblePoints<Y> points;
+public class DataProcessor<Y> {
+    private RangableSet<Y> rowPoints;
+    private static final int SHOULDER = 1; // additional number of elements when we calculate range start and end indexes
     private long rangeStartIndex;
     private long rangeLength;
     private ExtremesFunction<Y> extremesFunction;
-    private GroupedPoints<Y> groupedPoints;
+
     private int maxVisiblePoint = 500;
 
-    public DataProcessor() {
-    }
-
-    public DataProcessor(DataSet<Y> dataSet) {
-        points = new RegularPoints<Y>(dataSet);
-    }
-
-    public DataProcessor(PointsList<Y> pointsList) {
-        points = new OrderedPoints<>(pointsList);
-    }
-
     public void setData(DataSet<Y> dataSet) {
-        points = new RegularPoints<Y>(dataSet);
+        rowPoints = new DataPointRegularSet<Y>(dataSet);
     }
 
-    public void setData(PointsList<Y> pointsList) {
-        points = new OrderedPoints<>(pointsList);
+    public void setData(DataPointSet<Y> pointSet) {
+        rowPoints = new DataPointOrderedSet<Y>(pointSet);
     }
 
     public void setExtremesFunction(ExtremesFunction<Y> extremesFunction) {
@@ -38,38 +28,32 @@ public class DataProcessor<Y> implements PointsProvider<Y> {
     }
 
     public void setXRange(double startXValue, double endXValue) {
-        if(points == null) {
+        if(rowPoints == null || rowPoints.size() == 0) {
+            rangeLength = 0;
             return;
         }
-        Range rangeIndexes = points.getIndexRange(startXValue, endXValue);
+        Range rangeIndexes = rowPoints.getIndexRange(startXValue, endXValue);
         if(rangeIndexes != null) {
-            rangeStartIndex = (long) rangeIndexes.getStart();
-            rangeLength = (long)rangeIndexes.getEnd() - rangeStartIndex + 1;
+            rangeStartIndex = (long) Math.max(0, rangeIndexes.getStart() - SHOULDER);
+            long rangeEndIndex = (long) Math.min(rowPoints.size() - 1, rangeIndexes.getEnd() + SHOULDER);
+            rangeLength = rangeEndIndex - rangeStartIndex + 1;
         }
     }
 
     private double calculateGroupingInterval(double startXValue, double endXValue) {
-        //double min = points.getX(rangeStartIndex);
-        //double max = points.getX(rangeStartIndex + rangeLength - 1);
+        //double min = rowPoints.getX(rangeStartIndex);
+        //double max = rowPoints.getX(rangeStartIndex + rangeLength - 1);
         return (endXValue - startXValue) / maxVisiblePoint;
 
     }
 
-    public long getFullDataSize() {
-        if(points == null) {
-            return 0;
-        }
-        return points.size();
-    }
-
-
-    public Range getYRange()  {
-        if(rangeLength <= 0 || points == null || points.size() == 0) {
+    private Range calculateYRange(DataPointSet<Y> points) {
+        if(points == null || points.size() == 0) {
             return null;
         }
         double max = -Double.MAX_VALUE;
         double min = Double.MAX_VALUE;
-        for (long i = rangeStartIndex; i < rangeStartIndex + rangeLength ; i++) {
+        for (long i = 0; i < points.size() ; i++) {
             Range extremes = extremesFunction.getExtremes(points.getY(i));
             max = Math.max(max, extremes.getEnd());
             min = Math.min(min, extremes.getStart());
@@ -77,32 +61,49 @@ public class DataProcessor<Y> implements PointsProvider<Y> {
         return new Range(min, max);
     }
 
+
+    public Range getYRange()  {
+        return calculateYRange(getRangedPoints());
+    }
+
+
+    public long getFullDataSize() {
+        if(rowPoints == null) {
+            return 0;
+        }
+        return rowPoints.size();
+    }
+
     public Range getFullXRange() {
-       if(points == null) {
-           return null;
-       }
-        return new Range(points.getX(0), points.getX(points.size() - 1));
-    }
-
-
-    @Override
-    public long size() {
-        return rangeLength;
-    }
-
-    @Override
-    public Double getX(long index) {
-        if(points == null) {
+        if(rowPoints == null || rowPoints.size() == 0) {
             return null;
         }
-        return points.getX(rangeStartIndex + index);
+        return new Range(rowPoints.getX(0), rowPoints.getX(rowPoints.size() - 1));
     }
 
-    @Override
-    public Y getY(long index) {
-        if(points == null) {
-            return null;
-        }
-        return points.getY(rangeStartIndex + index);
+
+    private DataPointSet<Y> getRangedPoints() {
+        return new DataPointSet<Y>() {
+            @Override
+            public long size() {
+                return rangeLength;
+            }
+
+            @Override
+            public Double getX(long index) {
+                return rowPoints.getX(rangeStartIndex + index);
+            }
+
+            @Override
+            public Y getY(long index) {
+                return rowPoints.getY(rangeStartIndex + index);
+            }
+        };
     }
+
+    public DataPointSet<Y> getProcessedPoints() {
+        return getRangedPoints();
+    }
+
+
 }
