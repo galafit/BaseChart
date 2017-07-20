@@ -55,7 +55,7 @@ public class MainFrame2 extends JFrame {
         DoubleFunction<Double> sin = new Sin();
         Graph g3 = new LineGraph();
         g3.setFunction(sin);
-        chart.addGraph(g3, 0, 1);
+       // chart.addGraph(g3, 0, 1);
 
         DoubleFunction<Double> tg = new Tg();
         //chart1.addGraph(new graphs.LineGraph(), tg);
@@ -72,27 +72,17 @@ public class MainFrame2 extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
 
-     /*  for (int j = 0; j < 100; j++) {
-            try {
-                Thread.sleep(1000);
-                for (int i = 0; i < 10; i++) {
-                    dataList.addData(new Double(j * 50));
-                }
-                chartPanel.update();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
+       for (int j = 0; j < 10; j++) {
            try {
                Thread.sleep(1000);
                for (int i = 0; i < 10; i++) {
-                   xyList.addPoint(i*30,j * 50.0);
+                   xyList.addPoint(150 + j*30,i * 50.0);
                }
                chartPanel.update();
            } catch (InterruptedException e) {
                e.printStackTrace();
            }
-        }*/
+        }
 
 
 
