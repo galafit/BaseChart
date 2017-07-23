@@ -40,29 +40,10 @@ public class MultipaneChart implements Drawable {
         return charts.size();
     }
 
-    private Range getMaxRange(){
-        double min = Double.MAX_VALUE;
-        double max = - Double.MAX_VALUE;
 
-        for (Chart chart : charts) {
-            max = Math.max(max, chart.getXAxis(0).getRawMax());
-            min = Math.min(min, chart.getXAxis(0).getRawMin());
-        }
-        return new Range(min,max);
-    }
-
-    private void synchronizeRanges(){
-        Range range = getMaxRange();
-        for (Chart chart : charts) {
-            chart.getXAxis(0).setRange(range.getStart(), range.getEnd());
-        }
-    }
 
     public void draw(Graphics2D g2d, Rectangle fullArea) {
 
-        if (isChartsSynchronized()) {
-            synchronizeRanges();
-        }
 
         int weightSum = 0;
         for (Integer chartWeight : chartWeights) {

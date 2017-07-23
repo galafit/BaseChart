@@ -71,8 +71,8 @@ public class Graph<T> {
     }
 
 
-    public long getDataSize() {
-        return dataProcessor.getFullDataSize();
+    public double getPreferredPixelsPerUnit() {
+        return dataProcessor.getPreferredPixelsPerUnit();
     }
 
     public void setXRange(Rectangle area, Axis xAxis) {

@@ -18,6 +18,10 @@ public class XYRegularSet<Y> implements RangableSet<Y> {
         this(data, 0, 1);
     }
 
+    public double getPointInterval() {
+        return pointInterval;
+    }
+
     @Override
     public long size() {
         return data.size();

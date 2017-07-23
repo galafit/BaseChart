@@ -84,9 +84,6 @@ public class MainFrame2 extends JFrame {
            }
         }
 
-
-
-
     }
 
 

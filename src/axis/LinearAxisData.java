@@ -16,7 +16,11 @@ public class LinearAxisData extends AxisData {
         roundMin = null;
         String units = getUnits();
         units = getAxisViewSettings().isUnitsVisible() ? units : null;
-        LinearTickProvider tickProvider = new LinearTickProvider(getMin(), getMax(), pointsPerUnit(area), units);
+        double max = getMin() +  area.getWidth() / getPixelsPerUnit(area);
+        if(!isHorizontal()) {
+            max = getMin() +  area.getHeight() / getPixelsPerUnit(area);
+        }
+        LinearTickProvider tickProvider = new LinearTickProvider(getMin(), max, getPixelsPerUnit(area), units);
 
         double tickInterval = getTicksSettings().getTickInterval();
         int ticksAmount = getTicksSettings().getTicksAmount();
@@ -53,60 +57,77 @@ public class LinearAxisData extends AxisData {
         return super.getMax();
     }
 
-    private double pointsPerUnit(double length) {
-        double min = getMin();
-        double max = getMax();
-
-        if (max == min) {return Double.NaN;}
-        return length / (max - min);
-    }
-
-
-    private Double pointsPerUnit(Rectangle area) {
-        return pointsPerUnit(getLength(area));
-    }
-
-    @Override
-    protected double valueToPoint(double value, double minPoint, double length) {
+ /*   @Override
+    public double valueToPoint(double value, Rectangle area) {
         double axisMin = getMin();
         double axisMax = getMax();
-        double min = minPoint;
-        double max = minPoint + length;
-        if (!isHorizontal()) {
-            max = minPoint - length;
+        double min = 0;
+        double max = 0;
+        if (isHorizontal()) {
+            min = area.getX();
+            max = area.getMaxX();
         }
+        else  {
+            max = area.getMinY();
+            min = area.getMaxY();
+        }
+
         double point;
         if (axisMin == axisMax){
             point = min + (max - min) / 2;
         } else {
-            if (isInverted()) {
-                point = max - ((value - axisMin) / (axisMax - axisMin)) * (max - min);
-            }
-            else {
-                point = min + ((value - axisMin) / (axisMax - axisMin)) * (max - min);
-            }
+            point = min + ((value - axisMin) / (axisMax - axisMin)) * (max - min);
         }
+
         return point;
     }
 
     @Override
-    protected double pointToValue(double point, double minPoint, double length) {
+    public double pointToValue(double point, Rectangle area) {
         double axisMin = getMin();
         double axisMax = getMax();
-        double min = minPoint;
-        double max = minPoint + length;
-        if (!isHorizontal()) {
-            max = minPoint - length;
+        double min = 0;
+        double max = 0;
+        if (isHorizontal()) {
+            min = area.getX();
+            max = area.getMaxX();
+        }
+        else  {
+            max = area.getMinY();
+            min = area.getMaxY();
         }
 
         if (axisMin == axisMax){
             return axisMax;
         }
-        if (isInverted()) {
-            return axisMax - (point - min) / (max - min) * (axisMax - axisMin);
+        return axisMin + (point - min) / (max - min) * (axisMax - axisMin);
+    }*/
+
+
+    @Override
+    public double valueToPoint(double value, Rectangle area) {
+        double axisMin = getMin();
+        double pointMin = area.getMinX();
+        double pointsPerUnit = getPixelsPerUnit(area);
+        if(!isHorizontal()) {
+            pointMin = area.getMaxY();
+            pointsPerUnit = - pointsPerUnit;
         }
-        else {
-            return axisMin + (point - min) / (max - min) * (axisMax - axisMin);
+        double point = pointMin + (value - axisMin) * pointsPerUnit;
+        return point;
+    }
+
+    @Override
+    public double pointToValue(double point, Rectangle area) {
+        double axisMin = getMin();
+        double pointMin = area.getMinX();
+        double pointsPerUnit = getPixelsPerUnit(area);
+        if(!isHorizontal()) {
+            pointMin = area.getMaxY();
+            pointsPerUnit = - pointsPerUnit;
         }
+        double value = (point - pointMin) / pointsPerUnit + axisMin;
+        return value;
+
     }
 }

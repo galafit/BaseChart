@@ -19,7 +19,7 @@ public class TicksSettings {
 
     private int ticksWidth = 1;
     private int tickSize = 2;
-    private int tickPixelInterval;
+    private int tickPixelInterval = 0;
     private double tickInterval; // in axis unit (tickUnit)
 
     public int getTicksAmount() {

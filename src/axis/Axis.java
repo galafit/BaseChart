@@ -11,28 +11,8 @@ public abstract class Axis {
     protected AxisData axisData;
     protected AxisPainter axisPainter;
 
-    public Double getLength(Rectangle area) {
-        return axisData.getLength(area);
-    }
-
-    public double getMinPoint(Rectangle area) {
-        return axisData.getMinPoint(area);
-    }
-
-    public Double getStartValue() {
-        return axisData.getStartValue();
-    }
-
-    public void setStartValue(double startValue) {
-        axisData.setStartValue(startValue);
-    }
-
-    public void setLength(double length) {
-        axisData.setLength(length);
-    }
-
-    public void setMinPoint(double axisMinPoint) {
-        axisData.setOrigin(axisMinPoint);
+    public void setPixelsPerUnit(Double pointsPerUnit) {
+        axisData.setPixelPerUnit(pointsPerUnit);
     }
 
     public double getLowerPadding() {
@@ -118,7 +98,7 @@ public abstract class Axis {
      * @param newMin new min value
      * @param newMax new max value
      */
-    public void setRange(double newMin, double newMax) {
+    public void setRange(Double newMin, Double newMax) {
         axisData.setRange(newMin, newMax);
     }
 
@@ -127,10 +107,6 @@ public abstract class Axis {
     public double getMax() {
         return axisData.getMax();
     }
-
-    public Double getRawMin(){ return axisData.getRawMin();}
-
-    public Double getRawMax(){ return axisData.getRawMax();}
 
     public void draw(Graphics2D g, Rectangle area, int anchorPoint){
         axisPainter.draw(g, area, anchorPoint);

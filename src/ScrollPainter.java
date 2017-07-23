@@ -18,12 +18,12 @@ class ScrollPainter {
         return viewportPosition;
     }
 
-    public double getScrollWidth() {
+    private double getScrollWidth() {
         return paintingArea.getWidth() * scrollModel.getViewportWidth() / (scrollModel.getMax() - scrollModel.getMin());
     }
 
-    public double getScrollPosition() {
-        return scrollModel.getViewportPosition() * paintingArea.getWidth() / (scrollModel.getMax() - scrollModel.getMin());
+    private double getScrollPosition() {
+        return paintingArea.getWidth() * scrollModel.getViewportPosition()  / (scrollModel.getMax() - scrollModel.getMin());
     }
 
     public boolean isMouseInsideScroll(int mouseX, int mouseY) {
@@ -37,7 +37,7 @@ class ScrollPainter {
     }
 
 
-    public void moveScrollPosition(int shift) {
+    public void moveScroll(int shift) {
         double newScrollPosition = getScrollPosition() + shift;
         scrollModel.setViewportPosition(scrollPositionToViewportPosition(newScrollPosition));
     }

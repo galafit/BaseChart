@@ -134,14 +134,17 @@ public class AxisPainter {
             }
             double tickPixelInterval = axis.valueToPoint(ticks.get(1).getValue(), area) - axis.valueToPoint(ticks.get(0).getValue(), area);
 
-            // min space between labels = 2 symbols size (roughly)
-            int labelSpace = 2 * axis.getTicksSettings().getTickLabelsFontSize();
-            int requiredSpace = labelsSize + labelSpace;
+            if(axis.isHorizontal()) {
+                // min space between labels = 2 symbols size (roughly)
+                int labelSpace = 2 * axis.getTicksSettings().getTickLabelsFontSize();
+                int requiredSpace = labelsSize + labelSpace;
 
-            if (requiredSpace > tickPixelInterval) {
-                tickProvider.setMinTickPixelInterval(requiredSpace);
-                return createTicksList(tickProvider, area);
+                if (requiredSpace > tickPixelInterval) {
+                    tickProvider.setMinTickPixelInterval(requiredSpace);
+                    return createTicksList(tickProvider, area);
+                }
             }
+
         }
         return ticks;
 

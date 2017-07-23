@@ -18,6 +18,7 @@ public class DataProcessor<Y> {
     private XYSet<Y> resultantPoints;
 
     private int maxVisiblePoint = 1000;
+    private double minPixelsPerPoin = 1;
 
 
     public void setData(DataSet<Y> dataSet) {
@@ -43,8 +44,8 @@ public class DataProcessor<Y> {
         }
         Range rangeIndexes = rowPoints.getIndexRange(startXValue, endXValue);
         if(rangeIndexes != null) {
-            rangeStartIndex = (long) Math.max(0, rangeIndexes.getStart() - SHOULDER);
-            long rangeEndIndex = (long) Math.min(rowPoints.size() - 1, rangeIndexes.getEnd() + SHOULDER);
+            rangeStartIndex = (long) Math.max(0, rangeIndexes.start() - SHOULDER);
+            long rangeEndIndex = (long) Math.min(rowPoints.size() - 1, rangeIndexes.end() + SHOULDER);
             rangeLength = rangeEndIndex - rangeStartIndex + 1;
         }
 
@@ -58,8 +59,6 @@ public class DataProcessor<Y> {
     }
 
     private double calculateGroupingInterval(double startXValue, double endXValue) {
-        //double min = rowPoints.getX(rangeStartIndex);
-        //double max = rowPoints.getX(rangeStartIndex + rangeLength - 1);
         return (endXValue - startXValue) / maxVisiblePoint;
     }
 
@@ -71,8 +70,8 @@ public class DataProcessor<Y> {
         double min = Double.MAX_VALUE;
         for (long i = 0; i < points.size() ; i++) {
             Range extremes = extremesFunction.getExtremes(points.getY(i));
-            max = Math.max(max, extremes.getEnd());
-            min = Math.min(min, extremes.getStart());
+            max = Math.max(max, extremes.end());
+            min = Math.min(min, extremes.start());
         }
         return new Range(min, max);
     }
@@ -82,13 +81,29 @@ public class DataProcessor<Y> {
         return calculateYRange(getProcessedPoints());
     }
 
+    public double getPreferredPixelsPerUnit() {
+        double pointInterval = 0;
 
-    public long getFullDataSize() {
-        if(rowPoints == null) {
-            return 0;
+        if(rowPoints != null) {
+            if(rowPoints instanceof XYRegularSet) {
+                pointInterval = ((XYRegularSet) rowPoints).getPointInterval();
+            }
+            else { // calculate average pointInterval
+               Range xRange = getFullXRange();
+               if(xRange != null && xRange.length() > 0) {
+                   pointInterval = xRange.length() / rowPoints.size();
+               }
+            }
         }
-        return rowPoints.size();
+
+        if(pointInterval > 0) {
+            double preferredPixelPerUnit = minPixelsPerPoin / pointInterval;
+            return preferredPixelPerUnit;
+        }
+        return 0;
     }
+
+
 
     public Range getFullXRange() {
         if(rowPoints == null || rowPoints.size() == 0) {

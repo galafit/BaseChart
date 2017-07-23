@@ -19,12 +19,26 @@ public class Range {
         this.end = end;
     }
 
-    public  double getStart() {
+    public  double start() {
         return start;
     }
 
-    public double getEnd() {
+    public double end() {
         return end;
+    }
+
+    public double length() {
+        return end - start;
+    }
+
+    public static Range max(Range range1, Range range2) {
+        if(range1 == null) {
+            return range2;
+        }
+        if(range2 == null) {
+            return range1;
+        }
+        return new Range(Math.min(range1.start(), range2.start()), Math.max(range1.end(), range2.end()));
     }
 
 }

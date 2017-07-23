@@ -10,43 +10,24 @@ public abstract class AxisData {
     private String name = "Test name 125679000999";
     private String units = "kg";
 
-    private Double min = null;
-    private Double max = null;
     private final double DEFAULT_MIN = 0;
     private final double DEFAULT_MAX = 10;
     private boolean isHorizontal;
     private boolean isAutoScale = true;
-    private boolean isInverted = false;
     private boolean isOpposite = false;
     private double lowerPadding = 0.00;
     private double upperPadding = 0.00;
-    private boolean isEndOnTick = true;
+    private boolean isEndOnTick = false;
 
-
-    private Double length = null;
-    private Double minPoint = null;
-    private Double startValue = null; // if defined it will be always put at the beginning of graph area
+    private Double min = null;
+    private Double max = null;
+    private double pixelPerUnit = 0;
 
 
     private AxisViewSettings axisViewSettings = new AxisViewSettings();
     private TicksSettings ticksSettings = new TicksSettings();
     private GridSettings gridSettings = new GridSettings();
 
-    public Double getStartValue() {
-        return startValue;
-    }
-
-    public void setStartValue(double startValue) {
-        this.startValue = startValue;
-    }
-
-    public void setLength(Double length) {
-        this.length = length;
-    }
-
-    public void setOrigin(Double origin) {
-        this.minPoint = origin;
-    }
 
     public double getLowerPadding() {
         return lowerPadding;
@@ -83,10 +64,6 @@ public abstract class AxisData {
 
     public void setOpposite(boolean opposite) {
         isOpposite = opposite;
-    }
-
-    public boolean isInverted() {
-        return isInverted;
     }
 
     public String getName() {
@@ -155,16 +132,8 @@ public abstract class AxisData {
 
         resultantMax = (!isAutoScale()) ? resultantMax : resultantMax + upperPadding * (resultantMax - resultantMin);
         return resultantMax;
-
     }
 
-    public Double getRawMin(){
-        return (min == null) ? DEFAULT_MIN : min;
-    }
-
-    public Double getRawMax(){
-        return (max == null) ? DEFAULT_MAX : max;
-    }
 
     /**
      * If isAutoScale = FALSE this method simply sets: min = newMin, max = newMax.
@@ -174,8 +143,8 @@ public abstract class AxisData {
      * @param newMin new min value
      * @param newMax new max value
      */
-    public void setRange(double newMin, double newMax) {
-        if (newMin > newMax){
+    public void setRange(Double newMin, Double newMax) {
+        if (newMin != null && newMax != null && newMin > newMax){
             String errorMessage = "Error during setRange(). Expected Min < Max. Min = {0}, Max = {1}.";
             String formattedError = MessageFormat.format(errorMessage,newMin,newMax);
             throw new IllegalArgumentException(formattedError);
@@ -199,44 +168,24 @@ public abstract class AxisData {
         this.isAutoScale = isAutoScale;
     }
 
-   // abstract public Double pointsPerUnit(Rectangle area);
 
-    protected abstract double valueToPoint(double value, double minPoint, double lengt);
-    protected abstract double pointToValue(double point, double minPoint, double length);
-
-    protected double getMinPoint(Rectangle area) {
-        if(minPoint != null) {
-            return minPoint;
+    public double getPixelsPerUnit(Rectangle area) {
+        if(pixelPerUnit > 0) {
+            return pixelPerUnit;
         }
-        if (isHorizontal()) {
-            return area.getX();
+        if(isHorizontal()) {
+            return area.getWidth() / (getMax() - getMin());
         }
-        else  {
-            return area.getMaxY();
+        else {
+            return area.getHeight() / (getMax() - getMin());
         }
     }
 
-    protected double getLength(Rectangle area) {
-        double areaSize;
-        if (isHorizontal()) {
-            areaSize = area.getWidth();
-        }
-        else  {
-            areaSize = area.getHeight();
-        }
-        if(length != null) {
-            return Math.max(length, areaSize);
-        }
-        return areaSize;
-
+    public void setPixelPerUnit(Double pixelPerUnit) {
+        this.pixelPerUnit = pixelPerUnit;
     }
 
+    public abstract double valueToPoint(double value, Rectangle area);
 
-    public double valueToPoint(double value, Rectangle area) {
-        return valueToPoint(value, getMinPoint(area), getLength(area));
-    }
-
-    public double pointToValue(double point, Rectangle area) {
-        return pointToValue(point, getMinPoint(area), getLength(area));
-    }
+    public abstract double pointToValue(double point, Rectangle area);
 }

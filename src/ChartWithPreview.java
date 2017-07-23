@@ -16,66 +16,86 @@ public class ChartWithPreview implements Drawable {
     private List<Chart> previews = new ArrayList<Chart>();
     private List<Integer> chartWeights = new ArrayList<Integer>();
     private List<Integer> previewWeights = new ArrayList<Integer>();
-    private boolean isChartsSynchronized = true;
-    private ScrollPainter scrollPainter;
-    private Integer fullChartWidth;
-    private final int SCREEN_WIDTH = 500;
+    private boolean isXAxisSynchronized = true;
+    private double xAxisPixelsPerUnit = 0;
+    private Scroll scroll = new Scroll();
 
-    public ChartWithPreview() {
-        scrollPainter = new ScrollPainter(new PreviewScrollModel());
+    public void update() {
+
     }
 
-    public void update(){
+    private double getXAxisMaxScale() {
+        double preferredScale = 0;
+        for (Chart chart : charts) {
+            preferredScale = Math.max(preferredScale, chart.getPreferredPixelsPerUnit(0));
+        }
+        return preferredScale;
+    }
+
+    public void setXAxisScale(double pixelsPerUnit, int chartIndex) {
+        charts.get(chartIndex).getXAxis(0).setPixelsPerUnit(pixelsPerUnit);
+
+    }
+
+    public void setXAxisScale(double pixelsPerUnit) {
+        xAxisPixelsPerUnit = pixelsPerUnit;
+        for (Chart chart : charts) {
+            chart.getXAxis(0).setPixelsPerUnit(pixelsPerUnit);
+        }
+    }
+
+    public void addGraph(Graph graph, int chartIndex) {
+        charts.get(chartIndex).addGraph(graph);
+        adjustXAxisScale();
+        adjustMinMaxRange();
+    }
+
+    private void adjustXAxisScale() {
+        if (xAxisPixelsPerUnit != 0) { // set the given scale for all charts
+            for (Chart chart : charts) {
+                chart.getXAxis(0).setPixelsPerUnit(xAxisPixelsPerUnit);
+                scroll.setPointsPerUnit(xAxisPixelsPerUnit);
+            }
+        } else {
+            double maxScale = getXAxisMaxScale();
+            scroll.setPointsPerUnit(maxScale);
+            if (isXAxisSynchronized) { // set max scale for all charts
+                for (Chart chart : charts) {
+                    chart.getXAxis(0).setPixelsPerUnit(maxScale);
+                }
+            } else {
+                for (Chart chart : charts) { // set preferred scale for every chart
+                    double scale = chart.getPreferredPixelsPerUnit(0);
+                    chart.getXAxis(0).setPixelsPerUnit(scale);
+                }
+            }
+        }
+    }
+
+    private void adjustMinMaxRange() {
+        Range minMaxRange = null;
+
+        for (Chart chart : charts) {
+            minMaxRange = Range.max(minMaxRange, chart.getPreferredXRange(0));
+        }
+        for (Chart preview : previews) {
+            minMaxRange = Range.max(minMaxRange, preview.getPreferredXRange(0));
+        }
 
         for (Chart preview : previews) {
-            for (int i = 0; i < preview.getGraphsAmoiunt(); i++) {
-                // CompressedData compressedData = (CompressedData)(preview.getGraph(i).getData());
-                // compressedData.update();
-            }
+            preview.getXAxis(0).setRange(minMaxRange.start(), minMaxRange.end());
         }
-        setAxisLength(getFullChartWidth());
+
+        scroll.getScrollModel().setMin(minMaxRange.start());
+        scroll.getScrollModel().setMax(minMaxRange.end());
+
     }
 
-    public void setFullChartWidth(int fullChartWidth) {
-        this.fullChartWidth = fullChartWidth;
+    public void addChart() {
+        addChart(2);
     }
 
-    private int getFullChartWidth(){
-        if(fullChartWidth != null) {
-            return fullChartWidth;
-        }
-        int width = 0;
-        for (Chart chart : charts) {
-            width = Math.max(width,chart.getMaxGraphSize());
-        }
-        return width;
-    }
-
-
-
-    private void setAxisLength(int length){
-        int j = 0;
-        for (Chart chart : charts) {
-            j++;
-            for (int i = 0; i < chart.getXAxisAmount(); i++) {
-                Axis xAxis = chart.getXAxis(i);
-                xAxis.setLength(length);
-                //xAxis.setLength(chart.getMaxGraphSize());
-            }
-        }
-    }
-
-    public void addChart(Chart chart) {
-        charts.add(chart);
-        chartWeights.add(2);
-        setAxisLength(getFullChartWidth());
-    }
-
-    public void addChartPanel() {
-        addChartPanel(1);
-    }
-
-    public void addChartPanel(int weight) {
+    public void addChart(int weight) {
         if (weight <= 0) {
             String errorMessage = "Wrong weight: {0}. Expected > 0.";
             String formattedError = MessageFormat.format(errorMessage, weight);
@@ -83,12 +103,11 @@ public class ChartWithPreview implements Drawable {
         }
         chartWeights.add(weight);
         Chart chart = new Chart();
-       // chart.getXAxis(0).setAutoScale(false);
-       // chart.enableTicksAlignment(false);
+        chart.getXAxis(0).setAutoScale(false);
         charts.add(chart);
     }
 
-    public void addPreviewPanel(int weight) {
+    public void addPreview(int weight) {
         if (weight <= 0) {
             String errorMessage = "Wrong weight: {0}. Expected > 0.";
             String formattedError = MessageFormat.format(errorMessage, weight);
@@ -97,75 +116,45 @@ public class ChartWithPreview implements Drawable {
         previewWeights.add(weight);
         Chart preview = new Chart();
         preview.getXAxis(0).setAutoScale(false);
-        preview.enableTicksAlignment(false);
         previews.add(preview);
     }
 
-    public void addPreviewPanel() {
-        addPreviewPanel(1);
+    public void addPreview() {
+        addPreview(1);
     }
 
-    public void addPreviewGraph(Graph graph, int previewIndex){
+    public void addPreviewGraph(Graph graph, int previewIndex) {
         previews.get(previewIndex).addGraph(graph);
+        adjustMinMaxRange();
     }
 
 
-    private Range getMaxRange() {
-        double min = Double.MAX_VALUE;
-        double max = -Double.MAX_VALUE;
-
-        for (Chart chart : charts) {
-            max = Math.max(max, chart.getXAxis(0).getRawMax());
-            min = Math.min(min, chart.getXAxis(0).getRawMin());
-        }
-        return new Range(min, max);
+    public boolean isMouseInsideCursor(int mouseX, int mouseY) {
+        return scroll.isMouseInsideScroll(mouseX, mouseY);
     }
 
-    private void synchronizeRanges() {
-        Range range = getMaxRange();
-        for (Chart chart : charts) {
-            chart.getXAxis(0).setRange(range.getStart(), range.getEnd());
-        }
-        for (Chart chart : previews) {
-            chart.getXAxis(0).setRange(range.getStart(), range.getEnd());
-        }
-    }
-
-    public boolean isMouseInsideCursor(int mouseX, int mouseY){
-        return scrollPainter.isMouseInsideScroll(mouseX, mouseY);
-    }
-
-    public void moveCursorPosition(int shift){
-        scrollPainter.moveScrollPosition(shift);
-        setChartsAxisOrigins();
+    public void moveCursorPosition(int shift) {
+        scroll.moveScroll(shift);
+        setChartsAxisStart();
     }
 
     public void setCursorPosition(int mousePosition) {
-        scrollPainter.setScrollPosition(mousePosition);
-        setChartsAxisOrigins();
+        scroll.setScrollPosition(mousePosition);
+        setChartsAxisStart();
     }
 
-    private double getPreviewXValue(double scrollPosition) {
-        Axis xAxis = previews.get(0).getXAxis(0);
-        Rectangle previewArea = previews.get(0).getGraphArea();
-        return xAxis.pointsToValue(previewArea.getX() + scrollPosition, previewArea);
-    }
-
-
-    private void setChartsAxisOrigins() {
+    private void setChartsAxisStart() {
         for (Chart chart : charts) {
             for (int i = 0; i < chart.getXAxisAmount(); i++) {
                 Axis xAxis = chart.getXAxis(i);
-                xAxis.setStartValue(getPreviewXValue(scrollPainter.getScrollPosition()));
+                xAxis.setRange(scroll.getScrollModel().getViewportPosition(), null);
             }
         }
     }
 
 
     public void draw(Graphics2D g2d, Rectangle fullArea) {
-        if (isChartsSynchronized) {
-            synchronizeRanges();
-        }
+
         List<Chart> chartsAndPreviews = new AbstractList<Chart>() {
             @Override
             public Chart get(int index) {
@@ -227,16 +216,17 @@ public class ChartWithPreview implements Drawable {
             chartsAndPreviews.get(i).reduceGraphArea(g2d, maxX, minEnd - maxX);
             chartsAndPreviews.get(i).draw(g2d);
         }
-        scrollPainter.draw(g2d, getPreviewArea());
+
+        scroll.draw(g2d, getPreviewArea());
     }
 
-    private Rectangle getPreviewArea(){
+    private Rectangle getPreviewArea() {
         Rectangle firstArea = previews.get(0).getGraphArea();
         Rectangle lastArea = previews.get(previews.size() - 1).getGraphArea();
-        return new Rectangle(firstArea.x,firstArea.y,firstArea.width,(int)lastArea.getMaxY() - firstArea.y);
+        return new Rectangle(firstArea.x, firstArea.y, firstArea.width, (int) lastArea.getMaxY() - firstArea.y);
     }
 
-    public boolean isMouseInPreviewArea(int mouseX, int mouseY){
+    public boolean isMouseInPreviewArea(int mouseX, int mouseY) {
         return getPreviewArea().contains(mouseX, mouseY);
     }
 
@@ -247,42 +237,4 @@ public class ChartWithPreview implements Drawable {
     private int getPaintingAreaX() {
         return charts.get(0).getGraphArea().x;
     }
-
-    class PreviewScrollModel implements ScrollModel {
-        long viewportPosition;
-
-        @Override
-        public long getMin() {
-            return 0;
-        }
-
-        @Override
-        public long getMax() {
-            return Math.max(getFullChartWidth(),getPaintingAreaWidth());
-        }
-
-
-        @Override
-        public long getViewportWidth() {
-            return getPaintingAreaWidth();
-        }
-
-        @Override
-        public long getViewportPosition() {
-            return viewportPosition;
-        }
-
-        @Override
-        public void setViewportPosition(long newPosition) {
-            if (newPosition > getMax() - getViewportWidth()) {
-                newPosition = getMax() - getViewportWidth();
-            }
-            if (newPosition < getMin()){
-                newPosition = getMin();
-            }
-            viewportPosition = newPosition;
-
-        }
-    }
-
 }

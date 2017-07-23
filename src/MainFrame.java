@@ -21,17 +21,10 @@ public class MainFrame extends JFrame {
 
         setTitle("Test chart");
 
-        Chart chart = new Chart();
-
-
         XYList<Double> xyList2 = new XYList<Double>();
         for (int i = 0; i <6 ; i++) {
             xyList2.addPoint(4057.0789,new Double(i));
         }
-
-
-        chart.addYAxis(AxisType.LINEAR, true);
-       // chart.addXAxis(AxisType.LINEAR, true);
 
         DataList<Double> periodicData = new DataList<>();
         Random rand = new Random();
@@ -46,10 +39,6 @@ public class MainFrame extends JFrame {
             xyList.addPoint(i,new Double(-i));
         }
 
-        Graph g1 = new LineGraph();
-        g1.setData(xyList);
-
-        chart.addGraph(g1);
 
        // Function2D foo = new Foo();
        // chart.addGraph(new graphs.LineGraph(), foo);
@@ -60,16 +49,17 @@ public class MainFrame extends JFrame {
             periodicData2.addData(new Double(i));
         }
 
+        Graph g1 = new LineGraph();
+        g1.setData(xyList);
 
-        Chart chart1 = new Chart();
         Graph g2 = new AreaGraph();
         g2.setData(periodicData2);
-        chart1.addGraph(g2);
+
 
         DoubleFunction<Double> sin = new Sin();
         Graph g3 = new LineGraph();
         g3.setFunction(sin);
-        chart1.addGraph(g3);
+
 
         DoubleFunction<Double> tg = new Tg();
         Graph g4 = new LineGraph();
@@ -79,9 +69,13 @@ public class MainFrame extends JFrame {
 
         ChartWithPreview chartWithPreview = new ChartWithPreview();
 
-        chartWithPreview.addChart(chart1);
-        chartWithPreview.addChart(chart);
-        chartWithPreview.addPreviewPanel();
+        chartWithPreview.addChart();
+        chartWithPreview.addChart();
+        chartWithPreview.addPreview();
+
+        chartWithPreview.addGraph(g2, 0);
+        chartWithPreview.addGraph(g3, 0);
+        chartWithPreview.addGraph(g1, 1);
 
         Graph previewGraph = new LineGraph();
         previewGraph.setData(periodicData);

@@ -60,22 +60,6 @@ class LinearTickProvider implements TickProvider {
     }
 
 
-    public List<Tick> getTicks() {
-        List<Tick> ticks = new ArrayList<Tick>();
-        int ticksAmount = calculateTicksAmount(ticksInterval);
-        ticksAmount = (ticksAmount == 1) ? 1 : Math.max(ticksAmount, this.ticksAmount);
-
-        double value = getRoundMin(ticksInterval);
-        for (int i = 1; i <= ticksAmount; i++) {
-            String label = numberFormat.format(value);
-            ticks.add(new Tick(value, label));
-            value = value + ticksInterval;
-        }
-        return ticks;
-    }
-
-
-
     private DecimalFormat getTickLabelFormat(int power) {
         DecimalFormat dfNeg4 = new DecimalFormat("0.0000");
         DecimalFormat dfNeg3 = new DecimalFormat("0.000");

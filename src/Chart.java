@@ -44,15 +44,26 @@ public class Chart implements Drawable {
         yAxisList.add(y);
     }
 
-    public int getMaxGraphSize() {
-        int maxSize = 0;
-        // Graphics with functions are not taken into account
-        for (int i = 0; i < graphs.size(); i++) {
-            if(graphs.get(i).getFunction() == null) {
-                maxSize = (int)Math.max(maxSize, graphs.get(i).getDataSize());
+    public double getPreferredPixelsPerUnit(int xAxisIndex) {
+        double pixelsPerUnit = 0;
+        for (Graph graph : graphs) {
+            // skip graph with functions and take into account only graphs with real DataSets
+            if(graph.getFunction() == null && graph.getXAxisIndex() == xAxisIndex) {
+                pixelsPerUnit = Math.max(pixelsPerUnit, graph.getPreferredPixelsPerUnit());
             }
         }
-        return maxSize;
+        return pixelsPerUnit;
+    }
+
+    public Range getPreferredXRange(int xAxisIndex) {
+        Range xRange = null;
+        for (Graph graph : graphs) {
+            // skip graph with functions and take into account only graphs with real DataSets
+            if(graph.getFunction() == null && graph.getXAxisIndex() == xAxisIndex) {
+                xRange = Range.max(xRange, graph.getXFullRange());
+            }
+        }
+        return xRange;
     }
 
     // define whether ticks on different(opposite) xAxis or yAxis should be aligned/synchronized
@@ -121,7 +132,7 @@ public class Chart implements Drawable {
 
     private void rangeAxis(Axis axis, Range range){
         if (axis.isAutoScale() && range != null) {
-            axis.setRange(range.getStart(), range.getEnd());
+            axis.setRange(range.start(), range.end());
         }
     }
 
@@ -148,17 +159,6 @@ public class Chart implements Drawable {
                 axis.getTicksSettings().setTicksAmount(maxSize);
                 axis.setEndOnTick(true);
             }
-        }
-    }
-
-
-    private void tieAxisStartValuesToArea(Rectangle area) {
-        for (Axis axis : xAxisList) {
-           if(axis.getStartValue() != null) {
-               double startPoint = axis.valueToPoint(axis.getStartValue(), area);
-               double newMinPoint = area.getX() - (startPoint - axis.getMinPoint(area));
-               axis.setMinPoint(newMinPoint);
-           }
         }
     }
 
@@ -246,7 +246,6 @@ public class Chart implements Drawable {
 
     private void setGraphArea(Rectangle newGraphArea) {
         graphArea = newGraphArea;
-        tieAxisStartValuesToArea(newGraphArea);
         for (Axis axis : yAxisList) {
             axis.resetRange();
         }
@@ -258,7 +257,6 @@ public class Chart implements Drawable {
     }
 
     Rectangle calculateGraphArea(Graphics2D g2d, Rectangle fullArea) {
-        tieAxisStartValuesToArea(fullArea);
         setFunctions(fullArea);
         for (Axis axis : yAxisList) {
             axis.resetRange();
