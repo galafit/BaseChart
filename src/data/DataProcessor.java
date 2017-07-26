@@ -2,6 +2,8 @@ package data;
 
 import grouping.GroupingFunction;
 
+import java.awt.*;
+
 /**
  * Created by galafit on 15/7/17.
  */
@@ -17,8 +19,8 @@ public class DataProcessor<Y> {
 
     private XYSet<Y> resultantPoints;
 
-    private int maxVisiblePoint = 1000;
-    private double minPixelsPerPoin = 1;
+    private int maxVisiblePoint = 100;
+    private double minPixelsPerPoint = 10;
 
 
     public void setData(DataSet<Y> dataSet) {
@@ -37,7 +39,7 @@ public class DataProcessor<Y> {
         grouper = new Grouper<Y>(groupingFunction);
     }
 
-    public void setXRange(double startXValue, double endXValue) {
+    public void setXRange(double startXValue, double endXValue, Rectangle area) {
         rangeLength = 0;
         if(rowPoints == null || rowPoints.size() == 0) {
             return;
@@ -52,14 +54,14 @@ public class DataProcessor<Y> {
         resultantPoints = getRangedPoints();
         if(isGroupingEnabled) {
             if(rangeLength > maxVisiblePoint) {
-                grouper.setGroupingInterval(calculateGroupingInterval(startXValue, endXValue));
+                grouper.setGroupingInterval(calculateGroupingInterval(startXValue, endXValue, area));
                 resultantPoints = grouper.groupPoints(rowPoints, rangeStartIndex, rangeLength);
             }
         }
     }
 
-    private double calculateGroupingInterval(double startXValue, double endXValue) {
-        return (endXValue - startXValue) / maxVisiblePoint;
+    private double calculateGroupingInterval(double startXValue, double endXValue, Rectangle area) {
+        return (endXValue - startXValue) * minPixelsPerPoint / area.width ;
     }
 
     private Range calculateYRange(XYSet<Y> points) {
@@ -97,7 +99,7 @@ public class DataProcessor<Y> {
         }
 
         if(pointInterval > 0) {
-            double preferredPixelPerUnit = minPixelsPerPoin / pointInterval;
+            double preferredPixelPerUnit = 1 / pointInterval;
             return preferredPixelPerUnit;
         }
         return 0;

@@ -79,6 +79,11 @@ public class MainFrame extends JFrame {
 
         Graph previewGraph = new LineGraph();
         previewGraph.setData(periodicData);
+
+        Graph randomGraph = new LineGraph();
+        randomGraph.setData(periodicData);
+       // chartWithPreview.addGraph(randomGraph,1);
+
         chartWithPreview.addPreviewGraph(previewGraph,0);
 
 
