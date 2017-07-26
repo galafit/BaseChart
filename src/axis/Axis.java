@@ -108,6 +108,10 @@ public abstract class Axis {
         return axisData.getMax();
     }
 
+    public boolean isFixedScale() {
+       return axisData.isFixedScale();
+    }
+
     public void draw(Graphics2D g, Rectangle area, int anchorPoint){
         axisPainter.draw(g, area, anchorPoint);
     }

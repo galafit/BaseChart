@@ -7,7 +7,7 @@ import java.awt.*;
  */
 public class TicksSettings {
     private final double DEFAULT_LABEL_PADDING_FACTOR = 0.6; // relative to font size
-    private final int DEFAULT_TICK_PIXEL_INTERVAL_FACTOR = 3; // relative to font size
+    private final int DEFAULT_TICK_PIXEL_INTERVAL_FACTOR = 2; // relative to font size
     private String tickLabelFontName = Font.SANS_SERIF;
     private int tickLabelsFontSize = 12;
     private Integer tickLabelsPadding = null;

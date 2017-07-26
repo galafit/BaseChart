@@ -98,7 +98,6 @@ public class AxisPainter {
     }
 
     private List<Tick> createTicksList(TickProvider tickProvider, Rectangle area) {
-
         List<Tick> ticks = new ArrayList<Tick>();
         if(axis.getMin() == axis.getMax()) {
             ticks.add(tickProvider.getClosestTickPrev(axis.getMin()));
@@ -132,19 +131,43 @@ public class AxisPainter {
             } else {
                 labelsSize = getMaxTickLabelsHeight(g, getLabelFont(), ticks);
             }
-            double tickPixelInterval = axis.valueToPoint(ticks.get(1).getValue(), area) - axis.valueToPoint(ticks.get(0).getValue(), area);
+            double tickPixelInterval = Math.abs(axis.valueToPoint(ticks.get(1).getValue(), area) - axis.valueToPoint(ticks.get(0).getValue(), area));
 
-            if(axis.isHorizontal()) {
-                // min space between labels = 2 symbols size (roughly)
-                int labelSpace = 2 * axis.getTicksSettings().getTickLabelsFontSize();
-                int requiredSpace = labelsSize + labelSpace;
+            // min space between labels = 1 symbols size (roughly)
+            double labelSpace = 1 * axis.getTicksSettings().getTickLabelsFontSize();
+            double requiredSpace = labelsSize + labelSpace;
 
-                if (requiredSpace > tickPixelInterval) {
-                    tickProvider.setMinTickPixelInterval(requiredSpace);
-                    return createTicksList(tickProvider, area);
+
+            int n = (int) (requiredSpace / tickPixelInterval) + 1;
+
+            if(ticks.size() / n > 2) {
+                List<Tick> newTicks = new ArrayList<Tick>();
+                for (int i = 0; i < ticks.size(); i++) {
+                    if(i%n == 0) {
+                        newTicks.add(ticks.get(i));
+                    }
+
                 }
-            }
+                if(ticks.size() % n != 0) {
+                    newTicks.add(ticks.get(ticks.size() - 1));
+                }
+                ticks = newTicks;
+            } else {
+                List<Tick> newTicks = new ArrayList<Tick>();
+                newTicks.add(ticks.get(0));
+                newTicks.add(ticks.get(ticks.size() - 1));
+                if(!axis.isEndOnTick()) {
+                    if(getStartValue(area) != ticks.get(0).getValue()) {
+                        newTicks.add(ticks.get(1));
+                    }
+                    if(getEndValue(area) != ticks.get(ticks.size() - 1).getValue()) {
+                        newTicks.add(ticks.get(ticks.size() - 2));
+                    }
 
+                }
+
+                ticks = newTicks;
+            }
         }
         return ticks;
 

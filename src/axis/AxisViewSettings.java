@@ -15,7 +15,7 @@ public class AxisViewSettings {
     private Integer namePadding = null;
 
     private boolean isNameVisible = false;
-    private boolean isUnitsVisible = false;
+    private boolean isUnitsVisible = true;
 
     public String getNameFontName() {
         return nameFontName;

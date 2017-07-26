@@ -103,6 +103,13 @@ public abstract class AxisData {
         return isHorizontal;
     }
 
+    public boolean isFixedScale() {
+        if(pixelPerUnit != 0) {
+            return true;
+        }
+        return false;
+    }
+
     public double getMin() {
         if(min == null) {
             return DEFAULT_MIN;
@@ -112,13 +119,13 @@ public abstract class AxisData {
         }
 
         double resultantMin = (min == null) ? DEFAULT_MIN : min;
-        double resultantMax = (max == null) ? DEFAULT_MAX : max;
 
-        resultantMin = (!isAutoScale()) ? resultantMin : resultantMin - lowerPadding * (resultantMax - resultantMin);
+        resultantMin = (!isAutoScale() || isFixedScale()) ? resultantMin : resultantMin - lowerPadding * (getMax() - resultantMin);
 
         return resultantMin;
 
     }
+
 
     public double getMax() {
         if(max == null) {

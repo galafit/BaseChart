@@ -72,7 +72,7 @@ public class MainFrame2 extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
 
-       for (int j = 0; j < 10; j++) {
+      /* for (int j = 0; j < 10; j++) {
            try {
                Thread.sleep(1000);
                for (int i = 0; i < 10; i++) {
@@ -82,7 +82,7 @@ public class MainFrame2 extends JFrame {
            } catch (InterruptedException e) {
                e.printStackTrace();
            }
-        }
+        }*/
 
     }
 

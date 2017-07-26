@@ -102,6 +102,10 @@ class LinearTickProvider implements TickProvider {
             return;
         }
         ticksInterval = tickPixelInterval / pointsPerUnit;
+
+        if(ticksInterval > (max - min) / 5) {
+            ticksInterval = (max-min) / 5;
+        }
         // firstDigit is in {1,2,5,10};
         ScientificNumber tick = new ScientificNumber(ticksInterval);
 
