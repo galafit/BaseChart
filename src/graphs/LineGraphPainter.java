@@ -12,9 +12,11 @@ import java.awt.geom.GeneralPath;
  */
 public class LineGraphPainter extends GraphPainter<Double> {
     int pointRadius = 1;
+    private XYSet<Double> dataPoints;
 
     @Override
     public void draw(XYSet<Double> dataPoints , Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
+        this.dataPoints = dataPoints;
         if (dataPoints == null || dataPoints.size() == 0) {
             return;
         }
@@ -33,5 +35,14 @@ public class LineGraphPainter extends GraphPainter<Double> {
             g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
         }
         g.draw(path);
+    }
+
+    @Override
+    public void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
+        double x = xAxis.valueToPoint(dataPoints.getX(0), area);
+        double y = yAxis.valueToPoint(dataPoints.getY(0), area);
+        double pointRadius = this.pointRadius + 2;
+        g.setColor(Color.CYAN);
+        g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
     }
 }

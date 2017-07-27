@@ -24,6 +24,8 @@ public class ChartWithPreview implements Drawable {
 
     }
 
+
+
     private double getXAxisMaxScale() {
         double preferredScale = 0;
         for (Chart chart : charts) {
@@ -218,6 +220,16 @@ public class ChartWithPreview implements Drawable {
         }
 
         scroll.draw(g2d, getPreviewArea());
+    }
+
+    public void drawHover(Graphics2D g, Rectangle area){
+        for (Chart chart : charts) {
+            chart.drawHover(g,area);
+        }
+
+        for (Chart preview : previews) {
+            preview.drawHover(g,area);
+        }
     }
 
     private Rectangle getPreviewArea() {

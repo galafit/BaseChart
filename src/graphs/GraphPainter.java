@@ -20,4 +20,7 @@ public abstract class GraphPainter<Y> {
     }
 
     public abstract void draw(XYSet<Y> dataPoints, Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis);
+
+    public abstract void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis);
+
 }

@@ -90,9 +90,7 @@ public class MainFrame extends JFrame {
         PreviewChartPanel chartPanel = new PreviewChartPanel(chartWithPreview);
         //ChartPanel chartPanel = new ChartPanel(chart);
 
-        chartPanel.setPreferredSize(new Dimension(500, 500));
-        chartPanel.setBackground(Color.BLACK);
-        chartPanel.setPreferredSize(new Dimension(500, 500));
+        setPreferredSize(new Dimension(500,500));
         add(chartPanel,BorderLayout.CENTER);
 
         pack();

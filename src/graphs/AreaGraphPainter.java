@@ -4,6 +4,7 @@ import axis.Axis;
 import data.XYSet;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 
 /**
@@ -38,5 +39,9 @@ public class AreaGraphPainter extends GraphPainter<Double> {
         Color transparentColor =new Color(lineColor.getRed(), lineColor.getGreen(), lineColor.getBlue(), 100 );
         g.setColor(transparentColor);
         g.fill(path);
+    }
+
+    public void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
+
     }
 }

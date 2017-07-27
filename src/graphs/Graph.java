@@ -86,4 +86,7 @@ public class Graph<T> {
         graphPainter.draw(dataProcessor.getProcessedPoints(), g, area, xAxis, yAxis);
     }
 
+    public void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
+        graphPainter.drawHover( g, area, xAxis, yAxis);
+    }
 }

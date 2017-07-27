@@ -44,6 +44,8 @@ public class Chart implements Drawable {
         yAxisList.add(y);
     }
 
+
+
     public double getPreferredPixelsPerUnit(int xAxisIndex) {
         double pixelsPerUnit = 0;
         for (Graph graph : graphs) {
@@ -319,5 +321,11 @@ public class Chart implements Drawable {
     public void draw(Graphics2D g2d, Rectangle fullArea) {
         calculateGraphArea(g2d, fullArea);
         draw(g2d);
+    }
+
+    public void drawHover(Graphics2D g2d, Rectangle fullArea){
+        for (Graph graph : graphs) {
+            graph.drawHover(g2d, graphArea, xAxisList.get(graph.getXAxisIndex()),yAxisList.get(graph.getYAxisIndex()) );
+        }
     }
 }
