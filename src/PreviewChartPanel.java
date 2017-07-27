@@ -14,6 +14,8 @@ public class PreviewChartPanel extends JPanel {
 
     public PreviewChartPanel(ChartWithPreview chartWithPreview) {
         this.chartWithPreview = chartWithPreview;
+        setToolTipText("hello");
+        ToolTipManager.sharedInstance().setInitialDelay(0);
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -57,6 +59,13 @@ public class PreviewChartPanel extends JPanel {
     public void update(){
         chartWithPreview.update();
         repaint();
+    }
+
+    @Override
+    public String getToolTipText(MouseEvent event) {
+        Point p = new Point(event.getX(), event.getY());
+
+        return "point: "+p.x;
     }
 
 }

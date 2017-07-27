@@ -94,6 +94,7 @@ public class MainFrame extends JFrame {
         chartPanel.setBackground(Color.BLACK);
         chartPanel.setPreferredSize(new Dimension(500, 500));
         add(chartPanel,BorderLayout.CENTER);
+
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);

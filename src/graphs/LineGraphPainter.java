@@ -11,7 +11,7 @@ import java.awt.geom.GeneralPath;
  * Created by galafit on 20/7/17.
  */
 public class LineGraphPainter extends GraphPainter<Double> {
-    int pointRadius = 2;
+    int pointRadius = 1;
 
     @Override
     public void draw(XYSet<Double> dataPoints , Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {

@@ -20,7 +20,7 @@ public class DataProcessor<Y> {
     private XYSet<Y> resultantPoints;
 
     private int maxVisiblePoint = 100;
-    private double minPixelsPerPoint = 10;
+    private double minPixelsPerPoint = 3;
 
 
     public void setData(DataSet<Y> dataSet) {

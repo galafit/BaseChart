@@ -85,4 +85,5 @@ public class Graph<T> {
     public void draw(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
         graphPainter.draw(dataProcessor.getProcessedPoints(), g, area, xAxis, yAxis);
     }
+
 }
