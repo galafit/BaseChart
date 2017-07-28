@@ -104,8 +104,8 @@ public abstract class Axis {
 
     public double getMin() {return axisData.getMin();}
 
-    public double getMax() {
-        return axisData.getMax();
+    public double getMax(Rectangle area) {
+        return axisData.getMax(area);
     }
 
     public boolean isFixedScale() {

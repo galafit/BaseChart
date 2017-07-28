@@ -113,34 +113,17 @@ public class Chart implements Drawable {
         xAxisList.add(axis);
     }
 
-    public Graph getGraph(int index){
-        return graphs.get(index);
-    }
-
-    public int getGraphsAmoiunt(){
-        return graphs.size();
-    }
-
 
     public void addGraph(Graph graph) {
         addGraph(graph,  0, 0);
     }
 
     public void update(){
-        for (Graph graph : graphs) {
-            rangeAxis(xAxisList.get(graph.getXAxisIndex()), graph.getXFullRange());
-        }
-    }
 
-    private void rangeAxis(Axis axis, Range range){
-        if (axis.isAutoScale() && range != null) {
-            axis.setRange(range.start(), range.end());
-        }
     }
 
     public void addGraph(Graph graph,  int xAxisIndex, int yAxisIndex) {
         graph.setAxisIndexes(xAxisIndex, yAxisIndex);
-        rangeAxis(xAxisList.get(graph.getXAxisIndex()), graph.getXFullRange());
         graph.setLineColor(graphicColors[graphs.size() % graphicColors.length]);
         graphs.add(graph);
 
@@ -248,25 +231,46 @@ public class Chart implements Drawable {
 
     private void setGraphArea(Rectangle newGraphArea) {
         graphArea = newGraphArea;
-        for (Axis axis : yAxisList) {
-            axis.resetRange();
-        }
-        for (Graph graph : graphs) {
-            graph.setXRange(newGraphArea, xAxisList.get(graph.getXAxisIndex()));
-            rangeAxis(yAxisList.get(graph.getYAxisIndex()), graph.getYRange());
-        }
+    }
 
+    private void rangeXAxis(Rectangle area){
+        for (int i = 0; i < xAxisList.size(); i++) {
+            Axis xAxis = xAxisList.get(i);
+            if(xAxis.isAutoScale()) {
+                Range preferredXRange = getPreferredXRange(i);
+                if(preferredXRange != null) {
+                    xAxis.setRange(preferredXRange.start(), preferredXRange.end());
+                }
+            }
+        }
+    }
+
+    private void rangeYAxis(){
+        for (int i = 0; i < yAxisList.size(); i++) {
+            Axis yAxis = yAxisList.get(i);
+            if(yAxis.isAutoScale()) {
+                Range preferredYRange = null;
+                for (Graph graph : graphs) {
+                    if(graph.getYAxisIndex() == i) {
+                        preferredYRange = Range.max(preferredYRange, graph.getYRange());
+                    }
+                }
+                if(preferredYRange != null) {
+                    yAxis.resetRange();
+                    yAxis.setRange(preferredYRange.start(), preferredYRange.end());
+                }
+            }
+        }
     }
 
     Rectangle calculateGraphArea(Graphics2D g2d, Rectangle fullArea) {
+        rangeXAxis(fullArea);
         setFunctions(fullArea);
-        for (Axis axis : yAxisList) {
-            axis.resetRange();
-        }
         for (Graph graph : graphs) {
-            graph.setXRange(fullArea, xAxisList.get(graph.getXAxisIndex()));
-            rangeAxis(yAxisList.get(graph.getYAxisIndex()), graph.getYRange());
+            Axis graphXAxis = xAxisList.get(graph.getXAxisIndex());
+            graph.setXRange(graphXAxis.getMin(), graphXAxis.getMax(fullArea), fullArea);
         }
+        rangeYAxis();
 
         setGraphAreaAndAxisPositions(g2d, fullArea);
 
@@ -313,7 +317,6 @@ public class Chart implements Drawable {
         for (Graph graph : graphs) {
             graph.draw(g2d, graphArea, xAxisList.get(graph.getXAxisIndex()),yAxisList.get(graph.getYAxisIndex()) );
         }
-
         g2d.setClip(clip);
     }
 

@@ -41,6 +41,9 @@ public class XYRegularSet<Y> implements RangableSet<Y> {
     public Range getIndexRange(double startXValue, double endXValue) {
         long indexStart = getIndexBefore(startXValue);
         long indexEnd = getIndexBefore(endXValue);
+        if(getX(indexStart) < startXValue && indexStart < (data.size() -1)) {
+            indexStart++;
+        }
         if(indexStart == indexEnd) {
             return null;
         }

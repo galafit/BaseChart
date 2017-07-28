@@ -11,7 +11,6 @@ public class PreviewChartPanel extends JPanel {
     private ChartWithPreview chartWithPreview;
     private boolean isMousePressedInsideCursor = false;
     private int mousePressedX;
-    private BasePanel basePanel = new BasePanel();
     private HoverPanel hoverPanel = new HoverPanel();
 
 
@@ -19,12 +18,10 @@ public class PreviewChartPanel extends JPanel {
         setLayout(new BorderLayout());
         this.chartWithPreview = chartWithPreview;
         setBackground(Color.black);
-       // setOpaque(false);
-      //  add(basePanel,0);
         add(hoverPanel,BorderLayout.CENTER);
 
-        setToolTipText("hello");
-        ToolTipManager.sharedInstance().setInitialDelay(0);
+       // setToolTipText("hello");
+       // ToolTipManager.sharedInstance().setInitialDelay(0);
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -79,16 +76,7 @@ public class PreviewChartPanel extends JPanel {
         chartWithPreview.draw((Graphics2D) g, new Rectangle(0,0,getWidth(),getHeight()));
     }
 
-    class BasePanel extends JPanel{
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            chartWithPreview.draw((Graphics2D) g, new Rectangle(0,0,getWidth(),getHeight()));
-        }
-    }
-
     class HoverPanel extends JPanel{
-
         public HoverPanel() {
             setOpaque(false);
             //setSize(300,300);

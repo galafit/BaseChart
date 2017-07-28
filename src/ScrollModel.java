@@ -37,13 +37,13 @@ public class ScrollModel {
         return viewportPosition;
     }
 
-    public void setViewportPosition(double newPosition) {
-        if (newPosition > getMax() - getViewportWidth()) {
-            newPosition = getMax() - getViewportWidth();
+    public void setViewportPosition(double newViewportPosition) {
+        if (newViewportPosition > getMax() - getViewportWidth()) {
+            newViewportPosition = getMax() - getViewportWidth();
         }
-        if (newPosition < getMin()){
-            newPosition = getMin();
+        if (newViewportPosition < getMin()){
+            newViewportPosition = getMin();
         }
-        viewportPosition = newPosition;
+        viewportPosition = newViewportPosition;
     }
 }

@@ -141,6 +141,10 @@ public abstract class AxisData {
         return resultantMax;
     }
 
+    public double getMax(Rectangle area) {
+        return getMin() + area.getWidth() / getPixelsPerUnit(area);
+    }
+
 
     /**
      * If isAutoScale = FALSE this method simply sets: min = newMin, max = newMax.

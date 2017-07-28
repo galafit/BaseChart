@@ -29,6 +29,9 @@ public class XYOrderedSet<Y> implements RangableSet<Y> {
                 break;
             }
         }
+        if(getX(startIndex) < startXValue && startIndex < (points.size() -1)) {
+            startIndex++;
+        }
         return new Range(startIndex, endIndex);
     }
 

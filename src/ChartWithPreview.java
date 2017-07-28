@@ -11,6 +11,9 @@ import java.util.List;
 /**
  * Created by hdablin on 25.06.17.
  */
+/**
+ * Created by hdablin on 25.06.17.
+ */
 public class ChartWithPreview implements Drawable {
     private List<Chart> charts = new ArrayList<Chart>();
     private List<Chart> previews = new ArrayList<Chart>();
@@ -19,12 +22,11 @@ public class ChartWithPreview implements Drawable {
     private boolean isXAxisSynchronized = true;
     private double xAxisPixelsPerUnit = 0;
     private Scroll scroll = new Scroll();
+    private boolean isFirstDraw = true;
 
     public void update() {
 
     }
-
-
 
     private double getXAxisMaxScale() {
         double preferredScale = 0;
@@ -46,18 +48,12 @@ public class ChartWithPreview implements Drawable {
         }
     }
 
-    public void addGraph(Graph graph, int chartIndex) {
-        charts.get(chartIndex).addGraph(graph);
-        adjustXAxisScale();
-        adjustMinMaxRange();
-    }
-
     private void adjustXAxisScale() {
         if (xAxisPixelsPerUnit != 0) { // set the given scale for all charts
             for (Chart chart : charts) {
                 chart.getXAxis(0).setPixelsPerUnit(xAxisPixelsPerUnit);
-                scroll.setPointsPerUnit(xAxisPixelsPerUnit);
             }
+            scroll.setPointsPerUnit(xAxisPixelsPerUnit);
         } else {
             double maxScale = getXAxisMaxScale();
             scroll.setPointsPerUnit(maxScale);
@@ -90,7 +86,6 @@ public class ChartWithPreview implements Drawable {
 
         scroll.getScrollModel().setMin(minMaxRange.start());
         scroll.getScrollModel().setMax(minMaxRange.end());
-
     }
 
     public void addChart() {
@@ -125,9 +120,12 @@ public class ChartWithPreview implements Drawable {
         addPreview(1);
     }
 
+    public void addGraph(Graph graph, int chartIndex) {
+        charts.get(chartIndex).addGraph(graph);
+    }
+
     public void addPreviewGraph(Graph graph, int previewIndex) {
         previews.get(previewIndex).addGraph(graph);
-        adjustMinMaxRange();
     }
 
 
@@ -147,15 +145,20 @@ public class ChartWithPreview implements Drawable {
 
     private void setChartsAxisStart() {
         for (Chart chart : charts) {
-            for (int i = 0; i < chart.getXAxisAmount(); i++) {
-                Axis xAxis = chart.getXAxis(i);
-                xAxis.setRange(scroll.getScrollModel().getViewportPosition(), null);
-            }
+            Axis xAxis = chart.getXAxis(0);
+            xAxis.setRange(scroll.getScrollModel().getViewportPosition(), null);
         }
     }
 
 
     public void draw(Graphics2D g2d, Rectangle fullArea) {
+        adjustXAxisScale();
+        adjustMinMaxRange();
+        if(isFirstDraw) {
+            scroll.getScrollModel().setViewportPosition(scroll.getScrollModel().getMin());
+            setChartsAxisStart();
+            isFirstDraw = false;
+        }
 
         List<Chart> chartsAndPreviews = new AbstractList<Chart>() {
             @Override
@@ -222,13 +225,13 @@ public class ChartWithPreview implements Drawable {
         scroll.draw(g2d, getPreviewArea());
     }
 
-    public void drawHover(Graphics2D g, Rectangle area){
+    public void drawHover(Graphics2D g, Rectangle area) {
         for (Chart chart : charts) {
-            chart.drawHover(g,area);
+            chart.drawHover(g, area);
         }
 
         for (Chart preview : previews) {
-            preview.drawHover(g,area);
+            preview.drawHover(g, area);
         }
     }
 

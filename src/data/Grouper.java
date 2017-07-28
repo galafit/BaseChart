@@ -28,7 +28,7 @@ public class Grouper<Y> {
     public XYSet<Y> groupPoints(XYSet<Y> points, long startIndex, long length) {
         ArrayList<Y> buffer = new ArrayList<Y>();
         if(length > 0) {
-            double roundX = getClosestIntervalPrev(points.getX(0));
+            double roundX = getClosestIntervalPrev(points.getX(0)) + groupingInterval ;
             groupedPoints = new ArrayList<GroupedXYPoint<Y>>();
             for (long i = startIndex; i < startIndex + length; i++) {
                 double x = points.getX(i);

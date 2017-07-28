@@ -34,7 +34,7 @@ public class MainFrame extends JFrame {
 
 
         XYList<Double> xyList = new XYList<Double>();
-        for (int i = -11; i <18000 ; i++) {
+        for (int i = -1000; i <17000 ; i++) {
             // xyList.addPoint(i,rand.nextDouble() * 130);
             xyList.addPoint(i,new Double(-i));
         }

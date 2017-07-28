@@ -9,7 +9,7 @@ import java.awt.*;
  */
 public class DataProcessor<Y> {
     private RangableSet<Y> rowPoints;
-    private static final int SHOULDER = 1; // additional number of elements when we calculate range start and end indexes
+    private static final int SHOULDER = 0; // additional number of elements when we calculate range start and end indexes
     private long rangeStartIndex;
     private long rangeLength;
     private ExtremesFunction<Y> extremesFunction;
@@ -18,9 +18,14 @@ public class DataProcessor<Y> {
     private Grouper<Y> grouper;
 
     private XYSet<Y> resultantPoints;
+    private Range yRange;
 
     private int maxVisiblePoint = 100;
-    private double minPixelsPerPoint = 3;
+    private double minPixelsPerPoint = 10;
+
+    private double startXValue;
+    private double endXValue;
+    private double areaWidth;
 
 
     public void setData(DataSet<Y> dataSet) {
@@ -40,6 +45,13 @@ public class DataProcessor<Y> {
     }
 
     public void setXRange(double startXValue, double endXValue, Rectangle area) {
+        if(this.startXValue == startXValue && this.endXValue == endXValue && areaWidth == area.getWidth()) {
+           return;
+        }
+        this.startXValue = startXValue;
+        this.endXValue = endXValue;
+        areaWidth = area.getWidth();
+
         rangeLength = 0;
         if(rowPoints == null || rowPoints.size() == 0) {
             return;
@@ -58,6 +70,7 @@ public class DataProcessor<Y> {
                 resultantPoints = grouper.groupPoints(rowPoints, rangeStartIndex, rangeLength);
             }
         }
+        yRange = calculateYRange(resultantPoints);
     }
 
     private double calculateGroupingInterval(double startXValue, double endXValue, Rectangle area) {
@@ -80,7 +93,7 @@ public class DataProcessor<Y> {
 
 
     public Range getYRange()  {
-        return calculateYRange(getProcessedPoints());
+        return yRange;
     }
 
     public double getPreferredPixelsPerUnit() {

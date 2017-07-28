@@ -58,7 +58,6 @@ public class Graph<T> {
         this.yAxisIndex = yAxisIndex;
     }
 
-
     public Range getXFullRange() {
         return dataProcessor.getFullXRange();
     }
@@ -67,15 +66,12 @@ public class Graph<T> {
         return dataProcessor.getYRange();
     }
 
-
     public double getPreferredPixelsPerUnit() {
         return dataProcessor.getPreferredPixelsPerUnit();
     }
 
-    public void setXRange(Rectangle area, Axis xAxis) {
-        double xMin = xAxis.pointsToValue(area.x, area);
-        double xMax = xAxis.pointsToValue(area.x + area.width, area);
-        dataProcessor.setXRange(xMin, xMax,area);
+    public void setXRange(double startXValue, double endXValue, Rectangle area) {
+         dataProcessor.setXRange(startXValue, endXValue,area);
     }
 
     public void setLineColor(Color lineColor) {

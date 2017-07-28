@@ -13,9 +13,8 @@ class ScrollPainter {
         this.scrollModel = scrollModel;
     }
 
-    private long scrollPositionToViewportPosition(double scrollPosition) {
-        long viewportPosition = Math.round(scrollPosition * (scrollModel.getMax() - scrollModel.getMin()) / paintingArea.getWidth());
-        return viewportPosition;
+    private double scrollPositionToViewportPosition(double scrollPosition) {
+        return scrollModel.getMin() + scrollPosition * (scrollModel.getMax() - scrollModel.getMin()) / paintingArea.getWidth();
     }
 
     private double getScrollWidth() {
@@ -23,7 +22,7 @@ class ScrollPainter {
     }
 
     private double getScrollPosition() {
-        return paintingArea.getWidth() * scrollModel.getViewportPosition()  / (scrollModel.getMax() - scrollModel.getMin());
+        return (scrollModel.getViewportPosition() - scrollModel.getMin()) * paintingArea.getWidth() / (scrollModel.getMax() - scrollModel.getMin());
     }
 
     public boolean isMouseInsideScroll(int mouseX, int mouseY) {
@@ -38,21 +37,17 @@ class ScrollPainter {
 
 
     public void moveScroll(int shift) {
-        double newScrollPosition = getScrollPosition() + shift;
-        scrollModel.setViewportPosition(scrollPositionToViewportPosition(newScrollPosition));
+        int newScrollPosition = (int)getScrollPosition() + shift;
+        double viewportPosition = scrollPositionToViewportPosition(newScrollPosition);
+        scrollModel.setViewportPosition(viewportPosition);
+
     }
 
     public void setScrollPosition(int mousePosition) {
         if (paintingArea != null) {
-            double newScrollPosition = mousePosition;
-            if (newScrollPosition <= paintingArea.getX()) {
-                newScrollPosition = 0;
-            } else if (newScrollPosition >= paintingArea.getX() + paintingArea.getWidth()) {
-                newScrollPosition = paintingArea.getWidth();
-            } else {
-                newScrollPosition -= paintingArea.getX();
-            }
-            scrollModel.setViewportPosition(scrollPositionToViewportPosition(newScrollPosition));
+            double newScrollPosition = mousePosition - paintingArea.getX();
+            double viewportPosition = scrollPositionToViewportPosition(newScrollPosition);
+            scrollModel.setViewportPosition(viewportPosition);
         }
     }
 
