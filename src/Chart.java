@@ -44,6 +44,13 @@ public class Chart implements Drawable {
         yAxisList.add(y);
     }
 
+    public void hover(int mouseX, int mouseY) {
+        for (Graph graph : graphs) {
+            Axis xAxis = xAxisList.get(graph.getXAxisIndex());
+            graph.hover(mouseX, mouseY, xAxis);
+        }
+    }
+
 
 
     public double getPreferredPixelsPerUnit(int xAxisIndex) {

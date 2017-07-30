@@ -63,8 +63,8 @@ public class MainFrame extends JFrame {
 
         DoubleFunction<Double> tg = new Tg();
         Graph g4 = new LineGraph();
-        g4.setFunction(sin);
-        //chart1.addGraph(g4);
+        g4.setFunction(tg);
+
 
 
         ChartWithPreview chartWithPreview = new ChartWithPreview();
@@ -76,6 +76,7 @@ public class MainFrame extends JFrame {
         chartWithPreview.addGraph(g2, 0);
         chartWithPreview.addGraph(g3, 0);
         chartWithPreview.addGraph(g1, 1);
+        //chartWithPreview.addGraph(g4, 1);
 
         Graph previewGraph = new LineGraph();
         previewGraph.setData(periodicData);

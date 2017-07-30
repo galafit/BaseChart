@@ -41,6 +41,10 @@ public class AreaGraphPainter extends GraphPainter<Double> {
         g.fill(path);
     }
 
+    public void hover(int mouseX, int mouseY, Axis xAxis) {
+
+    }
+
     public void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
 
     }

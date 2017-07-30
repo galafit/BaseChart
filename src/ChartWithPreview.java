@@ -28,6 +28,12 @@ public class ChartWithPreview implements Drawable {
 
     }
 
+    public void hover(int mouseX, int mouseY) {
+        for (Chart chart : charts) {
+            chart.hover(mouseX, mouseY);
+        }
+    }
+
     private double getXAxisMaxScale() {
         double preferredScale = 0;
         for (Chart chart : charts) {
@@ -152,6 +158,7 @@ public class ChartWithPreview implements Drawable {
 
 
     public void draw(Graphics2D g2d, Rectangle fullArea) {
+        System.out.println("draw "+fullArea.width);
         adjustXAxisScale();
         adjustMinMaxRange();
         if(isFirstDraw) {

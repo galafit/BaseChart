@@ -10,28 +10,64 @@ public class XYOrderedSet<Y> implements RangableSet<Y> {
         this.points = points;
     }
 
+
+    public int prevOrNextXValueBinarySearch(double xValue, boolean previous) {
+        if (xValue < points.getX(0) || xValue > points.getX(points.size() - 1)) {
+            return -1; // key not found
+        }
+        int low = 0;
+        int high = (int)points.size() - 1;
+        int index = -1;
+
+        while (low <= high) {
+            int mid = (low + high) >>> 1;
+            double midVal = points.getX(mid);
+
+            if (midVal < xValue)
+                low = mid + 1;  // Neither val is NaN, thisVal is smaller
+            else if (midVal > xValue)
+                high = mid - 1; // Neither val is NaN, thisVal is larger
+            else {
+                long midBits = Double.doubleToLongBits(midVal);
+                long keyBits = Double.doubleToLongBits(xValue);
+                if (midBits == keyBits) { // Values are equal
+                    index = mid;
+                    if (previous)
+                        high = mid - 1;
+                    else
+                        low = low + 1;
+                } else if (midBits < keyBits) // (-0.0, 0.0) or (!NaN, NaN)
+                    low = mid + 1;
+                else                        // (0.0, -0.0) or (NaN, !NaN)
+                    high = mid - 1;
+            }
+        }
+        if(index < 0) {
+            if (previous)
+                return high;
+            else
+                return low;
+        }
+        return index;
+    }
+
+    public int getNearestPoint(double xValue) {
+        int nearestIndex = -1;
+        int prevIndex = prevOrNextXValueBinarySearch(xValue, true);
+        if(prevIndex >= 0) {
+            nearestIndex = (xValue - points.getX(prevIndex) <= (points.getX(prevIndex + 1) - xValue)) ? prevIndex : Math.min((int)points.size() - 1, prevIndex + 1);
+        }
+        return nearestIndex;
+    }
+
+
     @Override
     public Range getIndexRange(double startXValue, double endXValue) {
-        if (startXValue >= points.getX(size() - 1) || endXValue <= points.getX(0)) {
+        if(startXValue < points.getX(0) || endXValue > points.getX(points.size() - 1)) {
             return null;
         }
-        long endIndex = 0;
-        long startIndex = 0;
-        for (long i = 0; i < points.size(); i++) {
-            startIndex = i;
-            if (startXValue <= points.getX(i)) {
-                break;
-            }
-        }
-        for (long i = startIndex; i < points.size(); i++) {
-            endIndex = i;
-            if (endXValue <= points.getX(i)) {
-                break;
-            }
-        }
-        if(getX(startIndex) < startXValue && startIndex < (points.size() -1)) {
-            startIndex++;
-        }
+        double startIndex = prevOrNextXValueBinarySearch(startXValue, false);
+        double endIndex = prevOrNextXValueBinarySearch(endXValue, true);
         return new Range(startIndex, endIndex);
     }
 

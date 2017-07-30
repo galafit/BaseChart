@@ -1,6 +1,7 @@
 package graphs;
 
 import axis.Axis;
+import data.XYOrderedSet;
 import data.XYSet;
 
 import java.awt.*;
@@ -12,11 +13,25 @@ import java.awt.geom.GeneralPath;
  */
 public class LineGraphPainter extends GraphPainter<Double> {
     int pointRadius = 5;
-    private XYSet<Double> dataPoints;
+    private XYOrderedSet<Double> dataPoints;
+    int hoverIndex = -1;
+    Rectangle area;
+
+
+    public void hover(int mouseX, int mouseY, Axis xAxis) {
+        if(area.contains(new Point(mouseX, mouseY))) {
+            double xValue = xAxis.pointsToValue(mouseX, area);
+            hoverIndex = dataPoints.getNearestPoint(xValue);
+        }
+        else {
+            hoverIndex = - 1;
+        }
+    }
 
     @Override
     public void draw(XYSet<Double> dataPoints , Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
-        this.dataPoints = dataPoints;
+        this.dataPoints = new XYOrderedSet<>(dataPoints);
+        this.area = area;
         if (dataPoints == null || dataPoints.size() == 0) {
             return;
         }
@@ -39,10 +54,13 @@ public class LineGraphPainter extends GraphPainter<Double> {
 
     @Override
     public void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
-        double x = xAxis.valueToPoint(dataPoints.getX(1), area);
-        double y = yAxis.valueToPoint(dataPoints.getY(1), area);
-        double pointRadius = this.pointRadius + 4;
-        g.setColor(Color.CYAN);
-        g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
-    }
+        if(hoverIndex >= 0) {
+            double x = xAxis.valueToPoint(dataPoints.getX(hoverIndex), area);
+            double y = yAxis.valueToPoint(dataPoints.getY(hoverIndex), area);
+            double pointRadius = this.pointRadius + 4;
+            g.setColor(Color.CYAN);
+            g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
+
+        }
+     }
 }

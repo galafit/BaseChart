@@ -29,6 +29,11 @@ public class Graph<T> {
     }*/
 
 
+    public void hover(int mouseX, int mouseY, Axis xAxis) {
+        graphPainter.hover(mouseX, mouseY, xAxis);
+    }
+
+
     public void setData(DataSet<T> dataSet) {
         dataProcessor.setData(dataSet);
     }
