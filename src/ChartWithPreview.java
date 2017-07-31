@@ -28,10 +28,12 @@ public class ChartWithPreview implements Drawable {
 
     }
 
-    public void hover(int mouseX, int mouseY) {
+    public boolean hover(int mouseX, int mouseY) {
+        boolean isHover = false;
         for (Chart chart : charts) {
-            chart.hover(mouseX, mouseY);
+            isHover = isHover || chart.hover(mouseX, mouseY);
         }
+        return isHover;
     }
 
     private double getXAxisMaxScale() {

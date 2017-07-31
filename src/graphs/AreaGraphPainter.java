@@ -41,7 +41,8 @@ public class AreaGraphPainter extends GraphPainter<Double> {
         g.fill(path);
     }
 
-    public void hover(int mouseX, int mouseY, Axis xAxis) {
+    public boolean hover(int mouseX, int mouseY, Axis xAxis) {
+        return false;
 
     }
 

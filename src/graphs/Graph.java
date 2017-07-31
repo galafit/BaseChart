@@ -29,8 +29,8 @@ public class Graph<T> {
     }*/
 
 
-    public void hover(int mouseX, int mouseY, Axis xAxis) {
-        graphPainter.hover(mouseX, mouseY, xAxis);
+    public boolean hover(int mouseX, int mouseY, Axis xAxis) {
+        return graphPainter.hover(mouseX, mouseY, xAxis);
     }
 
 

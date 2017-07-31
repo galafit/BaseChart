@@ -18,7 +18,8 @@ public class LineGraphPainter extends GraphPainter<Double> {
     Rectangle area;
 
 
-    public void hover(int mouseX, int mouseY, Axis xAxis) {
+    public boolean hover(int mouseX, int mouseY, Axis xAxis) {
+        int hoverIndex;
         if(area.contains(new Point(mouseX, mouseY))) {
             double xValue = xAxis.pointsToValue(mouseX, area);
             hoverIndex = dataPoints.getNearestPoint(xValue);
@@ -26,6 +27,12 @@ public class LineGraphPainter extends GraphPainter<Double> {
         else {
             hoverIndex = - 1;
         }
+
+        if(this.hoverIndex != hoverIndex) {
+            this.hoverIndex = hoverIndex;
+            return true;
+        }
+        return false;
     }
 
     @Override

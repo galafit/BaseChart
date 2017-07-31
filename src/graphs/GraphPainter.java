@@ -23,6 +23,6 @@ public abstract class GraphPainter<Y> {
 
     public abstract void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis);
 
-    public abstract void hover(int mouseX, int mouseY, Axis xAxis);
+    public abstract boolean hover(int mouseX, int mouseY, Axis xAxis);
 
 }

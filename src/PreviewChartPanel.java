@@ -15,9 +15,10 @@ public class PreviewChartPanel extends JPanel {
 
 
     public PreviewChartPanel(ChartWithPreview chartWithPreview) {
-        setLayout(new BorderLayout());
         this.chartWithPreview = chartWithPreview;
         setBackground(Color.black);
+
+        setLayout(new BorderLayout());
         add(hoverPanel, BorderLayout.CENTER);
 
         // setToolTipText("hello");
@@ -56,8 +57,9 @@ public class PreviewChartPanel extends JPanel {
             @Override
             public void mouseMoved(MouseEvent e) {
                 super.mouseMoved(e);
-                chartWithPreview.hover(e.getX(), e.getY());
-                hoverPanel.repaint();
+                if(chartWithPreview.hover(e.getX(), e.getY())) {
+                    hoverPanel.repaint();
+                }
             }
         });
     }
