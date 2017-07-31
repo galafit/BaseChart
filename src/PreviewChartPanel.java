@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.image.BufferedImage;
 
 /**
  * Created by hdablin on 26.06.17.
@@ -12,6 +13,7 @@ public class PreviewChartPanel extends JPanel {
     private boolean isMousePressedInsideCursor = false;
     private int mousePressedX;
     private HoverPanel hoverPanel = new HoverPanel();
+    private BufferedImage bgImage;
 
 
     public PreviewChartPanel(ChartWithPreview chartWithPreview) {
@@ -30,6 +32,7 @@ public class PreviewChartPanel extends JPanel {
                 super.mouseClicked(e);
                 if (chartWithPreview.isMouseInPreviewArea(e.getX(), e.getY()) && !isMousePressedInsideCursor) {
                     chartWithPreview.setCursorPosition(e.getX());
+                    drawToBgImage();
                     repaint();
                 }
             }
@@ -49,6 +52,7 @@ public class PreviewChartPanel extends JPanel {
                 super.mouseDragged(e);
                 if (isMousePressedInsideCursor) {
                     chartWithPreview.moveCursorPosition(e.getX() - mousePressedX);
+                    drawToBgImage();
                     repaint();
                     mousePressedX = e.getX();
                 }
@@ -70,6 +74,17 @@ public class PreviewChartPanel extends JPanel {
         repaint();
     }
 
+    private void drawToBgImage() {
+       // bgImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+       // bgImage = (BufferedImage)(this.createImage(getWidth(), getHeight()));
+
+        bgImage = getGraphicsConfiguration().createCompatibleImage(getWidth(), getHeight());
+        Graphics2D g = bgImage.createGraphics();
+       // g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        chartWithPreview.draw(g, new Rectangle(0, 0, getWidth(), getHeight()));
+        g.dispose();
+    }
+
     @Override
     public String getToolTipText(MouseEvent event) {
         Point p = new Point(event.getX(), event.getY());
@@ -79,7 +94,11 @@ public class PreviewChartPanel extends JPanel {
 
     @Override
     protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
+      /*  super.paintComponent(g);
+        if(bgImage == null) {
+            drawToBgImage();
+        }
+        g.drawImage(bgImage, 0, 0, this); */
         chartWithPreview.draw((Graphics2D) g, new Rectangle(0, 0, getWidth(), getHeight()));
     }
 
