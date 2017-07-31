@@ -9,7 +9,7 @@ import java.util.function.DoubleFunction;
 /**
  * Created by hdablin on 26.04.17.
  */
-public class Graph<T> {
+public abstract class Graph<T> {
     private DoubleFunction<T> function;
     private int xAxisIndex;
     private int yAxisIndex;
@@ -29,10 +29,13 @@ public class Graph<T> {
     }*/
 
 
-    public boolean hover(int mouseX, int mouseY, Axis xAxis) {
-        return graphPainter.hover(mouseX, mouseY, xAxis);
+
+
+    public boolean hover(int mouseX, int mouseY, Axis xAxis, Axis yAxis) {
+        return graphPainter.hover(mouseX, mouseY, xAxis, yAxis);
     }
 
+    public abstract String getTooltipText();
 
     public void setData(DataSet<T> dataSet) {
         dataProcessor.setData(dataSet);

@@ -10,4 +10,7 @@ public class AreaGraph extends Graph<Double> {
         graphPainter = new AreaGraphPainter();
         dataProcessor = new DataProcessorForDoubles();
     }
+    public  String getTooltipText(){
+        return  "";
+    }
 }

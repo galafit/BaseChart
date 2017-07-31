@@ -1,6 +1,7 @@
 package graphs;
 
 import axis.Axis;
+import data.XYPoint;
 import data.XYSet;
 
 import java.awt.*;
@@ -23,6 +24,8 @@ public abstract class GraphPainter<Y> {
 
     public abstract void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis);
 
-    public abstract boolean hover(int mouseX, int mouseY, Axis xAxis);
+    public abstract boolean hover(int mouseX, int mouseY, Axis xAxis, Axis yAxis);
+
+    public abstract XYPoint<Y> getHoverPoint();
 
 }

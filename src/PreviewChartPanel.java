@@ -23,8 +23,8 @@ public class PreviewChartPanel extends JPanel {
         setLayout(new BorderLayout());
         add(hoverPanel, BorderLayout.CENTER);
 
-        // setToolTipText("hello");
-        // ToolTipManager.sharedInstance().setInitialDelay(0);
+        setToolTipText("hello");
+        ToolTipManager.sharedInstance().setInitialDelay(0);
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -87,14 +87,17 @@ public class PreviewChartPanel extends JPanel {
 
     @Override
     public String getToolTipText(MouseEvent event) {
-        Point p = new Point(event.getX(), event.getY());
+        return chartWithPreview.getTooltipText();
+    }
 
-        return "point: " + p.x;
+    @Override
+    public Point getToolTipLocation(MouseEvent event) {
+        return event.getPoint();
     }
 
     @Override
     protected void paintComponent(Graphics g) {
-      /*  super.paintComponent(g);
+      /* super.paintComponent(g);
         if(bgImage == null) {
             drawToBgImage();
         }

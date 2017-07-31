@@ -1,6 +1,7 @@
 package graphs;
 
 import axis.Axis;
+import data.XYPoint;
 import data.XYSet;
 
 import java.awt.*;
@@ -41,12 +42,16 @@ public class AreaGraphPainter extends GraphPainter<Double> {
         g.fill(path);
     }
 
-    public boolean hover(int mouseX, int mouseY, Axis xAxis) {
+    public boolean hover(int mouseX, int mouseY, Axis xAxis, Axis yAxis) {
         return false;
 
     }
 
     public void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
 
+    }
+
+    public XYPoint<Double> getHoverPoint(){
+        return null;
     }
 }

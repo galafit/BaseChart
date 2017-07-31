@@ -48,12 +48,26 @@ public class Chart implements Drawable {
         boolean isHover = false;
         for (Graph graph : graphs) {
             Axis xAxis = xAxisList.get(graph.getXAxisIndex());
-            isHover = isHover || graph.hover(mouseX, mouseY, xAxis);
+            Axis yAxis = yAxisList.get(graph.getYAxisIndex());
+            isHover = isHover || graph.hover(mouseX, mouseY, xAxis, yAxis);
         }
         return isHover;
     }
 
-
+    public String getTooltipText(){
+        String tooltipText = "";
+        for (Graph graph : graphs) {
+             String graphToolTip = graph.getTooltipText();
+             if (!graphToolTip.isEmpty()){
+                 if(!tooltipText.isEmpty()) {
+                     tooltipText = tooltipText + "\n\n" + graphToolTip;
+                 } else {
+                     tooltipText =  graphToolTip;
+                 }
+             }
+        }
+        return  tooltipText;
+    }
 
     public double getPreferredPixelsPerUnit(int xAxisIndex) {
         double pixelsPerUnit = 0;

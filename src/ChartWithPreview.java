@@ -234,6 +234,15 @@ public class ChartWithPreview implements Drawable {
         scroll.draw(g2d, getPreviewArea());
     }
 
+    public String getTooltipText(){
+        for (Chart chart : charts) {
+            if (!chart.getTooltipText().isEmpty()){
+                return chart.getTooltipText();
+            }
+        }
+        return "";
+    }
+
     public void drawHover(Graphics2D g, Rectangle area) {
         for (Chart chart : charts) {
             chart.drawHover(g, area);
