@@ -23,9 +23,10 @@ public class ChartWithPreview implements Drawable {
     private double xAxisPixelsPerUnit = 0;
     private Scroll scroll = new Scroll();
     private boolean isFirstDraw = true;
+    private Rectangle fullArea;
 
     public void update() {
-
+        fullArea = null;
     }
 
     public boolean hover(int mouseX, int mouseY) {
@@ -144,11 +145,13 @@ public class ChartWithPreview implements Drawable {
     public void moveCursorPosition(int shift) {
         scroll.moveScroll(shift);
         setChartsAxisStart();
+        update();
     }
 
     public void setCursorPosition(int mousePosition) {
         scroll.setScrollPosition(mousePosition);
         setChartsAxisStart();
+        update();
     }
 
     private void setChartsAxisStart() {
@@ -160,15 +163,6 @@ public class ChartWithPreview implements Drawable {
 
 
     public void draw(Graphics2D g2d, Rectangle fullArea) {
-        System.out.println("draw "+fullArea.width);
-        adjustXAxisScale();
-        adjustMinMaxRange();
-        if(isFirstDraw) {
-            scroll.getScrollModel().setViewportPosition(scroll.getScrollModel().getMin());
-            setChartsAxisStart();
-            isFirstDraw = false;
-        }
-
         List<Chart> chartsAndPreviews = new AbstractList<Chart>() {
             @Override
             public Chart get(int index) {
@@ -202,35 +196,52 @@ public class ChartWithPreview implements Drawable {
 
         };
 
-        int weightSum = 0;
-        for (int j = 0; j < allWeights.size(); j++) {
-            weightSum += allWeights.get(j);
+        if(this.fullArea == null || !this.fullArea.equals(fullArea)) {
+           this.fullArea = fullArea;
+
+            adjustXAxisScale();
+            adjustMinMaxRange();
+            if(isFirstDraw) {
+                scroll.getScrollModel().setViewportPosition(scroll.getScrollModel().getMin());
+                setChartsAxisStart();
+                isFirstDraw = false;
+            }
+
+            int weightSum = 0;
+            for (int j = 0; j < allWeights.size(); j++) {
+                weightSum += allWeights.get(j);
+            }
+
+            int oneWeightHeight = (chartsAndPreviews.size() == 0) ? fullArea.height : fullArea.height / weightSum;
+            int chartY = fullArea.y;
+            List<Rectangle> chartGraphAreas = new ArrayList<Rectangle>(chartsAndPreviews.size());
+
+
+            for (int i = 0; i < chartsAndPreviews.size(); i++) {
+                int chartHeight = oneWeightHeight * allWeights.get(i);
+                Rectangle chartRectangle = new Rectangle(fullArea.x, chartY, fullArea.width, chartHeight);
+                chartY = chartY + chartHeight;
+                chartGraphAreas.add(chartsAndPreviews.get(i).calculateGraphArea(g2d, chartRectangle));
+            }
+
+            int maxX = Integer.MIN_VALUE;
+            int minEnd = Integer.MAX_VALUE;
+            for (Rectangle area : chartGraphAreas) {
+                maxX = Math.max(maxX, area.x);
+                minEnd = Math.min(minEnd, area.x + area.width);
+            }
+
+            for (int i = 0; i < chartsAndPreviews.size(); i++) {
+                chartsAndPreviews.get(i).reduceGraphArea(g2d, maxX, minEnd - maxX);
+            }
         }
 
-        int oneWeightHeight = (chartsAndPreviews.size() == 0) ? fullArea.height : fullArea.height / weightSum;
-        int chartY = fullArea.y;
-        List<Rectangle> chartGraphAreas = new ArrayList<Rectangle>(chartsAndPreviews.size());
-
+        g2d.setColor(Color.BLACK);
+        g2d.fill(fullArea);
 
         for (int i = 0; i < chartsAndPreviews.size(); i++) {
-            int chartHeight = oneWeightHeight * allWeights.get(i);
-            Rectangle chartRectangle = new Rectangle(fullArea.x, chartY, fullArea.width, chartHeight);
-            chartY = chartY + chartHeight;
-            chartGraphAreas.add(chartsAndPreviews.get(i).calculateGraphArea(g2d, chartRectangle));
-        }
-
-        int maxX = Integer.MIN_VALUE;
-        int minEnd = Integer.MAX_VALUE;
-        for (Rectangle area : chartGraphAreas) {
-            maxX = Math.max(maxX, area.x);
-            minEnd = Math.min(minEnd, area.x + area.width);
-        }
-
-        for (int i = 0; i < chartsAndPreviews.size(); i++) {
-            chartsAndPreviews.get(i).reduceGraphArea(g2d, maxX, minEnd - maxX);
             chartsAndPreviews.get(i).draw(g2d);
         }
-
         scroll.draw(g2d, getPreviewArea());
     }
 
@@ -241,16 +252,6 @@ public class ChartWithPreview implements Drawable {
             }
         }
         return "";
-    }
-
-    public void drawHover(Graphics2D g, Rectangle area) {
-        for (Chart chart : charts) {
-            chart.drawHover(g, area);
-        }
-
-        for (Chart preview : previews) {
-            preview.drawHover(g, area);
-        }
     }
 
     private Rectangle getPreviewArea() {

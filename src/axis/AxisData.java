@@ -90,11 +90,6 @@ public abstract class AxisData {
         isEndOnTick = endOnTick;
     }
 
-    public void resetRange() {
-        min = null;
-        max = null;
-    }
-
     public void setHorizontal(boolean horizontal) {
         isHorizontal = horizontal;
     }
@@ -146,27 +141,14 @@ public abstract class AxisData {
     }
 
 
-    /**
-     * If isAutoScale = FALSE this method simply sets: min = newMin, max = newMax.
-     * But if isAutoScale = TRUE then it only extends the range and sets:
-     * min = Math.min(min, newMin), max = Math.max(max, newMax).
-     *
-     * @param newMin new min value
-     * @param newMax new max value
-     */
     public void setRange(Double newMin, Double newMax) {
         if (newMin != null && newMax != null && newMin > newMax){
             String errorMessage = "Error during setRange(). Expected Min < Max. Min = {0}, Max = {1}.";
             String formattedError = MessageFormat.format(errorMessage,newMin,newMax);
             throw new IllegalArgumentException(formattedError);
         }
-        if (!isAutoScale) {
-            min = newMin;
-            max = newMax;
-        } else {
-            min = (min == null) ? newMin : Math.min(newMin, min);
-            max = (max == null) ? newMax : Math.max(newMax, max);
-        }
+        min = newMin;
+        max = newMax;
     }
 
     public abstract TickProvider getTickProvider(Rectangle area);

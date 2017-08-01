@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class AxisPainter {
     private AxisData axis;
+    private List<Tick> ticks;
 
     public AxisPainter(AxisData axis) {
         this.axis = axis;
@@ -48,11 +49,17 @@ public class AxisPainter {
         return size;
     }
 
+    public void update() {
+        ticks = null;
+    }
+
 
     public void draw(Graphics2D g, Rectangle area, int axisOriginPoint) {
         if (isAxisVisible()) {
 
-            List<Tick> ticks = getTicks(g, area);
+            if(ticks == null) {
+                ticks = getTicks(g, area);
+            }
 
             if (isMinorGridVisible()) {
                 drawMinorGrid(g, area, ticks);

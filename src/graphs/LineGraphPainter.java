@@ -74,6 +74,7 @@ public class LineGraphPainter extends GraphPainter<Double> {
             g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
         }
         g.draw(path);
+        drawHover(g, area,xAxis, yAxis);
     }
 
     @Override

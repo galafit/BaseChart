@@ -11,6 +11,10 @@ public abstract class Axis {
     protected AxisData axisData;
     protected AxisPainter axisPainter;
 
+    public void update() {
+        axisPainter.update();
+    }
+
     public void setPixelsPerUnit(Double pointsPerUnit) {
         axisData.setPixelPerUnit(pointsPerUnit);
     }
@@ -46,10 +50,6 @@ public abstract class Axis {
         axisData.setEndOnTick(endOnTick);
     }
 
-    public void resetRange() {
-        axisData.resetRange();
-    }
-
     public boolean isVisible() {
         return axisData.getAxisViewSettings().isVisible();
     }
@@ -81,8 +81,6 @@ public abstract class Axis {
         axisData.setAutoScale(isAutoScale);
     }
 
-
-
     public double valueToPoint(double value, Rectangle area){
         return axisData.valueToPoint(value, area);
     }
@@ -100,6 +98,7 @@ public abstract class Axis {
      */
     public void setRange(Double newMin, Double newMax) {
         axisData.setRange(newMin, newMax);
+        axisPainter.update();
     }
 
     public double getMin() {return axisData.getMin();}

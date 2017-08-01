@@ -16,11 +16,12 @@ public class LineGraph extends Graph<Double> {
     @Override
     public String getTooltipText() {
          XYPoint hoverPoint = graphPainter.getHoverPoint();
+
          if (hoverPoint == null){
              return "";
          }
         String xString =  "x = " + hoverPoint.getX();
         String yString =  "y = " + hoverPoint.getY();
-        return xString + "\n" + yString;
+        return "<html> <font color=\"red\">"+xString + "<br>" + yString+"</font></html>";
     }
 }

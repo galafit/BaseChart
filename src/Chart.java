@@ -26,6 +26,7 @@ public class Chart implements Drawable {
     private final Color BROWN = new Color(200, 102, 0);
     private final Color ORANGE = new Color(255, 153, 0);
 
+    private Color bgColor = Color.BLACK;
     private Color[] colors = {GREY, BROWN, Color.GREEN, Color.YELLOW};
     private Color[] graphicColors = {Color.MAGENTA, Color.RED, ORANGE, Color.CYAN, Color.PINK};
 
@@ -33,6 +34,7 @@ public class Chart implements Drawable {
     private int[] xAxisPositions;
     private int[] yAxisPositions;
     private Rectangle graphArea; // area to draw graphs
+    private Rectangle fullArea;
 
 
     public Chart() {
@@ -43,6 +45,12 @@ public class Chart implements Drawable {
         y.setHorizontal(false);
         yAxisList.add(y);
     }
+
+
+    public void update(){
+        fullArea = null;
+    }
+
 
     public boolean hover(int mouseX, int mouseY) {
         boolean isHover = false;
@@ -141,9 +149,6 @@ public class Chart implements Drawable {
         addGraph(graph,  0, 0);
     }
 
-    public void update(){
-
-    }
 
     public void addGraph(Graph graph,  int xAxisIndex, int yAxisIndex) {
         graph.setAxisIndexes(xAxisIndex, yAxisIndex);
@@ -256,9 +261,10 @@ public class Chart implements Drawable {
         graphArea = newGraphArea;
     }
 
-    private void rangeXAxis(Rectangle area){
+    private void rangeXAxis(){
         for (int i = 0; i < xAxisList.size(); i++) {
             Axis xAxis = xAxisList.get(i);
+            xAxis.update();
             if(xAxis.isAutoScale()) {
                 Range preferredXRange = getPreferredXRange(i);
                 if(preferredXRange != null) {
@@ -271,6 +277,7 @@ public class Chart implements Drawable {
     private void rangeYAxis(){
         for (int i = 0; i < yAxisList.size(); i++) {
             Axis yAxis = yAxisList.get(i);
+            yAxis.update();
             if(yAxis.isAutoScale()) {
                 Range preferredYRange = null;
                 for (Graph graph : graphs) {
@@ -279,7 +286,6 @@ public class Chart implements Drawable {
                     }
                 }
                 if(preferredYRange != null) {
-                    yAxis.resetRange();
                     yAxis.setRange(preferredYRange.start(), preferredYRange.end());
                 }
             }
@@ -287,7 +293,8 @@ public class Chart implements Drawable {
     }
 
     Rectangle calculateGraphArea(Graphics2D g2d, Rectangle fullArea) {
-        rangeXAxis(fullArea);
+        this.fullArea = fullArea;
+        rangeXAxis();
         setFunctions(fullArea);
         for (Graph graph : graphs) {
             Axis graphXAxis = xAxisList.get(graph.getXAxisIndex());
@@ -326,6 +333,8 @@ public class Chart implements Drawable {
 
 
     void draw(Graphics2D g2d) {
+        g2d.setColor(bgColor);
+        g2d.fill(fullArea);
         for (int i = 0; i < xAxisList.size(); i++) {
             xAxisList.get(i).draw(g2d, graphArea, xAxisPositions[i]);
         }
@@ -345,13 +354,9 @@ public class Chart implements Drawable {
 
 
     public void draw(Graphics2D g2d, Rectangle fullArea) {
-        calculateGraphArea(g2d, fullArea);
-        draw(g2d);
-    }
-
-    public void drawHover(Graphics2D g2d, Rectangle fullArea){
-        for (Graph graph : graphs) {
-            graph.drawHover(g2d, graphArea, xAxisList.get(graph.getXAxisIndex()),yAxisList.get(graph.getYAxisIndex()) );
+        if(this.fullArea == null || !this.fullArea.equals(fullArea)) {
+            calculateGraphArea(g2d, fullArea);
         }
+        draw(g2d);
     }
 }
