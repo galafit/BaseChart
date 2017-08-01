@@ -1,6 +1,7 @@
 import axis.AxisType;
 import data.DataList;
 import data.XYList;
+import functions.DoubleFunction;
 import functions.Sin;
 import functions.Tg;
 import graphs.Graph;
@@ -9,7 +10,7 @@ import graphs.LineGraph;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
-import java.util.function.DoubleFunction;
+
 
 /**
  * Created by hdablin on 24.03.17.

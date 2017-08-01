@@ -1,6 +1,7 @@
 import axis.AxisType;
 import data.DataList;
 import data.XYList;
+import functions.DoubleFunction;
 import functions.Sin;
 import functions.Tg;
 import graphs.AreaGraph;
@@ -10,7 +11,7 @@ import graphs.LineGraph;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
-import java.util.function.DoubleFunction;
+
 
 /**
  * Created by hdablin on 24.03.17.
@@ -26,7 +27,7 @@ public class MainFrame extends JFrame {
             xyList2.addPoint(4057.0789,new Double(i));
         }
 
-        DataList<Double> periodicData = new DataList<>();
+        DataList<Double> periodicData = new DataList<Double>();
         Random rand = new Random();
         for (int i = -3501; i <15000 ; i++) {
             periodicData.addData(rand.nextInt(100)*100.0);

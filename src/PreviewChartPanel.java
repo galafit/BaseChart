@@ -16,7 +16,7 @@ public class PreviewChartPanel extends JPanel {
     private BufferedImage bgImage;
 
 
-    public PreviewChartPanel(ChartWithPreview chartWithPreview) {
+    public PreviewChartPanel(final ChartWithPreview chartWithPreview) {
         this.chartWithPreview = chartWithPreview;
         addMouseListener(new MouseAdapter() {
             @Override

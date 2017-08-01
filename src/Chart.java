@@ -4,21 +4,21 @@ import axis.AxisType;
 import axis.LinearAxis;
 import data.Range;
 import data.XYList;
+import functions.DoubleFunction;
 import graphs.Graph;
 
 
 import java.awt.*;
 import java.util.*;
 import java.util.List;
-import java.util.function.DoubleFunction;
 
 /**
  * Created by hdablin on 24.03.17.
  */
 public class Chart implements Drawable {
-    private List<Graph> graphs = new ArrayList<>();
-    private List<Axis> xAxisList = new ArrayList<>();
-    private List<Axis> yAxisList = new ArrayList<>();
+    private List<Graph> graphs = new ArrayList<Graph>();
+    private List<Axis> xAxisList = new ArrayList<Axis>();
+    private List<Axis> yAxisList = new ArrayList<Axis>();
     private int chartPadding = 10;
     private int axisPadding = 10;
 
@@ -335,6 +335,36 @@ public class Chart implements Drawable {
     void draw(Graphics2D g2d) {
         g2d.setColor(bgColor);
         g2d.fill(fullArea);
+
+        /*
+        * https://stackoverflow.com/questions/31536952/how-to-fix-text-quality-in-java-graphics
+        */
+        Map<?, ?> desktopHints =
+                (Map<?, ?>) Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints");
+        if (desktopHints != null) {
+            g2d.setRenderingHints(desktopHints);
+        }
+
+
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
+                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+        //g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+        g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
+        g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
+        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+
+      /*  g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS,
+                RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+        g2d.setRenderingHint(
+                RenderingHints.KEY_TEXT_ANTIALIASING,
+                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);  */
+
+
         for (int i = 0; i < xAxisList.size(); i++) {
             xAxisList.get(i).draw(g2d, graphArea, xAxisPositions[i]);
         }

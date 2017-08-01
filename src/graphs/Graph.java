@@ -2,9 +2,10 @@ package graphs;
 
 import axis.Axis;
 import data.*;
+import functions.DoubleFunction;
 
 import java.awt.*;
-import java.util.function.DoubleFunction;
+
 
 /**
  * Created by hdablin on 26.04.17.

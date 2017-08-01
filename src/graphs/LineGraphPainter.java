@@ -54,7 +54,7 @@ public class LineGraphPainter extends GraphPainter<Double> {
 
     @Override
     public void draw(XYSet<Double> dataPoints , Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
-        this.dataPoints = new XYOrderedSet<>(dataPoints);
+        this.dataPoints = new XYOrderedSet<Double>(dataPoints);
         this.area = area;
         if (dataPoints == null || dataPoints.size() == 0) {
             return;

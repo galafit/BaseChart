@@ -1,6 +1,5 @@
 package functions;
 
-import java.util.function.DoubleFunction;
 
 /**
  * Created by hdablin on 19.06.17.
