@@ -6,6 +6,7 @@ import data.Range;
 import data.XYList;
 import functions.DoubleFunction;
 import graphs.Graph;
+import graphs.TooltipInfo;
 
 
 import java.awt.*;
@@ -35,7 +36,8 @@ public class Chart implements Drawable {
     private int[] yAxisPositions;
     private Rectangle graphArea; // area to draw graphs
     private Rectangle fullArea;
-
+    private Tooltip tooltip = new Tooltip();
+    private boolean isTooltipSeparated = true;
 
     public Chart() {
         Axis x = new LinearAxis();
@@ -62,19 +64,46 @@ public class Chart implements Drawable {
         return isHover;
     }
 
-    public String getTooltipText(){
-        String tooltipText = "";
-        for (Graph graph : graphs) {
-             String graphToolTip = graph.getTooltipText();
-             if (!graphToolTip.isEmpty()){
-                 if(!tooltipText.isEmpty()) {
-                     tooltipText = tooltipText + "\n\n" + graphToolTip;
-                 } else {
-                     tooltipText =  graphToolTip;
-                 }
-             }
+    public List<TooltipInfo> getTooltips(){
+        ArrayList<TooltipInfo> tooltips = new ArrayList<TooltipInfo>();
+        if (isTooltipSeparated){
+            for (Graph graph : graphs) {
+                TooltipInfo tooltipInfo = graph.getTooltipInfo();
+                if (tooltipInfo != null){
+                    Axis xAxis = xAxisList.get(graph.getXAxisIndex());
+                    Axis yAxis = yAxisList.get(graph.getYAxisIndex());
+                    tooltips.add(new TooltipInfo(tooltipInfo.getString(),xAxis.valueToPoint(tooltipInfo.getX(),graphArea), yAxis.valueToPoint(tooltipInfo.getY(),graphArea)));
+                }
+            }
+        } else {
+            String string = null;
+            double yMin=0;
+            double yMax = 0;
+            double x = 0;
+            for (Graph graph : graphs) {
+                Axis xAxis = xAxisList.get(graph.getXAxisIndex());
+                Axis yAxis = yAxisList.get(graph.getYAxisIndex());
+                TooltipInfo tooltipInfo = graph.getTooltipInfo();
+
+                if ( tooltipInfo != null){
+                    if (string != null){
+                        string = string + "\n\n" + tooltipInfo.getString();
+                        yMin = Math.min(yMin, yAxis.valueToPoint(tooltipInfo.getY(),graphArea));
+                        yMax = Math.max(yMax, yAxis.valueToPoint(tooltipInfo.getY(), graphArea));
+                    } else {
+                        string = tooltipInfo.getString();
+                        yMin = yAxis.valueToPoint(tooltipInfo.getY(),graphArea);
+                        yMax = yAxis.valueToPoint(tooltipInfo.getY(),graphArea);
+                    }
+                    x = xAxis.valueToPoint(tooltipInfo.getX(),graphArea);
+                }
+            }
+            if (string != null){
+                tooltips.add(new TooltipInfo(string,x,(yMax - yMin) / 2));
+            }
         }
-        return  tooltipText;
+
+        return  tooltips;
     }
 
     public double getPreferredPixelsPerUnit(int xAxisIndex) {
@@ -380,6 +409,11 @@ public class Chart implements Drawable {
             graph.draw(g2d, graphArea, xAxisList.get(graph.getXAxisIndex()),yAxisList.get(graph.getYAxisIndex()) );
         }
         g2d.setClip(clip);
+
+        List<TooltipInfo> tooltips = getTooltips();
+        for (TooltipInfo tooltipInfo : tooltips) {
+            tooltip.draw(g2d, fullArea, tooltipInfo.getX(), tooltipInfo.getY(),tooltipInfo.getString());
+        }
     }
 
 

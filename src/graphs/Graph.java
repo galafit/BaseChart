@@ -36,7 +36,7 @@ public abstract class Graph<T> {
         return graphPainter.hover(mouseX, mouseY, xAxis, yAxis);
     }
 
-    public abstract String getTooltipText();
+    public abstract TooltipInfo getTooltipInfo();
 
     public void setData(DataSet<T> dataSet) {
         dataProcessor.setData(dataSet);

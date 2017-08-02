@@ -14,14 +14,15 @@ public class LineGraph extends Graph<Double> {
     }
 
     @Override
-    public String getTooltipText() {
-         XYPoint hoverPoint = graphPainter.getHoverPoint();
+    public TooltipInfo getTooltipInfo() {
+         XYPoint<Double> hoverPoint = graphPainter.getHoverPoint();
 
          if (hoverPoint == null){
-             return "";
+             return null;
          }
         String xString =  "x = " + hoverPoint.getX();
         String yString =  "y = " + hoverPoint.getY();
-        return "<html> <font color=\"red\">"+xString + "<br>" + yString+"</font></html>";
+        String tooltipString = xString + "\n" + yString;
+        return new TooltipInfo(tooltipString,hoverPoint.getX(),hoverPoint.getY());
     }
 }
