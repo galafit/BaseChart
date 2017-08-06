@@ -11,9 +11,9 @@ import java.awt.geom.GeneralPath;
 /**
  * Created by galafit on 20/7/17.
  */
-public class AreaGraphPainter extends GraphPainter<Double> {
+public class AreaGraphPainter extends GraphPainter<Number> {
     @Override
-    public void draw(XYSet<Double> dataPoints, Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
+    public void draw(XYSet<Number> dataPoints, Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
         if (dataPoints == null || dataPoints.size() == 0) {
             return;
         }
@@ -21,15 +21,15 @@ public class AreaGraphPainter extends GraphPainter<Double> {
         g.setColor(lineColor);
 
         GeneralPath path = new GeneralPath();
-        double x_0 = xAxis.valueToPoint(dataPoints.getX(0), area);
-        double y_0 = yAxis.valueToPoint(dataPoints.getY(0), area);
+        double x_0 = xAxis.valueToPoint(dataPoints.getX(0).doubleValue(), area);
+        double y_0 = yAxis.valueToPoint(dataPoints.getY(0).doubleValue(), area);
 
         double x = x_0;
         double y = y_0;
         path.moveTo(x, y);
         for (int i = 1; i < dataPoints.size(); i++) {
-            x = xAxis.valueToPoint(dataPoints.getX(i), area);
-            y = yAxis.valueToPoint(dataPoints.getY(i), area);
+            x = xAxis.valueToPoint(dataPoints.getX(i).doubleValue(), area);
+            y = yAxis.valueToPoint(dataPoints.getY(i).doubleValue(), area);
             path.lineTo(x, y);
         }
         g.draw(path);
@@ -51,7 +51,7 @@ public class AreaGraphPainter extends GraphPainter<Double> {
 
     }
 
-    public XYPoint<Double> getHoverPoint(){
+    public XYPoint<Number> getHoverPoint(){
         return null;
     }
 }

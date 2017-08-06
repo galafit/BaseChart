@@ -26,7 +26,7 @@ public class XYList<Y> implements XYSet<Y> {
     }
 
     @Override
-    public Double getX(long index) {
+    public Number getX(long index) {
         if(index > Integer.MAX_VALUE) {
             String errorMessage = "Illegal index. Index = {0}.  Expected <= {1}";
             String formattedError = MessageFormat.format(errorMessage,index, Integer.MAX_VALUE);

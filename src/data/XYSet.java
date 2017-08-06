@@ -6,6 +6,6 @@ package data;
  */
 public interface XYSet<Y>  {
     public long size();
-    public Double getX(long index);
+    public Number getX(long index);
     public Y getY(long index);
 }

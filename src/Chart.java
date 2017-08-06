@@ -7,6 +7,7 @@ import data.XYList;
 import functions.DoubleFunction;
 import graphs.Graph;
 import graphs.TooltipInfo;
+import tooltips.TooltipPainter;
 
 
 import java.awt.*;
@@ -36,7 +37,7 @@ public class Chart implements Drawable {
     private int[] yAxisPositions;
     private Rectangle graphArea; // area to draw graphs
     private Rectangle fullArea;
-    private Tooltip tooltip = new Tooltip();
+    private TooltipPainter tooltipPainter = new TooltipPainter();
     private boolean isTooltipSeparated = true;
 
     public Chart() {
@@ -72,7 +73,7 @@ public class Chart implements Drawable {
                 if (tooltipInfo != null){
                     Axis xAxis = xAxisList.get(graph.getXAxisIndex());
                     Axis yAxis = yAxisList.get(graph.getYAxisIndex());
-                    tooltips.add(new TooltipInfo(tooltipInfo.getString(),xAxis.valueToPoint(tooltipInfo.getX(),graphArea), yAxis.valueToPoint(tooltipInfo.getY(),graphArea)));
+                    tooltips.add(new TooltipInfo(tooltipInfo.getString(),xAxis.valueToPoint(tooltipInfo.getX().doubleValue(),graphArea), yAxis.valueToPoint(tooltipInfo.getY().doubleValue(),graphArea)));
                 }
             }
         } else {
@@ -87,15 +88,15 @@ public class Chart implements Drawable {
 
                 if ( tooltipInfo != null){
                     if (string != null){
-                        string = string + "\n\n" + tooltipInfo.getString();
-                        yMin = Math.min(yMin, yAxis.valueToPoint(tooltipInfo.getY(),graphArea));
-                        yMax = Math.max(yMax, yAxis.valueToPoint(tooltipInfo.getY(), graphArea));
+                        string = string + " " + tooltipInfo.getString();
+                        yMin = Math.min(yMin, yAxis.valueToPoint(tooltipInfo.getY().doubleValue(),graphArea));
+                        yMax = Math.max(yMax, yAxis.valueToPoint(tooltipInfo.getY().doubleValue(), graphArea));
                     } else {
                         string = tooltipInfo.getString();
-                        yMin = yAxis.valueToPoint(tooltipInfo.getY(),graphArea);
-                        yMax = yAxis.valueToPoint(tooltipInfo.getY(),graphArea);
+                        yMin = yAxis.valueToPoint(tooltipInfo.getY().doubleValue(),graphArea);
+                        yMax = yAxis.valueToPoint(tooltipInfo.getY().doubleValue(),graphArea);
                     }
-                    x = xAxis.valueToPoint(tooltipInfo.getX(),graphArea);
+                    x = xAxis.valueToPoint(tooltipInfo.getX().doubleValue(),graphArea);
                 }
             }
             if (string != null){
@@ -412,7 +413,7 @@ public class Chart implements Drawable {
 
         List<TooltipInfo> tooltips = getTooltips();
         for (TooltipInfo tooltipInfo : tooltips) {
-            tooltip.draw(g2d, fullArea, tooltipInfo.getX(), tooltipInfo.getY(),tooltipInfo.getString());
+            tooltipPainter.draw(g2d, fullArea, tooltipInfo.getX(), tooltipInfo.getY(),tooltipInfo.getString());
         }
     }
 

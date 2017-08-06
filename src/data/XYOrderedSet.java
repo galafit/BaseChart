@@ -12,7 +12,7 @@ public class XYOrderedSet<Y> implements RangableSet<Y> {
 
 
     public int prevOrNextXValueBinarySearch(double xValue, boolean previous) {
-        if (xValue < points.getX(0) || xValue > points.getX(points.size() - 1)) {
+        if (xValue < points.getX(0).doubleValue() || xValue > points.getX(points.size() - 1).doubleValue()) {
             return -1; // key not found
         }
         int low = 0;
@@ -21,7 +21,7 @@ public class XYOrderedSet<Y> implements RangableSet<Y> {
 
         while (low <= high) {
             int mid = (low + high) >>> 1;
-            double midVal = points.getX(mid);
+            double midVal = points.getX(mid).doubleValue();
 
             if (midVal < xValue)
                 low = mid + 1;  // Neither val is NaN, thisVal is smaller
@@ -55,7 +55,7 @@ public class XYOrderedSet<Y> implements RangableSet<Y> {
         int nearestIndex = -1;
         int prevIndex = prevOrNextXValueBinarySearch(xValue, true);
         if(prevIndex >= 0) {
-            nearestIndex = (xValue - points.getX(prevIndex) <= (points.getX(prevIndex + 1) - xValue)) ? prevIndex : Math.min((int)points.size() - 1, prevIndex + 1);
+            nearestIndex = (xValue - points.getX(prevIndex).doubleValue() <= (points.getX(prevIndex + 1).doubleValue() - xValue)) ? prevIndex : Math.min((int)points.size() - 1, prevIndex + 1);
         }
         return nearestIndex;
     }
@@ -63,7 +63,7 @@ public class XYOrderedSet<Y> implements RangableSet<Y> {
 
     @Override
     public Range getIndexRange(double startXValue, double endXValue) {
-        if(startXValue < points.getX(0) || endXValue > points.getX(points.size() - 1)) {
+        if(startXValue < points.getX(0).doubleValue() || endXValue > points.getX(points.size() - 1).doubleValue()) {
             return null;
         }
         double startIndex = prevOrNextXValueBinarySearch(startXValue, false);
@@ -77,7 +77,7 @@ public class XYOrderedSet<Y> implements RangableSet<Y> {
     }
 
     @Override
-    public Double getX(long index) {
+    public Number getX(long index) {
         return points.getX(index);
     }
 

@@ -181,4 +181,6 @@ public abstract class AxisData {
     public abstract double valueToPoint(double value, Rectangle area);
 
     public abstract double pointToValue(double point, Rectangle area);
+
+    public abstract Number roundValue(double value, Rectangle area);
 }

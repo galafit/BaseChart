@@ -1,16 +1,16 @@
 package graphs;
 
-import data.DataProcessorForDoubles;
+import data.DataProcessorForNumbers;
 
 /**
  * Created by hdablin on 26.04.17.
  */
-public class AreaGraph extends Graph<Double> {
+public class AreaGraph extends Graph<Number> {
     {
         graphPainter = new AreaGraphPainter();
-        dataProcessor = new DataProcessorForDoubles();
+        dataProcessor = new DataProcessorForNumbers();
     }
-    public  TooltipInfo getTooltipInfo(){
+    public TooltipInfo getTooltipInfo(){
         return  null;
     }
 }

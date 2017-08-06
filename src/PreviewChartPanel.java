@@ -13,7 +13,6 @@ public class PreviewChartPanel extends JPanel {
     private ChartWithPreview chartWithPreview;
     private boolean isMousePressedInsideCursor = false;
     private int mousePressedX;
-    private BufferedImage bgImage;
 
 
     public PreviewChartPanel(final ChartWithPreview chartWithPreview) {
@@ -67,6 +66,7 @@ public class PreviewChartPanel extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
        super.paintComponent(g);
-        chartWithPreview.draw((Graphics2D) g, new Rectangle(0, 0, getWidth(), getHeight()));
+       chartWithPreview.draw((Graphics2D) g, new Rectangle(0, 0, getWidth(), getHeight()));
+
     }
 }

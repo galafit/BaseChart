@@ -1,6 +1,8 @@
 package axis;
 
 import java.awt.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Created by hdablin on 08.04.17.
@@ -102,6 +104,29 @@ public class LinearAxisData extends AxisData {
         }
         return axisMin + (point - min) / (max - min) * (axisMax - axisMin);
     }*/
+
+   public Number roundValue(double value, Rectangle area) {
+       double pixelInterval = 1 / getPixelsPerUnit(area);
+       ScientificNumber sn = new ScientificNumber(pixelInterval);
+       int power = sn.getPower();
+       int firstDigit = (int) sn.getDigits();
+       if(firstDigit > 7) {
+           power++;
+       }
+       if(power > 0 ) {
+           power = 0;
+       }
+       return round(value, - power);
+
+   }
+
+    private Number round(double value, int places) {
+        if(places == 0) {
+            return Math.round(value);
+        }
+        BigDecimal bd = new BigDecimal(value).setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
+    }
 
 
     @Override

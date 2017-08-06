@@ -1,9 +1,15 @@
-package graphs;
+package tooltips;
+
+import java.util.ArrayList;
 
 /**
  * Created by hdablin on 02.08.17.
  */
 public class TooltipInfo {
+    private String header;
+    private ArrayList<TooltipItem> items;
+
+
     private String string;
     private Number x,y;
 

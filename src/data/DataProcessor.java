@@ -124,7 +124,7 @@ public class DataProcessor<Y> {
         if(rowPoints == null || rowPoints.size() == 0) {
             return null;
         }
-        return new Range(rowPoints.getX(0), rowPoints.getX(rowPoints.size() - 1));
+        return new Range(rowPoints.getX(0).doubleValue(), rowPoints.getX(rowPoints.size() - 1).doubleValue());
     }
 
 
@@ -136,7 +136,7 @@ public class DataProcessor<Y> {
             }
 
             @Override
-            public Double getX(long index) {
+            public Number getX(long index) {
                 return rowPoints.getX(rangeStartIndex + index);
             }
 

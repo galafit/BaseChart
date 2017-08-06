@@ -88,14 +88,11 @@ public abstract class Axis {
     public double pointsToValue(double point, Rectangle area) {
         return axisData.pointToValue(point, area);
     }
-    /**
-     * If isAutoScale = FALSE this method simply sets: min = newMin, max = newMax.
-     * But if isAutoScale = TRUE then it only extends the range and sets:
-     * min = Math.min(min, newMin), max = Math.max(max, newMax).
-     *
-     * @param newMin new min value
-     * @param newMax new max value
-     */
+
+    public Number roundValue(double value, Rectangle area) {
+        return axisData.roundValue(value, area);
+    }
+
     public void setRange(Double newMin, Double newMax) {
         axisData.setRange(newMin, newMax);
         axisPainter.update();
