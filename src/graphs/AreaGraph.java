@@ -1,6 +1,7 @@
 package graphs;
 
 import data.DataProcessorForNumbers;
+import tooltips.TooltipInfo;
 
 /**
  * Created by hdablin on 26.04.17.

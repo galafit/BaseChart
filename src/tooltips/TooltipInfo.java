@@ -9,7 +9,6 @@ public class TooltipInfo {
     private String header;
     private ArrayList<TooltipItem> items;
 
-
     private String string;
     private Number x,y;
 

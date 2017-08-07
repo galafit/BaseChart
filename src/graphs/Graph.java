@@ -3,6 +3,7 @@ package graphs;
 import axis.Axis;
 import data.*;
 import functions.DoubleFunction;
+import tooltips.TooltipInfo;
 
 import java.awt.*;
 

@@ -6,7 +6,7 @@ import data.Range;
 import data.XYList;
 import functions.DoubleFunction;
 import graphs.Graph;
-import graphs.TooltipInfo;
+import tooltips.TooltipInfo;
 import tooltips.TooltipPainter;
 
 
