@@ -1,6 +1,7 @@
 package graphs;
 
 import axis.Axis;
+import data.Range;
 import data.XYPoint;
 import data.XYSet;
 
@@ -12,6 +13,11 @@ import java.awt.geom.GeneralPath;
  * Created by galafit on 20/7/17.
  */
 public class AreaGraphPainter extends GraphPainter<Number> {
+    @Override
+    public Range getYPixelRange() {
+        return null;
+    }
+
     @Override
     public void draw(XYSet<Number> dataPoints, Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
         if (dataPoints == null || dataPoints.size() == 0) {

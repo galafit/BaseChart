@@ -1,6 +1,7 @@
 package graphs;
 
 import axis.Axis;
+import data.Range;
 import data.XYOrderedSet;
 import data.XYPoint;
 import data.XYSet;
@@ -14,16 +15,13 @@ import java.awt.geom.GeneralPath;
  */
 public class LineGraphPainter extends GraphPainter<Number> {
     int pointRadius = 5;
-    private XYOrderedSet<Number> dataPoints;
-    int hoverIndex = -1;
     Rectangle area;
     int hoverRadius = 10;
+    Range yRange;
 
-    public XYPoint<Number> getHoverPoint(){
-        if (hoverIndex >= 0) {
-            return new XYPoint<Number>(dataPoints.getX(hoverIndex), dataPoints.getY(hoverIndex));
-        }
-        return null;
+    @Override
+    public Range getYPixelRange() {
+        return yRange;
     }
 
     public boolean hover(int mouseX, int mouseY, Axis xAxis, Axis yAxis) {
@@ -38,10 +36,12 @@ public class LineGraphPainter extends GraphPainter<Number> {
                 if (Math.abs(yPoint - mouseY) > hoverRadius){
                     hoverIndex = - 1;
                 }
+                yRange = new Range(yPoint - hoverRadius,yPoint + hoverRadius);
             }
         }
         else {
             hoverIndex = - 1;
+            yRange = null;
         }
 
 

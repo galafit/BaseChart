@@ -4,6 +4,7 @@ import axis.Axis;
 import data.*;
 import functions.DoubleFunction;
 import tooltips.TooltipInfo;
+import tooltips.TooltipItem;
 
 import java.awt.*;
 
@@ -37,7 +38,7 @@ public abstract class Graph<T> {
         return graphPainter.hover(mouseX, mouseY, xAxis, yAxis);
     }
 
-    public abstract TooltipInfo getTooltipInfo();
+    public abstract TooltipItem getTooltipItem();
 
     public void setData(DataSet<T> dataSet) {
         dataProcessor.setData(dataSet);
@@ -92,7 +93,11 @@ public abstract class Graph<T> {
         graphPainter.draw(dataProcessor.getProcessedPoints(), g, area, xAxis, yAxis);
     }
 
-    public void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
-        graphPainter.drawHover( g, area, xAxis, yAxis);
+    public XYPoint<T> getHoverPoint(){
+        return graphPainter.getHoverPoint();
+    }
+
+    public Range getYPixelRange(){
+        return graphPainter.getYPixelRange();
     }
 }

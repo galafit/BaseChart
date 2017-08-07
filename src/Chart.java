@@ -7,6 +7,7 @@ import data.XYList;
 import functions.DoubleFunction;
 import graphs.Graph;
 import tooltips.TooltipInfo;
+import tooltips.TooltipItem;
 import tooltips.TooltipPainter;
 
 
@@ -65,15 +66,31 @@ public class Chart implements Drawable {
         return isHover;
     }
 
-    public List<TooltipInfo> getTooltips(){
-        ArrayList<TooltipInfo> tooltips = new ArrayList<TooltipInfo>();
-        if (isTooltipSeparated){
+    public TooltipInfo getTooltipInfo(){
+        TooltipInfo tooltip = new TooltipInfo();
+        int pixelX, pixelY;
+        for (Graph graph : graphs) {
+            if (graph.getHoverPoint() != null) {
+                Axis xAxis = xAxisList.get(graph.getXAxisIndex());
+                Axis yAxis = yAxisList.get(graph.getYAxisIndex());
+                tooltip.addItem(graph.getTooltipItem());
+                double x = graph.getHoverPoint().getX().doubleValue();
+                pixelX = (int) xAxis.valueToPoint(x, graphArea);
+                pixelY = (int)graph.getYPixelRange().start();
+                tooltip.setX(pixelX);
+                tooltip.setY(pixelY);
+            }
+        }
+
+        return  tooltip;
+      /*  if (isTooltipSeparated){
             for (Graph graph : graphs) {
-                TooltipInfo tooltipInfo = graph.getTooltipInfo();
-                if (tooltipInfo != null){
+                TooltipItem tooltipItem = graph.getTooltipItem();
+                if (tooltipItem != null){
                     Axis xAxis = xAxisList.get(graph.getXAxisIndex());
                     Axis yAxis = yAxisList.get(graph.getYAxisIndex());
-                    tooltips.add(new TooltipInfo(tooltipInfo.getString(),xAxis.valueToPoint(tooltipInfo.getX().doubleValue(),graphArea), yAxis.valueToPoint(tooltipInfo.getY().doubleValue(),graphArea)));
+                    tooltips.add(new
+                            TooltipInfo(tooltipItem.getString(),xAxis.valueToPoint(tooltipItem.getX().doubleValue(),graphArea), yAxis.valueToPoint(tooltipItem.getY().doubleValue(),graphArea)));
                 }
             }
         } else {
@@ -104,7 +121,7 @@ public class Chart implements Drawable {
             }
         }
 
-        return  tooltips;
+        return  tooltips; */
     }
 
     public double getPreferredPixelsPerUnit(int xAxisIndex) {
@@ -411,10 +428,7 @@ public class Chart implements Drawable {
         }
         g2d.setClip(clip);
 
-        List<TooltipInfo> tooltips = getTooltips();
-        for (TooltipInfo tooltipInfo : tooltips) {
-            tooltipPainter.draw(g2d, fullArea, tooltipInfo.getX(), tooltipInfo.getY(),tooltipInfo.getString());
-        }
+        tooltipPainter.draw(g2d, fullArea, getTooltipInfo());
     }
 
 

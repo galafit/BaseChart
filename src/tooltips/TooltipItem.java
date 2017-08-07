@@ -10,6 +10,12 @@ public class TooltipItem {
     private String value;
     private Color  markColor;
 
+    public TooltipItem(String label, String value, Color markColor) {
+        this.label = label;
+        this.value = value;
+        this.markColor = markColor;
+    }
+
     public String getLabel() {
         return label;
     }

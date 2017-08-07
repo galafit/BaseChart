@@ -6,27 +6,43 @@ import java.util.ArrayList;
  * Created by hdablin on 02.08.17.
  */
 public class TooltipInfo {
-    private String header;
-    private ArrayList<TooltipItem> items;
+    private TooltipItem header;
+    private ArrayList<TooltipItem> items = new ArrayList<TooltipItem>();
+    int x,y;
 
-    private String string;
-    private Number x,y;
-
-    public TooltipInfo(String string, Number x, Number y) {
-        this.string = string;
-        this.x = x;
-        this.y = y;
-    }
-
-    public String getString() {
-        return string;
-    }
-
-    public Number getX() {
+    public int getX() {
         return x;
     }
 
-    public Number getY() {
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public int getY() {
         return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
+    }
+
+    public TooltipItem getHeader() {
+        return header;
+    }
+
+    public void setHeader(TooltipItem header) {
+        this.header = header;
+    }
+
+    public int getAmountOfItems(){
+        return items.size();
+    }
+
+    public TooltipItem getItem(int index){
+        return items.get(index);
+    }
+
+    public void addItem(TooltipItem item){
+        items.add(item);
     }
 }

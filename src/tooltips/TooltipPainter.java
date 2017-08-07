@@ -2,6 +2,7 @@ package tooltips;
 
 import axis.ScientificNumber;
 import com.sun.javafx.tk.*;
+import graphs.Graph;
 
 import java.awt.*;
 import java.awt.FontMetrics;
@@ -21,51 +22,73 @@ public class TooltipPainter {
     String font = Font.SANS_SERIF;
     int fontSize = 14;
 
-    public void draw(Graphics2D g2d, Rectangle area, Number x, Number y, String string){
+    public void draw(Graphics2D g2d, Rectangle area, TooltipInfo tooltipInfo){
         Padding padding = getPadding();
         Font tooltipFont = new Font(font, Font.PLAIN, fontSize);
         g2d.setFont(tooltipFont);
-
-        String[] strings = string.split("<br>");
-
-        Dimension tooltipDimention = getTextSize(g2d, strings);
-
-        Rectangle tooltipArea = new Rectangle(x.intValue() +20,y.intValue() +20,tooltipDimention.width,tooltipDimention.height);
+        Dimension tooltipDimention = getTextSize(g2d, tooltipInfo);
+        Rectangle tooltipArea = new Rectangle(tooltipInfo.getX() +20,tooltipInfo.getY() +20,tooltipDimention.width,tooltipDimention.height);
         g2d.setColor(backgroundColor);
         g2d.fillRect(tooltipArea.x, tooltipArea.y, tooltipArea.width, tooltipArea.height);
         g2d.setColor(borderColor);
         g2d.drawRect(tooltipArea.x, tooltipArea.y, tooltipArea.width, tooltipArea.height);
-
-        g2d.setColor(fontColor);
-        drawText(g2d, tooltipArea, strings);
+        drawTooltipInfo(g2d, tooltipArea, tooltipInfo);
     }
 
 
     /**
      * https://stackoverflow.com/questions/27706197/how-can-i-center-graphics-drawstring-in-java
      */
-    private void drawText(Graphics2D g2, Rectangle area, String[] strings) {
+    private void drawTooltipInfo(Graphics2D g2, Rectangle area, TooltipInfo tooltipInfo) {
         Padding padding = getPadding();
         int stringHeght = getStringHeight(g2);
         int lineSpace = getInterLineSpace();
         int x = area.x + padding.left();
         int y = area.y +  getAscent(g2)  + padding.top();
 
-        for (String string : strings) {
-            g2.drawString(string, x, y);
+        for (int i = 0; i < tooltipInfo.getAmountOfItems(); i++) {
+            drawItem(g2, x,y, tooltipInfo.getItem(i));
             y += (lineSpace + stringHeght);
         }
     }
+
+    private int getColorMarkerSize(){
+        return fontSize / 2;
+    }
+
+    private int getColorMarkerPadding(){
+        return fontSize / 2;
+    }
+
+    private int getItemWidth(Graphics2D g2d, TooltipItem tooltipItem){
+        String string = tooltipItem.getLabel() + ": " + tooltipItem.getValue();
+        int itemWidth = getStringWidth(g2d, string) + getColorMarkerPadding() + getColorMarkerSize();
+        return itemWidth;
+    }
+
+    private void drawItem(Graphics2D g2d, int x, int y, TooltipItem tooltipItem){
+        g2d.setColor(tooltipItem.getMarkColor());
+        g2d.fillRect(x,y - getStringHeight(g2d) / 2 + getColorMarkerSize() / 2, getColorMarkerSize(), getColorMarkerSize());
+        x = x + getColorMarkerSize() + getColorMarkerPadding();
+        g2d.setColor(fontColor);
+        g2d.setFont(new Font(font, Font.PLAIN, fontSize));
+        String labelString = tooltipItem.getLabel() + ": ";
+        g2d.drawString(labelString, x, y);
+        x = x + getStringWidth(g2d, labelString);
+        g2d.setFont(new Font(font, Font.BOLD, fontSize));
+        g2d.drawString(tooltipItem.getValue(),x,y);
+    }
     
-    private Dimension getTextSize(Graphics2D g2, String[] strings) {
+    private Dimension getTextSize(Graphics2D g2, TooltipInfo tooltipInfo) {
         int textWidth = 0;
-        for (String string : strings) {
-            textWidth = Math.max(textWidth, getStringWidth(g2, string));
+        int amountOfItems = tooltipInfo.getAmountOfItems();
+        for (int i = 0; i < amountOfItems; i++) {
+            textWidth = Math.max(textWidth, getItemWidth(g2, tooltipInfo.getItem(i)));
         }
         Padding padding = getPadding();
         textWidth += padding.left() + padding.right();
-        int textHeight = padding.top() + padding.bottom + strings.length * getStringHeight(g2);
-        textHeight += getInterLineSpace() * (strings.length - 1);
+        int textHeight = padding.top() + padding.bottom + amountOfItems * getStringHeight(g2);
+        textHeight += getInterLineSpace() * (amountOfItems - 1);
         return new Dimension(textWidth, textHeight);
     }
     
@@ -77,13 +100,7 @@ public class TooltipPainter {
           return new Padding((int)(fontSize * 0.8), (int)(fontSize * 0.4), (int)(fontSize * 0.8), (int)(fontSize * 0.4));
     }
 
-    private Rectangle2D getStringBounds(Graphics2D g2, String string, Font font) {
-        TextLayout layout = new TextLayout(string, font, g2.getFontRenderContext());
-        Rectangle2D labelBounds = layout.getBounds();
-        return labelBounds;
-        /*FontRenderContext frc = g2.getFontRenderContext();
-        return g2.getFont().getStringBounds(string, frc);*/
-    }
+
     private int getStringWidth(Graphics2D g2, String string) {
         FontMetrics fm = g2.getFontMetrics();
         return  fm.stringWidth(string);
