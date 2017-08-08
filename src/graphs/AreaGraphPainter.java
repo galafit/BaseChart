@@ -2,6 +2,7 @@ package graphs;
 
 import axis.Axis;
 import data.Range;
+import data.XYOrderedSet;
 import data.XYPoint;
 import data.XYSet;
 
@@ -13,13 +14,12 @@ import java.awt.geom.GeneralPath;
  * Created by galafit on 20/7/17.
  */
 public class AreaGraphPainter extends GraphPainter<Number> {
-    @Override
-    public Range getYPixelRange() {
-        return null;
-    }
+    int pointRadius = 3;
 
     @Override
     public void draw(XYSet<Number> dataPoints, Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
+        this.dataPoints = new XYOrderedSet<Number>(dataPoints);
+        this.area = area;
         if (dataPoints == null || dataPoints.size() == 0) {
             return;
         }
@@ -33,10 +33,14 @@ public class AreaGraphPainter extends GraphPainter<Number> {
         double x = x_0;
         double y = y_0;
         path.moveTo(x, y);
+        g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
+
         for (int i = 1; i < dataPoints.size(); i++) {
             x = xAxis.valueToPoint(dataPoints.getX(i).doubleValue(), area);
             y = yAxis.valueToPoint(dataPoints.getY(i).doubleValue(), area);
             path.lineTo(x, y);
+            g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
+
         }
         g.draw(path);
 
@@ -46,18 +50,20 @@ public class AreaGraphPainter extends GraphPainter<Number> {
         Color transparentColor =new Color(lineColor.getRed(), lineColor.getGreen(), lineColor.getBlue(), 100 );
         g.setColor(transparentColor);
         g.fill(path);
+        drawHover(g, area,xAxis, yAxis);
     }
 
-    public boolean hover(int mouseX, int mouseY, Axis xAxis, Axis yAxis) {
-        return false;
-
-    }
 
     public void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
+        if(hoverIndex >= 0) {
+            double x = xAxis.valueToPoint(dataPoints.getX(hoverIndex).doubleValue(), area);
+            double y = yAxis.valueToPoint(dataPoints.getY(hoverIndex).doubleValue(), area);
+            double pointRadius = this.pointRadius + 4;
+            g.setColor(Color.CYAN);
+            g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
+
+        }
 
     }
 
-    public XYPoint<Number> getHoverPoint(){
-        return null;
-    }
 }

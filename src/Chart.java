@@ -86,6 +86,7 @@ public class Chart implements Drawable {
             Axis yAxis = yAxisList.get(graph.getYAxisIndex());
             double xValue = xAxis.pointsToValue(mouseX, graphArea);
             int pointIndex = graph.getNearestPointIndex(xValue);
+          //  System.out.println("graph: "+i +" pointIndex: "+ pointIndex +" x:"+xValue);
             nearestPointsIndexes[i] = pointIndex;
             if(pointIndex >= 0) {
                 int x = (int) Math.round(xAxis.valueToPoint(graph.getPoint(pointIndex).getX().doubleValue(), graphArea));
@@ -108,7 +109,11 @@ public class Chart implements Drawable {
                         hoverXValue = xAxis.pointsToValue(x, graphArea);
                         hoverXValue = xAxis.roundValue(hoverXValue.doubleValue(), graphArea);
                         isHover = isHover || graph.setHoverPoint(pointIndex);
-                        tooltipItems.add(graph.getTooltipItem());
+                        TooltipItem tooltipItem = graph.getTooltipItem();
+                        if(tooltipItem != null) {
+                            tooltipItems.add(graph.getTooltipItem());
+                        }
+
                         Range yValueRange = graph.getPointYRange(graph.getPoint(pointIndex).getY());
                         Range yPixelRange = new Range(yAxis.valueToPoint(yValueRange.start(), graphArea), yAxis.valueToPoint(yValueRange.start(), graphArea));
                         y_range = Range.max(y_range, yPixelRange);

@@ -15,41 +15,6 @@ import java.awt.geom.GeneralPath;
  */
 public class LineGraphPainter extends GraphPainter<Number> {
     int pointRadius = 5;
-    int hoverRadius = 10;
-    Range yRange;
-
-    @Override
-    public Range getYPixelRange() {
-        return yRange;
-    }
-
-    public boolean hover(int mouseX, int mouseY, Axis xAxis, Axis yAxis) {
-        int hoverIndex;
-
-        if(area.contains(new Point(mouseX, mouseY))) {
-            double xValue = xAxis.pointsToValue(mouseX, area);
-            hoverIndex = dataPoints.getNearestPoint(xValue);
-            if (hoverIndex >= 0){
-                double y = dataPoints.getY(hoverIndex).doubleValue();
-                int yPoint = (int)yAxis.valueToPoint(y,area);
-                if (Math.abs(yPoint - mouseY) > hoverRadius){
-                    hoverIndex = - 1;
-                }
-                yRange = new Range(yPoint - hoverRadius,yPoint + hoverRadius);
-            }
-        }
-        else {
-            hoverIndex = - 1;
-            yRange = null;
-        }
-
-
-        if(this.hoverIndex != hoverIndex) {
-            this.hoverIndex = hoverIndex;
-            return true;
-        }
-        return false;
-    }
 
     @Override
     public void draw(XYSet<Number> dataPoints , Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {

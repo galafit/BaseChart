@@ -56,7 +56,6 @@ public class MainFrame extends JFrame {
         Graph g2 = new AreaGraph();
         g2.setData(periodicData2);
 
-
         DoubleFunction<Double> sin = new Sin();
         Graph g3 = new LineGraph();
         g3.setFunction(sin);

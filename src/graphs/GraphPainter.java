@@ -30,8 +30,6 @@ public abstract class GraphPainter<Y> {
 
     public abstract void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis);
 
-    public abstract boolean hover(int mouseX, int mouseY, Axis xAxis, Axis yAxis);
-
     public XYPoint<Y> getHoverPoint(){
         if (hoverIndex >= 0) {
             return new XYPoint<Y>(dataPoints.getX(hoverIndex), dataPoints.getY(hoverIndex));
@@ -59,6 +57,4 @@ public abstract class GraphPainter<Y> {
         }
        return dataPoints.getNearestPoint(xValue);
     }
-
-    public abstract Range getYPixelRange();
 }

@@ -1,6 +1,7 @@
 package graphs;
 
 import data.DataProcessorForNumbers;
+import data.XYPoint;
 import tooltips.TooltipInfo;
 import tooltips.TooltipItem;
 
@@ -12,12 +13,13 @@ public class AreaGraph extends Graph<Number> {
         graphPainter = new AreaGraphPainter();
         dataProcessor = new DataProcessorForNumbers();
     }
-    public TooltipInfo getTooltipInfo(){
-        return  null;
-    }
 
     @Override
     public TooltipItem getTooltipItem() {
-        return null;
+        XYPoint<Number> hoverPoint = graphPainter.getHoverPoint();
+        if (hoverPoint == null){
+            return null;
+        }
+        return new TooltipItem("point y", hoverPoint.getY().toString(), graphPainter.getSettings().getLineColor());
     }
 }

@@ -30,13 +30,6 @@ public abstract class Graph<T> {
         setData(pointsSet);
     }*/
 
-
-
-
-    public boolean hover(int mouseX, int mouseY, Axis xAxis, Axis yAxis) {
-        return graphPainter.hover(mouseX, mouseY, xAxis, yAxis);
-    }
-
     public abstract TooltipItem getTooltipItem();
 
     public void setData(DataSet<T> dataSet) {
@@ -111,9 +104,6 @@ public abstract class Graph<T> {
 
     }
 
-    public Range getYPixelRange(){
-        return graphPainter.getYPixelRange();
-    }
 
     public int getNearestPointIndex(double xValue) {
         return graphPainter.getNearestPointIndex(xValue);
