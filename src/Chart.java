@@ -124,7 +124,8 @@ public class Chart implements Drawable {
                 tooltipInfo = new TooltipInfo();
                 tooltipInfo.setItems(tooltipItems);
                 tooltipInfo.setX(mouseX + minDistance);
-                tooltipInfo.setY((int)((y_range.end()  + y_range.start()) / 2));
+                //tooltipInfo.setY((int)((y_range.end()  + y_range.start()) / 2));
+                tooltipInfo.setY(mouseY);
                 tooltipInfo.setHeader(new TooltipItem(null,  hoverXValue.toString(), null));
             }
 
