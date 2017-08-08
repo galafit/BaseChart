@@ -40,6 +40,7 @@ public class Chart implements Drawable {
     private Rectangle fullArea;
     private TooltipPainter tooltipPainter = new TooltipPainter();
     private boolean isTooltipSeparated = true;
+    private TooltipInfo tooltipInfo;
 
     public Chart() {
         Axis x = new LinearAxis();
@@ -56,7 +57,7 @@ public class Chart implements Drawable {
     }
 
 
-    public boolean hover(int mouseX, int mouseY) {
+  /*  public boolean hover(int mouseX, int mouseY) {
         boolean isHover = false;
         for (Graph graph : graphs) {
             Axis xAxis = xAxisList.get(graph.getXAxisIndex());
@@ -64,65 +65,68 @@ public class Chart implements Drawable {
             isHover = isHover || graph.hover(mouseX, mouseY, xAxis, yAxis);
         }
         return isHover;
-    }
+    }*/
 
-    public TooltipInfo getTooltipInfo(){
-        TooltipInfo tooltip = new TooltipInfo();
-        int pixelX, pixelY;
-        for (Graph graph : graphs) {
-            if (graph.getHoverPoint() != null) {
-                Axis xAxis = xAxisList.get(graph.getXAxisIndex());
-                Axis yAxis = yAxisList.get(graph.getYAxisIndex());
-                tooltip.addItem(graph.getTooltipItem());
-                double x = graph.getHoverPoint().getX().doubleValue();
-                pixelX = (int) xAxis.valueToPoint(x, graphArea);
-                pixelY = (int)graph.getYPixelRange().start();
-                tooltip.setX(pixelX);
-                tooltip.setY(pixelY);
+    public boolean hover(int mouseX, int mouseY) {
+        boolean isHover = false;
+        if(!graphArea.contains(new Point(mouseX, mouseY))) {
+            tooltipInfo = null;
+            for (Graph graph : graphs) {
+               isHover = isHover || graph.setHoverPoint(-1);
             }
+            return isHover;
         }
 
-        return  tooltip;
-      /*  if (isTooltipSeparated){
-            for (Graph graph : graphs) {
-                TooltipItem tooltipItem = graph.getTooltipItem();
-                if (tooltipItem != null){
-                    Axis xAxis = xAxisList.get(graph.getXAxisIndex());
-                    Axis yAxis = yAxisList.get(graph.getYAxisIndex());
-                    tooltips.add(new
-                            TooltipInfo(tooltipItem.getString(),xAxis.valueToPoint(tooltipItem.getX().doubleValue(),graphArea), yAxis.valueToPoint(tooltipItem.getY().doubleValue(),graphArea)));
-                }
+        int[] nearestPointsIndexes = new int[graphs.size()];
+        int minDistance = -1;
+        // find min distance from graphs points to mouseX
+        for (int i = 0; i < graphs.size(); i++) {
+            Graph graph = graphs.get(i);
+            Axis xAxis = xAxisList.get(graph.getXAxisIndex());
+            Axis yAxis = yAxisList.get(graph.getYAxisIndex());
+            double xValue = xAxis.pointsToValue(mouseX, graphArea);
+            int pointIndex = graph.getNearestPointIndex(xValue);
+            nearestPointsIndexes[i] = pointIndex;
+            if(pointIndex >= 0) {
+                int x = (int) Math.round(xAxis.valueToPoint(graph.getPoint(pointIndex).getX().doubleValue(), graphArea));
+                minDistance = (minDistance < 0) ?  Math.abs(x - mouseX) : Math.min(minDistance, Math.abs(x - mouseX));
             }
-        } else {
-            String string = null;
-            double yMin=0;
-            double yMax = 0;
-            double x = 0;
-            for (Graph graph : graphs) {
+        }
+        // hover graphs points that have minDistance to mouseX
+        if(minDistance >= 0) {
+            ArrayList<TooltipItem> tooltipItems = new ArrayList<TooltipItem>();
+            Range y_range = null;
+            Number hoverXValue = null;
+            for (int i = 0; i < graphs.size(); i++) {
+                Graph graph = graphs.get(i);
                 Axis xAxis = xAxisList.get(graph.getXAxisIndex());
                 Axis yAxis = yAxisList.get(graph.getYAxisIndex());
-                TooltipInfo tooltipInfo = graph.getTooltipInfo();
-
-                if ( tooltipInfo != null){
-                    if (string != null){
-                        string = string + " " + tooltipInfo.getString();
-                        yMin = Math.min(yMin, yAxis.valueToPoint(tooltipInfo.getY().doubleValue(),graphArea));
-                        yMax = Math.max(yMax, yAxis.valueToPoint(tooltipInfo.getY().doubleValue(), graphArea));
-                    } else {
-                        string = tooltipInfo.getString();
-                        yMin = yAxis.valueToPoint(tooltipInfo.getY().doubleValue(),graphArea);
-                        yMax = yAxis.valueToPoint(tooltipInfo.getY().doubleValue(),graphArea);
+                int pointIndex = nearestPointsIndexes[i];
+                if(pointIndex >= 0) {
+                    int x = (int) Math.round(xAxis.valueToPoint(graph.getPoint(pointIndex).getX().doubleValue(), graphArea));
+                    if((x - mouseX) == minDistance) {
+                        hoverXValue = xAxis.pointsToValue(x, graphArea);
+                        hoverXValue = xAxis.roundValue(hoverXValue.doubleValue(), graphArea);
+                        isHover = isHover || graph.setHoverPoint(pointIndex);
+                        tooltipItems.add(graph.getTooltipItem());
+                        Range yValueRange = graph.getPointYRange(graph.getPoint(pointIndex).getY());
+                        Range yPixelRange = new Range(yAxis.valueToPoint(yValueRange.start(), graphArea), yAxis.valueToPoint(yValueRange.start(), graphArea));
+                        y_range = Range.max(y_range, yPixelRange);
                     }
-                    x = xAxis.valueToPoint(tooltipInfo.getX().doubleValue(),graphArea);
                 }
             }
-            if (string != null){
-                tooltips.add(new TooltipInfo(string,x,(yMax - yMin) / 2));
+            if(isHover) {
+                tooltipInfo = new TooltipInfo();
+                tooltipInfo.setItems(tooltipItems);
+                tooltipInfo.setX(mouseX + minDistance);
+                tooltipInfo.setY((int)((y_range.end()  + y_range.start()) / 2));
+                tooltipInfo.setHeader(new TooltipItem(null,  hoverXValue.toString(), null));
             }
-        }
 
-        return  tooltips; */
+        }
+        return isHover;
     }
+
 
     public double getPreferredPixelsPerUnit(int xAxisIndex) {
         double pixelsPerUnit = 0;
@@ -428,7 +432,10 @@ public class Chart implements Drawable {
         }
         g2d.setClip(clip);
 
-        tooltipPainter.draw(g2d, fullArea, getTooltipInfo());
+        if(tooltipInfo != null) {
+            tooltipPainter.draw(g2d, fullArea, tooltipInfo);
+        }
+
     }
 
 

@@ -3,7 +3,6 @@ package graphs;
 import axis.Axis;
 import data.*;
 import functions.DoubleFunction;
-import tooltips.TooltipInfo;
 import tooltips.TooltipItem;
 
 import java.awt.*;
@@ -97,7 +96,27 @@ public abstract class Graph<T> {
         return graphPainter.getHoverPoint();
     }
 
+    public XYPoint<T> getPoint(int index) {
+        return graphPainter.getPoint(index);
+    }
+
+
+    public Range getPointYRange(T yValue) {
+        return dataProcessor.getPointYRange(yValue);
+    }
+
+
+    public boolean setHoverPoint(int index) {
+        return graphPainter.setHoverPoint(index);
+
+    }
+
     public Range getYPixelRange(){
         return graphPainter.getYPixelRange();
+    }
+
+    public int getNearestPointIndex(double xValue) {
+        return graphPainter.getNearestPointIndex(xValue);
+
     }
 }

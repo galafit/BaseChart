@@ -28,6 +28,10 @@ public class DataProcessor<Y> {
     private double areaWidth;
 
 
+    public Range getPointYRange(Y yValue) {
+        return extremesFunction.getExtremes(yValue);
+    }
+
     public void setData(DataSet<Y> dataSet) {
         rowPoints = new XYRegularSet<Y>(dataSet);
     }

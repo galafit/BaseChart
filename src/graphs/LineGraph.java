@@ -3,7 +3,6 @@ package graphs;
 
 import data.DataProcessorForNumbers;
 import data.XYPoint;
-import tooltips.TooltipInfo;
 import tooltips.TooltipItem;
 
 /**
@@ -22,6 +21,6 @@ public class LineGraph extends Graph<Number> {
          if (hoverPoint == null){
              return null;
          }
-        return new TooltipItem("y = ", hoverPoint.getY().toString(), graphPainter.getSettings().getLineColor());
+        return new TooltipItem("point y", hoverPoint.getY().toString(), graphPainter.getSettings().getLineColor());
     }
 }

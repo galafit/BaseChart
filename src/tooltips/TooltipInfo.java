@@ -45,4 +45,8 @@ public class TooltipInfo {
     public void addItem(TooltipItem item){
         items.add(item);
     }
+
+    public void setItems(ArrayList<TooltipItem> items){
+        this.items = items;
+    }
 }

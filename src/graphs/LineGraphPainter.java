@@ -15,7 +15,6 @@ import java.awt.geom.GeneralPath;
  */
 public class LineGraphPainter extends GraphPainter<Number> {
     int pointRadius = 5;
-    Rectangle area;
     int hoverRadius = 10;
     Range yRange;
 

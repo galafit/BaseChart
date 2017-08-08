@@ -13,6 +13,7 @@ import java.awt.*;
  */
 public abstract class GraphPainter<Y> {
     protected XYOrderedSet<Y> dataPoints;
+    protected Rectangle area;
     protected int hoverIndex = -1;
 
     private GraphSettings settings = new GraphSettings();
@@ -36,6 +37,27 @@ public abstract class GraphPainter<Y> {
             return new XYPoint<Y>(dataPoints.getX(hoverIndex), dataPoints.getY(hoverIndex));
         }
         return null;
+    }
+
+    public XYPoint<Y> getPoint(int index) {
+        return new XYPoint<Y>(dataPoints.getX(index), dataPoints.getY(index));
+    }
+
+
+    public boolean setHoverPoint(int index) {
+        if(hoverIndex != index) {
+            hoverIndex = index;
+            return true;
+        }
+        return false;
+
+    }
+
+    public int getNearestPointIndex(double xValue) {
+        if(dataPoints == null) {
+            return -1;
+        }
+       return dataPoints.getNearestPoint(xValue);
     }
 
     public abstract Range getYPixelRange();
