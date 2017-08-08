@@ -52,7 +52,7 @@ public class Chart implements Drawable {
     }
 
 
-    public void update(){
+    public void update() {
         fullArea = null;
     }
 
@@ -69,16 +69,16 @@ public class Chart implements Drawable {
 
     public boolean hover(int mouseX, int mouseY) {
         boolean isHover = false;
-        if(!graphArea.contains(new Point(mouseX, mouseY))) {
+        if (!graphArea.contains(new Point(mouseX, mouseY))) {
             tooltipInfo = null;
             for (Graph graph : graphs) {
-               isHover = isHover || graph.setHoverPoint(-1);
+                isHover = isHover || graph.setHoverPoint(-1);
             }
             return isHover;
         }
 
         int[] nearestPointsIndexes = new int[graphs.size()];
-        int minDistance = -1;
+        Integer minDistance = null;
         // find min distance from graphs points to mouseX
         for (int i = 0; i < graphs.size(); i++) {
             Graph graph = graphs.get(i);
@@ -86,49 +86,61 @@ public class Chart implements Drawable {
             Axis yAxis = yAxisList.get(graph.getYAxisIndex());
             double xValue = xAxis.pointsToValue(mouseX, graphArea);
             int pointIndex = graph.getNearestPointIndex(xValue);
-          //  System.out.println("graph: "+i +" pointIndex: "+ pointIndex +" x:"+xValue);
+            //  System.out.println("graph: "+i +" pointIndex: "+ pointIndex +" x:"+xValue);
             nearestPointsIndexes[i] = pointIndex;
-            if(pointIndex >= 0) {
+            if (pointIndex >= 0) {
                 int x = (int) Math.round(xAxis.valueToPoint(graph.getPoint(pointIndex).getX().doubleValue(), graphArea));
-                minDistance = (minDistance < 0) ?  Math.abs(x - mouseX) : Math.min(minDistance, Math.abs(x - mouseX));
+                if(minDistance == null || Math.abs(minDistance) < Math.abs(x - mouseX)) {
+                    minDistance =  (x - mouseX);
+                }
             }
         }
         // hover graphs points that have minDistance to mouseX
-        if(minDistance >= 0) {
+        if (minDistance != null) {
             ArrayList<TooltipItem> tooltipItems = new ArrayList<TooltipItem>();
             Range y_range = null;
             Number hoverXValue = null;
+            int hoverPointsCounter = 0;
             for (int i = 0; i < graphs.size(); i++) {
                 Graph graph = graphs.get(i);
                 Axis xAxis = xAxisList.get(graph.getXAxisIndex());
                 Axis yAxis = yAxisList.get(graph.getYAxisIndex());
                 int pointIndex = nearestPointsIndexes[i];
-                if(pointIndex >= 0) {
+                if (pointIndex >= 0) {
                     int x = (int) Math.round(xAxis.valueToPoint(graph.getPoint(pointIndex).getX().doubleValue(), graphArea));
-                    if((x - mouseX) == minDistance) {
+                    if ((x - mouseX) == minDistance) {
+                        hoverPointsCounter++;
                         hoverXValue = xAxis.pointsToValue(x, graphArea);
                         hoverXValue = xAxis.roundValue(hoverXValue.doubleValue(), graphArea);
                         isHover = isHover || graph.setHoverPoint(pointIndex);
                         TooltipItem tooltipItem = graph.getTooltipItem();
-                        if(tooltipItem != null) {
+                        if (tooltipItem != null) {
                             tooltipItems.add(graph.getTooltipItem());
                         }
 
                         Range yValueRange = graph.getPointYRange(graph.getPoint(pointIndex).getY());
                         Range yPixelRange = new Range(yAxis.valueToPoint(yValueRange.start(), graphArea), yAxis.valueToPoint(yValueRange.start(), graphArea));
                         y_range = Range.max(y_range, yPixelRange);
+                    } else {
+                        isHover = isHover || graph.setHoverPoint(-1);
                     }
+                } else {
+                    isHover = isHover || graph.setHoverPoint(-1);
                 }
             }
-            if(isHover) {
-                tooltipInfo = new TooltipInfo();
-                tooltipInfo.setItems(tooltipItems);
-                tooltipInfo.setX(mouseX + minDistance);
-                //tooltipInfo.setY((int)((y_range.end()  + y_range.start()) / 2));
-                tooltipInfo.setY(mouseY);
-                tooltipInfo.setHeader(new TooltipItem(null,  hoverXValue.toString(), null));
-            }
+            if (isHover) {
+                if (hoverPointsCounter > 0) {
+                    tooltipInfo = new TooltipInfo();
+                    tooltipInfo.setItems(tooltipItems);
+                    tooltipInfo.setX(mouseX + minDistance);
+                    //tooltipInfo.setY((int)((y_range.end()  + y_range.start()) / 2));
+                    tooltipInfo.setY(mouseY);
+                    tooltipInfo.setHeader(new TooltipItem(null, hoverXValue.toString(), null));
 
+                } else {
+                    tooltipInfo = null;
+                }
+            }
         }
         return isHover;
     }
@@ -138,7 +150,7 @@ public class Chart implements Drawable {
         double pixelsPerUnit = 0;
         for (Graph graph : graphs) {
             // skip graph with functions and take into account only graphs with real DataSets
-            if(graph.getFunction() == null && graph.getXAxisIndex() == xAxisIndex) {
+            if (graph.getFunction() == null && graph.getXAxisIndex() == xAxisIndex) {
                 pixelsPerUnit = Math.max(pixelsPerUnit, graph.getPreferredPixelsPerUnit());
             }
         }
@@ -149,7 +161,7 @@ public class Chart implements Drawable {
         Range xRange = null;
         for (Graph graph : graphs) {
             // skip graph with functions and take into account only graphs with real DataSets
-            if(graph.getFunction() == null && graph.getXAxisIndex() == xAxisIndex) {
+            if (graph.getFunction() == null && graph.getXAxisIndex() == xAxisIndex) {
                 xRange = Range.max(xRange, graph.getXFullRange());
             }
         }
@@ -203,11 +215,11 @@ public class Chart implements Drawable {
 
 
     public void addGraph(Graph graph) {
-        addGraph(graph,  0, 0);
+        addGraph(graph, 0, 0);
     }
 
 
-    public void addGraph(Graph graph,  int xAxisIndex, int yAxisIndex) {
+    public void addGraph(Graph graph, int xAxisIndex, int yAxisIndex) {
         graph.setAxisIndexes(xAxisIndex, yAxisIndex);
         graph.setLineColor(graphicColors[graphs.size() % graphicColors.length]);
         graphs.add(graph);
@@ -238,12 +250,13 @@ public class Chart implements Drawable {
      * value and function(value) and added to the list. So:
      * resultant XYLists contains «area.width» elements. Then those XYLists are added to
      * the corresponding Graphs.
+     *
      * @param area
      */
     private void setFunctions(Rectangle area) {
         for (Graph graph : graphs) {
             DoubleFunction function = graph.getFunction();
-            if(function != null) {
+            if (function != null) {
                 Axis xAxis = xAxisList.get(graph.getXAxisIndex());
                 boolean isEndOnTick = xAxis.isEndOnTick();
                 double lowerPadding = xAxis.getLowerPadding();
@@ -318,31 +331,31 @@ public class Chart implements Drawable {
         graphArea = newGraphArea;
     }
 
-    private void rangeXAxis(){
+    private void rangeXAxis() {
         for (int i = 0; i < xAxisList.size(); i++) {
             Axis xAxis = xAxisList.get(i);
             xAxis.update();
-            if(xAxis.isAutoScale()) {
+            if (xAxis.isAutoScale()) {
                 Range preferredXRange = getPreferredXRange(i);
-                if(preferredXRange != null) {
+                if (preferredXRange != null) {
                     xAxis.setRange(preferredXRange.start(), preferredXRange.end());
                 }
             }
         }
     }
 
-    private void rangeYAxis(){
+    private void rangeYAxis() {
         for (int i = 0; i < yAxisList.size(); i++) {
             Axis yAxis = yAxisList.get(i);
             yAxis.update();
-            if(yAxis.isAutoScale()) {
+            if (yAxis.isAutoScale()) {
                 Range preferredYRange = null;
                 for (Graph graph : graphs) {
-                    if(graph.getYAxisIndex() == i) {
+                    if (graph.getYAxisIndex() == i) {
                         preferredYRange = Range.max(preferredYRange, graph.getYRange());
                     }
                 }
-                if(preferredYRange != null) {
+                if (preferredYRange != null) {
                     yAxis.setRange(preferredYRange.start(), preferredYRange.end());
                 }
             }
@@ -434,11 +447,11 @@ public class Chart implements Drawable {
         g2d.setClip(graphArea);
 
         for (Graph graph : graphs) {
-            graph.draw(g2d, graphArea, xAxisList.get(graph.getXAxisIndex()),yAxisList.get(graph.getYAxisIndex()) );
+            graph.draw(g2d, graphArea, xAxisList.get(graph.getXAxisIndex()), yAxisList.get(graph.getYAxisIndex()));
         }
         g2d.setClip(clip);
 
-        if(tooltipInfo != null) {
+        if (tooltipInfo != null) {
             tooltipPainter.draw(g2d, fullArea, tooltipInfo);
         }
 
@@ -446,7 +459,7 @@ public class Chart implements Drawable {
 
 
     public void draw(Graphics2D g2d, Rectangle fullArea) {
-        if(this.fullArea == null || !this.fullArea.equals(fullArea)) {
+        if (this.fullArea == null || !this.fullArea.equals(fullArea)) {
             calculateGraphArea(g2d, fullArea);
         }
         draw(g2d);
