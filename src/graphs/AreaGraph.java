@@ -13,13 +13,4 @@ public class AreaGraph extends Graph<Number> {
         graphPainter = new AreaGraphPainter();
         dataProcessor = new DataProcessorForNumbers();
     }
-
-    @Override
-    public TooltipItem getTooltipItem() {
-        XYPoint<Number> hoverPoint = graphPainter.getHoverPoint();
-        if (hoverPoint == null){
-            return null;
-        }
-        return new TooltipItem("point y", hoverPoint.getY().toString(), graphPainter.getSettings().getLineColor());
-    }
 }

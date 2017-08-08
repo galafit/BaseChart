@@ -17,6 +17,7 @@ public abstract class Graph<T> {
     private int yAxisIndex;
     protected DataProcessor<T> dataProcessor = new DataProcessor<T>();
     protected GraphPainter<T> graphPainter;
+    protected String graphName = "graph_name";
 
 
   /*  public Graph(DoubleFunction<T> function) {
@@ -30,7 +31,9 @@ public abstract class Graph<T> {
         setData(pointsSet);
     }*/
 
-    public abstract TooltipItem getTooltipItem();
+    public void setGraphName(String graphName) {
+        this.graphName = graphName;
+    }
 
     public void setData(DataSet<T> dataSet) {
         dataProcessor.setData(dataSet);
@@ -82,12 +85,12 @@ public abstract class Graph<T> {
     }
 
     public void draw(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
-        graphPainter.draw(dataProcessor.getProcessedPoints(), g, area, xAxis, yAxis);
+        graphPainter.setData(dataProcessor.getProcessedPoints());
+        graphPainter.setPaintingArea(area);
+        graphPainter.draw(g, xAxis, yAxis);
+        graphPainter.drawHover(g, xAxis, yAxis);
     }
 
-    public XYPoint<T> getHoverPoint(){
-        return graphPainter.getHoverPoint();
-    }
 
     public XYPoint<T> getPoint(int index) {
         return graphPainter.getPoint(index);
@@ -108,5 +111,13 @@ public abstract class Graph<T> {
     public int getNearestPointIndex(double xValue) {
         return graphPainter.getNearestPointIndex(xValue);
 
+    }
+
+    public TooltipItem getTooltipItem() {
+        XYPoint<T> hoverPoint = graphPainter.getHoverPoint();
+        if (hoverPoint == null){
+            return null;
+        }
+        return new TooltipItem(graphName, hoverPoint.getY().toString(), graphPainter.getSettings().getLineColor());
     }
 }

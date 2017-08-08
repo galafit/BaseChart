@@ -26,9 +26,18 @@ public abstract class GraphPainter<Y> {
         this.settings = settings;
     }
 
-    public abstract void draw(XYSet<Y> dataPoints, Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis);
+    public void setData(XYSet<Y> dataPoints) {
+        this.dataPoints = new XYOrderedSet<Y>(dataPoints);
+    }
 
-    public abstract void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis);
+    void setPaintingArea(Rectangle area) {
+        this.area = area;
+    }
+
+
+    public abstract void draw(Graphics2D g, Axis xAxis, Axis yAxis);
+
+    public abstract void drawHover(Graphics2D g, Axis xAxis, Axis yAxis);
 
     public XYPoint<Y> getHoverPoint(){
         if (hoverIndex >= 0) {

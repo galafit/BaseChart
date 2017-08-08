@@ -17,9 +17,7 @@ public class LineGraphPainter extends GraphPainter<Number> {
     int pointRadius = 5;
 
     @Override
-    public void draw(XYSet<Number> dataPoints , Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
-        this.dataPoints = new XYOrderedSet<Number>(dataPoints);
-        this.area = area;
+    public void draw(Graphics2D g, Axis xAxis, Axis yAxis) {
         if (dataPoints == null || dataPoints.size() == 0) {
             return;
         }
@@ -38,18 +36,16 @@ public class LineGraphPainter extends GraphPainter<Number> {
             g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
         }
         g.draw(path);
-        drawHover(g, area,xAxis, yAxis);
     }
 
     @Override
-    public void drawHover(Graphics2D g, Rectangle area, Axis xAxis, Axis yAxis) {
+    public void drawHover(Graphics2D g, Axis xAxis, Axis yAxis) {
         if(hoverIndex >= 0) {
             double x = xAxis.valueToPoint(dataPoints.getX(hoverIndex).doubleValue(), area);
             double y = yAxis.valueToPoint(dataPoints.getY(hoverIndex).doubleValue(), area);
             double pointRadius = this.pointRadius + 4;
             g.setColor(Color.CYAN);
             g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
-
         }
      }
 }
