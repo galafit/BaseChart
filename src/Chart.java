@@ -54,19 +54,14 @@ public class Chart implements Drawable {
 
     public void update() {
         fullArea = null;
+        for (Graph graph : graphs) {
+            graph.update();
+        }
     }
 
 
-  /*  public boolean hover(int mouseX, int mouseY) {
-        boolean isHover = false;
-        for (Graph graph : graphs) {
-            Axis xAxis = xAxisList.get(graph.getXAxisIndex());
-            Axis yAxis = yAxisList.get(graph.getYAxisIndex());
-            isHover = isHover || graph.hover(mouseX, mouseY, xAxis, yAxis);
-        }
-        return isHover;
-    }*/
-
+    // TODO: handling multiple xAxis!!!!
+    // TODO: add separated tooltips
     public boolean hover(int mouseX, int mouseY) {
         boolean isHover = false;
         if (!graphArea.contains(new Point(mouseX, mouseY))) {
@@ -157,16 +152,6 @@ public class Chart implements Drawable {
         return pixelsPerUnit;
     }
 
-    public Range getPreferredXRange(int xAxisIndex) {
-        Range xRange = null;
-        for (Graph graph : graphs) {
-            // skip graph with functions and take into account only graphs with real DataSets
-            if (graph.getFunction() == null && graph.getXAxisIndex() == xAxisIndex) {
-                xRange = Range.max(xRange, graph.getXFullRange());
-            }
-        }
-        return xRange;
-    }
 
     // define whether ticks on different(opposite) xAxis or yAxis should be aligned/synchronized
     public void enableTicksAlignment(boolean isEnabled) {
@@ -329,6 +314,17 @@ public class Chart implements Drawable {
 
     private void setGraphArea(Rectangle newGraphArea) {
         graphArea = newGraphArea;
+    }
+
+    public Range getPreferredXRange(int xAxisIndex) {
+        Range xRange = null;
+        for (Graph graph : graphs) {
+            // skip graph with functions and take into account only graphs with real DataSets
+            if (graph.getFunction() == null && graph.getXAxisIndex() == xAxisIndex) {
+                xRange = Range.max(xRange, graph.getXFullRange());
+            }
+        }
+        return xRange;
     }
 
     private void rangeXAxis() {

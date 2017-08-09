@@ -25,12 +25,8 @@ public class DataProcessor<Y> {
 
     private double startXValue;
     private double endXValue;
-    private double areaWidth;
-
-
-    public Range getPointYRange(Y yValue) {
-        return extremesFunction.getExtremes(yValue);
-    }
+    //private double areaWidth;
+    private Rectangle area;
 
     public void setData(DataSet<Y> dataSet) {
         rowPoints = new XYRegularSet<Y>(dataSet);
@@ -48,13 +44,17 @@ public class DataProcessor<Y> {
         grouper = new Grouper<Y>(groupingFunction);
     }
 
+    public void update() {
+        area = null;
+    }
+
     public void setXRange(double startXValue, double endXValue, Rectangle area) {
-        if(this.startXValue == startXValue && this.endXValue == endXValue && areaWidth == area.getWidth()) {
+        if(this.area != null && this.area.width == area.width && this.startXValue == startXValue && this.endXValue == endXValue) {
            return;
         }
         this.startXValue = startXValue;
         this.endXValue = endXValue;
-        areaWidth = area.getWidth();
+        this.area = area;
 
         rangeLength = 0;
         if(rowPoints == null || rowPoints.size() == 0) {
@@ -70,8 +70,8 @@ public class DataProcessor<Y> {
         resultantPoints = getRangedPoints();
         if(isGroupingEnabled) {
             if(rangeLength > maxVisiblePoint) {
-                grouper.setGroupingInterval(calculateGroupingInterval(startXValue, endXValue, area));
-                resultantPoints = grouper.groupPoints(rowPoints, rangeStartIndex, rangeLength);
+                double groupingInterval = calculateGroupingInterval(startXValue, endXValue, area);
+                resultantPoints = grouper.groupPoints(rowPoints, rangeStartIndex, rangeLength, groupingInterval);
             }
         }
         yRange = calculateYRange(resultantPoints);
@@ -100,9 +100,13 @@ public class DataProcessor<Y> {
         return yRange;
     }
 
+    public Range getPointYRange(Y yValue) {
+        return extremesFunction.getExtremes(yValue);
+    }
+
+
     public double getPreferredPixelsPerUnit() {
         double pointInterval = 0;
-
         if(rowPoints != null) {
             if(rowPoints instanceof XYRegularSet) {
                 pointInterval = ((XYRegularSet) rowPoints).getPointInterval();

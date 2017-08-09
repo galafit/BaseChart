@@ -44,13 +44,13 @@ public class MainFrame2 extends JFrame {
             xyList1.addPoint(i,new Double(-i));
         }
 
-        Graph graph2 = new LineGraph();
-        graph2.setData(xyList1);
-        chart.addGraph(graph2);
-
         Graph graph1 = new LineGraph();
         graph1.setData(xyList);
         chart.addGraph(graph1);
+
+        Graph graph2 = new LineGraph();
+        graph2.setData(xyList1);
+        chart.addGraph(graph2);
 
 
         DoubleFunction<Double> sin = new Sin();
@@ -73,7 +73,15 @@ public class MainFrame2 extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
 
-      /* for (int j = 0; j < 10; j++) {
+        try {
+            Thread.sleep(3000);
+            xyList.addPoint(150 , 150.0);
+            chartPanel.update();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+     /*  for (int j = 0; j < 10; j++) {
            try {
                Thread.sleep(1000);
                for (int i = 0; i < 10; i++) {
@@ -83,7 +91,7 @@ public class MainFrame2 extends JFrame {
            } catch (InterruptedException e) {
                e.printStackTrace();
            }
-        }*/
+        } */
 
     }
 

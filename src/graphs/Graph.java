@@ -17,7 +17,7 @@ public abstract class Graph<T> {
     private int yAxisIndex;
     protected DataProcessor<T> dataProcessor = new DataProcessor<T>();
     protected GraphPainter<T> graphPainter;
-    protected String graphName = "graph_name";
+    protected String graphName;
 
 
   /*  public Graph(DoubleFunction<T> function) {
@@ -30,6 +30,10 @@ public abstract class Graph<T> {
     public Graph(XYSet<T> pointsSet) {
         setData(pointsSet);
     }*/
+
+   public void update() {
+       dataProcessor.update();
+   }
 
     public void setGraphName(String graphName) {
         this.graphName = graphName;
@@ -118,6 +122,10 @@ public abstract class Graph<T> {
         if (hoverPoint == null){
             return null;
         }
-        return new TooltipItem(graphName, hoverPoint.getY().toString(), graphPainter.getSettings().getLineColor());
+        String label = graphName;
+        if(label == null) {
+            label = "value";
+        }
+        return new TooltipItem(label, hoverPoint.getY().toString(), graphPainter.getSettings().getLineColor());
     }
 }

@@ -15,7 +15,7 @@ public class TooltipPainter {
     int fontSize = 14;
     int x_offset = 10;
     int y_offset = 15;
-    private String separator = ": ";
+    private String separator = ":  ";
 
     public void draw(Graphics2D g2d, Rectangle area, TooltipInfo tooltipInfo){
         Font tooltipFont = new Font(font, Font.PLAIN, fontSize);
@@ -64,6 +64,9 @@ public class TooltipPainter {
         }
     }
 
+    /*
+    * http://pawlan.com/monica/articles/texttutorial/other.html
+    */
     private void drawItem(Graphics2D g2, int x, int y, TooltipItem tooltipItem){
         int string_y = y + getStringAscent(g2);;
         if (tooltipItem.getMarkColor() != null) {

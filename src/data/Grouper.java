@@ -11,24 +11,19 @@ public class Grouper<Y> {
     private static final int SHOULDER = 1; // additional number of elements when we calculate range start and end indexes
     private GroupingFunction<Y> groupingFunction;
     private ArrayList<GroupedXYPoint<Y>> groupedPoints;
-    private double groupingInterval;
 
     public Grouper(GroupingFunction<Y> groupingFunction) {
         this.groupingFunction = groupingFunction;
     }
 
-    public void setGroupingInterval(double groupingInterval){
-        this.groupingInterval = groupingInterval;
-    }
-
-    private double getClosestIntervalPrev(double value) {
+    private double getClosestIntervalPrev(double value, double groupingInterval) {
         return Math.floor(value / groupingInterval) * groupingInterval;
     }
 
-    public XYSet<Y> groupPoints(XYSet<Y> points, long startIndex, long length) {
+    public XYSet<Y> groupPoints(XYSet<Y> points, long startIndex, long length, double groupingInterval) {
         ArrayList<Y> buffer = new ArrayList<Y>();
         if(length > 0) {
-            double roundX = getClosestIntervalPrev(points.getX(0).doubleValue()) + groupingInterval ;
+            double roundX = getClosestIntervalPrev(points.getX(0).doubleValue(), groupingInterval) + groupingInterval ;
             groupedPoints = new ArrayList<GroupedXYPoint<Y>>();
             for (long i = startIndex; i < startIndex + length; i++) {
                 double x = points.getX(i).doubleValue();
