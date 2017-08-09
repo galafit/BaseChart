@@ -31,7 +31,11 @@ public abstract class Graph<T> {
         setData(pointsSet);
     }*/
 
-   public void update() {
+    public String getGraphName() {
+        return graphName;
+    }
+
+    public void update() {
        dataProcessor.update();
    }
 

@@ -46,10 +46,12 @@ public class MainFrame2 extends JFrame {
 
         Graph graph1 = new LineGraph();
         graph1.setData(xyList);
+        graph1.setGraphName("Graph1");
         chart.addGraph(graph1);
 
         Graph graph2 = new LineGraph();
         graph2.setData(xyList1);
+        graph2.setGraphName("Graph2");
         chart.addGraph(graph2);
 
 
@@ -73,13 +75,13 @@ public class MainFrame2 extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
 
-        try {
+       /* try {
             Thread.sleep(3000);
             xyList.addPoint(150 , 150.0);
             chartPanel.update();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        } */
 
      /*  for (int j = 0; j < 10; j++) {
            try {

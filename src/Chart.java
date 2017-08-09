@@ -67,7 +67,7 @@ public class Chart implements Drawable {
         if (!graphArea.contains(new Point(mouseX, mouseY))) {
             tooltipInfo = null;
             for (Graph graph : graphs) {
-                isHover = isHover || graph.setHoverPoint(-1);
+                isHover = graph.setHoverPoint(-1) || isHover;
             }
             return isHover;
         }
@@ -81,15 +81,18 @@ public class Chart implements Drawable {
             Axis yAxis = yAxisList.get(graph.getYAxisIndex());
             double xValue = xAxis.pointsToValue(mouseX, graphArea);
             int pointIndex = graph.getNearestPointIndex(xValue);
-            //  System.out.println("graph: "+i +" pointIndex: "+ pointIndex +" x:"+xValue);
+            //System.out.println(graph.getGraphName() + ": pointIndex=" + pointIndex);
+
             nearestPointsIndexes[i] = pointIndex;
             if (pointIndex >= 0) {
                 int x = (int) Math.round(xAxis.valueToPoint(graph.getPoint(pointIndex).getX().doubleValue(), graphArea));
-                if(minDistance == null || Math.abs(minDistance) < Math.abs(x - mouseX)) {
+                //System.out.println(graph.getGraphName() + ": (x - mouseX)=" + (x - mouseX));
+                if(minDistance == null || Math.abs(minDistance) > Math.abs(x - mouseX)) {
                     minDistance =  (x - mouseX);
                 }
             }
         }
+        //System.out.println("MinDistance = " + minDistance);
         // hover graphs points that have minDistance to mouseX
         if (minDistance != null) {
             ArrayList<TooltipItem> tooltipItems = new ArrayList<TooltipItem>();
@@ -107,7 +110,7 @@ public class Chart implements Drawable {
                         hoverPointsCounter++;
                         hoverXValue = xAxis.pointsToValue(x, graphArea);
                         hoverXValue = xAxis.roundValue(hoverXValue.doubleValue(), graphArea);
-                        isHover = isHover || graph.setHoverPoint(pointIndex);
+                        isHover = graph.setHoverPoint(pointIndex) || isHover;
                         TooltipItem tooltipItem = graph.getTooltipItem();
                         if (tooltipItem != null) {
                             tooltipItems.add(graph.getTooltipItem());
@@ -117,10 +120,10 @@ public class Chart implements Drawable {
                         Range yPixelRange = new Range(yAxis.valueToPoint(yValueRange.start(), graphArea), yAxis.valueToPoint(yValueRange.start(), graphArea));
                         y_range = Range.max(y_range, yPixelRange);
                     } else {
-                        isHover = isHover || graph.setHoverPoint(-1);
+                        isHover = graph.setHoverPoint(-1) || isHover ;
                     }
                 } else {
-                    isHover = isHover || graph.setHoverPoint(-1);
+                    isHover = graph.setHoverPoint(-1) || isHover ;
                 }
             }
             if (isHover) {

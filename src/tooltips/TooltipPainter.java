@@ -16,6 +16,7 @@ public class TooltipPainter {
     int x_offset = 10;
     int y_offset = 15;
     private String separator = ":  ";
+    Color lineColor = Color.GRAY;
 
     public void draw(Graphics2D g2d, Rectangle area, TooltipInfo tooltipInfo){
         Font tooltipFont = new Font(font, Font.PLAIN, fontSize);
@@ -42,6 +43,8 @@ public class TooltipPainter {
         g2d.setStroke(new BasicStroke(borderWidth));
         g2d.drawRect(tooltipArea.x, tooltipArea.y, tooltipArea.width, tooltipArea.height);
         g2d.setStroke(new BasicStroke(1));
+        g2d.setColor(lineColor);
+        g2d.drawLine(tooltipInfo.getX(),area.y, tooltipInfo.getX(),area.y + area.height);
         drawTooltipInfo(g2d, tooltipArea, tooltipInfo);
     }
 
