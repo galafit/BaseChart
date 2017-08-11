@@ -20,8 +20,8 @@ public class DataProcessor<Y> {
     private XYSet<Y> resultantPoints;
     private Range yRange;
 
-    private int maxVisiblePoint = 100;
-    private double minPixelsPerPoint = 10;
+    // private int maxVisiblePoint = 100;
+    private double pixelsPerPoint = 10;
 
     private double startXValue;
     private double endXValue;
@@ -68,8 +68,8 @@ public class DataProcessor<Y> {
         }
 
         resultantPoints = getRangedPoints();
-        if(isGroupingEnabled) {
-            if(rangeLength > maxVisiblePoint) {
+        if(isGroupingEnabled && rangeLength > 0) {
+            if(area.width / rangeLength < pixelsPerPoint) {
                 double groupingInterval = calculateGroupingInterval(startXValue, endXValue, area);
                 resultantPoints = grouper.groupPoints(rowPoints, rangeStartIndex, rangeLength, groupingInterval);
             }
@@ -78,7 +78,7 @@ public class DataProcessor<Y> {
     }
 
     private double calculateGroupingInterval(double startXValue, double endXValue, Rectangle area) {
-        return (endXValue - startXValue) * minPixelsPerPoint / area.width ;
+        return (endXValue - startXValue) * pixelsPerPoint / area.width ;
     }
 
     private Range calculateYRange(XYSet<Y> points) {

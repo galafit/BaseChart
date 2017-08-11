@@ -11,12 +11,22 @@ public class XYOrderedSet<Y> implements RangableSet<Y> {
     }
 
 
-    public int prevOrNextXValueBinarySearch(double xValue, boolean previous) {
-        if (xValue < points.getX(0).doubleValue() || xValue > points.getX(points.size() - 1).doubleValue()) {
-            return -1; // key not found
+    public long prevOrNextXValueBinarySearch(double xValue, boolean previous) {
+        if(xValue < points.getX(0).doubleValue()) {
+            if(previous) {
+                return -1; // key not found
+            }
+            return 0;
+        }
+
+        if (xValue > points.getX(points.size() - 1).doubleValue()) {
+            if(previous) {
+                return (size() - 1);
+            }
+            return -1;
         }
         int low = 0;
-        int high = (int)points.size() - 1;
+        int high = (int) points.size() - 1;
         int index = -1;
 
         while (low <= high) {
@@ -42,7 +52,7 @@ public class XYOrderedSet<Y> implements RangableSet<Y> {
                     high = mid - 1;
             }
         }
-        if(index < 0) {
+        if (index < 0) {
             if (previous)
                 return high;
             else
@@ -51,23 +61,38 @@ public class XYOrderedSet<Y> implements RangableSet<Y> {
         return index;
     }
 
-    public int getNearestPoint(double xValue) {
-        int nearestIndex = -1;
-        int prevIndex = prevOrNextXValueBinarySearch(xValue, true);
-        if(prevIndex >= 0) {
-            nearestIndex = (xValue - points.getX(prevIndex).doubleValue() <= (points.getX(prevIndex + 1).doubleValue() - xValue)) ? prevIndex : Math.min((int)points.size() - 1, prevIndex + 1);
+    public long getNearestPoint(double xValue) {
+        if (size() == 0) {
+            return -1;
         }
-        return nearestIndex;
+        if (size() == 1) {
+            return 0;
+        }
+        long prevIndex = prevOrNextXValueBinarySearch(xValue, true);
+
+        if (prevIndex < 0) { // means that all elements are bigger then xValue
+            return 0;
+        }else {
+            if(prevIndex == size() - 1) {
+              return size() - 1;
+            } else {
+                double distanceToPrev = Math.abs(xValue - points.getX(prevIndex).doubleValue());
+                double distanceToNext = Math.abs(xValue - points.getX(prevIndex + 1).doubleValue());
+                long nearestIndex = (distanceToPrev <= distanceToNext)? prevIndex : prevIndex + 1;
+                return nearestIndex;
+            }
+
+        }
     }
 
 
     @Override
     public Range getIndexRange(double startXValue, double endXValue) {
-        if(startXValue < points.getX(0).doubleValue() || endXValue > points.getX(points.size() - 1).doubleValue()) {
+        if (endXValue < points.getX(0).doubleValue() || startXValue > points.getX(points.size() - 1).doubleValue()) {
             return null;
         }
-        double startIndex = prevOrNextXValueBinarySearch(startXValue, false);
-        double endIndex = prevOrNextXValueBinarySearch(endXValue, true);
+        long startIndex = prevOrNextXValueBinarySearch(startXValue, false);
+        long endIndex = prevOrNextXValueBinarySearch(endXValue, true);
         return new Range(startIndex, endIndex);
     }
 

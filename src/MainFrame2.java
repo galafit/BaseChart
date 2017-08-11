@@ -81,19 +81,19 @@ public class MainFrame2 extends JFrame {
             chartPanel.update();
         } catch (InterruptedException e) {
             e.printStackTrace();
-        } */
+        }*/
 
-     /*  for (int j = 0; j < 10; j++) {
+      /* for (int j = 0; j < 10; j++) {
            try {
                Thread.sleep(1000);
                for (int i = 0; i < 10; i++) {
-                   xyList.addPoint(150 + j*30,i * 50.0);
+                   xyList.addPoint(150 + j*30,(i + j) * 50.0);
                }
                chartPanel.update();
            } catch (InterruptedException e) {
                e.printStackTrace();
            }
-        } */
+        }*/
 
     }
 

@@ -14,7 +14,7 @@ import java.awt.*;
 public abstract class GraphPainter<Y> {
     protected XYOrderedSet<Y> dataPoints;
     protected Rectangle area;
-    protected int hoverIndex = -1;
+    protected long hoverIndex = -1;
 
     private GraphSettings settings = new GraphSettings();
 
@@ -28,6 +28,7 @@ public abstract class GraphPainter<Y> {
 
     public void setData(XYSet<Y> dataPoints) {
         this.dataPoints = new XYOrderedSet<Y>(dataPoints);
+
     }
 
     void setPaintingArea(Rectangle area) {
@@ -46,12 +47,12 @@ public abstract class GraphPainter<Y> {
         return null;
     }
 
-    public XYPoint<Y> getPoint(int index) {
+    public XYPoint<Y> getPoint(long index) {
         return new XYPoint<Y>(dataPoints.getX(index), dataPoints.getY(index));
     }
 
 
-    public boolean setHoverPoint(int index) {
+    public boolean setHoverPoint(long index) {
         if(hoverIndex != index) {
             hoverIndex = index;
             return true;
@@ -60,7 +61,7 @@ public abstract class GraphPainter<Y> {
 
     }
 
-    public int getNearestPointIndex(double xValue) {
+    public long getNearestPointIndex(double xValue) {
         if(dataPoints == null) {
             return -1;
         }

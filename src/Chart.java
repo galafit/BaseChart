@@ -72,7 +72,7 @@ public class Chart implements Drawable {
             return isHover;
         }
 
-        int[] nearestPointsIndexes = new int[graphs.size()];
+        long[] nearestPointsIndexes = new long[graphs.size()];
         Integer minDistance = null;
         // find min distance from graphs points to mouseX
         for (int i = 0; i < graphs.size(); i++) {
@@ -80,7 +80,7 @@ public class Chart implements Drawable {
             Axis xAxis = xAxisList.get(graph.getXAxisIndex());
             Axis yAxis = yAxisList.get(graph.getYAxisIndex());
             double xValue = xAxis.pointsToValue(mouseX, graphArea);
-            int pointIndex = graph.getNearestPointIndex(xValue);
+            long pointIndex = graph.getNearestPointIndex(xValue);
             //System.out.println(graph.getGraphName() + ": pointIndex=" + pointIndex);
 
             nearestPointsIndexes[i] = pointIndex;
@@ -103,7 +103,7 @@ public class Chart implements Drawable {
                 Graph graph = graphs.get(i);
                 Axis xAxis = xAxisList.get(graph.getXAxisIndex());
                 Axis yAxis = yAxisList.get(graph.getYAxisIndex());
-                int pointIndex = nearestPointsIndexes[i];
+                long pointIndex = nearestPointsIndexes[i];
                 if (pointIndex >= 0) {
                     int x = (int) Math.round(xAxis.valueToPoint(graph.getPoint(pointIndex).getX().doubleValue(), graphArea));
                     if ((x - mouseX) == minDistance) {

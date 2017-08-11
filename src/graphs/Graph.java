@@ -100,7 +100,7 @@ public abstract class Graph<T> {
     }
 
 
-    public XYPoint<T> getPoint(int index) {
+    public XYPoint<T> getPoint(long index) {
         return graphPainter.getPoint(index);
     }
 
@@ -110,13 +110,13 @@ public abstract class Graph<T> {
     }
 
 
-    public boolean setHoverPoint(int index) {
+    public boolean setHoverPoint(long index) {
         return graphPainter.setHoverPoint(index);
 
     }
 
 
-    public int getNearestPointIndex(double xValue) {
+    public long getNearestPointIndex(double xValue) {
         return graphPainter.getNearestPointIndex(xValue);
 
     }
