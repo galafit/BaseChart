@@ -121,6 +121,10 @@ public abstract class Graph<T> {
 
     }
 
+    public Color getColor(){
+        return graphPainter.getSettings().getLineColor();
+    }
+
     public TooltipItem getTooltipItem() {
         XYPoint<T> hoverPoint = graphPainter.getHoverPoint();
         if (hoverPoint == null){

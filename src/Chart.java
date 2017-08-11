@@ -6,6 +6,8 @@ import data.Range;
 import data.XYList;
 import functions.DoubleFunction;
 import graphs.Graph;
+import legends.LegendItem;
+import legends.LegendPainter;
 import tooltips.TooltipInfo;
 import tooltips.TooltipItem;
 import tooltips.TooltipPainter;
@@ -37,10 +39,14 @@ public class Chart implements Drawable {
     private int[] xAxisPositions;
     private int[] yAxisPositions;
     private Rectangle graphArea; // area to draw graphs
+    private Rectangle chartArea; //area to draw graphs and axis
     private Rectangle fullArea;
+    private Rectangle titleArea;
     private TooltipPainter tooltipPainter = new TooltipPainter();
     private boolean isTooltipSeparated = true;
     private TooltipInfo tooltipInfo;
+    private Rectangle legendArea;
+    private LegendPainter legendPainter;
 
     public Chart() {
         Axis x = new LinearAxis();
@@ -53,7 +59,7 @@ public class Chart implements Drawable {
 
 
     public void update() {
-        fullArea = null;
+        chartArea = null;
         for (Graph graph : graphs) {
             graph.update();
         }
@@ -365,18 +371,22 @@ public class Chart implements Drawable {
         this.fullArea = fullArea;
         rangeXAxis();
         setFunctions(fullArea);
+        List<LegendItem> legendItems = new ArrayList<LegendItem>();
         for (Graph graph : graphs) {
             Axis graphXAxis = xAxisList.get(graph.getXAxisIndex());
             graph.setXRange(graphXAxis.getMin(), graphXAxis.getMax(fullArea), fullArea);
+            legendItems.add(new LegendItem(graph.getColor(), graph.getGraphName()));
         }
+        legendPainter = new LegendPainter(legendItems);
+        int legendHeight = legendPainter.getLegendHeight(g2d, fullArea);
+        legendArea = new Rectangle(fullArea.x,fullArea.y,fullArea.width,legendHeight);
+        this.chartArea = new Rectangle(fullArea.x,fullArea.y + legendHeight, fullArea.width, fullArea.height - legendHeight);
         rangeYAxis();
-
-        setGraphAreaAndAxisPositions(g2d, fullArea);
-
+        setGraphAreaAndAxisPositions(g2d, this.chartArea);
         if (isTicksAlignmentEnable) {
             alignAxisTicks(xAxisList, g2d, graphArea);
             alignAxisTicks(yAxisList, g2d, graphArea);
-            setGraphAreaAndAxisPositions(g2d, fullArea);
+            setGraphAreaAndAxisPositions(g2d, this.chartArea);
         }
         return graphArea;
     }
@@ -403,7 +413,7 @@ public class Chart implements Drawable {
 
     void draw(Graphics2D g2d) {
         g2d.setColor(bgColor);
-        g2d.fill(fullArea);
+        g2d.fill(chartArea);
 
         /*
         * https://stackoverflow.com/questions/31536952/how-to-fix-text-quality-in-java-graphics
@@ -433,7 +443,7 @@ public class Chart implements Drawable {
                 RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);  */
 
-
+        legendPainter.draw(g2d,legendArea);
         for (int i = 0; i < xAxisList.size(); i++) {
             xAxisList.get(i).draw(g2d, graphArea, xAxisPositions[i]);
         }
@@ -451,14 +461,14 @@ public class Chart implements Drawable {
         g2d.setClip(clip);
 
         if (tooltipInfo != null) {
-            tooltipPainter.draw(g2d, fullArea, tooltipInfo);
+            tooltipPainter.draw(g2d, chartArea, tooltipInfo);
         }
 
     }
 
 
     public void draw(Graphics2D g2d, Rectangle fullArea) {
-        if (this.fullArea == null || !this.fullArea.equals(fullArea)) {
+        if (this.chartArea == null || !this.chartArea.equals(fullArea)) {
             calculateGraphArea(g2d, fullArea);
         }
         draw(g2d);
