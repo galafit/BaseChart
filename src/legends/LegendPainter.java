@@ -24,34 +24,42 @@ public class LegendPainter {
         if (items.size() == 0){
             return 0;
         }
+        g2.setFont(new Font(font, Font.PLAIN, fontSize));
         int stringCounter = 1;
-        int markerCounter = 0;
-        String string = "";
+        int totalStringWidth = 0;
         for (int i = 0; i < items.size(); i++) {
-            string = string + items.get(i).getLabel();
-            int stringWidth = getStringWidth(g2, string);
-            markerCounter ++;
-            stringWidth = stringWidth + getColorMarkerSize() * markerCounter + getColorMarkerPadding() * markerCounter + getPadding() * 2 + (markerCounter -1) * getItemPadding();
-            if (stringWidth > area.width){
+            int stringWidth = getStringWidth(g2, items.get(i).getLabel()) + getColorMarkerSize()  + getColorMarkerPadding();
+           /* if (stringWidth + getPadding() * 2 > area.width) {
                 stringCounter ++;
-                string = "";
-                markerCounter = 0;
+                totalStringWidth = 0;
+            } */
+            totalStringWidth = totalStringWidth +  stringWidth;
+            if (totalStringWidth > stringWidth && totalStringWidth + getPadding() * 2 > area.width){
+                stringCounter ++;
+                totalStringWidth = 0;
+            }else{
+                totalStringWidth = totalStringWidth +  getItemPadding();
             }
         }
-        return getStringHeight(g2) * stringCounter + getPadding() * 2 + getInterLineSpace() * (stringCounter -1) ;
+        g2.setColor(Color.CYAN);
+        int height = getStringHeight(g2) * stringCounter + getPadding() * 2 + getInterLineSpace() * (stringCounter -1);
+        g2.fillRect(area.x, area.y, area.width, height);
+        return height;
     }
 
     public void draw(Graphics2D g2, Rectangle area){
 
-        int x = getPadding() + area.x;
-        int y = getPadding() + area.y;
+        int xStart = getPadding() + area.x;
+        int yStart = getPadding() + area.y;
+        int x = xStart;
+        int y = yStart;
         g2.setFont(new Font(font, Font.PLAIN, fontSize));
         for (int i = 0; i < items.size(); i++) {
             int stringWidth = getStringWidth(g2, items.get(i).getLabel());
-            stringWidth = stringWidth + getColorMarkerSize()  + getColorMarkerPadding()  + getPadding();
-            if (x + stringWidth > area.width){
+            stringWidth = stringWidth + getColorMarkerSize()  + getColorMarkerPadding() + getPadding() ;
+            if (x != xStart && x + stringWidth > area.width){
                 y = y + getStringHeight(g2) + getInterLineSpace();
-                x = getPadding() + area.x;
+                x = xStart;
             }
             g2.setColor(items.get(i).getColor());
             g2.fillRect(x,y + (getStringHeight(g2) - getColorMarkerSize()) / 2 + 1,getColorMarkerSize(),getColorMarkerSize());
@@ -78,7 +86,7 @@ public class LegendPainter {
     }
 
     private int getItemPadding(){
-        return (int)(fontSize * 0.5);
+        return (int)(fontSize * 2.5);
     }
 
     private int getStringHeight(Graphics2D g2) {

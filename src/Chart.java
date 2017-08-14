@@ -443,7 +443,7 @@ public class Chart implements Drawable {
                 RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);  */
 
-        legendPainter.draw(g2d,legendArea);
+       // legendPainter.draw(g2d,legendArea);
         for (int i = 0; i < xAxisList.size(); i++) {
             xAxisList.get(i).draw(g2d, graphArea, xAxisPositions[i]);
         }
@@ -463,6 +463,8 @@ public class Chart implements Drawable {
         if (tooltipInfo != null) {
             tooltipPainter.draw(g2d, chartArea, tooltipInfo);
         }
+
+        legendPainter.draw(g2d,legendArea);
 
     }
 
