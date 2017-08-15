@@ -379,8 +379,14 @@ public class Chart implements Drawable {
         }
         legendPainter = new LegendPainter(legendItems);
         int legendHeight = legendPainter.getLegendHeight(g2d, fullArea);
-        legendArea = new Rectangle(fullArea.x,fullArea.y,fullArea.width,legendHeight);
-        this.chartArea = new Rectangle(fullArea.x,fullArea.y + legendHeight, fullArea.width, fullArea.height - legendHeight);
+        if (legendPainter.isTop()) {
+            legendArea = new Rectangle(fullArea.x, fullArea.y, fullArea.width, legendHeight);
+            this.chartArea = new Rectangle(fullArea.x,fullArea.y + legendHeight, fullArea.width, fullArea.height - legendHeight);
+        } else {
+            legendArea = new Rectangle(fullArea.x, fullArea.y + fullArea.height - legendHeight, fullArea.width, legendHeight);
+            this.chartArea = new Rectangle(fullArea.x, fullArea.y, fullArea.width, fullArea.height - legendHeight);
+        }
+
         rangeYAxis();
         setGraphAreaAndAxisPositions(g2d, this.chartArea);
         if (isTicksAlignmentEnable) {
@@ -444,7 +450,7 @@ public class Chart implements Drawable {
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);  */
 
        // legendPainter.draw(g2d,legendArea);
-        for (int i = 0; i < xAxisList.size(); i++) {
+       for (int i = 0; i < xAxisList.size(); i++) {
             xAxisList.get(i).draw(g2d, graphArea, xAxisPositions[i]);
         }
 
