@@ -377,8 +377,8 @@ public class Chart implements Drawable {
             graph.setXRange(graphXAxis.getMin(), graphXAxis.getMax(fullArea), fullArea);
             legendItems.add(new LegendItem(graph.getColor(), graph.getGraphName()));
         }
-        legendPainter = new LegendPainter(legendItems);
-        int legendHeight = legendPainter.getLegendHeight(g2d, fullArea);
+        legendPainter = new LegendPainter(legendItems, g2d, fullArea.width);
+        int legendHeight = legendPainter.getLegendHeight();
         if (legendPainter.isTop()) {
             legendArea = new Rectangle(fullArea.x, fullArea.y, fullArea.width, legendHeight);
             this.chartArea = new Rectangle(fullArea.x,fullArea.y + legendHeight, fullArea.width, fullArea.height - legendHeight);
@@ -470,7 +470,7 @@ public class Chart implements Drawable {
             tooltipPainter.draw(g2d, chartArea, tooltipInfo);
         }
 
-        legendPainter.draw(g2d,legendArea);
+        legendPainter.draw(legendArea);
 
     }
 

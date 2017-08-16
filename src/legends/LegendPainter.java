@@ -1,7 +1,5 @@
 package legends;
 
-import graphs.Graph;
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -15,78 +13,77 @@ public class LegendPainter {
     private int fontSize = 14;
     private Color fontColor = Color.LIGHT_GRAY;
     private String font = Font.SANS_SERIF;
-    private LegendPosition legendPosition = LegendPosition.BOTTOM_CENTER;
+    private LegendPosition legendPosition = LegendPosition.BOTTOM_CENTER ;
+    private int maxStringWidth = 0;
+    private ArrayList<Integer> itemsPerStringList = new ArrayList<Integer>();
+    Graphics2D g2;
 
-    public LegendPainter(List<LegendItem> items) {
+    public LegendPainter(List<LegendItem> items, Graphics2D g2, int areaWidth) {
         this.items = items;
+        this.g2 = g2;
+        itemsToStrings(areaWidth);
     }
 
     public boolean isTop(){
         return legendPosition.isTop();
     }
 
-    public int getLegendHeight(Graphics2D g2, Rectangle area){
-        List<StringInfo> strings = separateStrings(g2, area.width);
-        int height = getStringHeight(g2) * strings.size() + getPadding() * 2 + getInterLineSpace() * (strings.size() -1);
-        return height;
+    public int getLegendHeight(){
+        return getStringHeight(g2) * itemsPerStringList.size()  + getInterLineSpace() * (itemsPerStringList.size() -1) + getPadding() * 2;
     }
 
-    private List<StringInfo> separateStrings(Graphics2D g2, int areaWidth){
+    private void itemsToStrings(int areaWidth){
         if (items.size() == 0){
-            return null;
+            return;
         }
-        g2.setFont(new Font(font, Font.PLAIN, fontSize));
+        this.g2.setFont(new Font(font, Font.PLAIN, fontSize));
         int stringWidth = 0;
         int itemCounter = 0;
-        ArrayList<StringInfo> strings = new ArrayList<StringInfo>();
-        StringInfo stringInfo = new StringInfo();
         for (int i = 0; i < items.size(); i++) {
             int itemWidth = getStringWidth(g2, items.get(i).getLabel()) + getColorMarkerSize()  + getColorMarkerPadding();
-            if (itemCounter > 0 && stringWidth + (itemCounter - 1) * getItemPadding() + getPadding() * 2 + itemWidth > areaWidth){
-                stringInfo.setStringWidth(stringWidth + (itemCounter - 1) * getItemPadding());
-                strings.add(stringInfo);
-
-                stringInfo = new StringInfo();
+            if (itemCounter > 0 && stringWidth + itemCounter  * getItemPadding()  + itemWidth + getPadding() * 2 > areaWidth){
+                int resultantStringWidth = stringWidth + (itemCounter - 1) * getItemPadding();
+                maxStringWidth = Math.max(maxStringWidth, resultantStringWidth);
+                itemsPerStringList.add(itemCounter);
                 stringWidth = 0;
                 itemCounter = 0;
             }
             itemCounter++;
-            stringInfo.addItem(items.get(i));
-            stringWidth +=  itemWidth;
+            stringWidth += itemWidth;
         }
-        stringInfo.setStringWidth(stringWidth + (itemCounter -1) * getItemPadding());
-        strings.add(stringInfo);
-        return strings;
+        int resultantStringWidth = stringWidth + (itemCounter - 1) * getItemPadding();
+        maxStringWidth = Math.max(maxStringWidth, resultantStringWidth);
+        itemsPerStringList.add(itemCounter);
     }
 
-    public void draw(Graphics2D g2, Rectangle area){
-
-        int yStart = getPadding() + area.y;
-        int y = yStart;
-
+    public void draw(Rectangle area){
+        int y = area.y + getPadding();
         g2.setColor(Color.DARK_GRAY);
         g2.fillRect(area.x,area.y,area.width,area.height);
-        g2.setFont(new Font(font, Font.PLAIN, fontSize));
-
-        List<StringInfo> strings = separateStrings(g2, area.width);
-        for (StringInfo string : strings) {
+        this.g2.setFont(new Font(font, Font.PLAIN, fontSize));
+        int itemCounter = 0;
+        for (int numberOfItems : itemsPerStringList) {
             int x;
-            if (legendPosition == LegendPosition.BOTTOM_RIGHT || legendPosition == LegendPosition.TOP_RIGHT) {
-                x = area.x + area.width - string.getStringWidth() - getPadding();
-            } else if (legendPosition == LegendPosition.BOTTOM_LEFT || legendPosition == LegendPosition.TOP_LEFT){
+            if (legendPosition == LegendPosition.BOTTOM_LEFT || legendPosition == LegendPosition.TOP_LEFT){
                 x = area.x + getPadding();
+            } else if (legendPosition == LegendPosition.BOTTOM_RIGHT || legendPosition == LegendPosition.TOP_RIGHT) {
+                x = area.x + area.width - maxStringWidth - getPadding();
+                x = Math.max(area.x + getPadding(), x);
             } else {
-                x = (area.x + area.width) / 2 - string.getStringWidth() / 2;
-                g2.setColor(Color.gray);
-                g2.fillRect(x, y, string.getStringWidth(), getStringHeight(g2));
+                x = (area.x + area.width) / 2 - maxStringWidth / 2;
+                x = Math.max(area.x + getPadding(), x);
             }
-            for (LegendItem legendItem : string.getItems()) {
+            g2.setColor(Color.gray);
+            g2.fillRect(x, y, maxStringWidth, getStringHeight(g2));
+            for (int i = 0; i < numberOfItems; i++) {
+                LegendItem legendItem = items.get(itemCounter);
                 g2.setColor(legendItem.getColor());
                 g2.fillRect(x,y + (getStringHeight(g2) - getColorMarkerSize()) / 2 + 1,getColorMarkerSize(),getColorMarkerSize());
                 x +=  getColorMarkerSize() + getColorMarkerPadding();
                 g2.setColor(fontColor);
                 g2.drawString(legendItem.getLabel(),x,y + getStringAscent(g2));
                 x +=  getStringWidth(g2, legendItem.getLabel()) + getItemPadding();
+                itemCounter++;
             }
             y += getStringHeight(g2) + getInterLineSpace();
         }
@@ -104,7 +101,7 @@ public class LegendPainter {
     }
 
     private int getPadding(){
-        return (int)(fontSize * 1);
+        return (int)(fontSize * 0.5);
     }
 
     private int getItemPadding(){
@@ -129,23 +126,3 @@ public class LegendPainter {
 
 }
 
-class StringInfo{
-    private int stringWidth;
-    private List<LegendItem> items = new ArrayList<LegendItem>();
-
-    public void addItem(LegendItem item){
-        items.add(item);
-    }
-
-    public int getStringWidth() {
-        return stringWidth;
-    }
-
-    public List<LegendItem> getItems() {
-        return items;
-    }
-
-    public void setStringWidth(int stringWidth) {
-        this.stringWidth = stringWidth;
-    }
-}
