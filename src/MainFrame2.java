@@ -51,7 +51,7 @@ public class MainFrame2 extends JFrame {
 
         Graph graph2 = new LineGraph();
         graph2.setData(xyList1);
-        graph2.setGraphName("Graph2");
+        graph2.setGraphName("Graph2 with very long name");
         chart.addGraph(graph2);
 
 
