@@ -13,9 +13,8 @@ import java.util.List;
 public class LegendPainter {
     private List<LegendItem> items;
     private int fontSize = 14;
-    Color fontColor = Color.LIGHT_GRAY;
-    String font = Font.SANS_SERIF;
-    Color borderColor = new Color(100, 100, 100);
+    private Color fontColor = Color.LIGHT_GRAY;
+    private String font = Font.SANS_SERIF;
     private LegendPosition legendPosition = LegendPosition.BOTTOM_CENTER;
 
     public LegendPainter(List<LegendItem> items) {
@@ -43,16 +42,19 @@ public class LegendPainter {
         StringInfo stringInfo = new StringInfo();
         for (int i = 0; i < items.size(); i++) {
             int itemWidth = getStringWidth(g2, items.get(i).getLabel()) + getColorMarkerSize()  + getColorMarkerPadding();
-            itemCounter ++;
-            if (itemCounter > 1 && stringWidth + (itemCounter -1) * getItemPadding() + getPadding() * 2 + itemWidth> areaWidth){
-                stringWidth = 0;
+            if (itemCounter > 0 && stringWidth + (itemCounter - 1) * getItemPadding() + getPadding() * 2 + itemWidth > areaWidth){
+                stringInfo.setStringWidth(stringWidth + (itemCounter - 1) * getItemPadding());
                 strings.add(stringInfo);
+
                 stringInfo = new StringInfo();
+                stringWidth = 0;
+                itemCounter = 0;
             }
+            itemCounter++;
             stringInfo.addItem(items.get(i));
             stringWidth +=  itemWidth;
-            stringInfo.setStringWidth(stringWidth + (itemCounter -1) * getItemPadding());
         }
+        stringInfo.setStringWidth(stringWidth + (itemCounter -1) * getItemPadding());
         strings.add(stringInfo);
         return strings;
     }
@@ -62,7 +64,7 @@ public class LegendPainter {
         int yStart = getPadding() + area.y;
         int y = yStart;
 
-        g2.setColor(Color.CYAN);
+        g2.setColor(Color.DARK_GRAY);
         g2.fillRect(area.x,area.y,area.width,area.height);
         g2.setFont(new Font(font, Font.PLAIN, fontSize));
 
@@ -75,6 +77,8 @@ public class LegendPainter {
                 x = area.x + getPadding();
             } else {
                 x = (area.x + area.width) / 2 - string.getStringWidth() / 2;
+                g2.setColor(Color.gray);
+                g2.fillRect(x, y, string.getStringWidth(), getStringHeight(g2));
             }
             for (LegendItem legendItem : string.getItems()) {
                 g2.setColor(legendItem.getColor());
@@ -100,7 +104,7 @@ public class LegendPainter {
     }
 
     private int getPadding(){
-        return (int)(fontSize * 0.5);
+        return (int)(fontSize * 1);
     }
 
     private int getItemPadding(){

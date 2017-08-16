@@ -12,7 +12,7 @@ public class TooltipPainter {
     int borderWidth = 1;
     Color fontColor = Color.BLACK;
     String font = Font.SANS_SERIF;
-    int fontSize = 14;
+    int fontSize = 12;
     int x_offset = 10;
     int y_offset = 15;
     private String separator = ":  ";

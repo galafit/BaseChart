@@ -57,8 +57,9 @@ public class MainFrame2 extends JFrame {
 
         DoubleFunction<Double> sin = new Sin();
         Graph g3 = new LineGraph();
+        g3.setGraphName("Graph3 sin");
         g3.setFunction(sin);
-       // chart.addGraph(g3, 0, 1);
+        chart.addGraph(g3, 0, 1);
 
         DoubleFunction<Double> tg = new Tg();
         //chart1.addGraph(new graphs.LineGraph(), tg);
