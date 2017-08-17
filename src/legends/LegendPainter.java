@@ -13,7 +13,7 @@ public class LegendPainter {
     private int fontSize = 14;
     private Color fontColor = Color.LIGHT_GRAY;
     private String font = Font.SANS_SERIF;
-    private LegendPosition legendPosition = LegendPosition.BOTTOM_CENTER ;
+    private LegendPosition legendPosition = LegendPosition.BOTTOM_LEFT ;
     private int maxStringWidth = 0;
     private ArrayList<Integer> itemsPerStringList = new ArrayList<Integer>();
     Graphics2D g2;

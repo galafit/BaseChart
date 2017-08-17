@@ -8,6 +8,7 @@ import functions.DoubleFunction;
 import graphs.Graph;
 import legends.LegendItem;
 import legends.LegendPainter;
+import titles.TitlePainter;
 import tooltips.TooltipInfo;
 import tooltips.TooltipItem;
 import tooltips.TooltipPainter;
@@ -47,6 +48,8 @@ public class Chart implements Drawable {
     private TooltipInfo tooltipInfo;
     private Rectangle legendArea;
     private LegendPainter legendPainter;
+    private TitlePainter titlePainter;
+    private String title = "Test chart 12234 first second third";
 
     public Chart() {
         Axis x = new LinearAxis();
@@ -377,15 +380,20 @@ public class Chart implements Drawable {
             graph.setXRange(graphXAxis.getMin(), graphXAxis.getMax(fullArea), fullArea);
             legendItems.add(new LegendItem(graph.getColor(), graph.getGraphName()));
         }
+        titlePainter = new TitlePainter(title);
+        int titleHeight = titlePainter.getTitleHeight(g2d, fullArea.width);
+        titleArea = new Rectangle(fullArea.x,fullArea.y,fullArea.width, titleHeight);
+
         legendPainter = new LegendPainter(legendItems, g2d, fullArea.width);
         int legendHeight = legendPainter.getLegendHeight();
         if (legendPainter.isTop()) {
-            legendArea = new Rectangle(fullArea.x, fullArea.y, fullArea.width, legendHeight);
-            this.chartArea = new Rectangle(fullArea.x,fullArea.y + legendHeight, fullArea.width, fullArea.height - legendHeight);
+            legendArea = new Rectangle(fullArea.x, fullArea.y + titleHeight, fullArea.width, legendHeight);
+            this.chartArea = new Rectangle(fullArea.x,fullArea.y + titleHeight + legendHeight, fullArea.width, fullArea.height - legendHeight - titleHeight);
         } else {
             legendArea = new Rectangle(fullArea.x, fullArea.y + fullArea.height - legendHeight, fullArea.width, legendHeight);
-            this.chartArea = new Rectangle(fullArea.x, fullArea.y, fullArea.width, fullArea.height - legendHeight);
+            this.chartArea = new Rectangle(fullArea.x, fullArea.y + titleHeight, fullArea.width, fullArea.height - legendHeight - titleHeight);
         }
+
 
         rangeYAxis();
         setGraphAreaAndAxisPositions(g2d, this.chartArea);
@@ -471,6 +479,7 @@ public class Chart implements Drawable {
         }
 
         legendPainter.draw(legendArea);
+        titlePainter.draw(g2d, titleArea);
 
     }
 
