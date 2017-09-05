@@ -6,7 +6,7 @@ import java.text.MessageFormat;
 /**
  * Created by hdablin on 05.04.17.
  */
-public abstract class AxisData {
+public abstract class Scale {
     private String name = "Test name 125679000999";
     private String units = "kg";
 

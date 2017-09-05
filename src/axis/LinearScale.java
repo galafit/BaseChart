@@ -7,7 +7,7 @@ import java.math.RoundingMode;
 /**
  * Created by hdablin on 08.04.17.
  */
-public class LinearAxisData extends AxisData {
+public class LinearScale extends Scale {
     private Double roundMin = null;
     private Double roundMax = null;
 

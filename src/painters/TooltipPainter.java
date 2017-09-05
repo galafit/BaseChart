@@ -1,4 +1,9 @@
-package tooltips;
+package painters;
+
+import configuration.Padding;
+import configuration.TooltipConfig;
+import tooltips.TooltipInfo;
+import tooltips.TooltipItem;
 
 import java.awt.*;
 import java.awt.FontMetrics;
@@ -7,25 +12,22 @@ import java.awt.FontMetrics;
  * Created by hdablin on 02.08.17.
  */
 public class TooltipPainter {
-    Color backgroundColor = new Color(200, 200, 200);
-    Color borderColor = new Color(100, 100, 100);
-    int borderWidth = 1;
-    Color fontColor = Color.BLACK;
-    String font = Font.SANS_SERIF;
-    int fontSize = 12;
-    int x_offset = 10;
-    int y_offset = 15;
+    private TooltipConfig tooltipConfig;
+    private int x_offset = 10;
+    private int y_offset = 15;
     private String separator = ":  ";
-    Color lineColor = Color.GRAY;
+
+    public TooltipPainter(TooltipConfig tooltipConfig) {
+        this.tooltipConfig = tooltipConfig;
+    }
 
     public void draw(Graphics2D g2d, Rectangle area, TooltipInfo tooltipInfo){
-        Font tooltipFont = new Font(font, Font.PLAIN, fontSize);
-        g2d.setFont(tooltipFont);
-        Dimension tooltipDimention = getTextSize(g2d, tooltipInfo);
+        g2d.setFont(tooltipConfig.getTextStyle().getFont());
+        Dimension tooltipDimension = getTextSize(g2d, tooltipInfo);
         int tooltipAreaX = tooltipInfo.getX() + x_offset;
-        int tooltipAreaY = tooltipInfo.getY() - tooltipDimention.height - y_offset;
-        if (tooltipAreaX + tooltipDimention.width > area.width + area.x){
-            tooltipAreaX = tooltipInfo.getX() - x_offset - tooltipDimention.width;
+        int tooltipAreaY = tooltipInfo.getY() - tooltipDimension.height - y_offset;
+        if (tooltipAreaX + tooltipDimension.width > area.width + area.x){
+            tooltipAreaX = tooltipInfo.getX() - x_offset - tooltipDimension.width;
         }
         if (tooltipAreaX < area.x){
             tooltipAreaX = area.x;
@@ -33,18 +35,15 @@ public class TooltipPainter {
         if (tooltipAreaY < area.y){
             tooltipAreaY = tooltipInfo.getY() + y_offset;
         }
-        if (tooltipAreaY + tooltipDimention.height > area.y + area.height ){
-            tooltipAreaY = area.y + area.height - tooltipDimention.height;
+        if (tooltipAreaY + tooltipDimension.height > area.y + area.height ){
+            tooltipAreaY = area.y + area.height - tooltipDimension.height;
         }
-        Rectangle tooltipArea = new Rectangle(tooltipAreaX,tooltipAreaY,tooltipDimention.width,tooltipDimention.height);
-        g2d.setColor(backgroundColor);
+        Rectangle tooltipArea = new Rectangle(tooltipAreaX,tooltipAreaY,tooltipDimension.width,tooltipDimension.height);
+        g2d.setColor(tooltipConfig.getBackground());
         g2d.fillRect(tooltipArea.x, tooltipArea.y, tooltipArea.width, tooltipArea.height);
-        g2d.setColor(borderColor);
-        g2d.setStroke(new BasicStroke(borderWidth));
+        g2d.setColor(tooltipConfig.getBorderColor());
+        g2d.setStroke(new BasicStroke(tooltipConfig.getBorderWidth()));
         g2d.drawRect(tooltipArea.x, tooltipArea.y, tooltipArea.width, tooltipArea.height);
-        g2d.setStroke(new BasicStroke(1));
-        g2d.setColor(lineColor);
-        g2d.drawLine(tooltipInfo.getX(),area.y, tooltipInfo.getX(),area.y + area.height);
         drawTooltipInfo(g2d, tooltipArea, tooltipInfo);
     }
 
@@ -53,7 +52,7 @@ public class TooltipPainter {
      * https://stackoverflow.com/questions/27706197/how-can-i-center-graphics-drawstring-in-java
      */
     private void drawTooltipInfo(Graphics2D g2, Rectangle area, TooltipInfo tooltipInfo) {
-        Padding padding = getPadding();
+        Padding padding = tooltipConfig.getPadding();
         int stringHeght = getStringHeight(g2);
         int lineSpace = getInterLineSpace();
         int x = area.x + padding.left();
@@ -79,26 +78,27 @@ public class TooltipPainter {
             x = x + colorMarkerSize + getColorMarkerPadding();
         }
         if (tooltipItem.getLabel() != null) {
-            g2.setColor(fontColor);
-            g2.setFont(new Font(font, Font.PLAIN, fontSize));
+            g2.setColor(tooltipConfig.getTextStyle().getFontColor());
+            g2.setFont(tooltipConfig.getTextStyle().getFont());
             String labelString = tooltipItem.getLabel() + separator;
             g2.drawString(labelString, x, string_y);
             x = x + getStringWidth(g2, labelString);
         }
         if (tooltipItem.getValue() != null){
-            g2.setColor(fontColor);
-            g2.setFont(new Font(font, Font.BOLD, fontSize));
+            g2.setColor(tooltipConfig.getTextStyle().getFontColor());
+            // font for value is always BOLD!
+            g2.setFont(new Font(tooltipConfig.getTextStyle().getFontName(), Font.BOLD, tooltipConfig.getTextStyle().getFontSize()));
             g2.drawString(tooltipItem.getValue(), x, string_y);
         }
     }
 
 
     private int getColorMarkerSize(){
-        return (int)(fontSize * 0.8);
+        return (int)(tooltipConfig.getTextStyle().getFontSize() * 0.8);
     }
 
     private int getColorMarkerPadding(){
-        return (int)(fontSize * 0.5);
+        return (int)(tooltipConfig.getTextStyle().getFontSize() * 0.5);
     }
 
     private int getItemWidth(Graphics2D g2d, TooltipItem tooltipItem){
@@ -124,9 +124,9 @@ public class TooltipPainter {
             textWidth = Math.max(textWidth, getItemWidth(g2, tooltipInfo.getItem(i)));
         }
         textWidth = Math.max(textWidth,getItemWidth(g2, tooltipInfo.getHeader()));
-        Padding padding = getPadding();
+        Padding padding = tooltipConfig.getPadding();
         textWidth += padding.left() + padding.right();
-        int textHeight = padding.top() + padding.bottom + amountOfItems * getStringHeight(g2);
+        int textHeight = padding.top() + padding.bottom() + amountOfItems * getStringHeight(g2);
         textHeight += getInterLineSpace() * (amountOfItems - 1);
         if (tooltipInfo.getHeader() != null) {
             textHeight += getStringHeight(g2) + getInterLineSpace();
@@ -135,13 +135,8 @@ public class TooltipPainter {
     }
     
     private  int getInterLineSpace() {
-        return (int)(fontSize * 0.2);
+        return (int)(tooltipConfig.getTextStyle().getFontSize() * 0.2);
     }
-    
-    private Padding getPadding() {
-          return new Padding((int)(fontSize * 0.8), (int)(fontSize * 0.4), (int)(fontSize * 0.8), (int)(fontSize * 0.4));
-    }
-
 
     private int getStringWidth(Graphics2D g2, String string) {
         FontMetrics fm = g2.getFontMetrics();
@@ -155,35 +150,5 @@ public class TooltipPainter {
 
     private int getStringAscent(Graphics2D g2) {
         return g2.getFontMetrics().getAscent();
-    }
-    
-    class Padding {
-        int left;
-        int right;
-        int top;
-        int bottom;
-
-        public Padding(int left, int top, int right, int bottom) {
-            this.left = left;
-            this.right = right;
-            this.top = top;
-            this.bottom = bottom;
-        }
-
-        public int left() {
-            return left;
-        }
-
-        public int right() {
-            return right;
-        }
-
-        public int top() {
-            return top;
-        }
-
-        public int bottom() {
-            return bottom;
-        }
     }
 }

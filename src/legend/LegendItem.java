@@ -1,4 +1,4 @@
-package legends;
+package legend;
 
 import java.awt.*;
 

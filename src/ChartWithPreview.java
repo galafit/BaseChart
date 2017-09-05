@@ -1,4 +1,5 @@
 import axis.Axis;
+import configuration.ChartConfig;
 import data.Range;
 import graphs.Graph;
 

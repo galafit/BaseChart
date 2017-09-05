@@ -1,9 +1,9 @@
-package legends;
+package configuration;
 
 /**
  * Created by hdablin on 15.08.17.
  */
-public enum LegendPosition {
+public enum Position {
     TOP_LEFT,
     TOP_RIGHT,
     TOP_CENTER,

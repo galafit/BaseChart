@@ -11,10 +11,11 @@ import java.util.List;
  * Created by hdablin on 06.04.17.
  */
 public class AxisPainter {
-    private AxisData axis;
+    private Scale axis;
     private List<Tick> ticks;
+    private int width;
 
-    public AxisPainter(AxisData axis) {
+    public AxisPainter(Scale axis) {
         this.axis = axis;
     }
 
@@ -45,6 +46,7 @@ public class AxisPainter {
         if (isAxisNameVisible()) {
             size = size + getNamePadding() + getStringHeight(g, getName(), getNameFont());
         }
+        width = size;
 
         return size;
     }
@@ -55,6 +57,17 @@ public class AxisPainter {
 
 
     public void draw(Graphics2D g, Rectangle area, int axisOriginPoint) {
+
+        if(!axis.isHorizontal()) {
+            g.setColor(Color.cyan);
+            if(axis.isOpposite()) {
+                g.fillRect(axisOriginPoint, area.y, width, area.height);
+            } else {
+                g.fillRect(axisOriginPoint - width, area.y, width, area.height);
+            }
+
+        }
+
         if (isAxisVisible()) {
 
             if(ticks == null) {

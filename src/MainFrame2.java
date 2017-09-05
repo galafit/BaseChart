@@ -1,4 +1,5 @@
 import axis.AxisType;
+import configuration.ChartConfig;
 import data.DataList;
 import data.XYList;
 import functions.DoubleFunction;
@@ -28,18 +29,18 @@ public class MainFrame2 extends JFrame {
 
         DataList<Double> periodicData = new DataList<Double>();
         Random rand = new Random();
-        for (int i = -35; i <150 ; i++) {
+        for (int i = -35; i < 150 ; i++) {
             periodicData.addData(new Double(rand.nextInt(100)));
         }
 
         XYList<Double> xyList = new XYList<Double>();
-        for (int i = -11; i <100 ; i++) {
+        for (int i = -11; i < 60 ; i++) {
            // xyList.addPoint(i,rand.nextDouble() * 130);
             xyList.addPoint(i,new Double(i));
         }
 
         XYList<Double> xyList1 = new XYList<Double>();
-        for (int i = -11; i <100 ; i++) {
+        for (int i = -11; i < 60 ; i++) {
             // xyList.addPoint(i,rand.nextDouble() * 130);
             xyList1.addPoint(i,new Double(-i));
         }
