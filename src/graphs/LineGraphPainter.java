@@ -1,10 +1,6 @@
 package graphs;
 
-import axis.Axis;
-import data.Range;
-import data.XYOrderedSet;
-import data.XYPoint;
-import data.XYSet;
+import axis_old.Axis;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;

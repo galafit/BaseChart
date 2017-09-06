@@ -1,9 +1,9 @@
 
-import axis.Axis;
-import axis.AxisType;
-import axis.LinearAxis;
+import axis_old.Axis;
+import axis_old.AxisType;
+import axis_old.LinearAxis;
 import configuration.ChartConfig;
-import configuration.Padding;
+import configuration.Margin;
 import data.Range;
 import data.XYList;
 import functions.DoubleFunction;
@@ -42,7 +42,7 @@ public class Chart implements Drawable {
     private int[] yAxisPositions;
     private Rectangle fullArea;
     private Rectangle graphArea; // area to draw graphs
-    private Rectangle chartArea; //area to draw graphs and axis
+    private Rectangle chartArea; //area to draw graphs and axis_old
     private Rectangle titleArea;
     private TooltipPainter tooltipPainter;
     private boolean isTooltipSeparated = true;
@@ -52,7 +52,7 @@ public class Chart implements Drawable {
     private TitlePainter titlePainter;
     private CrosshairPainter crosshairPainter;
 
-    private ChartConfig chartConfig = new ChartConfig();
+    private ChartConfig chartConfig = new ChartConfig(ChartConfig.DEBUG_THEME);
 
     public Chart() {
         Axis x = new LinearAxis();
@@ -270,7 +270,7 @@ public class Chart implements Drawable {
                     data.addPoint(value, function.apply(value));
                 }
                 graph.setData(data);
-                // restore axis settings
+                // restore axis_old settings
                 xAxis.setEndOnTick(isEndOnTick);
                 xAxis.setLowerPadding(lowerPadding);
                 xAxis.setUpperPadding(upperPadding);
@@ -279,7 +279,7 @@ public class Chart implements Drawable {
         }
     }
 
-    //Calculate and set axis positions and graphArea
+    //Calculate and set axis_old positions and graphArea
     private void setGraphAreaAndAxisPositions(Graphics2D g, Rectangle workArea) {
         xAxisPositions = new int[xAxisList.size()];
         yAxisPositions = new int[yAxisList.size()];
@@ -375,11 +375,11 @@ public class Chart implements Drawable {
 
     Rectangle calculateGraphArea(Graphics2D g2d, Rectangle fullArea) {
         this.fullArea = fullArea;
-        Padding chartPadding = chartConfig.getChartPadding();
-        Rectangle workArea = new Rectangle(fullArea.x + chartPadding.left(),
-                fullArea.y + chartPadding.top(),
-                fullArea.width - chartPadding.left() - chartPadding.right(),
-                fullArea.height - chartPadding.top() - chartPadding.bottom());
+        Margin chartMargin = chartConfig.chartMargin;
+        Rectangle workArea = new Rectangle(fullArea.x + chartMargin.left(),
+                fullArea.y + chartMargin.top(),
+                fullArea.width - chartMargin.left() - chartMargin.right(),
+                fullArea.height - chartMargin.top() - chartMargin.bottom());
         rangeXAxis();
         setFunctions(workArea);
         List<LegendItem> legendItems = new ArrayList<LegendItem>();
@@ -391,15 +391,15 @@ public class Chart implements Drawable {
             }
         }
 
-        tooltipPainter = new TooltipPainter(chartConfig.getTooltipConfig());
+        tooltipPainter = new TooltipPainter(chartConfig.tooltipConfig);
 
-        crosshairPainter = new CrosshairPainter(chartConfig.getCrosshairConfig());
+        crosshairPainter = new CrosshairPainter(chartConfig.crosshairConfig);
 
-        titlePainter = new TitlePainter(chartConfig.getTitle(), chartConfig.getTitleTextStyle());
+        titlePainter = new TitlePainter(chartConfig.title, chartConfig.titleTextStyle);
         int titleHeight = titlePainter.getTitleHeight(g2d, workArea.width);
         titleArea = new Rectangle(workArea.x,workArea.y,workArea.width, titleHeight);
 
-        legendPainter = new LegendPainter(legendItems, chartConfig.getLegendConfig());
+        legendPainter = new LegendPainter(legendItems, chartConfig.legendConfig);
         int legendHeight = legendPainter.getLegendHeight(g2d, workArea.width);
         if (legendPainter.isTop()) {
             legendArea = new Rectangle(workArea.x, workArea.y + titleHeight, workArea.width, legendHeight);
@@ -441,15 +441,15 @@ public class Chart implements Drawable {
 
 
     void draw(Graphics2D g2d) {
-        g2d.setColor(chartConfig.getBackground());
+        g2d.setColor(chartConfig.background);
         g2d.setColor(Color.BLACK);
         g2d.fill(fullArea);
-        Padding chartPadding = chartConfig.getChartPadding();
-        Rectangle workArea = new Rectangle(fullArea.x + chartPadding.left(),
-                fullArea.y + chartPadding.top(),
-                fullArea.width - chartPadding.left() - chartPadding.right(),
-                fullArea.height - chartPadding.top() - chartPadding.bottom());
-        g2d.setColor(chartConfig.getBackground());
+        Margin chartMargin = chartConfig.chartMargin;
+        Rectangle workArea = new Rectangle(fullArea.x + chartMargin.left(),
+                fullArea.y + chartMargin.top(),
+                fullArea.width - chartMargin.left() - chartMargin.right(),
+                fullArea.height - chartMargin.top() - chartMargin.bottom());
+        g2d.setColor(chartConfig.background);
         g2d.fillRect(workArea.x, workArea.y, workArea.width, workArea.height);
 
         /*

@@ -1,6 +1,6 @@
 package painters;
 
-import configuration.Padding;
+import configuration.Margin;
 import configuration.TooltipConfig;
 import tooltips.TooltipInfo;
 import tooltips.TooltipItem;
@@ -22,7 +22,7 @@ public class TooltipPainter {
     }
 
     public void draw(Graphics2D g2d, Rectangle area, TooltipInfo tooltipInfo){
-        g2d.setFont(tooltipConfig.getTextStyle().getFont());
+        g2d.setFont(tooltipConfig.textStyle.getFont());
         Dimension tooltipDimension = getTextSize(g2d, tooltipInfo);
         int tooltipAreaX = tooltipInfo.getX() + x_offset;
         int tooltipAreaY = tooltipInfo.getY() - tooltipDimension.height - y_offset;
@@ -39,10 +39,10 @@ public class TooltipPainter {
             tooltipAreaY = area.y + area.height - tooltipDimension.height;
         }
         Rectangle tooltipArea = new Rectangle(tooltipAreaX,tooltipAreaY,tooltipDimension.width,tooltipDimension.height);
-        g2d.setColor(tooltipConfig.getBackground());
+        g2d.setColor(tooltipConfig.background);
         g2d.fillRect(tooltipArea.x, tooltipArea.y, tooltipArea.width, tooltipArea.height);
-        g2d.setColor(tooltipConfig.getBorderColor());
-        g2d.setStroke(new BasicStroke(tooltipConfig.getBorderWidth()));
+        g2d.setColor(tooltipConfig.borderColor);
+        g2d.setStroke(new BasicStroke(tooltipConfig.borderWidth));
         g2d.drawRect(tooltipArea.x, tooltipArea.y, tooltipArea.width, tooltipArea.height);
         drawTooltipInfo(g2d, tooltipArea, tooltipInfo);
     }
@@ -52,16 +52,16 @@ public class TooltipPainter {
      * https://stackoverflow.com/questions/27706197/how-can-i-center-graphics-drawstring-in-java
      */
     private void drawTooltipInfo(Graphics2D g2, Rectangle area, TooltipInfo tooltipInfo) {
-        Padding padding = tooltipConfig.getPadding();
+        Margin margin = tooltipConfig.margin;
         int stringHeght = getStringHeight(g2);
         int lineSpace = getInterLineSpace();
-        int x = area.x + padding.left();
-        int y = area.y  + padding.top();
+        int x = area.x + margin.left();
+        int y = area.y  + margin.top();
         drawItem(g2, x,y, tooltipInfo.getHeader());
         y += (lineSpace + stringHeght);
         for (int i = 0; i < tooltipInfo.getAmountOfItems(); i++) {
             drawItem(g2, x, y, tooltipInfo.getItem(i));
-            //g2.drawRect(x - padding.left(), y, area.width, stringHeght);
+            //g2.drawRect(x - margin.left(), y, area.width, stringHeght);
             y += (lineSpace + stringHeght);
         }
     }
@@ -78,27 +78,27 @@ public class TooltipPainter {
             x = x + colorMarkerSize + getColorMarkerPadding();
         }
         if (tooltipItem.getLabel() != null) {
-            g2.setColor(tooltipConfig.getTextStyle().getFontColor());
-            g2.setFont(tooltipConfig.getTextStyle().getFont());
+            g2.setColor(tooltipConfig.textStyle.fontColor);
+            g2.setFont(tooltipConfig.textStyle.getFont());
             String labelString = tooltipItem.getLabel() + separator;
             g2.drawString(labelString, x, string_y);
             x = x + getStringWidth(g2, labelString);
         }
         if (tooltipItem.getValue() != null){
-            g2.setColor(tooltipConfig.getTextStyle().getFontColor());
+            g2.setColor(tooltipConfig.textStyle.fontColor);
             // font for value is always BOLD!
-            g2.setFont(new Font(tooltipConfig.getTextStyle().getFontName(), Font.BOLD, tooltipConfig.getTextStyle().getFontSize()));
+            g2.setFont(new Font(tooltipConfig.textStyle.fontName, Font.BOLD, tooltipConfig.textStyle.fontSize));
             g2.drawString(tooltipItem.getValue(), x, string_y);
         }
     }
 
 
     private int getColorMarkerSize(){
-        return (int)(tooltipConfig.getTextStyle().getFontSize() * 0.8);
+        return (int)(tooltipConfig.textStyle.fontSize * 0.8);
     }
 
     private int getColorMarkerPadding(){
-        return (int)(tooltipConfig.getTextStyle().getFontSize() * 0.5);
+        return (int)(tooltipConfig.textStyle.fontSize * 0.5);
     }
 
     private int getItemWidth(Graphics2D g2d, TooltipItem tooltipItem){
@@ -124,9 +124,9 @@ public class TooltipPainter {
             textWidth = Math.max(textWidth, getItemWidth(g2, tooltipInfo.getItem(i)));
         }
         textWidth = Math.max(textWidth,getItemWidth(g2, tooltipInfo.getHeader()));
-        Padding padding = tooltipConfig.getPadding();
-        textWidth += padding.left() + padding.right();
-        int textHeight = padding.top() + padding.bottom() + amountOfItems * getStringHeight(g2);
+        Margin margin = tooltipConfig.margin;
+        textWidth += margin.left() + margin.right();
+        int textHeight = margin.top() + margin.bottom() + amountOfItems * getStringHeight(g2);
         textHeight += getInterLineSpace() * (amountOfItems - 1);
         if (tooltipInfo.getHeader() != null) {
             textHeight += getStringHeight(g2) + getInterLineSpace();
@@ -135,7 +135,7 @@ public class TooltipPainter {
     }
     
     private  int getInterLineSpace() {
-        return (int)(tooltipConfig.getTextStyle().getFontSize() * 0.2);
+        return (int)(tooltipConfig.textStyle.fontSize * 0.2);
     }
 
     private int getStringWidth(Graphics2D g2, String string) {

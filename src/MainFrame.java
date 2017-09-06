@@ -1,4 +1,3 @@
-import axis.AxisType;
 import data.DataList;
 import data.XYList;
 import functions.DoubleFunction;

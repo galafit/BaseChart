@@ -1,7 +1,6 @@
 package graphs;
 
-import axis.Axis;
-import data.Range;
+import axis_old.Axis;
 import data.XYOrderedSet;
 import data.XYPoint;
 import data.XYSet;

@@ -1,5 +1,4 @@
-import axis.Axis;
-import configuration.ChartConfig;
+import axis_old.Axis;
 import data.Range;
 import graphs.Graph;
 
@@ -59,7 +58,7 @@ public class ChartWithPreview implements Drawable {
     }
 
     private void adjustXAxisScale() {
-        if (xAxisPixelsPerUnit != 0) { // set the given scale for all charts
+        if (xAxisPixelsPerUnit != 0) { // set the given axisData for all charts
             for (Chart chart : charts) {
                 chart.getXAxis(0).setPixelsPerUnit(xAxisPixelsPerUnit);
             }
@@ -67,12 +66,12 @@ public class ChartWithPreview implements Drawable {
         } else {
             double maxScale = getXAxisMaxScale();
             scroll.setPointsPerUnit(maxScale);
-            if (isXAxisSynchronized) { // set max scale for all charts
+            if (isXAxisSynchronized) { // set max axisData for all charts
                 for (Chart chart : charts) {
                     chart.getXAxis(0).setPixelsPerUnit(maxScale);
                 }
             } else {
-                for (Chart chart : charts) { // set preferred scale for every chart
+                for (Chart chart : charts) { // set preferred axisData for every chart
                     double scale = chart.getPreferredPixelsPerUnit(0);
                     chart.getXAxis(0).setPixelsPerUnit(scale);
                 }

@@ -1,4 +1,4 @@
-package axis;
+package axis_old;
 
 import java.awt.*;
 import java.math.BigDecimal;
@@ -7,7 +7,7 @@ import java.math.RoundingMode;
 /**
  * Created by hdablin on 08.04.17.
  */
-public class LinearScale extends Scale {
+public class LinearAxisData extends AxisData {
     private Double roundMin = null;
     private Double roundMax = null;
 

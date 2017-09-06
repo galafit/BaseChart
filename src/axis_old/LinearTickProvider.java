@@ -1,11 +1,9 @@
-package axis;
+package axis_old;
 
 import com.sun.istack.internal.Nullable;
 
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by galafit on 5/7/17.

@@ -15,8 +15,8 @@ public class CrosshairPainter {
     }
 
     public void draw(Graphics2D g2, Rectangle area, int x, int y){
-        g2.setStroke(new BasicStroke(crosshairConfig.getLineWidth()));
-        g2.setColor(crosshairConfig.getLineColor());
+        g2.setStroke(new BasicStroke(crosshairConfig.lineWidth));
+        g2.setColor(crosshairConfig.lineColor);
         g2.drawLine(x,area.y, x,area.y + area.height);
     }
 }

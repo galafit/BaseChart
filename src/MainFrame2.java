@@ -1,5 +1,4 @@
-import axis.AxisType;
-import configuration.ChartConfig;
+import axis_old.AxisType;
 import data.DataList;
 import data.XYList;
 import functions.DoubleFunction;

@@ -1,7 +1,7 @@
-package axis;
+package axis_old;
 
 /**
- * Created by galafit on 5/9/17.
+ * Created by hdablin on 08.04.17.
  */
 public class Tick {
     private double value;

@@ -1,4 +1,4 @@
-package axis;
+package axis_old;
 
 import java.awt.*;
 
@@ -12,7 +12,6 @@ public class TicksSettings {
     private int tickLabelsFontSize = 12;
     private Integer tickLabelsPadding = null;
     private boolean isTickLabelsVisible = true;
-    private int ticksAmount = 0;
 
     // see http://api.highcharts.com/highcharts/xAxis.labels.autoRotation
     private int[] tickLabelAutoRotation = {-45, 90}; // at the moment not used
@@ -20,7 +19,9 @@ public class TicksSettings {
     private int ticksWidth = 1;
     private int tickSize = 2;
     private int tickPixelInterval = 0;
-    private double tickInterval; // in axis unit (tickUnit)
+    private double tickInterval; // in axis_old unit (tickUnit)
+    private int ticksAmount = 0;
+
 
     public int getTicksAmount() {
         return ticksAmount;

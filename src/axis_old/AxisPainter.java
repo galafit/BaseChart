@@ -1,4 +1,4 @@
-package axis;
+package axis_old;
 
 import java.awt.*;
 import java.awt.font.TextLayout;
@@ -11,11 +11,11 @@ import java.util.List;
  * Created by hdablin on 06.04.17.
  */
 public class AxisPainter {
-    private Scale axis;
+    private AxisData axis;
     private List<Tick> ticks;
     private int width;
 
-    public AxisPainter(Scale axis) {
+    public AxisPainter(AxisData axis) {
         this.axis = axis;
     }
 
@@ -386,20 +386,20 @@ public class AxisPainter {
         }
         labelPosition += getLabelPadding();
         if (axis.isHorizontal()) {
-            // TOP axis position
+            // TOP axis_old position
             if (axis.isOpposite()) {
                 g.drawString(label, tickPoint - getStringWidth(g,  label, font) / 2, axisOriginPoint - labelPosition);
-            } else { //BOTTOM axis position
+            } else { //BOTTOM axis_old position
                 labelPosition += getStringHeight(g, label, font);
                 g.drawString(label, tickPoint - getStringWidth(g, label, font) / 2, axisOriginPoint + labelPosition);
             }
 
         } else { //VERTICAL position
-            //RIGTH axis position
+            //RIGTH axis_old position
             int labelY = tickPoint + getStringHeight(g, label, font) / 2 - 1;
             if (axis.isOpposite()) {
                 g.drawString(label, axisOriginPoint + labelPosition, labelY);
-            } else { //LEFT axis position
+            } else { //LEFT axis_old position
                 labelPosition += getStringWidth(g, label, font) + 1;
                 g.drawString(label, axisOriginPoint - labelPosition, labelY);
             }
