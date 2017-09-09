@@ -1,5 +1,7 @@
 package axis_old;
 
+import axis.NormalizedNumber;
+
 import java.awt.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -107,9 +109,9 @@ public class LinearAxisData extends AxisData {
 
    public Number roundValue(double value, Rectangle area) {
        double pixelInterval = 1 / getPixelsPerUnit(area);
-       ScientificNumber sn = new ScientificNumber(pixelInterval);
+       NormalizedNumber sn = new NormalizedNumber(pixelInterval);
        int power = sn.getPower();
-       int firstDigit = (int) sn.getDigits();
+       int firstDigit = (int) sn.getMantissa();
        if(firstDigit > 7) {
            power++;
        }

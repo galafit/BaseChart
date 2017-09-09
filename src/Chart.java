@@ -1,9 +1,10 @@
 
-import axis_old.Axis;
-import axis_old.AxisType;
-import axis_old.LinearAxis;
+import axis.Axis;
+import axis.AxisType;
+import configuration.AxisConfig;
 import configuration.ChartConfig;
 import configuration.Margin;
+import configuration.Orientation;
 import data.Range;
 import data.XYList;
 import functions.DoubleFunction;
@@ -52,15 +53,21 @@ public class Chart implements Drawable {
     private TitlePainter titlePainter;
     private CrosshairPainter crosshairPainter;
 
-    private ChartConfig chartConfig = new ChartConfig(ChartConfig.DEBUG_THEME);
+    private ChartConfig chartConfig;
 
     public Chart() {
-        Axis x = new LinearAxis();
-        x.setHorizontal(true);
-        xAxisList.add(x);
-        Axis y = new LinearAxis();
-        y.setHorizontal(false);
-        yAxisList.add(y);
+        this(new ChartConfig(ChartConfig.DEBUG_THEME));
+    }
+
+    public Chart(ChartConfig chartConfig) {
+        this.chartConfig = chartConfig;
+
+        for (int i = 0; i < chartConfig.getXAxisAmount(); i++) {
+            xAxisList.add(new Axis(chartConfig.getXAxisConfig(i)));
+        }
+        for (int i = 0; i < chartConfig.getYAxisAmount(); i++) {
+            yAxisList.add(new Axis(chartConfig.getYAxisConfig(i)));
+        }
     }
 
 
@@ -91,13 +98,13 @@ public class Chart implements Drawable {
             Graph graph = graphs.get(i);
             Axis xAxis = xAxisList.get(graph.getXAxisIndex());
             Axis yAxis = yAxisList.get(graph.getYAxisIndex());
-            double xValue = xAxis.pointsToValue(mouseX, graphArea);
+            double xValue = xAxis.invert(mouseX);
             long pointIndex = graph.getNearestPointIndex(xValue);
             //System.out.println(graph.getGraphName() + ": pointIndex=" + pointIndex);
 
             nearestPointsIndexes[i] = pointIndex;
             if (pointIndex >= 0) {
-                int x = (int) Math.round(xAxis.valueToPoint(graph.getPoint(pointIndex).getX().doubleValue(), graphArea));
+                int x = (int) Math.round(xAxis.scale(graph.getPoint(pointIndex).getX().doubleValue()));
                 //System.out.println(graph.getGraphName() + ": (x - mouseX)=" + (x - mouseX));
                 if(minDistance == null || Math.abs(minDistance) > Math.abs(x - mouseX)) {
                     minDistance =  (x - mouseX);
@@ -117,11 +124,11 @@ public class Chart implements Drawable {
                 Axis yAxis = yAxisList.get(graph.getYAxisIndex());
                 long pointIndex = nearestPointsIndexes[i];
                 if (pointIndex >= 0) {
-                    int x = (int) Math.round(xAxis.valueToPoint(graph.getPoint(pointIndex).getX().doubleValue(), graphArea));
+                    int x = (int) Math.round(xAxis.scale(graph.getPoint(pointIndex).getX().doubleValue()));
                     if ((x - mouseX) == minDistance) {
                         hoverPointsCounter++;
-                        hoverXValue = xAxis.pointsToValue(x, graphArea);
-                        hoverXValue = xAxis.roundValue(hoverXValue.doubleValue(), graphArea);
+                        hoverXValue = xAxis.invert(x);
+                      //  hoverXValue = xAxis.roundValue(hoverXValue.doubleValue(), graphArea);
                         isHover = graph.setHoverPoint(pointIndex) || isHover;
                         TooltipItem tooltipItem = graph.getTooltipItem();
                         if (tooltipItem != null) {
@@ -129,7 +136,7 @@ public class Chart implements Drawable {
                         }
 
                         Range yValueRange = graph.getPointYRange(graph.getPoint(pointIndex).getY());
-                        Range yPixelRange = new Range(yAxis.valueToPoint(yValueRange.start(), graphArea), yAxis.valueToPoint(yValueRange.start(), graphArea));
+                        Range yPixelRange = new Range(yAxis.scale(yValueRange.start()), yAxis.scale(yValueRange.start()));
                         y_range = Range.max(y_range, yPixelRange);
                     } else {
                         isHover = graph.setHoverPoint(-1) || isHover ;
@@ -177,43 +184,6 @@ public class Chart implements Drawable {
         return xAxisList.get(xAxisIndex);
     }
 
-    public Axis getYAxis(int yAxisIndex) {
-        return yAxisList.get(yAxisIndex);
-    }
-
-    public int getXAxisAmount() {
-        return xAxisList.size();
-    }
-
-    public int getYAxisAmount() {
-        return yAxisList.size();
-    }
-
-    public void addYAxis(AxisType axisType, boolean isOpposite) {
-        Axis axis = new LinearAxis();
-        if (yAxisList.size() > 0) {
-            axis.getGridSettings().setGridLineWidth(0);
-            axis.getGridSettings().setMinorGridLineWidth(0);
-        }
-        axis.setOpposite(isOpposite);
-        axis.setHorizontal(false);
-        axis.getViewSettings().setAxisColor(colors[yAxisList.size() % colors.length]);
-        yAxisList.add(axis);
-    }
-
-    public void addXAxis(AxisType axisType, boolean isOpposite) {
-        Axis axis = new LinearAxis();
-        if (xAxisList.size() > 0) {
-            axis.getGridSettings().setGridLineWidth(0);
-            axis.getGridSettings().setMinorGridLineWidth(0);
-        }
-        axis.setOpposite(isOpposite);
-        axis.setHorizontal(true);
-        axis.getViewSettings().setAxisColor(colors[xAxisList.size() % colors.length]);
-        xAxisList.add(axis);
-    }
-
-
     public void addGraph(Graph graph) {
         addGraph(graph, 0, 0);
     }
@@ -230,16 +200,16 @@ public class Chart implements Drawable {
         int maxSize = 0;
         if (axisList.size() > 1) {
             for (Axis axis : axisList) {
-                axis.getTicksSettings().setTicksAmount(0);
+              //  axis.getTicksSettings().setTicksAmount(0);
             }
 
             for (Axis axis : axisList) {
-                maxSize = Math.max(maxSize, axis.getTicks(g, area).size());
+               // maxSize = Math.max(maxSize, axis.getTicks(g).size());
             }
 
             for (Axis axis : axisList) {
-                axis.getTicksSettings().setTicksAmount(maxSize);
-                axis.setEndOnTick(true);
+               // axis.getTicksSettings().setTicksAmount(maxSize);
+               // axis.setEndOnTick(true);
             }
         }
     }
@@ -258,22 +228,12 @@ public class Chart implements Drawable {
             DoubleFunction function = graph.getFunction();
             if (function != null) {
                 Axis xAxis = xAxisList.get(graph.getXAxisIndex());
-                boolean isEndOnTick = xAxis.isEndOnTick();
-                double lowerPadding = xAxis.getLowerPadding();
-                double upperPadding = xAxis.getUpperPadding();
-                xAxis.setUpperPadding(0);
-                xAxis.setLowerPadding(0);
-                xAxis.setEndOnTick(false);
                 XYList data = new XYList();
                 for (int i = area.x; i <= area.width + area.x; i++) {
-                    double value = xAxis.pointsToValue(i, area);
+                    double value = xAxis.invert(i);
                     data.addPoint(value, function.apply(value));
                 }
                 graph.setData(data);
-                // restore axis_old settings
-                xAxis.setEndOnTick(isEndOnTick);
-                xAxis.setLowerPadding(lowerPadding);
-                xAxis.setUpperPadding(upperPadding);
             }
 
         }
@@ -292,7 +252,7 @@ public class Chart implements Drawable {
         //Calculate position and indents of xAxisList
         int xAxisAmount = xAxisList.size() - 1;
         for (int i = xAxisAmount; i >= 0; i--) {
-            int size = xAxisList.get(i).getWidth(g, workArea);
+            int size = xAxisList.get(i).getWidth(g);
             if (i != xAxisAmount) {
                 size += axisPadding;
             }
@@ -307,7 +267,7 @@ public class Chart implements Drawable {
         //Calculate position and indents of yAxisList
         int yAxisAmount = yAxisList.size() - 1;
         for (int i = yAxisAmount; i >= 0; i--) {
-            int size = yAxisList.get(i).getWidth(g, workArea);
+            int size = yAxisList.get(i).getWidth(g);
             if (i != yAxisAmount) {
                 size += axisPadding;
             }
@@ -349,7 +309,7 @@ public class Chart implements Drawable {
             if (xAxis.isAutoScale()) {
                 Range preferredXRange = getPreferredXRange(i);
                 if (preferredXRange != null) {
-                    xAxis.setRange(preferredXRange.start(), preferredXRange.end());
+                    xAxis.setMinMax(preferredXRange.start(), preferredXRange.end());
                 }
             }
         }
@@ -367,7 +327,7 @@ public class Chart implements Drawable {
                     }
                 }
                 if (preferredYRange != null) {
-                    yAxis.setRange(preferredYRange.start(), preferredYRange.end());
+                    yAxis.setMinMax(preferredYRange.start(), preferredYRange.end());
                 }
             }
         }
@@ -375,6 +335,12 @@ public class Chart implements Drawable {
 
     Rectangle calculateGraphArea(Graphics2D g2d, Rectangle fullArea) {
         this.fullArea = fullArea;
+        for (Axis axis : xAxisList) {
+           axis.setStartEnd(fullArea.x, fullArea.x + fullArea.width);
+        }
+        for (Axis axis : yAxisList) {
+            axis.setStartEnd(fullArea.y + fullArea.height, fullArea.y);
+        }
         Margin chartMargin = chartConfig.chartMargin;
         Rectangle workArea = new Rectangle(fullArea.x + chartMargin.left(),
                 fullArea.y + chartMargin.top(),
@@ -385,7 +351,7 @@ public class Chart implements Drawable {
         List<LegendItem> legendItems = new ArrayList<LegendItem>();
         for (Graph graph : graphs) {
             Axis graphXAxis = xAxisList.get(graph.getXAxisIndex());
-            graph.setXRange(graphXAxis.getMin(), graphXAxis.getMax(workArea), workArea);
+            graph.setXRange(graphXAxis.getMin(), graphXAxis.getMax(), workArea);
             if(graph.getGraphName() != null) {
                 legendItems.add(new LegendItem(graph.getColor(), graph.getGraphName()));
             }
@@ -483,12 +449,19 @@ public class Chart implements Drawable {
         legendPainter.draw(g2d, legendArea);
         titlePainter.draw(g2d, titleArea);
 
+        for (Axis axis : xAxisList) {
+            axis.setStartEnd(graphArea.x, graphArea.x + graphArea.width);
+        }
+        for (Axis axis : yAxisList) {
+            axis.setStartEnd(graphArea.y + graphArea.height, graphArea.y);
+        }
+
         for (int i = 0; i < xAxisList.size(); i++) {
-            xAxisList.get(i).draw(g2d, graphArea, xAxisPositions[i]);
+            xAxisList.get(i).draw(g2d, xAxisPositions[i]);
         }
 
         for (int i = 0; i < yAxisList.size(); i++) {
-            yAxisList.get(i).draw(g2d, graphArea, yAxisPositions[i]);
+            yAxisList.get(i).draw(g2d, yAxisPositions[i]);
         }
 
         Rectangle clip = g2d.getClipBounds();

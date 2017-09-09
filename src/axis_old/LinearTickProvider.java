@@ -1,5 +1,6 @@
 package axis_old;
 
+import axis.NormalizedNumber;
 import com.sun.istack.internal.Nullable;
 
 import java.text.DecimalFormat;
@@ -86,14 +87,16 @@ class LinearTickProvider implements TickProvider {
 
 
     public void setTicksInterval(double ticksInterval) {
-        ScientificNumber scientificNumber = new ScientificNumber(ticksInterval);
+        NormalizedNumber normalizedNumber = new NormalizedNumber(ticksInterval);
         int numberOfFirstDigits = 7;
-        int firstDigits = (int) (scientificNumber.getDigits() * Math.pow(10, numberOfFirstDigits)) + 1;
-        int power = scientificNumber.getPower() - numberOfFirstDigits;
+        int firstDigits = (int) (normalizedNumber.getMantissa() * Math.pow(10, numberOfFirstDigits)) + 1;
+        int power = normalizedNumber.getPower() - numberOfFirstDigits;
 
         NormalizedDouble roundInterval = new NormalizedDouble(firstDigits, power);
         setTickIntervalAndFormat(ticksInterval, roundInterval.getPower());
     }
+
+
 
     public void setTickPixelInterval(int tickPixelInterval) {
         if(max == min) {
@@ -105,10 +108,10 @@ class LinearTickProvider implements TickProvider {
             ticksInterval = (max-min) / 5;
         }
         // firstDigit is in {1,2,5,10};
-        ScientificNumber tick = new ScientificNumber(ticksInterval);
+        NormalizedNumber tick = new NormalizedNumber(ticksInterval);
 
         int power = tick.getPower();
-        int firstDigit = (int) (tick.getDigits());
+        int firstDigit = (int) (tick.getMantissa());
         switch (firstDigit) {
             case 3:
                 firstDigit = 2;
@@ -187,9 +190,9 @@ class LinearTickProvider implements TickProvider {
      * @return closest roundInterval >= given interval
      */
     private NormalizedDouble roundIntervalUp(double interval, int[] roundValues)  {
-        ScientificNumber scientificNumber = new ScientificNumber(interval);
-        int power = scientificNumber.getPower();
-        int first2Digits = (int) (scientificNumber.getDigits() * 10) + 1;
+        NormalizedNumber normalizedNumber = new NormalizedNumber(interval);
+        int power = normalizedNumber.getPower();
+        int first2Digits = (int) (normalizedNumber.getMantissa() * 10) + 1;
         power--;
         // find the closest roundValue that is > first2Digits
         for (int roundValue : roundValues) {
@@ -209,9 +212,9 @@ class LinearTickProvider implements TickProvider {
      * @return closest roundInterval <= given interval
      */
     private NormalizedDouble roundIntervalDown(double interval, int[] roundValues)  {
-        ScientificNumber scientificNumber = new ScientificNumber(interval);
-        int power = scientificNumber.getPower();
-        int first2Digits = (int) (scientificNumber.getDigits() * 10) + 1;
+        NormalizedNumber normalizedNumber = new NormalizedNumber(interval);
+        int power = normalizedNumber.getPower();
+        int first2Digits = (int) (normalizedNumber.getMantissa() * 10) + 1;
         power--;
         // find the closest roundValue that is < first2Digits
         for (int i = roundValues.length - 1; i >= 0; i--) {

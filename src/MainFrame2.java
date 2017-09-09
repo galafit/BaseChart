@@ -1,4 +1,5 @@
-import axis_old.AxisType;
+import axis.AxisType;
+import configuration.ChartConfig;
 import data.DataList;
 import data.XYList;
 import functions.DoubleFunction;
@@ -21,19 +22,19 @@ public class MainFrame2 extends JFrame {
 
         setTitle("Test chart");
 
-        Chart chart = new Chart();
-
-        chart.addYAxis(AxisType.LINEAR, true);
-        // chart.addXAxis(AxisType.LINEAR, true);
+        ChartConfig chartConfig = new ChartConfig(ChartConfig.DEBUG_THEME);
+        chartConfig.addYAxis(true);
+        // chartConfig.addXAxis(true);
+        Chart chart = new Chart(chartConfig);
 
         DataList<Double> periodicData = new DataList<Double>();
         Random rand = new Random();
-        for (int i = -35; i < 150 ; i++) {
-            periodicData.addData(new Double(rand.nextInt(100)));
+        for (int i = -40; i < 150 ; i++) {
+            periodicData.addData(new Double(rand.nextInt(80)));
         }
 
         XYList<Double> xyList = new XYList<Double>();
-        for (int i = -11; i < 60 ; i++) {
+        for (int i = -50; i < 60 ; i++) {
            // xyList.addPoint(i,rand.nextDouble() * 130);
             xyList.addPoint(i,new Double(i));
         }

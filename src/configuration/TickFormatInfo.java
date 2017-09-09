@@ -3,7 +3,7 @@ package configuration;
 /**
  * Created by galafit on 5/9/17.
  */
-public class TickLabelFormat {
+public class TickFormatInfo {
     public String prefix;
     public String suffix;
     /**

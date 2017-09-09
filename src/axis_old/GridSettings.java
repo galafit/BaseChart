@@ -1,5 +1,7 @@
 package axis_old;
 
+import axis.LineStyle;
+
 import java.awt.*;
 
 /**

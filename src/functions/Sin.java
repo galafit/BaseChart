@@ -7,6 +7,6 @@ package functions;
 public class Sin implements DoubleFunction<Double> {
     @Override
     public Double apply(double value) {
-        return 100*Math.sin(value);
+        return 70 * Math.sin(value);
     }
 }

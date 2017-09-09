@@ -1,6 +1,6 @@
 package graphs;
 
-import axis_old.Axis;
+import axis.Axis;
 import data.*;
 import functions.DoubleFunction;
 import tooltips.TooltipItem;

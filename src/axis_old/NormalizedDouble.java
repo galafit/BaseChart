@@ -2,8 +2,8 @@ package axis_old;
 
 
 /**
- * Present double as significant digits (int) and power. So
- * double = digits * Math.power(10, power);
+ * Present double as significant mantissa (int) and power. So
+ * double = mantissa * Math.power(10, power);
  */
 public class NormalizedDouble {
     int digits;

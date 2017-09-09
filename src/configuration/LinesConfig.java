@@ -1,6 +1,6 @@
 package configuration;
 
-import axis_old.LineStyle;
+import axis.LineStyle;
 
 import java.awt.*;
 

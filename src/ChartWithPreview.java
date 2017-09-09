@@ -1,4 +1,4 @@
-import axis_old.Axis;
+import axis.Axis;
 import data.Range;
 import graphs.Graph;
 
@@ -46,21 +46,21 @@ public class ChartWithPreview implements Drawable {
     }
 
     public void setXAxisScale(double pixelsPerUnit, int chartIndex) {
-        charts.get(chartIndex).getXAxis(0).setPixelsPerUnit(pixelsPerUnit);
+      //  charts.get(chartIndex).getXAxis(0).setPixelsPerUnit(pixelsPerUnit);
 
     }
 
     public void setXAxisScale(double pixelsPerUnit) {
         xAxisPixelsPerUnit = pixelsPerUnit;
         for (Chart chart : charts) {
-            chart.getXAxis(0).setPixelsPerUnit(pixelsPerUnit);
+           // chart.getXAxis(0).setPixelsPerUnit(pixelsPerUnit);
         }
     }
 
     private void adjustXAxisScale() {
         if (xAxisPixelsPerUnit != 0) { // set the given axisData for all charts
             for (Chart chart : charts) {
-                chart.getXAxis(0).setPixelsPerUnit(xAxisPixelsPerUnit);
+               // chart.getXAxis(0).setPixelsPerUnit(xAxisPixelsPerUnit);
             }
             scroll.setPointsPerUnit(xAxisPixelsPerUnit);
         } else {
@@ -68,12 +68,12 @@ public class ChartWithPreview implements Drawable {
             scroll.setPointsPerUnit(maxScale);
             if (isXAxisSynchronized) { // set max axisData for all charts
                 for (Chart chart : charts) {
-                    chart.getXAxis(0).setPixelsPerUnit(maxScale);
+                   // chart.getXAxis(0).setPixelsPerUnit(maxScale);
                 }
             } else {
                 for (Chart chart : charts) { // set preferred axisData for every chart
                     double scale = chart.getPreferredPixelsPerUnit(0);
-                    chart.getXAxis(0).setPixelsPerUnit(scale);
+                  //  chart.getXAxis(0).setPixelsPerUnit(scale);
                 }
             }
         }
@@ -90,7 +90,7 @@ public class ChartWithPreview implements Drawable {
         }
 
         for (Chart preview : previews) {
-            preview.getXAxis(0).setRange(minMaxRange.start(), minMaxRange.end());
+            preview.getXAxis(0).setMinMax(minMaxRange.start(), minMaxRange.end());
         }
 
         scroll.getScrollModel().setMin(minMaxRange.start());
@@ -157,7 +157,7 @@ public class ChartWithPreview implements Drawable {
     private void setChartsAxisStart() {
         for (Chart chart : charts) {
             Axis xAxis = chart.getXAxis(0);
-            xAxis.setRange(scroll.getScrollModel().getViewportPosition(), null);
+           // xAxis.setMinMax(scroll.getScrollModel().getViewportPosition(), null);
         }
     }
 

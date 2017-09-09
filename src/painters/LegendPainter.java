@@ -32,7 +32,7 @@ public class LegendPainter {
         }
         g2.setFont(legendConfig.textStyle.getFont());
         itemsToStrings(g2, areaWidth);
-        return getStringHeight(g2) * itemsPerStringList.size()
+        return getStringHeight(g2, legendConfig.textStyle.getFont()) * itemsPerStringList.size()
                 + getInterLineSpace() * (itemsPerStringList.size() - 1)
                 + legendConfig.margin.top() + legendConfig.margin.bottom();
     }
@@ -59,7 +59,7 @@ public class LegendPainter {
     }
 
     private int getItemWidth(Graphics2D g2, LegendItem item) {
-        return getStringWidth(g2, item.getLabel()) + getColorMarkerSize() + getColorMarkerPadding();
+        return getStringWidth(g2, legendConfig.textStyle.getFont(), item.getLabel()) + getColorMarkerSize() + getColorMarkerPadding();
 
     }
 
@@ -82,7 +82,7 @@ public class LegendPainter {
         }
 
         // draw background
-        int legendHeight = getStringHeight(g2) * itemsPerStringList.size()
+        int legendHeight = getStringHeight(g2, legendConfig.textStyle.getFont()) * itemsPerStringList.size()
                 + getInterLineSpace() * (itemsPerStringList.size() - 1)
                 + margin.top() + margin.bottom();
         int legendWidth = maxStringWidth + margin.left() + margin.right();
@@ -105,36 +105,24 @@ public class LegendPainter {
             for (int i = 0; i < numberOfItems; i++) {
                 LegendItem legendItem = items.get(itemCounter);
                 g2.setColor(legendItem.getColor());
-                g2.fillRect(x, y + (getStringHeight(g2) - getColorMarkerSize()) / 2 + 1, getColorMarkerSize(), getColorMarkerSize());
+                g2.fillRect(x, y + (getStringHeight(g2, legendConfig.textStyle.getFont()) - getColorMarkerSize()) / 2 + 1, getColorMarkerSize(), getColorMarkerSize());
                 x += getColorMarkerSize() + getColorMarkerPadding();
                 g2.setColor(legendConfig.textStyle.fontColor);
-                g2.drawString(legendItem.getLabel(), x, y + getStringAscent(g2));
-                x += getStringWidth(g2, legendItem.getLabel()) + getInterItemSpace();
+                g2.drawString(legendItem.getLabel(), x, y + getStringAscent(g2, legendConfig.textStyle.getFont()));
+                x += getStringWidth(g2, legendConfig.textStyle.getFont(), legendItem.getLabel()) + getInterItemSpace();
                 itemCounter++;
             }
-            y += getStringHeight(g2) + getInterLineSpace();
+            y += getStringHeight(g2, legendConfig.textStyle.getFont()) + getInterLineSpace();
         }
 
     }
 
-    private int getStringWidth(Graphics2D g2, String string) {
-        return g2.getFontMetrics().stringWidth(string);
-    }
-
-    private int getInterLineSpace() {
+     private int getInterLineSpace() {
         return (int) (legendConfig.textStyle.fontSize * 0.2);
     }
 
     private int getInterItemSpace() {
         return (int) (legendConfig.textStyle.fontSize * 1);
-    }
-
-    private int getStringHeight(Graphics2D g2) {
-         return g2.getFontMetrics().getHeight();
-    }
-
-    private int getStringAscent(Graphics2D g2) {
-        return g2.getFontMetrics().getAscent();
     }
 
     private int getColorMarkerSize() {
@@ -143,6 +131,18 @@ public class LegendPainter {
 
     private int getColorMarkerPadding() {
         return (int) (legendConfig.textStyle.fontSize * 0.5);
+    }
+
+    private int getStringWidth(Graphics2D g2, Font font, String string) {
+        return  g2.getFontMetrics(font).stringWidth(string);
+    }
+
+    private int getStringHeight(Graphics2D g2, Font font) {
+        return g2.getFontMetrics(font).getHeight();
+    }
+
+    private int getStringAscent(Graphics2D g2, Font font) {
+        return g2.getFontMetrics(font).getAscent();
     }
 
 }

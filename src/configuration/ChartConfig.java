@@ -1,6 +1,7 @@
 package configuration;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Created by galafit on 18/8/17.
@@ -18,9 +19,14 @@ public class ChartConfig {
     public TooltipConfig tooltipConfig = new TooltipConfig();
     public CrosshairConfig crosshairConfig = new CrosshairConfig();
 
+    private ArrayList<AxisConfig> xAxisConfigs = new ArrayList<AxisConfig>();
+    private ArrayList<AxisConfig> yAxisConfigs = new ArrayList<AxisConfig>();
+
     public ChartConfig(int theme) {
         titleTextStyle.isBold = true;
         titleTextStyle.fontSize = 14;
+        xAxisConfigs.add(new AxisConfig(Orientation.BOTTOM));
+        yAxisConfigs.add(new AxisConfig(Orientation.LEFT));
         if(theme == DARK_THEME) {
           background = new Color(20, 20, 30);
           Color textColor = new Color(200, 200, 200);
@@ -35,7 +41,31 @@ public class ChartConfig {
             legendConfig.borderWidth = 1;
             legendConfig.textStyle.fontColor = textColor;
             titleTextStyle.fontColor = textColor;
+            xAxisConfigs.get(getXAxisAmount() - 1).background = new Color(40, 40, 40);
+            yAxisConfigs.get(getYAxisAmount() - 1).background = new Color(40, 40, 40);
         }
+    }
+
+    public int getXAxisAmount() {
+        return xAxisConfigs.size();
+    }
+
+    public int getYAxisAmount() {
+        return yAxisConfigs.size();
+    }
+
+    public AxisConfig getXAxisConfig(int axisIndex) {
+        return xAxisConfigs.get(axisIndex);
+    }
+
+    public AxisConfig getYAxisConfig(int axisIndex) {
+        return yAxisConfigs.get(axisIndex);
+    }
+
+    public void addYAxis(boolean isOpposite) {
+        Orientation orientation = isOpposite ? Orientation.RIGHT : Orientation.LEFT;
+        yAxisConfigs.add(new AxisConfig(orientation));
+        yAxisConfigs.get(getYAxisAmount() - 1).background = new Color(40, 40, 40);
     }
 
 }

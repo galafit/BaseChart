@@ -27,7 +27,7 @@ public class TitlePainter {
         }
         g2.setFont(titleStyle.getFont());
         formStrings(g2, areaWidth);
-        return getStringHeight(g2) * strings.size()
+        return getStringHeight(g2, titleStyle.getFont()) * strings.size()
                 + getInterLineSpace() * (strings.size() - 1)
                 + getMargin().top() + getMargin().bottom();
     }
@@ -36,7 +36,7 @@ public class TitlePainter {
         strings = new ArrayList<String>();
         StringBuilder resultantString = new StringBuilder(words[0]);
         for (int i = 1; i < words.length; i++) {
-            if (getStringWidth(g2, resultantString + " "+ words[i]) + getMargin().left() + getMargin().right() > areaWidth){
+            if (getStringWidth(g2, titleStyle.getFont(),  resultantString + " "+ words[i]) + getMargin().left() + getMargin().right() > areaWidth){
                 strings.add(resultantString.toString());
                 resultantString = new StringBuilder(words[i]);
             } else {
@@ -57,12 +57,12 @@ public class TitlePainter {
         g2.setColor(titleStyle.fontColor);
         int y = area.y + getMargin().top();
         for (String string : strings) {
-            int x = (area.x + area.width) / 2 - getStringWidth(g2, string) / 2;
+            int x = (area.x + area.width) / 2 - getStringWidth(g2, titleStyle.getFont(), string) / 2;
             if (x < area.x + getMargin().left()) {
                 x = area.x + getMargin().left();
             }
-            g2.drawString(string,x,y + getStringAscent(g2));
-            y += getInterLineSpace() + getStringHeight(g2);
+            g2.drawString(string,x,y + getStringAscent(g2, titleStyle.getFont()));
+            y += getInterLineSpace() + getStringHeight(g2, titleStyle.getFont());
         }
 
     }
@@ -79,16 +79,15 @@ public class TitlePainter {
                 (int)(titleStyle.fontSize * 0.5));
     }
 
-    private int getStringHeight(Graphics2D g2) {
-        return g2.getFontMetrics().getHeight();
+    private int getStringWidth(Graphics2D g2, Font font, String string) {
+        return  g2.getFontMetrics(font).stringWidth(string);
     }
 
-    private int getStringAscent(Graphics2D g2) {
-        return g2.getFontMetrics().getAscent();
+    private int getStringHeight(Graphics2D g2, Font font) {
+        return g2.getFontMetrics(font).getHeight();
     }
 
-    private int getStringWidth(Graphics2D g2, String string) {
-        FontMetrics fm = g2.getFontMetrics();
-        return  fm.stringWidth(string);
+    private int getStringAscent(Graphics2D g2, Font font) {
+        return g2.getFontMetrics(font).getAscent();
     }
 }
