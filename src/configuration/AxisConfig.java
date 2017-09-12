@@ -8,7 +8,6 @@ import java.awt.*;
 public class AxisConfig {
     private Orientation orientation;
     public boolean isAxisVisible = true;
-    public Color background;
 
     public String name = "Name";
     public TextStyle nameTextStyle = new TextStyle();
@@ -26,9 +25,36 @@ public class AxisConfig {
         nameTextStyle.fontSize = 20;
     }
 
-    public Orientation getOrientation() {
-        return orientation;
+    public boolean isTop() {
+        if(orientation == Orientation.TOP) {
+            return true;
+        }
+        return false;
     }
+
+    public boolean isBottom() {
+        if(orientation == Orientation.BOTTOM) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isLeft() {
+        if(orientation == Orientation.LEFT) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isRight() {
+        if(orientation == Orientation.RIGHT) {
+            return true;
+        }
+        return false;
+    }
+
+
+
 
     public boolean isHorizontal() {
         if(orientation == Orientation.BOTTOM || orientation == Orientation.TOP) {

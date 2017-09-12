@@ -3,6 +3,8 @@ package axis;
 import configuration.TickFormatInfo;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by galafit on 6/9/17.
@@ -28,7 +30,6 @@ public class ScaleLinear extends Scale {
         private TickFormatInfo tickFormatInfo;
         private double tickStep;
         private DecimalFormat tickFormat = new DecimalFormat();
-        private double tickValue;
 
         public LinearTickProvider() {
            setTickAmount(DEFAULT_TICKS_AMOUNT);
@@ -37,20 +38,46 @@ public class ScaleLinear extends Scale {
         @Override
         public void setTickFormatInfo(TickFormatInfo tickFormatInfo) {
             this.tickFormatInfo = tickFormatInfo;
-            tickFormat = getNumberFormat(new NormalizedNumber(tickStep).getPowerOfLastSignificantDigit());
-        }
+         }
 
         @Override
         public void setTickAmount(int amount) {
             double max = domain[domain.length - 1];
             double min = domain[0];
             if (max != min) {
-                roundTickStep((max - min) / amount);
-                tickValue = getTickLeft(min).getValue();
-            }
-            else {
-                tickValue = min;
-                tickStep = 0;
+                double step = (max - min) / amount;
+
+                // Round Tick Step
+                // The default ticks for quantitative scales are multiples of 2, 5 and 10
+                // firstDigit is in {1,2,5,10};
+                NormalizedNumber normalizedStep = new NormalizedNumber(step);
+
+                int power = normalizedStep.getPower();
+                int firstDigit = (int)Math.round(normalizedStep.getMantissa());
+                switch (firstDigit) {
+                    case 3:
+                        firstDigit = 2;
+                        break;
+                    case 4:
+                        firstDigit = 5;
+                        break;
+                    case 6:
+                        firstDigit = 5;
+                        break;
+                    case 7:
+                        firstDigit = 5;
+                        break;
+                    case 8:
+                        firstDigit = 1;
+                        power++;
+                        break;
+                    case 9:
+                        firstDigit = 1;
+                        power++;
+                        break;
+                }
+                tickStep = firstDigit * Math.pow(10, power);
+                tickFormat = getNumberFormat(power);
             }
         }
 
@@ -62,33 +89,81 @@ public class ScaleLinear extends Scale {
                 tickStep = step;
                 NormalizedNumber normalizedNumber = new NormalizedNumber(step);
                 tickFormat = getNumberFormat(normalizedNumber.getPowerOfLastSignificantDigit());
-                tickValue = getTickLeft(min).getValue();
             }
-            else {
-                tickValue = min;
-                tickStep = 0;
+        }
+
+        @Override
+        public List<Tick> getTicks(int ticksDivider) {
+            double max = domain[domain.length - 1];
+            double min = domain[0];
+            if(max == min) {
+                ArrayList<Tick> ticks = new ArrayList<Tick>(1);
+                ticks.add(new Tick(min, String.valueOf(min)));
+                return ticks;
+            }
+            ArrayList<Tick> ticks = new ArrayList<Tick>();
+            int maxTicksAmount = 500; // if bigger it means that there is some error
+            double tickValue = getTickRight(min);
+            double resultantTickStep = tickStep * ticksDivider;
+            for (int i = 0; i < maxTicksAmount; i++) {
+                if(tickValue <= max) {
+                    ticks.add(new Tick(tickValue, tickFormat.format(tickValue)));
+                } else {
+                    break;
+                }
+                tickValue += resultantTickStep;
+            }
+            double maxTickValue = getTickLeft(max);
+            if(maxTickValue > tickValue) {
+                ticks.add(new Tick(maxTickValue, tickFormat.format(maxTickValue)));
             }
 
+            return ticks;
         }
 
         @Override
-        public Tick getTickRight(double value) {
-            tickValue = Math.ceil(value / tickStep) * tickStep;
-            return new Tick(tickValue, tickFormat.format(tickValue));
+        public List<Double> getMinorTicks(int ticksDivider, int minorTickCount) {
+            double max = domain[domain.length - 1];
+            double min = domain[0];
+            if(max == min) {
+                ArrayList<Double> minorTicks = new ArrayList<Double>(0);
+                return minorTicks;
+            }
+            ArrayList<Double> minorTicks = new ArrayList<Double>(0);
+            int maxTicksAmount = 500; // if bigger it means that there is some error
+            double tickValue = getTickRight(min);
+            double minorTickStep = tickStep * ticksDivider / minorTickCount;
+            for (int i = 0; i < maxTicksAmount; i++) {
+                if(tickValue <= max) {
+                    minorTicks.add(new Double(tickValue));
+                    tickValue += minorTickStep;
+                } else {
+                    break;
+                }
+            }
+            return minorTicks;
         }
 
         @Override
-        public Tick getTickLeft(double value) {
-            tickValue = Math.floor(value / tickStep) * tickStep;
-            return new Tick(tickValue, tickFormat.format(tickValue));
+        public double getRoundMin() {
+            double min = domain[0];
+            return getTickLeft(min) ;
         }
 
         @Override
-        public Tick getNext() {
-            Tick tick = new Tick(tickValue, tickFormat.format(tickValue));
-            tickValue += tickStep;
-            return tick;
+        public double getRoundMax() {
+            double max = domain[domain.length - 1];
+            return getTickRight(max) ;
         }
+
+        private double getTickRight(double value) {
+            return Math.ceil(value / tickStep) * tickStep;
+        }
+
+        private double getTickLeft(double value) {
+            return Math.floor(value / tickStep) * tickStep;
+        }
+
 
         // TODO: use metric shortcuts - k, M, G... from formatInfo
         private DecimalFormat getNumberFormat(int power) {
@@ -127,38 +202,5 @@ public class ScaleLinear extends Scale {
             return df;
         }
 
-        // The default ticks for quantitative scales are multiples of 2, 5 and 10
-        private void roundTickStep(double step) {
-
-            // firstDigit is in {1,2,5,10};
-            NormalizedNumber normalizedStep = new NormalizedNumber(step);
-
-            int power = normalizedStep.getPower();
-            int firstDigit = (int)Math.round(normalizedStep.getMantissa());
-            switch (firstDigit) {
-                case 3:
-                    firstDigit = 2;
-                    break;
-                case 4:
-                    firstDigit = 5;
-                    break;
-                case 6:
-                    firstDigit = 5;
-                    break;
-                case 7:
-                    firstDigit = 5;
-                    break;
-                case 8:
-                    firstDigit = 1;
-                    power++;
-                    break;
-                case 9:
-                    firstDigit = 1;
-                    power++;
-                    break;
-            }
-            tickStep = firstDigit * Math.pow(10, power);
-            tickFormat = getNumberFormat(power);
-        }
     }
 }

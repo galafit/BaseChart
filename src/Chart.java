@@ -457,11 +457,19 @@ public class Chart implements Drawable {
         }
 
         for (int i = 0; i < xAxisList.size(); i++) {
-            xAxisList.get(i).draw(g2d, xAxisPositions[i]);
+            xAxisList.get(i).drawGrid(g2d, xAxisPositions[i], graphArea.height);
         }
 
         for (int i = 0; i < yAxisList.size(); i++) {
-            yAxisList.get(i).draw(g2d, yAxisPositions[i]);
+            yAxisList.get(i).drawGrid(g2d, yAxisPositions[i], graphArea.width);
+        }
+
+        for (int i = 0; i < xAxisList.size(); i++) {
+            xAxisList.get(i).drawAxis(g2d, xAxisPositions[i]);
+        }
+
+        for (int i = 0; i < yAxisList.size(); i++) {
+            yAxisList.get(i).drawAxis(g2d, yAxisPositions[i]);
         }
 
         Rectangle clip = g2d.getClipBounds();

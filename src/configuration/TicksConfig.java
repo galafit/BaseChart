@@ -6,7 +6,7 @@ package configuration;
 public class TicksConfig {
     public int tickMarkWidth = 1; // px
     public int tickMarkInsideSize = 0; // px
-    public int tickMarkOutsideSize = 1; // px
+    public int tickMarkOutsideSize = 3; // px
     public TickFormatInfo formatInfo;
     public TextStyle textStyle = new TextStyle();
 
@@ -17,7 +17,7 @@ public class TicksConfig {
     public boolean isLabelsVisible = true;
 
     public int tickPixelInterval = 0;
-    public double tickInterval; // in data unit
+    public double tickStep; // in data unit
     public int ticksAmount = 0;
 
 

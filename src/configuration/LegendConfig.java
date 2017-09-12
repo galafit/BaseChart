@@ -6,6 +6,7 @@ import java.awt.*;
  * Created by galafit on 18/8/17.
  */
 public class LegendConfig {
+    public boolean isVisible = false;
     public TextStyle textStyle = new TextStyle();
     public Position position = Position.TOP_CENTER;
     public Color background = Color.WHITE;

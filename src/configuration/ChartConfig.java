@@ -41,8 +41,6 @@ public class ChartConfig {
             legendConfig.borderWidth = 1;
             legendConfig.textStyle.fontColor = textColor;
             titleTextStyle.fontColor = textColor;
-            xAxisConfigs.get(getXAxisAmount() - 1).background = new Color(40, 40, 40);
-            yAxisConfigs.get(getYAxisAmount() - 1).background = new Color(40, 40, 40);
         }
     }
 
@@ -64,8 +62,10 @@ public class ChartConfig {
 
     public void addYAxis(boolean isOpposite) {
         Orientation orientation = isOpposite ? Orientation.RIGHT : Orientation.LEFT;
-        yAxisConfigs.add(new AxisConfig(orientation));
-        yAxisConfigs.get(getYAxisAmount() - 1).background = new Color(40, 40, 40);
+        AxisConfig axisConfig = new AxisConfig(orientation);
+        axisConfig.linesConfig.minorGridLineWidth = 0;
+        axisConfig.linesConfig.gridLineWidth = 0;
+        yAxisConfigs.add(axisConfig);
     }
 
 }

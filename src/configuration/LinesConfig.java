@@ -9,15 +9,15 @@ import java.awt.*;
  */
 public class LinesConfig {
     public Color axisLineColor = Color.GRAY;
-    public Color gridColor = new Color(50, 50, 50);
-    public Color minorGridColor = new Color(25, 25, 25);
+    public Color gridColor =  new Color(100, 100, 100);
+    public Color minorGridColor =  new Color(80, 80, 80);
 
     public int axisLineWidth = 1;
     public int gridLineWidth = 1;
-    public int minorGridLineWidth = 0;
+    public int minorGridLineWidth = 1;
 
-    public LineStyle gridLineStyle = LineStyle.SOLID;
-    public LineStyle minorGridLineStyle = LineStyle.SOLID;
+    private LineStyle gridLineStyle = LineStyle.SOLID;
+    private LineStyle minorGridLineStyle = LineStyle.DOT;
 
     public int minorGridCounter = 5; // minor grid divider
 
@@ -31,5 +31,25 @@ public class LinesConfig {
 
     public boolean isAxisLineVisible() {
         return (axisLineWidth > 0) ? true : false;
+    }
+
+    public void setGridLineStyle(LineStyle gridLineStyle) {
+        this.gridLineStyle = gridLineStyle;
+    }
+
+    public void setMinorGridLineStyle(LineStyle minorGridLineStyle) {
+        this.minorGridLineStyle = minorGridLineStyle;
+    }
+
+    public Stroke getGridLineStroke() {
+        return gridLineStyle.getStroke(gridLineWidth);
+    }
+
+    public Stroke getMinorGridLineStroke() {
+        return minorGridLineStyle.getStroke(minorGridLineWidth);
+    }
+
+    public Stroke getAxisLineStroke() {
+        return new BasicStroke(axisLineWidth);
     }
 }

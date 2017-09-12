@@ -27,7 +27,7 @@ public class LegendPainter {
     }
 
     public int getLegendHeight(Graphics2D g2, int areaWidth) {
-        if (items.size() == 0) {
+        if (!legendConfig.isVisible || items.size() == 0) {
             return 0;
         }
         g2.setFont(legendConfig.textStyle.getFont());
@@ -64,7 +64,7 @@ public class LegendPainter {
     }
 
     public void draw(Graphics2D g2, Rectangle area) {
-        if (items.size() == 0) {
+        if (!legendConfig.isVisible || items.size() == 0) {
             return;
         }
 
