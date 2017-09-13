@@ -11,7 +11,7 @@ public class AxisConfig {
 
     public String name = "Name";
     public TextStyle nameTextStyle = new TextStyle();
-    public int namePadding = 0;// (int)(0.8 * nameTextStyle.fontSize);
+    public int namePadding = (int)(0.4 * nameTextStyle.fontSize);
     public boolean isNameVisible = true;
 
     public LinesConfig linesConfig = new LinesConfig();
@@ -22,7 +22,7 @@ public class AxisConfig {
 
     public AxisConfig(Orientation orientation) {
         this.orientation = orientation;
-        nameTextStyle.fontSize = 20;
+        nameTextStyle.fontSize = 14;
     }
 
     public boolean isTop() {

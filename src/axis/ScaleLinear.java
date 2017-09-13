@@ -31,9 +31,6 @@ public class ScaleLinear extends Scale {
         private double tickStep;
         private DecimalFormat tickFormat = new DecimalFormat();
 
-        public LinearTickProvider() {
-           setTickAmount(DEFAULT_TICKS_AMOUNT);
-        }
 
         @Override
         public void setTickFormatInfo(TickFormatInfo tickFormatInfo) {
@@ -94,6 +91,9 @@ public class ScaleLinear extends Scale {
 
         @Override
         public List<Tick> getTicks(int ticksDivider) {
+            if(tickStep == 0) {
+                setTickAmount(DEFAULT_TICKS_AMOUNT);
+            }
             double max = domain[domain.length - 1];
             double min = domain[0];
             if(max == min) {
@@ -123,6 +123,9 @@ public class ScaleLinear extends Scale {
 
         @Override
         public List<Double> getMinorTicks(int ticksDivider, int minorTickCount) {
+            if(tickStep == 0) {
+                setTickAmount(DEFAULT_TICKS_AMOUNT);
+            }
             double max = domain[domain.length - 1];
             double min = domain[0];
             if(max == min) {
@@ -197,6 +200,7 @@ public class ScaleLinear extends Scale {
             }
             if (tickFormatInfo != null && tickFormatInfo.suffix != null) {
                 formatPattern = formatPattern + " " + tickFormatInfo.suffix;
+
             }
             df = new DecimalFormat(formatPattern);
             return df;

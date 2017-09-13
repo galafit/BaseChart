@@ -7,7 +7,7 @@ public class TicksConfig {
     public int tickMarkWidth = 1; // px
     public int tickMarkInsideSize = 0; // px
     public int tickMarkOutsideSize = 3; // px
-    public TickFormatInfo formatInfo;
+    public TickFormatInfo formatInfo = new TickFormatInfo();
     public TextStyle textStyle = new TextStyle();
 
     public int padding = (int)(0.5 * textStyle.fontSize); // px
