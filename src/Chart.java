@@ -1,21 +1,15 @@
 
 import axis.Axis;
-import axis.AxisType;
-import configuration.AxisConfig;
 import configuration.ChartConfig;
-import configuration.Margin;
-import configuration.Orientation;
+import configuration.TraceConfig;
 import data.Range;
-import data.XYList;
-import functions.DoubleFunction;
-import graphs.Graph;
 import legend.LegendItem;
 import painters.CrosshairPainter;
 import painters.LegendPainter;
 import painters.TitlePainter;
 import tooltips.TooltipInfo;
-import tooltips.TooltipItem;
 import painters.TooltipPainter;
+import traces.Trace;
 
 
 import java.awt.*;
@@ -26,10 +20,10 @@ import java.util.List;
  * Created by hdablin on 24.03.17.
  */
 public class Chart implements Drawable {
-    private List<Graph> graphs = new ArrayList<Graph>();
-    private List<Axis> xAxisList = new ArrayList<Axis>();
+
+    private List<Axis> xAxisList = new ArrayList<Axis>(2);
     private List<Axis> yAxisList = new ArrayList<Axis>();
-    private int axisPadding = 0;
+    private List<Trace> traces = new ArrayList<Trace>();
 
     private final Color GREY = new Color(150, 150, 150);
     private final Color BROWN = new Color(200, 102, 0);
@@ -39,63 +33,103 @@ public class Chart implements Drawable {
     private Color[] graphicColors = {Color.MAGENTA, Color.RED, ORANGE, Color.CYAN, Color.PINK};
 
     private boolean isTicksAlignmentEnable = false;
-    private int[] xAxisPositions;
-    private int[] yAxisPositions;
-    private Rectangle fullArea;
-    private Rectangle graphArea; // area to draw graphs
-    private Rectangle chartArea; //area to draw graphs and axis_old
-    private Rectangle titleArea;
+
     private TooltipPainter tooltipPainter;
     private boolean isTooltipSeparated = true;
     private TooltipInfo tooltipInfo;
-    private Rectangle legendArea;
     private LegendPainter legendPainter;
     private TitlePainter titlePainter;
     private CrosshairPainter crosshairPainter;
-
     private ChartConfig chartConfig;
 
-    public Chart() {
-        this(new ChartConfig(ChartConfig.DEBUG_THEME));
-    }
+    private Rectangle titleArea;
+    private Rectangle legendArea;
+    private Rectangle graphArea;
+
 
     public Chart(ChartConfig chartConfig) {
         this.chartConfig = chartConfig;
-
-        for (int i = 0; i < chartConfig.getXAxisAmount(); i++) {
-            xAxisList.add(new Axis(chartConfig.getXAxisConfig(i)));
+        xAxisList.add(new Axis(chartConfig.getBottomAxisConfig()));
+        xAxisList.add(new Axis(chartConfig.getTopAxisConfig()));
+        for (int i = 0; i < chartConfig.getStacksAmount(); i++) {
+            yAxisList.add(new Axis(chartConfig.getLeftAxisConfig(i)));
+            yAxisList.add(new Axis(chartConfig.getRightAxisConfig(i)));
         }
-        for (int i = 0; i < chartConfig.getYAxisAmount(); i++) {
-            yAxisList.add(new Axis(chartConfig.getYAxisConfig(i)));
+
+        tooltipPainter = new TooltipPainter(chartConfig.tooltipConfig);
+        crosshairPainter = new CrosshairPainter(chartConfig.crosshairConfig);
+        titlePainter = new TitlePainter(chartConfig.title, chartConfig.titleTextStyle);
+        ArrayList<LegendItem> legendItems = new ArrayList<LegendItem>(chartConfig.getTraceAmount());
+        for (int i = 0; i < chartConfig.getTraceAmount() ; i++) {
+            TraceConfig traceConfig = chartConfig.getTraceConfig(i);
+            if(traceConfig.color == null) {
+                traceConfig.color = graphicColors[i % graphicColors.length];
+            }
+            if(traceConfig.name == null) {
+                traceConfig.name = "Trace "+i;
+            }
+            legendItems.add(new LegendItem(traceConfig.color, traceConfig.name));
+            Trace trace = traceConfig.getType().getTrace();
+            trace.setConfig(traceConfig);
+            traces.add(trace);
+        }
+        legendPainter = new LegendPainter(legendItems, chartConfig.legendConfig);
+        setXAxisDomain();
+        setYAxisDomain();
+    }
+
+    private void setXAxisDomain() {
+        for (int i = 0; i < xAxisList.size(); i++) {
+            Axis xAxis = xAxisList.get(i);
+            if (xAxis.isAutoScale()) {
+                Range xRange = null;
+                for (Trace trace : traces) {
+                    if(trace.getXAxisIndex() == i) {
+                        xRange = Range.max(xRange, trace.getXRange());
+                    }
+                }
+                xAxis.setMinMax(xRange);
+            }
         }
     }
 
-
-    public void update() {
-        chartArea = null;
-        for (Graph graph : graphs) {
-            graph.update();
+    private void setYAxisDomain() {
+        for (int i = 0; i < yAxisList.size(); i++) {
+            Axis yAxis = yAxisList.get(i);
+            if (yAxis.isAutoScale()) {
+                Range yRange = null;
+                for (Trace trace : traces) {
+                    if(trace.getYAxisIndex() == i) {
+                        yRange = Range.max(yRange, trace.getYRange());
+                    }
+                }
+                yAxis.setMinMax(yRange);
+            }
         }
     }
+
 
 
     // TODO: handling multiple xAxis!!!!
     // TODO: add separated tooltips
     public boolean hover(int mouseX, int mouseY) {
+        return false;
+    }
+ /*   public boolean hover(int mouseX, int mouseY) {
         boolean isHover = false;
-        if (!graphArea.contains(new Point(mouseX, mouseY))) {
+        if (true ) {
             tooltipInfo = null;
-            for (Graph graph : graphs) {
+            for (Graph graph : traces) {
                 isHover = graph.setHoverPoint(-1) || isHover;
             }
             return isHover;
         }
 
-        long[] nearestPointsIndexes = new long[graphs.size()];
+        long[] nearestPointsIndexes = new long[traces.size()];
         Integer minDistance = null;
-        // find min distance from graphs points to mouseX
-        for (int i = 0; i < graphs.size(); i++) {
-            Graph graph = graphs.get(i);
+        // find min distance from traces points to mouseX
+        for (int i = 0; i < traces.size(); i++) {
+            Graph graph = traces.get(i);
             Axis xAxis = xAxisList.get(graph.getXAxisIndex());
             Axis yAxis = yAxisList.get(graph.getYAxisIndex());
             double xValue = xAxis.invert(mouseX);
@@ -112,14 +146,14 @@ public class Chart implements Drawable {
             }
         }
         //System.out.println("MinDistance = " + minDistance);
-        // hover graphs points that have minDistance to mouseX
+        // hover traces points that have minDistance to mouseX
         if (minDistance != null) {
             ArrayList<TooltipItem> tooltipItems = new ArrayList<TooltipItem>();
             Range y_range = null;
             Number hoverXValue = null;
             int hoverPointsCounter = 0;
-            for (int i = 0; i < graphs.size(); i++) {
-                Graph graph = graphs.get(i);
+            for (int i = 0; i < traces.size(); i++) {
+                Graph graph = traces.get(i);
                 Axis xAxis = xAxisList.get(graph.getXAxisIndex());
                 Axis yAxis = yAxisList.get(graph.getYAxisIndex());
                 long pointIndex = nearestPointsIndexes[i];
@@ -160,263 +194,92 @@ public class Chart implements Drawable {
             }
         }
         return isHover;
-    }
+    }*/
 
 
-    public double getPreferredPixelsPerUnit(int xAxisIndex) {
-        double pixelsPerUnit = 0;
-        for (Graph graph : graphs) {
-            // skip graph with functions and take into account only graphs with real DataSets
-            if (graph.getFunction() == null && graph.getXAxisIndex() == xAxisIndex) {
-                pixelsPerUnit = Math.max(pixelsPerUnit, graph.getPreferredPixelsPerUnit());
-            }
-        }
-        return pixelsPerUnit;
-    }
+    private void calculateMarginsAndAreas(Graphics2D g2) {
+        Rectangle fullArea = chartConfig.getArea();
+        int titleHeight = titlePainter.getTitleHeight(g2, fullArea.width);
+        titleArea = new Rectangle(fullArea.x,fullArea.y,fullArea.width, titleHeight);
 
+        int left, right, top, bottom;
+        if(chartConfig.margin != null) {
+            left = chartConfig.margin.left();
+            right = chartConfig.margin.right();
+            top = chartConfig.margin.top();
+            bottom = chartConfig.margin.bottom();
 
-    // define whether ticks on different(opposite) xAxis or yAxis should be aligned/synchronized
-    public void enableTicksAlignment(boolean isEnabled) {
-        isTicksAlignmentEnable = isEnabled;
-    }
-
-    public Axis getXAxis(int xAxisIndex) {
-        return xAxisList.get(xAxisIndex);
-    }
-
-    public void addGraph(Graph graph) {
-        addGraph(graph, 0, 0);
-    }
-
-
-    public void addGraph(Graph graph, int xAxisIndex, int yAxisIndex) {
-        graph.setAxisIndexes(xAxisIndex, yAxisIndex);
-        graph.setLineColor(graphicColors[graphs.size() % graphicColors.length]);
-        graphs.add(graph);
-
-    }
-
-    private void alignAxisTicks(List<Axis> axisList, Graphics2D g, Rectangle area) {
-        int maxSize = 0;
-        if (axisList.size() > 1) {
-            for (Axis axis : axisList) {
-              //  axis.getTicksSettings().setTicksAmount(0);
-            }
-
-            for (Axis axis : axisList) {
-               // maxSize = Math.max(maxSize, axis.getTicks(g).size());
-            }
-
-            for (Axis axis : axisList) {
-               // axis.getTicksSettings().setTicksAmount(maxSize);
-               // axis.setEndOnTick(true);
-            }
-        }
-    }
-
-
-    /**
-     * We create XYList for every function. For every area point is calculated corresponding
-     * value and function(value) and added to the list. So:
-     * resultant XYLists contains «area.width» elements. Then those XYLists are added to
-     * the corresponding Graphs.
-     *
-     * @param area
-     */
-    private void setFunctions(Rectangle area) {
-        for (Graph graph : graphs) {
-            DoubleFunction function = graph.getFunction();
-            if (function != null) {
-                Axis xAxis = xAxisList.get(graph.getXAxisIndex());
-                XYList data = new XYList();
-                for (int i = area.x; i <= area.width + area.x; i++) {
-                    double value = xAxis.invert(i);
-                    data.addPoint(value, function.apply(value));
-                }
-                graph.setData(data);
-            }
-
-        }
-    }
-
-    //Calculate and set axis_old positions and graphArea
-    private void setGraphAreaAndAxisPositions(Graphics2D g, Rectangle workArea) {
-        xAxisPositions = new int[xAxisList.size()];
-        yAxisPositions = new int[yAxisList.size()];
-
-        int topIndent = 0;
-        int bottomIndent = 0;
-        int leftIndent = 0;
-        int rightIndent = 0;
-
-        //Calculate position and indents of xAxisList
-        int xAxisAmount = xAxisList.size() - 1;
-        for (int i = xAxisAmount; i >= 0; i--) {
-            int size = xAxisList.get(i).getWidth(g);
-            if (i != xAxisAmount) {
-                size += axisPadding;
-            }
-            if (!xAxisList.get(i).isOpposite()) {
-                bottomIndent += size;
-                xAxisPositions[i] = workArea.y + workArea.height - bottomIndent;
+            int legendWidth = fullArea.width - right - left;
+            int legendHeight = legendPainter.getLegendHeight(g2, legendWidth);
+            int legendX = fullArea.x + left;
+            if (chartConfig.legendConfig.isTop()) {
+                legendArea = new Rectangle(legendX, fullArea.y + titleHeight, legendWidth, legendHeight);
             } else {
-                topIndent += size;
-                xAxisPositions[i] = workArea.y + topIndent;
+                legendArea = new Rectangle(legendX, fullArea.y + fullArea.height - legendHeight, legendWidth, legendHeight);
             }
-        }
-        //Calculate position and indents of yAxisList
-        int yAxisAmount = yAxisList.size() - 1;
-        for (int i = yAxisAmount; i >= 0; i--) {
-            int size = yAxisList.get(i).getWidth(g);
-            if (i != yAxisAmount) {
-                size += axisPadding;
-            }
-            if (!yAxisList.get(i).isOpposite()) {
-                leftIndent += size;
-                yAxisPositions[i] = workArea.x + leftIndent;
-            } else {
-                rightIndent += size;
-                yAxisPositions[i] = workArea.x + workArea.width - rightIndent;
-            }
-        }
-        Rectangle graphArea = new Rectangle(workArea.x + leftIndent, workArea.y + topIndent, workArea.width - leftIndent - rightIndent, workArea.height - topIndent - bottomIndent);
-        setGraphArea(graphArea);
-    }
-
-    Rectangle getGraphArea() {
-        return graphArea;
-    }
-
-    private void setGraphArea(Rectangle newGraphArea) {
-        graphArea = newGraphArea;
-    }
-
-    public Range getPreferredXRange(int xAxisIndex) {
-        Range xRange = null;
-        for (Graph graph : graphs) {
-            // skip graph with functions and take into account only graphs with real DataSets
-            if (graph.getFunction() == null && graph.getXAxisIndex() == xAxisIndex) {
-                xRange = Range.max(xRange, graph.getXFullRange());
-            }
-        }
-        return xRange;
-    }
-
-    private void rangeXAxis() {
-        for (int i = 0; i < xAxisList.size(); i++) {
-            Axis xAxis = xAxisList.get(i);
-            xAxis.update();
-            if (xAxis.isAutoScale()) {
-                Range preferredXRange = getPreferredXRange(i);
-                if (preferredXRange != null) {
-                    xAxis.setMinMax(preferredXRange.start(), preferredXRange.end());
-                }
-            }
-        }
-    }
-
-    private void rangeYAxis() {
-        for (int i = 0; i < yAxisList.size(); i++) {
-            Axis yAxis = yAxisList.get(i);
-            yAxis.update();
-            if (yAxis.isAutoScale()) {
-                Range preferredYRange = null;
-                for (Graph graph : graphs) {
-                    if (graph.getYAxisIndex() == i) {
-                        preferredYRange = Range.max(preferredYRange, graph.getYRange());
-                    }
-                }
-                if (preferredYRange != null) {
-                    yAxis.setMinMax(preferredYRange.start(), preferredYRange.end());
-                }
-            }
-        }
-    }
-
-    Rectangle calculateGraphArea(Graphics2D g2d, Rectangle fullArea) {
-        this.fullArea = fullArea;
-        for (Axis axis : xAxisList) {
-           axis.setStartEnd(fullArea.x, fullArea.x + fullArea.width);
-        }
-        for (Axis axis : yAxisList) {
-            axis.setStartEnd(fullArea.y + fullArea.height, fullArea.y);
-        }
-        Margin chartMargin = chartConfig.chartMargin;
-        Rectangle workArea = new Rectangle(fullArea.x + chartMargin.left(),
-                fullArea.y + chartMargin.top(),
-                fullArea.width - chartMargin.left() - chartMargin.right(),
-                fullArea.height - chartMargin.top() - chartMargin.bottom());
-        rangeXAxis();
-        setFunctions(workArea);
-        List<LegendItem> legendItems = new ArrayList<LegendItem>();
-        for (Graph graph : graphs) {
-            Axis graphXAxis = xAxisList.get(graph.getXAxisIndex());
-            graph.setXRange(graphXAxis.getMin(), graphXAxis.getMax(), workArea);
-            if(graph.getGraphName() != null) {
-                legendItems.add(new LegendItem(graph.getColor(), graph.getGraphName()));
-            }
-        }
-
-        tooltipPainter = new TooltipPainter(chartConfig.tooltipConfig);
-
-        crosshairPainter = new CrosshairPainter(chartConfig.crosshairConfig);
-
-        titlePainter = new TitlePainter(chartConfig.title, chartConfig.titleTextStyle);
-        int titleHeight = titlePainter.getTitleHeight(g2d, workArea.width);
-        titleArea = new Rectangle(workArea.x,workArea.y,workArea.width, titleHeight);
-
-        legendPainter = new LegendPainter(legendItems, chartConfig.legendConfig);
-        int legendHeight = legendPainter.getLegendHeight(g2d, workArea.width);
-        if (legendPainter.isTop()) {
-            legendArea = new Rectangle(workArea.x, workArea.y + titleHeight, workArea.width, legendHeight);
-            this.chartArea = new Rectangle(workArea.x,workArea.y + titleHeight + legendHeight, workArea.width, workArea.height - legendHeight - titleHeight);
         } else {
-            legendArea = new Rectangle(workArea.x, workArea.y + workArea.height - legendHeight, workArea.width, legendHeight);
-            this.chartArea = new Rectangle(workArea.x, workArea.y + titleHeight, workArea.width, workArea.height - legendHeight - titleHeight);
+            // set YAxis ranges and calculate margins
+            for (int i = 0; i < yAxisList.size(); i++) {
+                yAxisList.get(i).setStartEnd(chartConfig.getYAxisStartEnd(i, fullArea));
+            }
+            left = 0;
+            right = 0;
+            for (int i = 0; i < yAxisList.size()/2; i++) {
+                left = Math.max(left, yAxisList.get(i*2).getThickness(g2));
+                right = Math.max(right, yAxisList.get(i*2 + 1).getThickness(g2));
+            }
+
+            // set XAxis ranges and calculate margins
+            int xStart = fullArea.x;
+            int xEnd = fullArea.x + fullArea.width;
+            xAxisList.get(0).setStartEnd(xStart, xEnd);
+            xAxisList.get(1).setStartEnd(xStart, xEnd);
+
+
+            int legendWidth = fullArea.width - right - left;
+            int legendHeight = legendPainter.getLegendHeight(g2, legendWidth);
+            int legendX = fullArea.x + left;
+            if (chartConfig.legendConfig.isTop()) {
+                legendArea = new Rectangle(legendX, fullArea.y + titleHeight, legendWidth, legendHeight);
+            } else {
+                legendArea = new Rectangle(legendX, fullArea.y + fullArea.height - legendHeight, legendWidth, legendHeight);
+            }
+
+            bottom = 0;
+            top = titleArea.height;
+            if(chartConfig.legendConfig.isTop()) {
+                top += legendArea.height;
+            } else {
+                bottom += legendArea.height;
+            }
+
+            bottom += xAxisList.get(0).getThickness(g2);
+            top += xAxisList.get(1).getThickness(g2);
         }
+        graphArea = new Rectangle(fullArea.x + left, fullArea.y + top,
+                fullArea.width - left - right, fullArea.height - top - bottom);
 
-
-        rangeYAxis();
-        setGraphAreaAndAxisPositions(g2d, this.chartArea);
-        if (isTicksAlignmentEnable) {
-            alignAxisTicks(xAxisList, g2d, graphArea);
-            alignAxisTicks(yAxisList, g2d, graphArea);
-            setGraphAreaAndAxisPositions(g2d, this.chartArea);
-        }
-        return graphArea;
-    }
-
-    // used in multi-pane charts to align its graph areas
-    void reduceGraphArea(Graphics2D g2d, int graphAreaX, int graphAreaWidth) {
-        int shiftLeft, shiftRight;
-        Rectangle graphArea = this.graphArea;
-        shiftLeft = graphAreaX - graphArea.x;
-        shiftRight = graphArea.x + graphArea.width - graphAreaX - graphAreaWidth;
+        int xStart = graphArea.x;
+        int xEnd = graphArea.x + graphArea.width;
+        xAxisList.get(0).setStartEnd(xStart, xEnd);
+        xAxisList.get(1).setStartEnd(xStart, xEnd);
 
         for (int i = 0; i < yAxisList.size(); i++) {
-            if (yAxisList.get(i).isOpposite()) {
-                yAxisPositions[i] -= shiftRight;
-            } else {
-                yAxisPositions[i] += shiftLeft;
-            }
+            yAxisList.get(i).setStartEnd(chartConfig.getYAxisStartEnd(i, graphArea));
         }
-        graphArea.x = graphAreaX;
-        graphArea.width = graphAreaWidth;
-        setGraphArea(graphArea);
     }
 
-
-    void draw(Graphics2D g2d) {
-        g2d.setColor(chartConfig.background);
-        g2d.setColor(Color.BLACK);
+    @Override
+    public void draw(Graphics2D g2d) {
+        if(graphArea == null) {
+            calculateMarginsAndAreas(g2d);
+        }
+        Rectangle fullArea = chartConfig.getArea();
+        g2d.setColor(chartConfig.marginColor);
         g2d.fill(fullArea);
-        Margin chartMargin = chartConfig.chartMargin;
-        Rectangle workArea = new Rectangle(fullArea.x + chartMargin.left(),
-                fullArea.y + chartMargin.top(),
-                fullArea.width - chartMargin.left() - chartMargin.right(),
-                fullArea.height - chartMargin.top() - chartMargin.bottom());
+
         g2d.setColor(chartConfig.background);
-        g2d.fillRect(workArea.x, workArea.y, workArea.width, workArea.height);
+        g2d.fill(graphArea);
 
         /*
         * https://stackoverflow.com/questions/31536952/how-to-fix-text-quality-in-java-graphics
@@ -446,37 +309,40 @@ public class Chart implements Drawable {
                 RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);  */
 
-        legendPainter.draw(g2d, legendArea);
         titlePainter.draw(g2d, titleArea);
+        legendPainter.draw(g2d, legendArea);
 
-        for (Axis axis : xAxisList) {
-            axis.setStartEnd(graphArea.x, graphArea.x + graphArea.width);
-        }
-        for (Axis axis : yAxisList) {
-            axis.setStartEnd(graphArea.y + graphArea.height, graphArea.y);
-        }
 
-        for (int i = 0; i < xAxisList.size(); i++) {
-            xAxisList.get(i).drawGrid(g2d, xAxisPositions[i], graphArea.height);
-        }
+        int topPosition = graphArea.y;
+        int bottomPosition = graphArea.y + graphArea.height;
+        int leftPosition = graphArea.x;
+        int rightPosition = graphArea.x + graphArea.width;
 
-        for (int i = 0; i < yAxisList.size(); i++) {
-            yAxisList.get(i).drawGrid(g2d, yAxisPositions[i], graphArea.width);
+        for (int i = 0; i < xAxisList.size() / 2; i++) {
+            xAxisList.get(i * 2).drawGrid(g2d, bottomPosition, graphArea.height);
+            xAxisList.get(i * 2 + 1).drawGrid(g2d, topPosition, graphArea.height);
         }
 
-        for (int i = 0; i < xAxisList.size(); i++) {
-            xAxisList.get(i).drawAxis(g2d, xAxisPositions[i]);
+        for (int i = 0; i < yAxisList.size() / 2; i++) {
+            yAxisList.get(i * 2).drawGrid(g2d, leftPosition, graphArea.width);
+            yAxisList.get(i * 2 + 1).drawGrid(g2d, rightPosition, graphArea.width);
         }
 
-        for (int i = 0; i < yAxisList.size(); i++) {
-            yAxisList.get(i).drawAxis(g2d, yAxisPositions[i]);
+        for (int i = 0; i < xAxisList.size() / 2; i++) {
+            xAxisList.get(i * 2).drawAxis(g2d, bottomPosition);
+            xAxisList.get(i * 2 + 1).drawAxis(g2d, topPosition);
+        }
+
+        for (int i = 0; i < yAxisList.size() / 2; i++) {
+            yAxisList.get(i * 2).drawAxis(g2d, leftPosition);
+            yAxisList.get(i * 2 + 1).drawAxis(g2d, rightPosition);
         }
 
         Rectangle clip = g2d.getClipBounds();
         g2d.setClip(graphArea);
 
-        for (Graph graph : graphs) {
-            graph.draw(g2d, graphArea, xAxisList.get(graph.getXAxisIndex()), yAxisList.get(graph.getYAxisIndex()));
+        for (Trace trace : traces) {
+            trace.draw(g2d, xAxisList.get(trace.getXAxisIndex()), yAxisList.get(trace.getYAxisIndex()));
         }
         g2d.setClip(clip);
 
@@ -484,13 +350,5 @@ public class Chart implements Drawable {
             tooltipPainter.draw(g2d, fullArea, tooltipInfo);
             crosshairPainter.draw(g2d, graphArea, tooltipInfo.getX(), tooltipInfo.getY());
         }
-    }
-
-
-    public void draw(Graphics2D g2d, Rectangle fullArea) {
-        if (this.fullArea == null || !this.fullArea.equals(fullArea)) {
-            calculateGraphArea(g2d, fullArea);
-        }
-        draw(g2d);
     }
 }

@@ -1,9 +1,6 @@
 package graphs;
 
-import data.DataProcessorForNumbers;
-import data.XYPoint;
-import tooltips.TooltipInfo;
-import tooltips.TooltipItem;
+import data_old.DataProcessorForNumbers;
 
 /**
  * Created by hdablin on 26.04.17.

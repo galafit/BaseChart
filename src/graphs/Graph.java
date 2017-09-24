@@ -1,7 +1,8 @@
 package graphs;
 
 import axis.Axis;
-import data.*;
+import data.Range;
+import data_old.*;
 import functions.DoubleFunction;
 import tooltips.TooltipItem;
 
@@ -27,7 +28,7 @@ public abstract class Graph<T> {
         setData(dataSet);
     }
 
-    public Graph(XYSet<T> pointsSet) {
+    public Graph(PointSet<T> pointsSet) {
         setData(pointsSet);
     }*/
 

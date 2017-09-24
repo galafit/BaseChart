@@ -1,12 +1,11 @@
 package painters;
 
-import configuration.Margin;
+import configuration.general.Margin;
 import configuration.TooltipConfig;
 import tooltips.TooltipInfo;
 import tooltips.TooltipItem;
 
 import java.awt.*;
-import java.awt.FontMetrics;
 
 /**
  * Created by hdablin on 02.08.17.

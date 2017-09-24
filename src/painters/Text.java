@@ -1,6 +1,6 @@
 package painters;
 
-import configuration.TextAnchor;
+import configuration.general.TextAnchor;
 
 import javax.swing.*;
 import java.awt.*;

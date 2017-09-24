@@ -1,5 +1,5 @@
-import data.DataList;
-import data.XYList;
+import data_old.DataList;
+import data_old.XYList;
 import functions.DoubleFunction;
 import functions.Sin;
 import functions.Tg;
@@ -66,7 +66,7 @@ public class MainFrame extends JFrame {
 
 
 
-        ChartWithPreview chartWithPreview = new ChartWithPreview();
+   /*     ChartWithPreview chartWithPreview = new ChartWithPreview();
 
         chartWithPreview.addChart();
         chartWithPreview.addChart();

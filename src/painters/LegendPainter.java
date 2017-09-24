@@ -1,6 +1,7 @@
 package painters;
 
 import configuration.*;
+import configuration.general.Margin;
 import legend.LegendItem;
 
 import java.awt.*;
@@ -20,10 +21,6 @@ public class LegendPainter {
     public LegendPainter(List<LegendItem> items, LegendConfig legendConfig) {
         this.items = items;
         this.legendConfig = legendConfig;
-    }
-
-    public boolean isTop() {
-        return legendConfig.position.isTop();
     }
 
     public int getLegendHeight(Graphics2D g2, int areaWidth) {
@@ -68,6 +65,7 @@ public class LegendPainter {
             return;
         }
 
+        g2.setColor(legendConfig.textStyle.fontColor);
         g2.setFont(legendConfig.textStyle.getFont());
         Margin margin = legendConfig.margin;
         int x_start;

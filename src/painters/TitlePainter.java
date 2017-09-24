@@ -1,7 +1,7 @@
 package painters;
 
-import configuration.Margin;
-import configuration.TextStyle;
+import configuration.general.Margin;
+import configuration.general.TextStyle;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -51,10 +51,10 @@ public class TitlePainter {
             return;
         }
         g2.setFont(titleStyle.getFont());
+        g2.setColor(titleStyle.fontColor);
         if (strings == null){
             formStrings(g2, area.width);
         }
-        g2.setColor(titleStyle.fontColor);
         int y = area.y + getMargin().top();
         for (String string : strings) {
             int x = (area.x + area.width) / 2 - getStringWidth(g2, titleStyle.getFont(), string) / 2;

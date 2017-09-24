@@ -25,7 +25,7 @@ public class LineGraphPainter extends GraphPainter<Number> {
         path.moveTo(x, y);
 
         g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
-        for (int i = 1; i <dataPoints.size(); i++) {
+        for (int i = 1; i < dataPoints.size(); i++) {
             x = xAxis.scale(dataPoints.getX(i).doubleValue());
             y = yAxis.scale(dataPoints.getY(i).doubleValue());
             path.lineTo(x, y);

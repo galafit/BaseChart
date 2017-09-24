@@ -1,9 +1,9 @@
 package graphs;
 
 import axis.Axis;
-import data.XYOrderedSet;
-import data.XYPoint;
-import data.XYSet;
+import data_old.XYOrderedSet;
+import data_old.XYPoint;
+import data_old.XYSet;
 
 import java.awt.*;
 

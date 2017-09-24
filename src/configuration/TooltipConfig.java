@@ -1,5 +1,8 @@
 package configuration;
 
+import configuration.general.Margin;
+import configuration.general.TextStyle;
+
 import java.awt.*;
 
 /**

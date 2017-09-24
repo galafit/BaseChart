@@ -1,12 +1,8 @@
-import axis.AxisType;
 import configuration.ChartConfig;
-import data.DataList;
-import data.XYList;
-import functions.DoubleFunction;
-import functions.Sin;
-import functions.Tg;
-import graphs.Graph;
-import graphs.LineGraph;
+import configuration.TraceConfig;
+import configuration.TraceType;
+import data.BaseNumberSet;
+import data.XYData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -19,58 +15,39 @@ import java.util.Random;
 public class MainFrame2 extends JFrame {
 
     public MainFrame2() throws HeadlessException {
+        int width = 500;
+        int height = 500;
 
         setTitle("Test chart");
 
-        ChartConfig chartConfig = new ChartConfig(ChartConfig.DEBUG_THEME);
-        chartConfig.addYAxis(true);
-        // chartConfig.addXAxis(true);
-        Chart chart = new Chart(chartConfig);
-
-        DataList<Double> periodicData = new DataList<Double>();
+        double[] yData1 = new double[150];
         Random rand = new Random();
-        for (int i = -40; i < 150 ; i++) {
-            periodicData.addData(new Double(rand.nextInt(80)));
+        for (int i = 0; i < yData1.length ; i++) {
+            yData1[i] = new Double(rand.nextInt(80));
         }
 
-        XYList<Double> xyList = new XYList<Double>();
-        for (int i = -50; i < 60 ; i++) {
-           // xyList.addPoint(i,rand.nextDouble() * 130);
-            xyList.addPoint(i,new Double(i));
+        int[] yData2 = new int[100];
+        for (int i = 0; i < yData2.length ; i++) {
+            yData2[i] = - i;
         }
 
-        XYList<Double> xyList1 = new XYList<Double>();
-        for (int i = -11; i < 60 ; i++) {
-            // xyList.addPoint(i,rand.nextDouble() * 130);
-            xyList1.addPoint(i,new Double(-i));
-        }
+        XYData xyData1 = new XYData();
+        xyData1.setYSet(new BaseNumberSet(yData1));
+        TraceConfig trace1 = new TraceConfig(TraceType.LINE, xyData1);
 
-        Graph graph1 = new LineGraph();
-        graph1.setData(xyList);
-        graph1.setGraphName("Graph1");
-        chart.addGraph(graph1);
+        XYData xyData2 = new XYData();
+        xyData2.setYSet(new BaseNumberSet(yData2));
+        TraceConfig trace2 = new TraceConfig(TraceType.LINE, xyData2);
 
-        Graph graph2 = new LineGraph();
-        graph2.setData(xyList1);
-        graph2.setGraphName("Graph2 with very long name");
-        chart.addGraph(graph2);
+        ChartConfig chartConfig = new ChartConfig(ChartConfig.DEBUG_THEME, width, height);
+        chartConfig.addTrace(trace1, true, true);
+        chartConfig.addStack(5);
+        chartConfig.addTrace(trace2, true, true);
 
-
-        DoubleFunction<Double> sin = new Sin();
-        Graph g3 = new LineGraph();
-        g3.setGraphName("Graph3 sin");
-        g3.setFunction(sin);
-        chart.addGraph(g3, 0, 1);
-
-        DoubleFunction<Double> tg = new Tg();
-        //chart1.addGraph(new graphs.LineGraph(), tg);
-
-
+        Chart chart = new Chart(chartConfig);
         ChartPanel chartPanel = new ChartPanel(chart);
 
-        chartPanel.setPreferredSize(new Dimension(500, 500));
-        chartPanel.setBackground(Color.BLACK);
-        chartPanel.setPreferredSize(new Dimension(500, 500));
+        chartPanel.setPreferredSize(new Dimension(width, height));
         add(chartPanel,BorderLayout.CENTER);
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
