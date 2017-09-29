@@ -129,9 +129,9 @@ public class Chart implements Drawable {
         Integer minDistance = null;
         // find min distance from traces points to mouseX
         for (int i = 0; i < traces.size(); i++) {
-            Graph graph = traces.get(i);
-            Axis xAxis = xAxisList.get(graph.getXAxisIndex());
-            Axis yAxis = yAxisList.get(graph.getYAxisIndex());
+            Graph graph = traces.getString(i);
+            Axis xAxis = xAxisList.getString(graph.getXAxisIndex());
+            Axis yAxis = yAxisList.getString(graph.getYAxisIndex());
             double xValue = xAxis.invert(mouseX);
             long pointIndex = graph.getNearestPointIndex(xValue);
             //System.out.println(graph.getGraphName() + ": pointIndex=" + pointIndex);
@@ -153,9 +153,9 @@ public class Chart implements Drawable {
             Number hoverXValue = null;
             int hoverPointsCounter = 0;
             for (int i = 0; i < traces.size(); i++) {
-                Graph graph = traces.get(i);
-                Axis xAxis = xAxisList.get(graph.getXAxisIndex());
-                Axis yAxis = yAxisList.get(graph.getYAxisIndex());
+                Graph graph = traces.getString(i);
+                Axis xAxis = xAxisList.getString(graph.getXAxisIndex());
+                Axis yAxis = yAxisList.getString(graph.getYAxisIndex());
                 long pointIndex = nearestPointsIndexes[i];
                 if (pointIndex >= 0) {
                     int x = (int) Math.round(xAxis.scale(graph.getPoint(pointIndex).getX().doubleValue()));

@@ -1,23 +1,23 @@
-package data;
+package data.datasets;
 
 import java.util.List;
 
 /**
  * Created by galafit on 18/9/17.
  */
-public class BaseNumberSet implements NumberSet {
-    NumberSet innerSet;
+public class BaseColumn implements NumberColumn {
+    NumberColumn innerSet;
 
-    public BaseNumberSet(int[] data) {
-        innerSet = new IntArraySet(data);
+    public BaseColumn(int[] data) {
+        innerSet = new IntArrayColumn(data);
     }
 
-    public BaseNumberSet(double[] data) {
-        innerSet = new DoubleArraySet(data);
+    public BaseColumn(double[] data) {
+        innerSet = new DoubleArrayColumn(data);
     }
 
-    public BaseNumberSet(List<? extends Number> data) {
-        innerSet = new ListSet(data);
+    public BaseColumn(List<? extends Number> data) {
+        innerSet = new ListColumn(data);
     }
 
 
@@ -27,14 +27,14 @@ public class BaseNumberSet implements NumberSet {
     }
 
     @Override
-    public double get(int index) {
-        return innerSet.get(index);
+    public double getValue(int index) {
+        return innerSet.getValue(index);
     }
 
-    class IntArraySet implements NumberSet {
+    class IntArrayColumn implements NumberColumn {
         private int[] array;
 
-        public IntArraySet(int[] array) {
+        public IntArrayColumn(int[] array) {
             this.array = array;
         }
 
@@ -44,16 +44,16 @@ public class BaseNumberSet implements NumberSet {
         }
 
         @Override
-        public double get(int index) {
+        public double getValue(int index) {
             return array[index];
         }
 
     }
 
-    class DoubleArraySet implements NumberSet{
+    class DoubleArrayColumn implements NumberColumn {
         private double[] array;
 
-        public DoubleArraySet(double[] array) {
+        public DoubleArrayColumn(double[] array) {
             this.array = array;
         }
 
@@ -63,16 +63,16 @@ public class BaseNumberSet implements NumberSet {
         }
 
         @Override
-        public double get(int index) {
+        public double getValue(int index) {
             return array[index];
         }
     }
 
 
-    class ListSet implements NumberSet{
+    class ListColumn implements NumberColumn {
         private List<? extends Number> list;
 
-        public ListSet(List<? extends Number> list) {
+        public ListColumn(List<? extends Number> list) {
             this.list = list;
         }
 
@@ -82,7 +82,7 @@ public class BaseNumberSet implements NumberSet {
         }
 
         @Override
-        public double get(int index) {
+        public double getValue(int index) {
             return list.get(index).doubleValue();
         }
     }

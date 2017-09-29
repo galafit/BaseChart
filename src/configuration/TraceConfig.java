@@ -2,7 +2,7 @@ package configuration;
 
 import configuration.general.LineConfig;
 import configuration.general.MarkConfig;
-import data.Data;
+import data.datasets.DataSet;
 
 import java.awt.*;
 
@@ -12,7 +12,7 @@ import java.awt.*;
 public class TraceConfig {
     private TraceType type;
     private int hoverExtraSize = 3; //px
-    private Data data;
+    private DataSet data;
 
     public Color color;
     public Color hoverColor;
@@ -22,13 +22,13 @@ public class TraceConfig {
     public int xAxisIndex;
     public int yAxisIndex;
 
-    public TraceConfig(TraceType type, Data data) {
+    public TraceConfig(TraceType type, DataSet data) {
         this.type = type;
         markConfig.size = 6;
         this.data = data;
     }
 
-    public Data getData() {
+    public DataSet getData() {
         return data;
     }
 

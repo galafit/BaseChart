@@ -2,7 +2,6 @@ package traces;
 
 import axis.Axis;
 import configuration.TraceConfig;
-import data.XYData;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;

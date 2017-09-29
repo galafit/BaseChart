@@ -1,8 +1,7 @@
 import configuration.ChartConfig;
 import configuration.TraceConfig;
 import configuration.TraceType;
-import data.BaseNumberSet;
-import data.XYData;
+import data.datasets.BaseColumn;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,11 +31,11 @@ public class MainFrame2 extends JFrame {
         }
 
         XYData xyData1 = new XYData();
-        xyData1.setYSet(new BaseNumberSet(yData1));
+        xyData1.setYSet(new BaseColumn(yData1));
         TraceConfig trace1 = new TraceConfig(TraceType.LINE, xyData1);
 
         XYData xyData2 = new XYData();
-        xyData2.setYSet(new BaseNumberSet(yData2));
+        xyData2.setYSet(new BaseColumn(yData2));
         TraceConfig trace2 = new TraceConfig(TraceType.LINE, xyData2);
 
         ChartConfig chartConfig = new ChartConfig(ChartConfig.DEBUG_THEME, width, height);

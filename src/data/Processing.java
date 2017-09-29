@@ -1,0 +1,264 @@
+package data;
+
+/**
+ * Created by galafit on 24/9/17.
+ */
+public class Processing {
+
+    /******************************************************************
+     *                         MIN-MAX
+     ******************************************************************/
+    public static Range minMaxRange(IntSeries data) {
+        if(data.size() == 0){
+            return null;
+        }
+        int min = data.get(0);
+        int max = data.get(0);
+        for (int i = 1; i < data.size() ; i++) {
+            min = Math.min(min, data.get(i));
+            max = Math.max(max, data.get(i));
+        }
+        return new Range(min, max);
+    }
+
+    public static Range minMaxRange(DoubleSeries data) {
+        if(data.size() == 0){
+            return null;
+        }
+        double min = data.get(0);
+        double max = data.get(0);
+        for (int i = 1; i < data.size() ; i++) {
+            min = Math.min(min, data.get(i));
+            max = Math.max(max, data.get(i));
+        }
+        return new Range(min, max);
+    }
+
+
+    /******************************************************************
+     *                         BINARY SEARCH
+     ******************************************************************/
+
+    /**
+     * Lower bound search algorithm.<br>
+     * Lower bound is kind of binary search algorithm but:<br>
+     * -If searched element doesn't exist function returns index of first element which is less than searched value.<br>
+     * -If there are many values equals searched value function returns FIRST occurrence.<br>
+     * Behaviour for unsorted arrays is unspecified.
+     * <p>
+     * Complexity O(log n).
+     */
+    public static int lowerBound(IntSeries data, int fromIndex, int length, double value) {
+        int intValue = new Double(Math.floor(value)).intValue();
+        int low = fromIndex;
+        int high = fromIndex + length -1;
+        int index = -1;
+        while (low <= high) {
+            int mid = (low + high) >>> 1; // the same as (low + high) / 2
+            if (intValue > data.get(mid)) {
+                low = mid + 1;
+            } else if (intValue < data.get(mid)) {
+                high = mid - 1;
+            } else { //  Values are equal
+                index = mid;
+                if(intValue == value) {
+                    high = mid - 1; // если doubleValue на самом деле int и есть равные ему элементы то бежим по ним вниз
+                } else {
+                    low = low + 1; // в случае настоящено дробного, если есть элементы равные округленному value то бежим по ним вверх
+                }
+
+            }
+        }
+        if(index < 0) {
+            return high;
+        }
+        return index;
+
+    }
+
+    /**
+     * Upper bound search algorithm.<br>
+     * Upper bound is kind of binary search algorithm but:<br>
+     * -If searched element doesn't exist function returns index of first element which is bigger than searched value.<br>
+     * -If there are many values equals searched value function returns LAST occurrence.<br>
+     * Behaviour for unsorted arrays is unspecified.
+     * <p>
+     * Complexity O(log n).
+     */
+    public static int upperBound(IntSeries data, int fromIndex, int length, double value) {
+        int intValue = new Double(Math.ceil(value)).intValue();
+        int low = fromIndex;
+        int high = fromIndex + length -1;
+        int index = -1;
+        while (low <= high) {
+            int mid = (low + high) >>> 1; // the same as (low + high) / 2
+            if (intValue > data.get(mid)) {
+                low = mid + 1;
+            } else if (intValue < data.get(mid)) {
+                high = mid - 1;
+            } else { //  Values are equal
+                index = mid;
+                if(intValue == value) {
+                    low = low + 1; // если doubleValue на самом деле int и есть равные ему элементы то бежим по ним вверх
+                } else {
+                    high = mid - 1; // в случае настоящено дробного, если есть элементы равные округленному value то бежим по ним вниз
+                }
+            }
+        }
+        if(index < 0) {
+            return low;
+        }
+        return index;
+
+    }
+
+    public static int lowerBound(DoubleSeries data, int fromIndex, int length, double value) {
+        int low = fromIndex;
+        int high = fromIndex + length -1;
+        int index = -1;
+        while (low <= high) {
+            int mid = (low + high) >>> 1; // the same as (low + high) / 2
+            if (value > data.get(mid)) {
+                low = mid + 1;
+            } else if (value < data.get(mid)) {
+                high = mid - 1;
+            } else { //  Values are equal
+                long midBits = Double.doubleToLongBits(data.get(mid));
+                long valueBits = Double.doubleToLongBits(value);
+                if (midBits == valueBits) { // Values are equal
+                    index = mid;
+                    high = mid - 1;
+                } else if (midBits < valueBits) { // (-0.0, 0.0) or (!NaN, NaN)
+                    low = mid + 1;
+                }
+                else {  // (0.0, -0.0) or (NaN, !NaN)
+                    high = mid - 1;
+                }
+            }
+        }
+        if(index < 0) {
+            return high;
+        }
+        return index;
+    }
+
+    public static int upperBound(DoubleSeries data, int fromIndex, int length, double value) {
+        int low = fromIndex;
+        int high = fromIndex + length -1;
+        int index = -1;
+        while (low <= high) {
+            int mid = (low + high) >>> 1; // the same as (low + high) / 2
+            if (value > data.get(mid)) {
+                low = mid + 1;
+            } else if (value < data.get(mid)) {
+                high = mid - 1;
+            } else { //  Values are equal
+                long midBits = Double.doubleToLongBits(data.get(mid));
+                long valueBits = Double.doubleToLongBits(value);
+                if (midBits == valueBits) { // Values are equal
+                    index = mid;
+                    low = low + 1;
+                } else if (midBits < valueBits) { // (-0.0, 0.0) or (!NaN, NaN)
+                    low = mid + 1;
+                }
+                else {  // (0.0, -0.0) or (NaN, !NaN)
+                    high = mid - 1;
+                }
+            }
+        }
+        if(index < 0) {
+            return low;
+        }
+        return index;
+
+    }
+
+    public static void main(String args[]) {
+        /******************************
+         *   BINARY SEARCH INT TEST
+         *****************************/
+        System.out.print("INT ARRAY: [");
+        int[] a = {-2, -1, 4, 5, 5, 5, 6,  8};
+        for (int i = 0; i < a.length -1; i++) {
+            System.out.print(a[i] + ", ");
+        }
+        System.out.println(a[a.length - 1] + "]   size = "+a.length);
+
+        IntSeries data = new IntSeries() {
+            @Override
+            public int size() {
+                return a.length;
+            }
+
+            @Override
+            public int get(int index) {
+                return a[index];
+            }
+        };
+
+        int lower = Processing.lowerBound(data, 0, data.size(), 5.3);
+        int upper = Processing.upperBound(data, 0, data.size(), 5.3);
+
+        System.out.println("lower(5.3)= "+lower + ",  upper(5.3) = "+ upper);
+
+        lower = Processing.lowerBound(data, 0, data.size(), 5.0);
+        upper = Processing.upperBound(data, 0, data.size(), 5.0);
+
+        System.out.println("lower(5.0)= "+lower + ",  upper(5.0) = "+ upper);
+
+        lower = Processing.lowerBound(data, 0, data.size(), -1.2);
+        upper = Processing.upperBound(data, 0, data.size(), -1.2);
+
+        System.out.println("lower(-1.2) = "+lower + ",  upper(-1.2) = "+ upper);
+
+        lower = Processing.lowerBound(data, 0, data.size(), -3);
+        upper = Processing.upperBound(data, 0, data.size(), 9);
+
+        System.out.println("lower(-3) = "+lower + ",  upper(9) = "+ upper);
+
+        System.out.println();
+
+        /************************************
+         *   BINARY SEARCH DOUBLE TEST
+         ************************************/
+        System.out.print("DOUBLE ARRAY: [");
+        double[] b = {-2.5, -1.1, 4.5,  5, 5, 5, 6,  8};
+        for (int i = 0; i < b.length -1; i++) {
+            System.out.print(b[i] + ", ");
+        }
+        System.out.println(b[b.length - 1] + "]   size = "+b.length);
+
+        DoubleSeries data1 = new DoubleSeries() {
+            @Override
+            public int size() {
+                return b.length;
+            }
+
+            @Override
+            public double get(int index) {
+                return b[index];
+            }
+        };
+
+        lower = Processing.lowerBound(data1, 0, data1.size(), 5.3);
+        upper = Processing.upperBound(data1, 0, data1.size(), 5.3);
+
+        System.out.println("lower(5.3)= "+lower + ",  upper(5.3) = "+ upper);
+
+        lower = Processing.lowerBound(data1, 0, data1.size(), 5.0);
+        upper = Processing.upperBound(data1, 0, data1.size(), 5.0);
+
+        System.out.println("lower(5.0)= "+lower + ",  upper(5.0) = "+ upper);
+
+        lower = Processing.lowerBound(data1, 0, data1.size(), -1.2);
+        upper = Processing.upperBound(data1, 0, data1.size(), -1.2);
+
+        System.out.println("lower(-1.2) = "+lower + ",  upper(-1.2) = "+ upper);
+
+        lower = Processing.lowerBound(data1, 0, data1.size(), -3);
+        upper = Processing.upperBound(data1, 0, data1.size(), 9);
+
+        System.out.println("lower(-3) = "+lower + ",  upper(9) = "+ upper);
+    }
+
+}
