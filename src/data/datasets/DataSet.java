@@ -6,47 +6,63 @@ import data.Range;
 import data.StringSeries;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by galafit on 19/9/17.
  */
-public abstract class DataSet {
+public class DataSet {
     private ArrayList<NumberColumn> numberColumns = new ArrayList<NumberColumn>();
     private ArrayList<StringColumn> stringColumns = new ArrayList<StringColumn>();
+    private int xColumnNumber = - 1; // index of Column with X-data
 
-    public DataSet() {
-        numberColumns.add(new RegularColumn());
+    public void setXColumn(int xColumnNumber) {
+        this.xColumnNumber = xColumnNumber;
     }
 
-    public void setSeries(int columnNumber, IntSeries series) {
-        setColumn(columnNumber, new IntColumn(series));
+    /**
+     * add series as a number column
+     * @param series - series of ints
+     * @return - column index in the list of NumberColumns
+     */
+    public int addSeries(IntSeries series) {
+        numberColumns.add(new IntColumn(series));
+        return numberColumns.size() - 1;
     }
 
-    public void setSeries(int columnNumber, double startValue, double dataInterval) {
-
+    public int addSeries(DoubleSeries series) {
+        numberColumns.add(new DoubleColumn(series));
+        return numberColumns.size() - 1;
     }
 
-    public void setSeries(int columnNumber, DoubleSeries series) {
-        setColumn(columnNumber, new DoubleColumn(series));
+    public int addSeries(double startValue, double dataInterval) {
+        numberColumns.add(new RegularColumn(startValue, dataInterval));
+        return numberColumns.size() - 1;
     }
 
-    public void setSeries(int columnNumber, StringSeries series) {
-        setColumn(columnNumber, new StringColumn(series));
+
+    /**
+     * add series as a string column
+     * @param series - series of Strings
+     * @return - column index in the list of StringColumns
+     */
+    public int addSeries(StringSeries series) {
+        stringColumns.add(new StringColumn(series));
+        return stringColumns.size() - 1;
     }
 
-    public void setSeriesName(int columnNumber, String name) {
-        if(columnNumber < numberColumns.size()) {
-            numberColumns.get(columnNumber).setName(name);
-        } else {
-            stringColumns.get(columnNumber - numberColumns.size()).setName(name);
-        }
+    public void removeNumberSeries(int columnNumber) {
+        numberColumns.remove(columnNumber);
     }
 
-    public String getSeriesName(int columnNumber) {
-        if(columnNumber < numberColumns.size()) {
-            numberColumns.get(columnNumber).getName();
-        } else {
-            stringColumns.get(columnNumber - numberColumns.size()).getName();
+    public void removeStringSeries(int columnNumber) {
+        stringColumns.remove(columnNumber);
+    }
+
+    public void removeXSeries() {
+        if(xColumnNumber >= 0) {
+            removeNumberSeries(xColumnNumber);
+            xColumnNumber = - 1;
         }
     }
 
@@ -54,26 +70,24 @@ public abstract class DataSet {
         return numberColumns.get(columnNumber).getValue(index);
     }
 
+    public double getXValue(int index) {
+        if(xColumnNumber >= 0) {
+            return getValue(index, xColumnNumber);
+        }
+        return index;
+    }
+
     public String getString(int index, int columnNumber) {
         return stringColumns.get(columnNumber).getString(index);
     }
 
-    private void setColumn(int index, NumberColumn column) {
-        for (int i = 0; i < index - numberColumns.size(); i++) {
-            numberColumns.add(new NullColumn());
-        }
-        numberColumns.set(index, column);
-    }
-
-    private void setColumn(int index, StringColumn column) {
-        for (int i = 0; i < index - stringColumns.size(); i++) {
-            stringColumns.add(new NullColumn());
-        }
-        stringColumns.set(index, column);
-    }
-
     public int size() {
         int size = 0;
+        if(numberColumns.size() > 0) {
+            size = numberColumns.get(0).size();
+        } else if (stringColumns.size() > 0) {
+            size = stringColumns.get(0).size();
+        }
         for (NumberColumn column : numberColumns) {
             size = Math.min(size, column.size());
         }
@@ -84,37 +98,100 @@ public abstract class DataSet {
         return size;
     }
 
-    class NullColumn extends StringColumn implements NumberColumn {
-        public NullColumn() {
-            super(null);
-        }
-
-        @Override
-        public String getName() {
+    public Range getXExtremes() {
+        if(size() == 0) {
             return null;
         }
+        if(xColumnNumber >= 0) {
+            return numberColumns.get(xColumnNumber).getExtremes(0, size());
+        }
+        // if xColumnNumber is not specified we use indexes as xColumnNumber
+        return new Range(0, size() - 1);
+    }
 
-        @Override
-        public String getString(int index) {
+    public int getNearestX(double xValue) {
+        if(xColumnNumber >= 0) {
+            return numberColumns.get(xColumnNumber).findNearest(xValue, 0, size());
+        }
+        // if xColumnNumber is not specified we use indexes as xColumnNumber
+        int nearest = (int)Math.round(xValue);
+        if(nearest < 0) {
+            nearest = 0;
+        }
+        if(nearest >= size()) {
+            nearest = size() - 1;
+        }
+        return nearest;
+    }
+
+    public Range getExtremes(int columnNumber) {
+        if(size() == 0) {
             return null;
         }
-        @Override
-        public int size() {
-            return 0;
-        }
-        @Override
-        public double getValue(int index) {
-            return 0;
-        }
+        return numberColumns.get(columnNumber).getExtremes(0, size());
+    }
 
-        @Override
-        public Range getMinMax() {
-            return null;
-        }
+    /**********************************************************************
+     *     Helper Methods to add data
+     *********************************************************************/
 
-        @Override
-        public int findNearest(double value) {
-            return -1;
+    public int addSeries(int[] data) {
+       IntSeries series = new IntSeries() {
+           @Override
+           public int size() {
+               return data.length;
+           }
+
+           @Override
+           public int get(int index) {
+               return data[index];
+           }
+       };
+       return addSeries(series);
+    }
+
+    public int addSeries(double[] data) {
+        DoubleSeries series = new DoubleSeries() {
+            @Override
+            public int size() {
+                return data.length;
+            }
+
+            @Override
+            public double get(int index) {
+                return data[index];
+            }
+        };
+        return addSeries(series);
+    }
+
+    public int addSeries(List<? extends Number> data) {
+        if(data.size() > 0 && data.get(0) instanceof Integer) {
+            IntSeries series = new IntSeries() {
+                @Override
+                public int size() {
+                    return data.size();
+                }
+
+                @Override
+                public int get(int index) {
+                    return data.get(index).intValue();
+                }
+            };
+            return addSeries(series);
+        } else {
+            DoubleSeries series = new DoubleSeries() {
+                @Override
+                public int size() {
+                    return data.size();
+                }
+
+                @Override
+                public double get(int index) {
+                    return data.get(index).doubleValue();
+                }
+            };
+            return addSeries(series);
         }
     }
 }

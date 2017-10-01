@@ -9,20 +9,9 @@ import data.Range;
  */
 class DoubleColumn implements NumberColumn {
     DoubleSeries series;
-    String name;
 
     public DoubleColumn(DoubleSeries series) {
         this.series = series;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override
@@ -36,17 +25,17 @@ class DoubleColumn implements NumberColumn {
     }
 
     @Override
-    public Range getMinMax() {
-        return Processing.minMaxRange(series);
+    public Range getExtremes(int from, int length) {
+        return Processing.minMaxRange(series, from, length);
     }
 
     @Override
-    public int findNearest(double value) {
-        int lowerBoundIndex = Processing.lowerBound(series, 0, series.size(), value);
-        if (lowerBoundIndex < 0) {
-            return 0;
+    public int findNearest(double value, int from, int length) {
+        int lowerBoundIndex = Processing.lowerBound(series,  value, from, length);
+        if (lowerBoundIndex < from) {
+            return from;
         }
-        if (lowerBoundIndex == series.size() - 1) {
+        if (lowerBoundIndex == from + length - 1) {
             return lowerBoundIndex;
         }
         double distance1 = value - series.get(lowerBoundIndex);

@@ -10,25 +10,15 @@ import java.util.function.IntToDoubleFunction;
  */
 class IntColumn implements NumberColumn {
     IntSeries series;
-    String name;
     IntToDoubleFunction intToDoubleFunction;
 
-    public IntColumn(IntSeries series) {
+    public IntColumn(IntSeries series, IntToDoubleFunction intToDoubleFunction) {
         this.series = series;
-    }
-
-    public void setIntToDoubleFunction(IntToDoubleFunction intToDoubleFunction) {
         this.intToDoubleFunction = intToDoubleFunction;
     }
 
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
+    public IntColumn(IntSeries series) {
+        this(series, null);
     }
 
     @Override
@@ -38,24 +28,24 @@ class IntColumn implements NumberColumn {
 
     @Override
     public double getValue(int index) {
-        if(intToDoubleFunction != null) {
+        if(intToDoubleFunction == null) {
             return series.get(index);
         }
         return intToDoubleFunction.applyAsDouble(series.get(index));
     }
 
     @Override
-    public Range getMinMax() {
-        return Processing.minMaxRange(series);
+    public Range getExtremes(int from, int length) {
+        return Processing.minMaxRange(series, from, length);
     }
 
     @Override
-    public int findNearest(double value) {
-        int lowerBoundIndex = Processing.lowerBound(series, 0, series.size(), value);
-        if (lowerBoundIndex < 0) {
-            return 0;
+    public int findNearest(double value, int from, int length) {
+        int lowerBoundIndex = Processing.lowerBound(series,  value, from, length);
+        if (lowerBoundIndex < from) {
+            return from;
         }
-        if (lowerBoundIndex == series.size() - 1) {
+        if (lowerBoundIndex == from + length - 1) {
             return lowerBoundIndex;
         }
         double distance1 = value - series.get(lowerBoundIndex);

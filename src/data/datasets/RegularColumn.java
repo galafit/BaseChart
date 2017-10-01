@@ -9,7 +9,6 @@ import data.Range;
 class RegularColumn implements NumberColumn {
     private double startValue;
     private double dataInterval;
-    private String name;
 
     public RegularColumn(double startValue, double dataInterval) {
         this.startValue = startValue;
@@ -18,15 +17,6 @@ class RegularColumn implements NumberColumn {
 
     public RegularColumn() {
         this(0, 1);
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
     }
 
     @Override
@@ -40,12 +30,22 @@ class RegularColumn implements NumberColumn {
     }
 
     @Override
-    public Range getMinMax() {
-        return null;
+    public Range getExtremes(int from, int length) {
+        double min = startValue + from * dataInterval;
+        double max = startValue + (from + length - 1) * dataInterval;
+        return new Range(min, max);
+
     }
 
     @Override
-    public int findNearest(double value) {
-        return 0;
+    public int findNearest(double value, int from, int length) {
+        int nearest = (int) Math.round((value - startValue) / dataInterval);
+        if(nearest < from) {
+            nearest = from;
+        }
+        if(nearest >= from + length) {
+            nearest = from + length - 1;
+        }
+        return nearest;
     }
 }

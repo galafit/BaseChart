@@ -4,6 +4,7 @@ import configuration.axis.AxisConfig;
 import configuration.axis.Orientation;
 import configuration.general.Margin;
 import configuration.general.TextStyle;
+import configuration.traces.TraceConfig;
 import data.Range;
 
 import java.awt.*;
@@ -17,6 +18,12 @@ public class ChartConfig {
     public static final int DARK_THEME = 1;
     public static final int LIGHT_THEME = 2;
     private static final int DEFAULT_WEIGHT = 10;
+
+    private final Color GREY = new Color(150, 150, 150);
+    private final Color BROWN = new Color(200, 102, 0);
+    private final Color ORANGE = new Color(255, 153, 0);
+    private Color[] traceColors = {Color.MAGENTA, Color.RED, ORANGE, Color.CYAN, Color.PINK};
+
 
     public String title = "Chart title";
     public Color background;
@@ -153,15 +160,21 @@ public class ChartConfig {
     }
 
 
-
     // add trace to the last stack
     public void addTrace(TraceConfig traceConfig, boolean isBottomXAxis, boolean isLeftYAxis) {
         int xAxisIndex = isBottomXAxis ? 0 : 1;
         int yAxisIndex = isLeftYAxis ? yAxisConfigs.size() - 2 : yAxisConfigs.size() - 1;
         xAxisConfigs.get(xAxisIndex).isVisible = true;
         yAxisConfigs.get(yAxisIndex).isVisible = true;
-        traceConfig.xAxisIndex = xAxisIndex;
-        traceConfig.yAxisIndex = yAxisIndex;
+        if(traceConfig.getName() == null) {
+            traceConfig.setName("Trace "+traces.size());
+        }
+        if(traceConfig.getColor() == null) {
+            int colorIndex = traces.size() % traceColors.length;
+            traceConfig.setColor(traceColors[colorIndex]);
+        }
+        traceConfig.setXAxisIndex(xAxisIndex);
+        traceConfig.setYAxisIndex(yAxisIndex);
         traces.add(traceConfig);
     }
 

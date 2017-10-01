@@ -8,32 +8,31 @@ public class Processing {
     /******************************************************************
      *                         MIN-MAX
      ******************************************************************/
-    public static Range minMaxRange(IntSeries data) {
+    public static Range minMaxRange(IntSeries data, int from, int lenght) {
         if(data.size() == 0){
             return null;
         }
-        int min = data.get(0);
-        int max = data.get(0);
-        for (int i = 1; i < data.size() ; i++) {
+        int min = data.get(from);
+        int max = data.get(from);
+        for (int i = from + 1; i < lenght ; i++) {
             min = Math.min(min, data.get(i));
             max = Math.max(max, data.get(i));
         }
         return new Range(min, max);
     }
 
-    public static Range minMaxRange(DoubleSeries data) {
+    public static Range minMaxRange(DoubleSeries data, int from, int lenght) {
         if(data.size() == 0){
             return null;
         }
-        double min = data.get(0);
-        double max = data.get(0);
-        for (int i = 1; i < data.size() ; i++) {
+        double min = data.get(from);
+        double max = data.get(from);
+        for (int i = from + 1; i < lenght ; i++) {
             min = Math.min(min, data.get(i));
             max = Math.max(max, data.get(i));
         }
         return new Range(min, max);
     }
-
 
     /******************************************************************
      *                         BINARY SEARCH
@@ -48,7 +47,7 @@ public class Processing {
      * <p>
      * Complexity O(log n).
      */
-    public static int lowerBound(IntSeries data, int fromIndex, int length, double value) {
+    public static int lowerBound(IntSeries data, double value, int fromIndex, int length) {
         int intValue = new Double(Math.floor(value)).intValue();
         int low = fromIndex;
         int high = fromIndex + length -1;
@@ -85,7 +84,7 @@ public class Processing {
      * <p>
      * Complexity O(log n).
      */
-    public static int upperBound(IntSeries data, int fromIndex, int length, double value) {
+    public static int upperBound(IntSeries data, double value, int fromIndex, int length) {
         int intValue = new Double(Math.ceil(value)).intValue();
         int low = fromIndex;
         int high = fromIndex + length -1;
@@ -112,7 +111,7 @@ public class Processing {
 
     }
 
-    public static int lowerBound(DoubleSeries data, int fromIndex, int length, double value) {
+    public static int lowerBound(DoubleSeries data, double value, int fromIndex, int length) {
         int low = fromIndex;
         int high = fromIndex + length -1;
         int index = -1;
@@ -142,7 +141,7 @@ public class Processing {
         return index;
     }
 
-    public static int upperBound(DoubleSeries data, int fromIndex, int length, double value) {
+    public static int upperBound(DoubleSeries data, double value, int fromIndex, int length) {
         int low = fromIndex;
         int high = fromIndex + length -1;
         int index = -1;
@@ -196,23 +195,23 @@ public class Processing {
             }
         };
 
-        int lower = Processing.lowerBound(data, 0, data.size(), 5.3);
-        int upper = Processing.upperBound(data, 0, data.size(), 5.3);
+        int lower = Processing.lowerBound(data, 5.3, 0, data.size());
+        int upper = Processing.upperBound(data, 5.3, 0, data.size());
 
         System.out.println("lower(5.3)= "+lower + ",  upper(5.3) = "+ upper);
 
-        lower = Processing.lowerBound(data, 0, data.size(), 5.0);
-        upper = Processing.upperBound(data, 0, data.size(), 5.0);
+        lower = Processing.lowerBound(data, 5.0, 0, data.size());
+        upper = Processing.upperBound(data, 5.0, 0, data.size());
 
         System.out.println("lower(5.0)= "+lower + ",  upper(5.0) = "+ upper);
 
-        lower = Processing.lowerBound(data, 0, data.size(), -1.2);
-        upper = Processing.upperBound(data, 0, data.size(), -1.2);
+        lower = Processing.lowerBound(data, -1.2, 0, data.size());
+        upper = Processing.upperBound(data, -1.2, 0, data.size());
 
         System.out.println("lower(-1.2) = "+lower + ",  upper(-1.2) = "+ upper);
 
-        lower = Processing.lowerBound(data, 0, data.size(), -3);
-        upper = Processing.upperBound(data, 0, data.size(), 9);
+        lower = Processing.lowerBound(data, -3, 0, data.size());
+        upper = Processing.upperBound(data, 9, 0, data.size());
 
         System.out.println("lower(-3) = "+lower + ",  upper(9) = "+ upper);
 
@@ -240,23 +239,23 @@ public class Processing {
             }
         };
 
-        lower = Processing.lowerBound(data1, 0, data1.size(), 5.3);
-        upper = Processing.upperBound(data1, 0, data1.size(), 5.3);
+        lower = Processing.lowerBound(data1, 5.3, 0, data1.size());
+        upper = Processing.upperBound(data1, 5.3, 0, data1.size());
 
         System.out.println("lower(5.3)= "+lower + ",  upper(5.3) = "+ upper);
 
-        lower = Processing.lowerBound(data1, 0, data1.size(), 5.0);
-        upper = Processing.upperBound(data1, 0, data1.size(), 5.0);
+        lower = Processing.lowerBound(data1, 5.0, 0, data1.size());
+        upper = Processing.upperBound(data1, 5.0, 0, data1.size());
 
         System.out.println("lower(5.0)= "+lower + ",  upper(5.0) = "+ upper);
 
-        lower = Processing.lowerBound(data1, 0, data1.size(), -1.2);
-        upper = Processing.upperBound(data1, 0, data1.size(), -1.2);
+        lower = Processing.lowerBound(data1, -1.2, 0, data1.size());
+        upper = Processing.upperBound(data1, -1.2, 0, data1.size());
 
         System.out.println("lower(-1.2) = "+lower + ",  upper(-1.2) = "+ upper);
 
-        lower = Processing.lowerBound(data1, 0, data1.size(), -3);
-        upper = Processing.upperBound(data1, 0, data1.size(), 9);
+        lower = Processing.lowerBound(data1, -3, 0, data1.size());
+        upper = Processing.upperBound(data1, 9, 0, data1.size());
 
         System.out.println("lower(-3) = "+lower + ",  upper(9) = "+ upper);
     }

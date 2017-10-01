@@ -1,7 +1,7 @@
 
 import axis.Axis;
 import configuration.ChartConfig;
-import configuration.TraceConfig;
+import configuration.traces.TraceConfig;
 import data.Range;
 import legend.LegendItem;
 import painters.CrosshairPainter;
@@ -10,6 +10,7 @@ import painters.TitlePainter;
 import tooltips.TooltipInfo;
 import painters.TooltipPainter;
 import traces.Trace;
+import traces.TraceRegister;
 
 
 import java.awt.*;
@@ -24,14 +25,6 @@ public class Chart implements Drawable {
     private List<Axis> xAxisList = new ArrayList<Axis>(2);
     private List<Axis> yAxisList = new ArrayList<Axis>();
     private List<Trace> traces = new ArrayList<Trace>();
-
-    private final Color GREY = new Color(150, 150, 150);
-    private final Color BROWN = new Color(200, 102, 0);
-    private final Color ORANGE = new Color(255, 153, 0);
-
-    private Color[] colors = {GREY, BROWN, Color.GREEN, Color.YELLOW};
-    private Color[] graphicColors = {Color.MAGENTA, Color.RED, ORANGE, Color.CYAN, Color.PINK};
-
     private boolean isTicksAlignmentEnable = false;
 
     private TooltipPainter tooltipPainter;
@@ -62,15 +55,11 @@ public class Chart implements Drawable {
         ArrayList<LegendItem> legendItems = new ArrayList<LegendItem>(chartConfig.getTraceAmount());
         for (int i = 0; i < chartConfig.getTraceAmount() ; i++) {
             TraceConfig traceConfig = chartConfig.getTraceConfig(i);
-            if(traceConfig.color == null) {
-                traceConfig.color = graphicColors[i % graphicColors.length];
+            Trace trace = TraceRegister.getTrace(traceConfig);
+            LegendItem[] items = trace.getLegendItems();
+            for (LegendItem item : items) {
+                legendItems.add(item);
             }
-            if(traceConfig.name == null) {
-                traceConfig.name = "Trace "+i;
-            }
-            legendItems.add(new LegendItem(traceConfig.color, traceConfig.name));
-            Trace trace = traceConfig.getType().getTrace();
-            trace.setConfig(traceConfig);
             traces.add(trace);
         }
         legendPainter = new LegendPainter(legendItems, chartConfig.legendConfig);
@@ -85,7 +74,7 @@ public class Chart implements Drawable {
                 Range xRange = null;
                 for (Trace trace : traces) {
                     if(trace.getXAxisIndex() == i) {
-                        xRange = Range.max(xRange, trace.getXRange());
+                        xRange = Range.max(xRange, trace.getXExtremes());
                     }
                 }
                 xAxis.setMinMax(xRange);
@@ -100,14 +89,13 @@ public class Chart implements Drawable {
                 Range yRange = null;
                 for (Trace trace : traces) {
                     if(trace.getYAxisIndex() == i) {
-                        yRange = Range.max(yRange, trace.getYRange());
+                        yRange = Range.max(yRange, trace.getYExtremes());
                     }
                 }
                 yAxis.setMinMax(yRange);
             }
         }
     }
-
 
 
     // TODO: handling multiple xAxis!!!!

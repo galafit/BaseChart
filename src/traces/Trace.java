@@ -1,8 +1,9 @@
 package traces;
 
 import axis.Axis;
-import configuration.TraceConfig;
+import configuration.traces.TraceConfig;
 import data.Range;
+import legend.LegendItem;
 
 import java.awt.*;
 
@@ -10,28 +11,25 @@ import java.awt.*;
  * Created by galafit on 16/9/17.
  */
 public abstract class Trace {
-    TraceConfig traceConfig;
-    int hoverIndex = -1;
-
-    public abstract void setConfig(TraceConfig traceConfig);
 
     public int getXAxisIndex() {
-        return traceConfig.xAxisIndex;
+        return getTraceConfig().getXAxisIndex();
     }
 
     public int getYAxisIndex() {
-        return traceConfig.yAxisIndex;
+        return getTraceConfig().getYAxisIndex();
     }
 
-    public Range getXRange() {
-        return traceConfig.getData().getXRange();
-    }
+    public LegendItem[] getLegendItems() {
+        LegendItem[] items = {new LegendItem(getTraceConfig().getColor(), getTraceConfig().getName())};
+        return items;
+     }
 
-    public Range getYRange() {
-        return traceConfig.getData().getYRange();
-    }
+    abstract TraceConfig getTraceConfig();
 
-   public abstract void draw(Graphics2D g, Axis xAxis, Axis yAxis);
+    public abstract Range getXExtremes();
 
+    public abstract Range getYExtremes();
 
+    public abstract void draw(Graphics2D g, Axis xAxis, Axis yAxis);
 }
