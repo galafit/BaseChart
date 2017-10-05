@@ -1,8 +1,8 @@
-package data.datasets;
+package data;
 
-import data.IntSeries;
-import data.Processing;
-import data.Range;
+import data.series.IntSeries;
+import data.series.Processing;
+
 import java.util.function.IntToDoubleFunction;
 
 /**

@@ -4,12 +4,12 @@ import java.awt.geom.Rectangle2D;
 /**
  * Created by hdablin on 02.07.17.
  */
-class ScrollPainter {
+class ScrollPainter_old {
     private ScrollModel scrollModel;
     private Rectangle paintingArea;
     private Color cursorColor = Color.RED;
 
-    public ScrollPainter(ScrollModel scrollModel) {
+    public ScrollPainter_old(ScrollModel scrollModel) {
         this.scrollModel = scrollModel;
     }
 
@@ -18,11 +18,11 @@ class ScrollPainter {
     }
 
     private double getScrollWidth() {
-        return paintingArea.getWidth() * scrollModel.getViewportWidth() / (scrollModel.getMax() - scrollModel.getMin());
+        return paintingArea.getWidth() * scrollModel.getExtent() / (scrollModel.getMax() - scrollModel.getMin());
     }
 
     private double getScrollPosition() {
-        return (scrollModel.getViewportPosition() - scrollModel.getMin()) * paintingArea.getWidth() / (scrollModel.getMax() - scrollModel.getMin());
+        return (scrollModel.getValue() - scrollModel.getMin()) * paintingArea.getWidth() / (scrollModel.getMax() - scrollModel.getMin());
     }
 
     public boolean isMouseInsideScroll(int mouseX, int mouseY) {
@@ -39,7 +39,7 @@ class ScrollPainter {
     public void moveScroll(int shift) {
         int newScrollPosition = (int)getScrollPosition() + shift;
         double viewportPosition = scrollPositionToViewportPosition(newScrollPosition);
-        scrollModel.setViewportPosition(viewportPosition);
+        scrollModel.setValue(viewportPosition);
 
     }
 
@@ -47,7 +47,7 @@ class ScrollPainter {
         if (paintingArea != null) {
             double newScrollPosition = mousePosition - paintingArea.getX();
             double viewportPosition = scrollPositionToViewportPosition(newScrollPosition);
-            scrollModel.setViewportPosition(viewportPosition);
+            scrollModel.setValue(viewportPosition);
         }
     }
 

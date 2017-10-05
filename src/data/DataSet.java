@@ -1,9 +1,8 @@
-package data.datasets;
+package data;
 
-import data.DoubleSeries;
-import data.IntSeries;
-import data.Range;
-import data.StringSeries;
+import data.series.DoubleSeries;
+import data.series.IntSeries;
+import data.series.StringSeries;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -109,7 +108,7 @@ public class DataSet {
         return new Range(0, size() - 1);
     }
 
-    public int getNearestX(double xValue) {
+    public int findNearestX(double xValue) {
         if(xColumnNumber >= 0) {
             return numberColumns.get(xColumnNumber).findNearest(xValue, 0, size());
         }

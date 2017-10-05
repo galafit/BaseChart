@@ -1,4 +1,4 @@
-package data.datasets;
+package data;
 
 import data.Range;
 

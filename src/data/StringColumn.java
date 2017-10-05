@@ -1,6 +1,6 @@
-package data.datasets;
+package data;
 
-import data.StringSeries;
+import data.series.StringSeries;
 
 /**
  * Created by galafit on 28/9/17.

@@ -59,7 +59,7 @@ public class Axis {
         scale.setDomain(min, max);
     }
 
-    public void setStartEnd(int start, int end) {
+    public void setStartEnd(long start, long end) {
         scale.setRange(start, end);
     }
     public void setStartEnd(Range startEndRange) {

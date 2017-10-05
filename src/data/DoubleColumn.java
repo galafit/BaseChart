@@ -1,8 +1,7 @@
-package data.datasets;
+package data;
 
-import data.DoubleSeries;
-import data.Processing;
-import data.Range;
+import data.series.DoubleSeries;
+import data.series.Processing;
 
 /**
  * Created by galafit on 27/9/17.

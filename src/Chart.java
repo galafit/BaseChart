@@ -1,14 +1,14 @@
 
 import axis.Axis;
 import configuration.ChartConfig;
+import configuration.ScrollConfig;
+import configuration.general.Margin;
 import configuration.traces.TraceConfig;
 import data.Range;
 import legend.LegendItem;
-import painters.CrosshairPainter;
-import painters.LegendPainter;
-import painters.TitlePainter;
+import painters.*;
 import tooltips.TooltipInfo;
-import painters.TooltipPainter;
+import tooltips.TooltipItem;
 import traces.Trace;
 import traces.TraceRegister;
 
@@ -34,10 +34,13 @@ public class Chart implements Drawable {
     private TitlePainter titlePainter;
     private CrosshairPainter crosshairPainter;
     private ChartConfig chartConfig;
+    private ScrollPainter scrollPainter;
+    private boolean isScrollEnabled = false;
 
     private Rectangle titleArea;
     private Rectangle legendArea;
     private Rectangle graphArea;
+    private Margin margin;
 
 
     public Chart(ChartConfig chartConfig) {
@@ -56,6 +59,8 @@ public class Chart implements Drawable {
         for (int i = 0; i < chartConfig.getTraceAmount() ; i++) {
             TraceConfig traceConfig = chartConfig.getTraceConfig(i);
             Trace trace = TraceRegister.getTrace(traceConfig);
+            trace.setXAxis(xAxisList.get(traceConfig.getXAxisIndex()));
+            trace.setYAxis(yAxisList.get(traceConfig.getYAxisIndex()));
             LegendItem[] items = trace.getLegendItems();
             for (LegendItem item : items) {
                 legendItems.add(item);
@@ -73,11 +78,13 @@ public class Chart implements Drawable {
             if (xAxis.isAutoScale()) {
                 Range xRange = null;
                 for (Trace trace : traces) {
-                    if(trace.getXAxisIndex() == i) {
+                    if(trace.getXAxis() == xAxis) {
                         xRange = Range.max(xRange, trace.getXExtremes());
                     }
                 }
                 xAxis.setMinMax(xRange);
+            } else {
+                xAxis.setMinMax(chartConfig.getXAxisConfig(i).getExtremes());
             }
         }
     }
@@ -88,130 +95,104 @@ public class Chart implements Drawable {
             if (yAxis.isAutoScale()) {
                 Range yRange = null;
                 for (Trace trace : traces) {
-                    if(trace.getYAxisIndex() == i) {
+                    if(trace.getYAxis() == yAxis) {
                         yRange = Range.max(yRange, trace.getYExtremes());
                     }
                 }
                 yAxis.setMinMax(yRange);
+            } else {
+                yAxis.setMinMax(chartConfig.getYAxisConfig(i).getExtremes());
             }
         }
+    }
+
+
+    Margin getMargin(Graphics2D g2) {
+        if(margin == null) {
+            setMargin(g2, chartConfig.margin);
+        }
+        return margin;
+    }
+
+    void setScroll(double scrollValue, double scrollExtent, ScrollConfig scrollConfig) {
+        isScrollEnabled = true;
+        scrollPainter = new ScrollPainter(scrollValue, scrollExtent, scrollConfig, xAxisList.get(0));
+
+    }
+
+    boolean isMouseInsideScroll(int mouseX, int mouseY) {
+        return scrollPainter.isMouseInsideScroll(mouseX, mouseY, graphArea);
+    }
+
+    double calculateScrollValue(int mouseX) {
+        return scrollPainter.calculateScrollValue(mouseX);
+    }
+
+    boolean isMouseInsideChart(int mouseX, int mouseY) {
+        return graphArea.contains(mouseX, mouseY);
     }
 
 
     // TODO: handling multiple xAxis!!!!
     // TODO: add separated tooltips
     public boolean hover(int mouseX, int mouseY) {
-        return false;
-    }
- /*   public boolean hover(int mouseX, int mouseY) {
-        boolean isHover = false;
-        if (true ) {
-            tooltipInfo = null;
-            for (Graph graph : traces) {
-                isHover = graph.setHoverPoint(-1) || isHover;
+        if(!isMouseInsideChart(mouseX, mouseY)) {
+            boolean isHoverChanged = false;
+            for (int i = 0; i < traces.size(); i++) {
+                isHoverChanged = traces.get(i).setHoverIndex(-1) || isHoverChanged;
+                tooltipInfo = null;
             }
-            return isHover;
+            return isHoverChanged;
         }
-
-        long[] nearestPointsIndexes = new long[traces.size()];
+        int[] nearestIndexes = new int[traces.size()];
         Integer minDistance = null;
         // find min distance from traces points to mouseX
         for (int i = 0; i < traces.size(); i++) {
-            Graph graph = traces.getString(i);
-            Axis xAxis = xAxisList.getString(graph.getXAxisIndex());
-            Axis yAxis = yAxisList.getString(graph.getYAxisIndex());
-            double xValue = xAxis.invert(mouseX);
-            long pointIndex = graph.getNearestPointIndex(xValue);
-            //System.out.println(graph.getGraphName() + ": pointIndex=" + pointIndex);
-
-            nearestPointsIndexes[i] = pointIndex;
-            if (pointIndex >= 0) {
-                int x = (int) Math.round(xAxis.scale(graph.getPoint(pointIndex).getX().doubleValue()));
-                //System.out.println(graph.getGraphName() + ": (x - mouseX)=" + (x - mouseX));
-                if(minDistance == null || Math.abs(minDistance) > Math.abs(x - mouseX)) {
-                    minDistance =  (x - mouseX);
-                }
+            nearestIndexes[i] = traces.get(i).findNearest(mouseX, mouseY);
+            int x = (int) traces.get(i).getXPosition(nearestIndexes[i]);
+            if(minDistance == null || Math.abs(minDistance) > Math.abs(x - mouseX)) {
+                minDistance =  (x - mouseX);
             }
         }
-        //System.out.println("MinDistance = " + minDistance);
+
         // hover traces points that have minDistance to mouseX
+        boolean isHoverChanged = false;
+        double hoverXValue = 0;
         if (minDistance != null) {
             ArrayList<TooltipItem> tooltipItems = new ArrayList<TooltipItem>();
-            Range y_range = null;
-            Number hoverXValue = null;
-            int hoverPointsCounter = 0;
             for (int i = 0; i < traces.size(); i++) {
-                Graph graph = traces.getString(i);
-                Axis xAxis = xAxisList.getString(graph.getXAxisIndex());
-                Axis yAxis = yAxisList.getString(graph.getYAxisIndex());
-                long pointIndex = nearestPointsIndexes[i];
-                if (pointIndex >= 0) {
-                    int x = (int) Math.round(xAxis.scale(graph.getPoint(pointIndex).getX().doubleValue()));
-                    if ((x - mouseX) == minDistance) {
-                        hoverPointsCounter++;
-                        hoverXValue = xAxis.invert(x);
-                      //  hoverXValue = xAxis.roundValue(hoverXValue.doubleValue(), graphArea);
-                        isHover = graph.setHoverPoint(pointIndex) || isHover;
-                        TooltipItem tooltipItem = graph.getTooltipItem();
-                        if (tooltipItem != null) {
-                            tooltipItems.add(graph.getTooltipItem());
-                        }
-
-                        Range yValueRange = graph.getPointYRange(graph.getPoint(pointIndex).getY());
-                        Range yPixelRange = new Range(yAxis.scale(yValueRange.start()), yAxis.scale(yValueRange.start()));
-                        y_range = Range.max(y_range, yPixelRange);
-                    } else {
-                        isHover = graph.setHoverPoint(-1) || isHover ;
-                    }
+                int x = (int) traces.get(i).getXPosition(nearestIndexes[i]);
+                if((x - mouseX) == minDistance) {
+                    isHoverChanged = traces.get(i).setHoverIndex(nearestIndexes[i]) || isHoverChanged;
+                    tooltipItems.add(traces.get(i).getTooltipItem());
+                    hoverXValue = traces.get(i).getX(nearestIndexes[i]);
                 } else {
-                    isHover = graph.setHoverPoint(-1) || isHover ;
+                    isHoverChanged = traces.get(i).setHoverIndex(-1) || isHoverChanged;
                 }
             }
-            if (isHover) {
-                if (hoverPointsCounter > 0) {
-                    tooltipInfo = new TooltipInfo();
-                    tooltipInfo.setItems(tooltipItems);
-                    tooltipInfo.setX(mouseX + minDistance);
-                    //tooltipInfo.setY((int)((y_range.end()  + y_range.start()) / 2));
-                    tooltipInfo.setY(mouseY);
-                    tooltipInfo.setHeader(new TooltipItem(null, hoverXValue.toString(), null));
-
-                } else {
-                    tooltipInfo = null;
-                }
+            if (isHoverChanged) {
+                tooltipInfo = new TooltipInfo();
+                tooltipInfo.setItems(tooltipItems);
+                tooltipInfo.setX(mouseX + minDistance);
+                tooltipInfo.setY(mouseY);
+                tooltipInfo.setHeader(new TooltipItem(null, String.valueOf(hoverXValue), null));
             }
         }
-        return isHover;
-    }*/
+        return isHoverChanged;
+    }
 
+    void setMargin(Graphics2D g2, Margin margin) {
+        if(margin == null) {
+            Rectangle fullArea = chartConfig.getArea();
+            int titleHeight = titlePainter.getTitleHeight(g2, fullArea.width);
+            titleArea = new Rectangle(fullArea.x,fullArea.y,fullArea.width, titleHeight);
 
-    private void calculateMarginsAndAreas(Graphics2D g2) {
-        Rectangle fullArea = chartConfig.getArea();
-        int titleHeight = titlePainter.getTitleHeight(g2, fullArea.width);
-        titleArea = new Rectangle(fullArea.x,fullArea.y,fullArea.width, titleHeight);
-
-        int left, right, top, bottom;
-        if(chartConfig.margin != null) {
-            left = chartConfig.margin.left();
-            right = chartConfig.margin.right();
-            top = chartConfig.margin.top();
-            bottom = chartConfig.margin.bottom();
-
-            int legendWidth = fullArea.width - right - left;
-            int legendHeight = legendPainter.getLegendHeight(g2, legendWidth);
-            int legendX = fullArea.x + left;
-            if (chartConfig.legendConfig.isTop()) {
-                legendArea = new Rectangle(legendX, fullArea.y + titleHeight, legendWidth, legendHeight);
-            } else {
-                legendArea = new Rectangle(legendX, fullArea.y + fullArea.height - legendHeight, legendWidth, legendHeight);
-            }
-        } else {
             // set YAxis ranges and calculate margins
             for (int i = 0; i < yAxisList.size(); i++) {
                 yAxisList.get(i).setStartEnd(chartConfig.getYAxisStartEnd(i, fullArea));
             }
-            left = 0;
-            right = 0;
+            int left = 0;
+            int right = 0;
             for (int i = 0; i < yAxisList.size()/2; i++) {
                 left = Math.max(left, yAxisList.get(i*2).getThickness(g2));
                 right = Math.max(right, yAxisList.get(i*2 + 1).getThickness(g2));
@@ -223,7 +204,6 @@ public class Chart implements Drawable {
             xAxisList.get(0).setStartEnd(xStart, xEnd);
             xAxisList.get(1).setStartEnd(xStart, xEnd);
 
-
             int legendWidth = fullArea.width - right - left;
             int legendHeight = legendPainter.getLegendHeight(g2, legendWidth);
             int legendX = fullArea.x + left;
@@ -233,8 +213,8 @@ public class Chart implements Drawable {
                 legendArea = new Rectangle(legendX, fullArea.y + fullArea.height - legendHeight, legendWidth, legendHeight);
             }
 
-            bottom = 0;
-            top = titleArea.height;
+            int bottom = 0;
+            int top = titleArea.height;
             if(chartConfig.legendConfig.isTop()) {
                 top += legendArea.height;
             } else {
@@ -243,24 +223,51 @@ public class Chart implements Drawable {
 
             bottom += xAxisList.get(0).getThickness(g2);
             top += xAxisList.get(1).getThickness(g2);
-        }
-        graphArea = new Rectangle(fullArea.x + left, fullArea.y + top,
-                fullArea.width - left - right, fullArea.height - top - bottom);
+            graphArea = new Rectangle(fullArea.x + left, fullArea.y + top,
+                    fullArea.width - left - right, fullArea.height - top - bottom);
 
-        int xStart = graphArea.x;
-        int xEnd = graphArea.x + graphArea.width;
-        xAxisList.get(0).setStartEnd(xStart, xEnd);
-        xAxisList.get(1).setStartEnd(xStart, xEnd);
+            xStart = graphArea.x;
+            xEnd = graphArea.x + graphArea.width;
+            xAxisList.get(0).setStartEnd(xStart, xEnd);
+            xAxisList.get(1).setStartEnd(xStart, xEnd);
 
-        for (int i = 0; i < yAxisList.size(); i++) {
-            yAxisList.get(i).setStartEnd(chartConfig.getYAxisStartEnd(i, graphArea));
+            for (int i = 0; i < yAxisList.size(); i++) {
+                yAxisList.get(i).setStartEnd(chartConfig.getYAxisStartEnd(i, graphArea));
+            }
+            this.margin = new Margin(top, right, bottom, left);
+        } else {
+            Rectangle fullArea = chartConfig.getArea();
+            graphArea = new Rectangle(fullArea.x + margin.left(), fullArea.y + margin.top(),
+                    fullArea.width - margin.left() - margin.right(), fullArea.height - margin.top() - margin.bottom());
+
+            int xStart = graphArea.x;
+            int xEnd = graphArea.x + graphArea.width;
+            xAxisList.get(0).setStartEnd(xStart, xEnd);
+            xAxisList.get(1).setStartEnd(xStart, xEnd);
+            for (int i = 0; i < yAxisList.size(); i++) {
+                yAxisList.get(i).setStartEnd(chartConfig.getYAxisStartEnd(i, graphArea));
+            }
+
+            int legendWidth = fullArea.width;
+            int legendHeight = legendPainter.getLegendHeight(g2, legendWidth);
+            int legendX = fullArea.x;
+            int titleHeight = titlePainter.getTitleHeight(g2, fullArea.width);
+            if (chartConfig.legendConfig.isTop()) {
+                legendArea = new Rectangle(legendX, graphArea.y - legendHeight, legendWidth, legendHeight);
+                titleArea = new Rectangle(fullArea.x,graphArea.y -legendHeight - titleHeight,fullArea.width, titleHeight);
+            } else {
+                legendArea = new Rectangle(legendX, fullArea.y + fullArea.height - legendHeight, legendWidth, legendHeight);
+                titleArea = new Rectangle(fullArea.x,graphArea.y - titleHeight, fullArea.width, titleHeight);
+            }
+            this.margin = margin;
         }
+
     }
 
     @Override
     public void draw(Graphics2D g2d) {
-        if(graphArea == null) {
-            calculateMarginsAndAreas(g2d);
+        if(margin == null) {
+            setMargin(g2d, chartConfig.margin);
         }
         Rectangle fullArea = chartConfig.getArea();
         g2d.setColor(chartConfig.marginColor);
@@ -330,9 +337,13 @@ public class Chart implements Drawable {
         g2d.setClip(graphArea);
 
         for (Trace trace : traces) {
-            trace.draw(g2d, xAxisList.get(trace.getXAxisIndex()), yAxisList.get(trace.getYAxisIndex()));
+            trace.draw(g2d);
         }
         g2d.setClip(clip);
+
+        if(isScrollEnabled) {
+            scrollPainter.draw(g2d, graphArea);
+        }
 
         if (tooltipInfo != null) {
             tooltipPainter.draw(g2d, fullArea, tooltipInfo);

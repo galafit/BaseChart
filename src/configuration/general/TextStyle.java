@@ -14,6 +14,13 @@ public class TextStyle {
     public boolean isBold = false;
     public boolean isItalic = false;
 
+    public TextStyle() {
+    }
+
+    public TextStyle(Color fontColor) {
+        this.fontColor = fontColor;
+    }
+
     public Font getFont() {
         int style;
         String name = (fontName != null) ? fontName: new JLabel().getFont().getFontName();

@@ -1,11 +1,15 @@
 /**
  * https://docs.google.com/document/d/1x4MSKJopdGXbtrOhlEc4gD2hA0fKTB2f4ps3F2z4Dgw/edit
+ * painters.ScrollPainter_old model is described in Domain (Data) coordinate.
+ * To draw the scroll we  need to translate all model parameters to screen coordinate.
  */
 public class ScrollModel {
-    private double viewportPosition = 0;
+
+    private double value = 0; // viewportPosition
     private double min = 0;
+
     private double max = 1;
-    private double viewportWidth = 1;
+    private double extent = 1; // viewportWidth
 
 
     public double getMin() {
@@ -16,10 +20,9 @@ public class ScrollModel {
         return max;
     }
 
-    public double getViewportWidth() {
-        return viewportWidth;
+    public double getExtent() {
+        return extent;
     }
-
 
     public void setMin(double min) {
         this.min = min;
@@ -29,21 +32,21 @@ public class ScrollModel {
         this.max = max;
     }
 
-    public void setViewportWidth(double viewportWidth) {
-        this.viewportWidth = viewportWidth;
+    public void setExtent(double extent) {
+        this.extent = extent;
     }
 
-    public double getViewportPosition() {
-        return viewportPosition;
+    public double getValue() {
+        return value;
     }
 
-    public void setViewportPosition(double newViewportPosition) {
-        if (newViewportPosition > getMax() - getViewportWidth()) {
-            newViewportPosition = getMax() - getViewportWidth();
+    public void setValue(double newValue) {
+        if (newValue > getMax() - getExtent()) {
+            newValue = getMax() - getExtent();
         }
-        if (newViewportPosition < getMin()){
-            newViewportPosition = getMin();
+        if (newValue < getMin()){
+            newValue = getMin();
         }
-        viewportPosition = newViewportPosition;
+        value = newValue;
     }
 }

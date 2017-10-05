@@ -2,7 +2,7 @@ package configuration.traces;
 
 import configuration.general.LineConfig;
 import configuration.general.MarkConfig;
-import data.datasets.XYData;
+import data.XYData;
 
 import java.awt.*;
 
@@ -24,6 +24,7 @@ public class LineTraceConfig extends TraceConfig {
         return TraceType.LINE;
     }
 
+    @Override
     public XYData getData() {
         return data;
     }

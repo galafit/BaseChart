@@ -1,4 +1,6 @@
-package data;
+package data.series;
+
+import data.Range;
 
 /**
  * Created by galafit on 24/9/17.

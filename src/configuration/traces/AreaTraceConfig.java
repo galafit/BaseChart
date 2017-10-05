@@ -1,6 +1,6 @@
 package configuration.traces;
 
-import data.datasets.XYData;
+import data.XYData;
 
 import java.awt.*;
 

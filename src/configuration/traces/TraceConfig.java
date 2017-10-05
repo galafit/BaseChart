@@ -1,5 +1,7 @@
 package configuration.traces;
 
+import data.Data;
+
 import java.awt.*;
 
 /**
@@ -12,6 +14,8 @@ public abstract class TraceConfig {
     private int yAxisIndex;
 
     public abstract TraceType getTraceType();
+
+    public abstract Data getData();
 
     public int getXAxisIndex() {
         return xAxisIndex;

@@ -1,6 +1,8 @@
 package configuration.axis;
 
 import configuration.general.LineConfig;
+import data.Range;
+
 import java.awt.*;
 
 /**
@@ -24,6 +26,7 @@ public class AxisConfig {
 
     public boolean isRoundingEnabled = true;
     public boolean isAutoScale = true;
+    Range minMax;
 
     public int getWeight() {
         return weight;
@@ -35,6 +38,15 @@ public class AxisConfig {
         minorGridLineConfig.color = new Color(80, 80, 80);
         titleConfig.textStyle.fontSize = 14;
         labelsConfig.textStyle.fontSize = 12;
+    }
+
+    public void setExtremes(double min, double max) {
+        this.minMax = new Range(min, max);
+        isAutoScale = false;
+    }
+
+    public Range getExtremes() {
+        return minMax;
     }
 
     public boolean isTop() {

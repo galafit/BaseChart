@@ -1,7 +1,5 @@
-package data.datasets;
+package data;
 
-
-import data.Range;
 
 /**
  * Created by galafit on 18/9/17.

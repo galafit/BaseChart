@@ -1,16 +1,26 @@
-package data.datasets;
+package data;
 
-import data.DoubleSeries;
-import data.IntSeries;
-import data.Range;
+import data.series.DoubleSeries;
+import data.series.IntSeries;
+
 import java.util.List;
 
 /**
  * Created by galafit on 29/9/17.
  */
-public class XYData {
+public class XYData implements Data {
     private DataSet dataSet = new DataSet();
     private int yColumnNumber = -1;
+
+    @Override
+    public DataSet getDataSet() {
+        return dataSet;
+    }
+
+    @Override
+    public void setDataSet(DataSet dataSet) {
+        this.dataSet = dataSet;
+    }
 
     public void setXData(IntSeries data) {
         dataSet.removeXSeries();
@@ -105,8 +115,8 @@ public class XYData {
         return dataSet.getXExtremes();
     }
 
-    public int getNearestX(double xValue) {
-        return dataSet.getNearestX(xValue);
+    public int findNearest(double xValue) {
+        return dataSet.findNearestX(xValue);
     }
 
 }

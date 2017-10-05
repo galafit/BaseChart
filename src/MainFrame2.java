@@ -2,8 +2,7 @@ import configuration.ChartConfig;
 import configuration.traces.AreaTraceConfig;
 import configuration.traces.LineTraceConfig;
 import configuration.traces.TraceConfig;
-import configuration.traces.TraceType;
-import data.datasets.XYData;
+import data.XYData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -21,13 +20,13 @@ public class MainFrame2 extends JFrame {
 
         setTitle("Test chart");
 
-        double[] yData1 = new double[150];
+        double[] yData1 = new double[1500];
         Random rand = new Random();
         for (int i = 0; i < yData1.length ; i++) {
             yData1[i] = new Double(rand.nextInt(80));
         }
 
-        int[] yData2 = new int[100];
+        int[] yData2 = new int[1000];
         for (int i = 0; i < yData2.length ; i++) {
             yData2[i] = - i;
         }
@@ -45,7 +44,17 @@ public class MainFrame2 extends JFrame {
         chartConfig.addStack(5);
         chartConfig.addTrace(trace2, true, true);
 
-        Chart chart = new Chart(chartConfig);
+        ChartConfig previewConfig = new ChartConfig(ChartConfig.DARK_THEME, width, height);
+        TraceConfig trace3 = new LineTraceConfig(xyData2);
+        previewConfig.addTrace(trace3, true, true);
+
+
+
+        ChartWithPreview chart = new ChartWithPreview(chartConfig, previewConfig,
+                new Rectangle(0, 0, width, height), 1500);
+
+        //ChartWithPreview chart = new ChartWithPreview(chartConfig);
+
         ChartPanel chartPanel = new ChartPanel(chart);
 
         chartPanel.setPreferredSize(new Dimension(width, height));

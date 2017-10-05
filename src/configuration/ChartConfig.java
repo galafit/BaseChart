@@ -23,12 +23,14 @@ public class ChartConfig {
     private final Color BROWN = new Color(200, 102, 0);
     private final Color ORANGE = new Color(255, 153, 0);
     private Color[] traceColors = {Color.MAGENTA, Color.RED, ORANGE, Color.CYAN, Color.PINK};
+    private boolean isBottomXAxisHasTraces = false;
+    private boolean isTopXAxisHasTraces = false;
 
 
     public String title = "Chart title";
     public Color background;
     public Color marginColor;
-    public Margin margin;
+    public Margin margin = new Margin(20, 10, 50, 50);
     private Rectangle area;
     public TextStyle titleTextStyle = new TextStyle();
     public LegendConfig legendConfig = new LegendConfig();
@@ -79,6 +81,7 @@ public class ChartConfig {
           background = new Color(20, 20, 30);
           marginColor = background;
           Color textColor = new Color(200, 200, 200);
+          axisConfig.labelsConfig.textStyle.fontColor = textColor;
           legendConfig.background = background;
           legendConfig.borderWidth = 0;
           legendConfig.textStyle.fontColor = textColor;
@@ -122,6 +125,14 @@ public class ChartConfig {
         return yAxisConfigs.size() / 2;
     }
 
+    public AxisConfig getXAxisConfig(int axisIndex) {
+        return xAxisConfigs.get(axisIndex);
+    }
+
+    public AxisConfig getYAxisConfig(int axisIndex) {
+        return yAxisConfigs.get(axisIndex);
+    }
+
     public void addStack(int weight) {
         AxisConfig axisConfig = new AxisConfig(Orientation.LEFT);
         axisConfig.minorGridLineConfig.width = 0;
@@ -139,12 +150,17 @@ public class ChartConfig {
         addStack(DEFAULT_WEIGHT);
     }
 
-
-    public Range getYAxisStartEnd(int yAxisIndex, Rectangle area) {
+    public int getSumWeight() {
         int weightSum = 0;
         for (Integer weight : weights) {
             weightSum += weight;
         }
+        return weightSum;
+    }
+
+
+    public Range getYAxisStartEnd(int yAxisIndex, Rectangle area) {
+        int weightSum = getSumWeight();
 
         int weightSumTillYAxis = 0;
         for (int i = 0; i < yAxisIndex / 2 ; i++) {
@@ -159,11 +175,21 @@ public class ChartConfig {
         return new Range(start, end, true);
     }
 
+    public boolean isBothXAxisHaveTraces() {
+        return isBottomXAxisHasTraces && isTopXAxisHasTraces;
+    }
+
 
     // add trace to the last stack
     public void addTrace(TraceConfig traceConfig, boolean isBottomXAxis, boolean isLeftYAxis) {
         int xAxisIndex = isBottomXAxis ? 0 : 1;
         int yAxisIndex = isLeftYAxis ? yAxisConfigs.size() - 2 : yAxisConfigs.size() - 1;
+        if(isBottomXAxis) {
+            isBottomXAxisHasTraces = true;
+        } else {
+            isTopXAxisHasTraces = true;
+        }
+
         xAxisConfigs.get(xAxisIndex).isVisible = true;
         yAxisConfigs.get(yAxisIndex).isVisible = true;
         if(traceConfig.getName() == null) {
