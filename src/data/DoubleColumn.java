@@ -29,17 +29,12 @@ class DoubleColumn implements NumberColumn {
     }
 
     @Override
-    public int findNearest(double value, int from, int length) {
-        int lowerBoundIndex = Processing.lowerBound(series,  value, from, length);
-        if (lowerBoundIndex < from) {
-            return from;
-        }
-        if (lowerBoundIndex == from + length - 1) {
-            return lowerBoundIndex;
-        }
-        double distance1 = value - series.get(lowerBoundIndex);
-        double distance2 = series.get(lowerBoundIndex + 1) - value;
-        int nearestIndex = (distance1 < distance2) ? lowerBoundIndex : lowerBoundIndex + 1;
-        return nearestIndex;
+    public int upperBound(double value, int from, int length) {
+        return Processing.upperBound(series,  value, from, length);
+    }
+
+    @Override
+    public int lowerBound(double value, int from, int length) {
+        return Processing.upperBound(series,  value, from, length);
     }
 }

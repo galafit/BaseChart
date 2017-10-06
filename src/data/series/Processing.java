@@ -10,26 +10,26 @@ public class Processing {
     /******************************************************************
      *                         MIN-MAX
      ******************************************************************/
-    public static Range minMaxRange(IntSeries data, int from, int lenght) {
+    public static Range minMaxRange(IntSeries data, int from, int length) {
         if(data.size() == 0){
             return null;
         }
         int min = data.get(from);
         int max = data.get(from);
-        for (int i = from + 1; i < lenght ; i++) {
+        for (int i = from + 1; i < length ; i++) {
             min = Math.min(min, data.get(i));
             max = Math.max(max, data.get(i));
         }
         return new Range(min, max);
     }
 
-    public static Range minMaxRange(DoubleSeries data, int from, int lenght) {
+    public static Range minMaxRange(DoubleSeries data, int from, int length) {
         if(data.size() == 0){
             return null;
         }
         double min = data.get(from);
         double max = data.get(from);
-        for (int i = from + 1; i < lenght ; i++) {
+        for (int i = from + 1; i < length ; i++) {
             min = Math.min(min, data.get(i));
             max = Math.max(max, data.get(i));
         }

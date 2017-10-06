@@ -54,8 +54,7 @@ public class XYData implements Data {
 
     public void setXData(double startValue, double dataInterval) {
         dataSet.removeXSeries();
-        int xColumnNumber = dataSet.addSeries(startValue, dataInterval);
-        dataSet.setXColumn(xColumnNumber);
+        dataSet.setXColumn(startValue, dataInterval);
     }
 
 
@@ -116,7 +115,7 @@ public class XYData implements Data {
     }
 
     public int findNearest(double xValue) {
-        return dataSet.findNearestX(xValue);
+        return dataSet.findNearestData(xValue);
     }
 
 }

@@ -10,6 +10,7 @@ public interface NumberColumn {
     public double getValue(int index);
 
     public Range getExtremes(int from, int length);
-    public int findNearest(double value, int from, int length);
+    public int upperBound(double value, int from, int length);
+    public int lowerBound(double value, int from, int length);
 }
 
