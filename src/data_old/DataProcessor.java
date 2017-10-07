@@ -1,6 +1,6 @@
 package data_old;
 
-import data.Range;
+import base.Range;
 import grouping.GroupingFunction;
 
 import java.awt.*;

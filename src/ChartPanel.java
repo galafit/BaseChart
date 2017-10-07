@@ -8,10 +8,10 @@ import java.awt.event.MouseMotionAdapter;
  * Created by hdablin on 23.06.17.
  */
 public class ChartPanel extends JPanel {
-    private ChartWithPreview chart;
+    private Chart chart;
 
 
-    public ChartPanel(ChartWithPreview chart) {
+    public ChartPanel(Chart chart) {
         this.chart = chart;
         addMouseMotionListener(new MouseMotionAdapter() {
 

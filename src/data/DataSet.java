@@ -1,5 +1,6 @@
 package data;
 
+import base.Range;
 import data.series.DoubleSeries;
 import data.series.IntSeries;
 import data.series.StringSeries;
@@ -152,7 +153,14 @@ public class DataSet {
             return null;
         }
         if(xColumnNumber >= 0) {
-            return numberColumns.get(xColumnNumber).getExtremes(startIndex, size());
+            if(isOrdered()) {
+                double min = numberColumns.get(xColumnNumber).getValue(startIndex);
+                double max = numberColumns.get(xColumnNumber).getValue(startIndex + size() - 1);
+                return new Range(min, max);
+            } else {
+                return numberColumns.get(xColumnNumber).getExtremes(startIndex, size());
+            }
+
         }
         // if xColumnNumber is not specified we use indexes as xColumn values
         double min = startXValue;

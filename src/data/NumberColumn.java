@@ -1,6 +1,6 @@
 package data;
 
-import data.Range;
+import base.Range;
 
 /**
  * Created by galafit on 17/9/17.

@@ -1,5 +1,6 @@
 package data;
 
+import base.Range;
 import data.series.DoubleSeries;
 import data.series.Processing;
 
