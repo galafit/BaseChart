@@ -37,6 +37,11 @@ public class Axis {
         scale = new ScaleLinear();
     }
 
+    public void update() {
+        axisLine = null;
+        gridLines = null;
+    }
+
     public boolean isAutoScale() {
         return config.isAutoScale();
     }
@@ -271,6 +276,9 @@ public class Axis {
     }
 
     private void fixTicksOverlapping(FontMetrics fm) {
+        if(ticks.size() < 2) {
+            return;
+        }
         if(!config.getLabelsConfig().isVisible()) {
             isTicksOveralppingFixed = true;
             return;

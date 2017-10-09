@@ -6,4 +6,5 @@ package data;
 public interface Data {
     public DataSet getDataSet();
     public void setDataSet(DataSet dataSet);
+    public Data getCopy();
 }

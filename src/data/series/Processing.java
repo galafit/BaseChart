@@ -16,7 +16,7 @@ public class Processing {
         }
         int min = data.get(from);
         int max = data.get(from);
-        for (int i = from + 1; i < length ; i++) {
+        for (int i = from + 1; i < from + length ; i++) {
             min = Math.min(min, data.get(i));
             max = Math.max(max, data.get(i));
         }
@@ -29,7 +29,7 @@ public class Processing {
         }
         double min = data.get(from);
         double max = data.get(from);
-        for (int i = from + 1; i < length ; i++) {
+        for (int i = from + 1; i < from + length ; i++) {
             min = Math.min(min, data.get(i));
             max = Math.max(max, data.get(i));
         }

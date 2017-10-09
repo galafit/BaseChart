@@ -29,6 +29,11 @@ public class LineTraceConfig extends TraceConfig {
     }
 
     @Override
+    public void setData(Object data) {
+        this.data = (XYData) data;
+    }
+
+    @Override
     public void setColor(Color color) {
         super.setColor(color);
         if(markConfig.getColor() == null) {

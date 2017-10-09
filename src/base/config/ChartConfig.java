@@ -18,15 +18,15 @@ public class ChartConfig {
     private final Color GREY = new Color(150, 150, 150);
     private final Color BROWN = new Color(200, 102, 0);
     private final Color ORANGE = new Color(255, 153, 0);
-    private Color[] traceColors = {Color.MAGENTA, Color.RED, ORANGE, Color.CYAN, Color.PINK};
+    private Color[] traceColors = {Color.CYAN, Color.MAGENTA, Color.PINK, Color.RED, ORANGE};
     private boolean isBottomXAxisHasTraces = false;
     private boolean isTopXAxisHasTraces = false;
 
 
-    private String title = "base.chart.BaseChart title";
+    private String title = "Chart title";
     private Color background;
     private Color marginColor;
-    private Margin margin = new Margin(20, 10, 50, 50);
+    private Margin margin;
     private TextStyle titleTextStyle = new TextStyle();
     private LegendConfig legendConfig = new LegendConfig();
     private TooltipConfig tooltipConfig = new TooltipConfig();
@@ -122,8 +122,12 @@ public class ChartConfig {
         return new Range(start, end, true);
     }
 
-    public boolean isBothXAxisHaveTraces() {
-        return isBottomXAxisHasTraces && isTopXAxisHasTraces;
+    public boolean isBottomXAxisHasTraces() {
+        return isBottomXAxisHasTraces;
+    }
+
+    public boolean isTopXAxisHasTraces() {
+        return isTopXAxisHasTraces;
     }
 
     public void addStack(int weight) {

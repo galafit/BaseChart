@@ -114,7 +114,7 @@ public class DataSet {
 
     public double getXValue(int index) {
         if(xColumnNumber >= 0) {
-            return getValue(index + startIndex, xColumnNumber);
+            return getValue(index, xColumnNumber);
         }
         // if xColumnNumber is not specified we use indexes as xColumn values
         return startXValue + dataInterval * index;
@@ -205,6 +205,10 @@ public class DataSet {
         return numberColumns.get(columnNumber).getExtremes(startIndex,  size());
     }
 
+    public DataSet getSubset(double startXValue, double endXValue) {
+        return getSubset(startXValue, endXValue, 1);
+    }
+
     public DataSet getSubset(double startXValue, double endXValue, int shoulder) {
         if(endXValue < startXValue) {
             String errorMessage = "Error during creating Data subset.Expected StartValue <= EndValue. StartValue = {0}, EndValue = {1}.";
@@ -239,6 +243,7 @@ public class DataSet {
         if(subsetEndIndex + shoulder >= fullSize()) {
             subsetEndIndex = fullSize() - 1 - shoulder;
         }
+         System.out.println("start "+subsetStartIndex+ "  end "+subsetEndIndex);
         return new DataSet(this, subsetStartIndex, subsetEndIndex - subsetStartIndex + 1);
     }
 

@@ -12,6 +12,7 @@ import base.tooltips.TooltipInfo;
 import base.tooltips.TooltipItem;
 import base.traces.Trace;
 import base.traces.TraceRegister;
+import data.XYDataSet;
 
 
 import java.awt.*;
@@ -71,24 +72,41 @@ public class BaseChart {
             traces.add(trace);
         }
         legendPainter = new LegendPainter(legendItems, chartConfig.getLegendConfig());
-        setXAxisDomain();
-        setYAxisDomain();
     }
 
-    public Range getTopAxisExtremes() {
-        return new Range(xAxisList.get(1).getMin(), xAxisList.get(1).getMax());
+    Range getTracesXExtremes() {
+        Range xRange = null;
+        for (Trace trace : traces) {
+            xRange = Range.max(xRange, trace.getXExtremes());
+        }
+        return xRange;
     }
 
-    public Range getBottomAxisExtremes() {
-        return new Range(xAxisList.get(0).getMin(), xAxisList.get(0).getMax());
+    Margin getMargin(Graphics2D g2) {
+        if(margin == null) {
+            calculateMarginsAndAreas(g2, chartConfig.getMargin());
+        }
+        return margin;
     }
+
+    void setMargin(Graphics2D g2, Margin margin) {
+        calculateMarginsAndAreas(g2, margin);
+        xAxisList.get(0).update();
+        xAxisList.get(1).update();
+        for (Axis axis : yAxisList) {
+           axis.update();
+        }
+    }
+
 
     void setTopAxisExtremes(Range minMax) {
         xAxisList.get(1).setMinMax(minMax);
+        xAxisList.get(1).setAutoScale(false);
     }
 
     void setBottomAxisExtremes(Range minMax) {
         xAxisList.get(0).setMinMax(minMax);
+        xAxisList.get(0).setAutoScale(false);
     }
 
     private void setXAxisDomain() {
@@ -125,26 +143,39 @@ public class BaseChart {
         }
     }
 
-
-    Margin getMargin(Graphics2D g2) {
-        if(margin == null) {
-            setMargin(g2, chartConfig.getMargin());
-        }
-        return margin;
+    void createScroll(ScrollConfig scrollConfig, double scrollExtent1, double scrollExtent2) {
+        isScrollEnabled = true;
+        scrollPainter = new ScrollPainter(scrollConfig, scrollExtent1, scrollExtent2, xAxisList.get(0));
     }
 
-    void setScroll(double scrollValue, double scrollExtent, ScrollConfig scrollConfig) {
-        isScrollEnabled = true;
-        scrollPainter = new ScrollPainter(scrollValue, scrollExtent, scrollConfig, xAxisList.get(0));
+    void createScroll(ScrollConfig scrollConfig, double scrollExtent) {
+        createScroll(scrollConfig, scrollExtent, scrollExtent);
+    }
 
+    /**
+     * @return true if scrollValue was changed and false if newValue = current scroll value
+     */
+    public boolean moveScroll(int mouseX, int mouseY) {
+       return scrollPainter.moveScroll(mouseX, mouseY);
+    }
+
+    /**
+     * @return true if scrollValue was changed and false if newValue = current scroll value
+     */
+    public boolean moveScroll(double newValue) {
+       return scrollPainter.moveScroll(newValue);
+    }
+
+    public Range getScrollExtremes1() {
+        return scrollPainter.getScrollExtremes1();
+    }
+
+    public Range getScrollExtremes2() {
+        return scrollPainter.getScrollExtremes2();
     }
 
     boolean isMouseInsideScroll(int mouseX, int mouseY) {
         return scrollPainter.isMouseInsideScroll(mouseX, mouseY, graphArea);
-    }
-
-    double calculateScrollValue(int mouseX) {
-        return scrollPainter.calculateScrollValue(mouseX);
     }
 
     boolean isMouseInsideChart(int mouseX, int mouseY) {
@@ -200,91 +231,84 @@ public class BaseChart {
         return isHoverChanged;
     }
 
-    void setMargin(Graphics2D g2, Margin margin) {
-        if(margin == null) {
-            int titleHeight = titlePainter.getTitleHeight(g2, fullArea.width);
-            titleArea = new Rectangle(fullArea.x,fullArea.y,fullArea.width, titleHeight);
+    void calculateMarginsAndAreas(Graphics2D g2, Margin margin) {
+        int titleHeight = titlePainter.getTitleHeight(g2, fullArea.width);
+        int legendHeight = legendPainter.getLegendHeight(g2, fullArea.width);
 
-            // set YAxis ranges and calculate margins
-            for (int i = 0; i < yAxisList.size(); i++) {
-                yAxisList.get(i).setStartEnd(chartConfig.getYAxisStartEnd(i, fullArea));
-            }
-            int left = 0;
-            int right = 0;
-            for (int i = 0; i < yAxisList.size()/2; i++) {
-                left = Math.max(left, yAxisList.get(i*2).getThickness(g2));
-                right = Math.max(right, yAxisList.get(i*2 + 1).getThickness(g2));
-            }
-
-            // set XAxis ranges and calculate margins
-            int xStart = fullArea.x;
-            int xEnd = fullArea.x + fullArea.width;
-            xAxisList.get(0).setStartEnd(xStart, xEnd);
-            xAxisList.get(1).setStartEnd(xStart, xEnd);
-
-            int legendWidth = fullArea.width - right - left;
-            int legendHeight = legendPainter.getLegendHeight(g2, legendWidth);
-            int legendX = fullArea.x + left;
-            if (chartConfig.getLegendConfig().isTop()) {
-                legendArea = new Rectangle(legendX, fullArea.y + titleHeight, legendWidth, legendHeight);
-            } else {
-                legendArea = new Rectangle(legendX, fullArea.y + fullArea.height - legendHeight, legendWidth, legendHeight);
-            }
-
-            int bottom = 0;
-            int top = titleArea.height;
+        int left = -1;
+        int right = -1;
+        int bottom = -1;
+        int top = -1;
+        if(margin != null) {
+            top = margin.top();
+            bottom = margin.bottom();
+            left = margin.left();
+            right = margin.right();
+        }
+        setXAxisDomain();
+        // set XAxis ranges
+        int xStart = fullArea.x;
+        int xEnd = fullArea.x + fullArea.width;
+        xAxisList.get(0).setStartEnd(xStart, xEnd);
+        xAxisList.get(1).setStartEnd(xStart, xEnd);
+        if(top < 0) {
+            top = titleHeight;
             if(chartConfig.getLegendConfig().isTop()) {
-                top += legendArea.height;
-            } else {
-                bottom += legendArea.height;
+                top += legendHeight;
             }
-
-            bottom += xAxisList.get(0).getThickness(g2);
             top += xAxisList.get(1).getThickness(g2);
-            graphArea = new Rectangle(fullArea.x + left, fullArea.y + top,
-                    fullArea.width - left - right, fullArea.height - top - bottom);
 
-            xStart = graphArea.x;
-            xEnd = graphArea.x + graphArea.width;
-            xAxisList.get(0).setStartEnd(xStart, xEnd);
-            xAxisList.get(1).setStartEnd(xStart, xEnd);
-
-            for (int i = 0; i < yAxisList.size(); i++) {
-                yAxisList.get(i).setStartEnd(chartConfig.getYAxisStartEnd(i, graphArea));
+        }
+        if(bottom < 0) {
+            bottom = 0;
+            if(!chartConfig.getLegendConfig().isTop()) {
+                bottom += legendHeight;
             }
-            this.margin = new Margin(top, right, bottom, left);
-        } else {
-            graphArea = new Rectangle(fullArea.x + margin.left(), fullArea.y + margin.top(),
-                    fullArea.width - margin.left() - margin.right(), fullArea.height - margin.top() - margin.bottom());
-
-            int xStart = graphArea.x;
-            int xEnd = graphArea.x + graphArea.width;
-            xAxisList.get(0).setStartEnd(xStart, xEnd);
-            xAxisList.get(1).setStartEnd(xStart, xEnd);
-            for (int i = 0; i < yAxisList.size(); i++) {
-                yAxisList.get(i).setStartEnd(chartConfig.getYAxisStartEnd(i, graphArea));
-            }
-
-            int legendWidth = fullArea.width;
-            int legendHeight = legendPainter.getLegendHeight(g2, legendWidth);
-            int legendX = fullArea.x;
-            int titleHeight = titlePainter.getTitleHeight(g2, fullArea.width);
-            if (chartConfig.getLegendConfig().isTop()) {
-                legendArea = new Rectangle(legendX, graphArea.y - legendHeight, legendWidth, legendHeight);
-                titleArea = new Rectangle(fullArea.x,graphArea.y -legendHeight - titleHeight,fullArea.width, titleHeight);
-            } else {
-                legendArea = new Rectangle(legendX, fullArea.y + fullArea.height - legendHeight, legendWidth, legendHeight);
-                titleArea = new Rectangle(fullArea.x,graphArea.y - titleHeight, fullArea.width, titleHeight);
-            }
-            this.margin = margin;
+            bottom += xAxisList.get(0).getThickness(g2);
         }
 
+        setYAxisDomain();
+        // set YAxis ranges
+        Rectangle paintingArea = new Rectangle(fullArea.x, fullArea.y + top, fullArea.width, fullArea.height - top - bottom);
+        for (int i = 0; i < yAxisList.size(); i++) {
+            yAxisList.get(i).setStartEnd(chartConfig.getYAxisStartEnd(i, paintingArea));
+        }
+        if(left < 0) {
+            for (int i = 0; i < yAxisList.size()/2; i++) {
+                left = Math.max(left, yAxisList.get(i*2).getThickness(g2));
+            }
+        }
+        if(right < 0) {
+            for (int i = 0; i < yAxisList.size()/2; i++) {
+                right = Math.max(right, yAxisList.get(i*2 + 1).getThickness(g2));
+            }
+        }
+
+        this.margin = new Margin(top, right, bottom, left);
+        graphArea = new Rectangle(fullArea.x + left, fullArea.y + top,
+                fullArea.width - left - right, fullArea.height - top - bottom);
+
+        // adjust XAxis ranges
+        xStart = graphArea.x;
+        xEnd = graphArea.x + graphArea.width;
+        xAxisList.get(0).setStartEnd(xStart, xEnd);
+        xAxisList.get(1).setStartEnd(xStart, xEnd);
+
+        if (chartConfig.getLegendConfig().isTop()) {
+            legendArea = new Rectangle(fullArea.x, graphArea.y - legendHeight, fullArea.width, legendHeight);
+            titleArea = new Rectangle(fullArea.x,graphArea.y -legendHeight - titleHeight,fullArea.width, titleHeight);
+        } else {
+            legendArea = new Rectangle(fullArea.x, fullArea.y + fullArea.height - legendHeight, fullArea.width, legendHeight);
+            titleArea = new Rectangle(fullArea.x,graphArea.y - titleHeight, fullArea.width, titleHeight);
+        }
     }
+
 
     public void draw(Graphics2D g2d) {
         if(margin == null) {
-            setMargin(g2d, chartConfig.getMargin());
+            calculateMarginsAndAreas(g2d, chartConfig.getMargin());
         }
+
         g2d.setColor(chartConfig.getMarginColor());
         g2d.fill(fullArea);
 

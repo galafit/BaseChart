@@ -1,7 +1,10 @@
+import base.XYData;
 import base.config.ChartConfig;
 import base.config.traces.AreaTraceConfig;
 import base.config.traces.LineTraceConfig;
 import base.config.traces.TraceConfig;
+import data.Data;
+import data.DataSet;
 import data.XYDataSet;
 
 import javax.swing.*;
@@ -23,12 +26,12 @@ public class MainFrame extends JFrame {
         double[] yData1 = new double[1500];
         Random rand = new Random();
         for (int i = 0; i < yData1.length ; i++) {
-            yData1[i] = new Double(rand.nextInt(80));
+            yData1[i] = new Double(rand.nextInt(500));
         }
 
-        int[] yData2 = new int[1000];
+        int[] yData2 = new int[500];
         for (int i = 0; i < yData2.length ; i++) {
-            yData2[i] = - i;
+            yData2[i] =  i;
         }
 
         XYDataSet xyData1 = new XYDataSet();
@@ -45,10 +48,11 @@ public class MainFrame extends JFrame {
         config.addTrace(trace2);
 
         TraceConfig trace3 = new LineTraceConfig(xyData2);
+        TraceConfig trace4 = new LineTraceConfig(xyData1);
+        config.addPreviewTrace(trace4);
         config.addPreviewTrace(trace3);
-        config.enablePreview(1500);
 
-
+        config.enablePreview(6000);
 
         Chart chart = new Chart(config, width, height);
 

@@ -1,10 +1,7 @@
 package base.chart;
 
-import base.axis.Axis;
 import base.config.ChartConfig;
 import base.config.ScrollConfig;
-import base.config.axis.AxisConfig;
-import base.config.axis.Orientation;
 import base.config.general.Margin;
 import base.Range;
 
@@ -14,16 +11,11 @@ import java.awt.*;
  * Created by galafit on 3/10/17.
  */
 public class BaseChartWithPreview {
-    private Axis topXAxis;
-    private Axis bottomXAxis;
-    private boolean isPreviewEnable = true;
-    private double scrollValue = 0;
     private BaseChart chart;
     private BaseChart preview;
     private ChartConfig chartConfig;
     private Rectangle area;
     private long chartWidth;
-    private int viewportWidth = -1;
     private ScrollConfig scrollConfig = new ScrollConfig();
     private Rectangle chartArea;
     private Rectangle previewArea;
@@ -45,46 +37,58 @@ public class BaseChartWithPreview {
         chartArea = new Rectangle(area.x, area.y, area.width, chartHeight);
         previewArea = new Rectangle(area.x, area.y + chartHeight, area.width, previewHeight);
 
-        if (chartConfig.getMargin() != null && previewConfig.getMargin() != null) {
-            int left = Math.max(chartConfig.getMargin().left(), previewConfig.getMargin().left());
-            int right = Math.max(chartConfig.getMargin().right(), previewConfig.getMargin().right());
-            chartConfig.setMargin(new Margin(chartConfig.getMargin().top(), right, chartConfig.getMargin().bottom(), left));
-            previewConfig.setMargin(new Margin(previewConfig.getMargin().top(), right, previewConfig.getMargin().bottom(), left));
-            viewportWidth = area.width - left - right;
-        }
-
         BaseChart chart = new BaseChart(chartConfig, chartArea);
         preview = new BaseChart(previewConfig, previewArea);
 
-        Range chartMinMax = Range.max(chart.getBottomAxisExtremes(), chart.getTopAxisExtremes());
-        Range previewMinMax = Range.max(preview.getBottomAxisExtremes(), preview.getTopAxisExtremes());
+        Range minMax = Range.max(chart.getTracesXExtremes(), preview.getTracesXExtremes());
+        preview.setBottomAxisExtremes(minMax);
+        preview.setTopAxisExtremes(minMax);
+        double extent = (minMax.end() - minMax.start()) * area.width / chartWidth;
+        preview.createScroll(scrollConfig, extent);
 
-        previewMinMax = Range.max(previewMinMax, chartMinMax);
-        preview.setBottomAxisExtremes(previewMinMax);
-        preview.setTopAxisExtremes(previewMinMax);
-
-
-        topXAxis = new Axis(new AxisConfig(Orientation.TOP));
-        bottomXAxis = new Axis(new AxisConfig(Orientation.BOTTOM));
-        topXAxis.setMinMax(previewMinMax);
-        bottomXAxis.setMinMax(previewMinMax);
-        topXAxis.setStartEnd(0, chartWidth);
-        bottomXAxis.setStartEnd(0, chartWidth);
-
-
-        moveScroll(scrollValue);
     }
+
 
 
     public boolean hover(int mouseX, int mouseY) {
         return chart.hover(mouseX, mouseY);
     }
 
-    public void moveScroll(int mouseX, int mouseY) {
-        if (preview!= null && preview.isMouseInsideChart(mouseX, mouseY)) {
-            double newScrollValue = preview.calculateScrollValue(mouseX);
-            moveScroll(newScrollValue);
+
+    /**
+     * @return true if scrollValue was changed and false if new scroll value = current scroll value
+     */
+    public boolean moveScroll(int mouseX, int mouseY) {
+        preview.moveScroll(mouseX, mouseY);
+        chart = null;
+        return true;
+       /* if (preview!= null && preview.isMouseInsideChart(mouseX, mouseY)) {
+            boolean isScrollValueChanged = preview.moveScroll(mouseX, mouseY);
+            if(isScrollValueChanged) {
+                chart = null;
+                return true;
+            }
         }
+        return false;*/
+    }
+
+    /**
+     * @return true if scrollValue was changed and false if new scroll value = current scroll value
+     */
+    private boolean moveScroll(double newScrollValue) {
+        boolean isScrollValueChanged = preview.moveScroll(newScrollValue);
+        if(isScrollValueChanged) {
+            chart = null;
+            return true;
+        }
+        return false;
+    }
+
+    public Range getScrollExtremes(int xAxisIndex) {
+        if(xAxisIndex == 0) {
+            return preview.getScrollExtremes1();
+        }
+        return preview.getScrollExtremes2();
     }
 
     public boolean isMouseInsideScroll(int mouseX, int mouseY) {
@@ -101,17 +105,27 @@ public class BaseChartWithPreview {
         return preview.isMouseInsideChart(mouseX, mouseY);
     }
 
-
-    private void moveScroll(double newScrollValue) {
-        double scrollStart = bottomXAxis.scale(scrollValue);
-        double scrollExtent = bottomXAxis.invert(scrollStart + viewportWidth) - scrollValue;
-        preview.setScroll(newScrollValue, scrollExtent, scrollConfig);
-        scrollValue = newScrollValue;
-        chartConfig.getBottomAxisConfig().setExtremes(scrollValue, scrollValue + scrollExtent);
-        chart = new BaseChart(chartConfig, chartArea);
+    public boolean isMouseInsideChart(int mouseX, int mouseY) {
+        return chart.isMouseInsideChart(mouseX, mouseY);
     }
 
     public void draw(Graphics2D g2d) {
+         if(chart == null) {
+            chart = new BaseChart(chartConfig, chartArea);
+            chart.setBottomAxisExtremes(getScrollExtremes(0));
+            chart.setTopAxisExtremes(getScrollExtremes(1));
+         }
+         Margin chartMargin = chart.getMargin(g2d);
+         Margin previewMargin = preview.getMargin(g2d);
+         if(chartMargin.left() != previewMargin.left() || chartMargin.right() != previewMargin.right()) {
+             int left = Math.max(chartMargin.left(), previewMargin.left());
+             int right = Math.max(chartMargin.right(), previewMargin.right());
+             chartMargin = new Margin(chartMargin.top(), right, chartMargin.bottom(), left);
+             previewMargin = new Margin(previewMargin.top(), right, previewMargin.bottom(), left);
+             chart.setMargin(g2d, chartMargin);
+             preview.setMargin(g2d, previewMargin);
+         }
+
         chart.draw(g2d);
         if (preview != null) {
             preview.draw(g2d);

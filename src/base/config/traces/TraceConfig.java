@@ -15,6 +15,10 @@ public abstract class TraceConfig {
 
     public abstract TraceType getTraceType();
 
+    public abstract Object getData();
+
+    public abstract void setData(Object data);
+
     public int getXAxisIndex() {
         return xAxisIndex;
     }

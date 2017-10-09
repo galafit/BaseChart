@@ -24,6 +24,14 @@ public class XYDataSet implements Data, XYData {
         this.dataSet = dataSet;
     }
 
+    @Override
+    public XYDataSet getCopy() {
+        XYDataSet data = new XYDataSet();
+        data.dataSet = dataSet;
+        data.yColumnNumber = yColumnNumber;
+        return data;
+    }
+
     public void setXData(IntSeries data) {
         dataSet.removeXSeries();
         int xColumnNumber = dataSet.addSeries(data);
