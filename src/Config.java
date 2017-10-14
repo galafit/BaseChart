@@ -1,5 +1,6 @@
 import base.config.ChartConfig;
 import base.config.traces.TraceConfig;
+import data.Data;
 
 import java.awt.*;
 
@@ -67,20 +68,23 @@ public class Config {
 
     /**
      * add trace to the last chart stack
-     * @param traceConfig
-     * @param isBottomXAxis
-     * @param isLeftYAxis
      */
-    public void addTrace(TraceConfig traceConfig, boolean isBottomXAxis, boolean isLeftYAxis) {
-        chartConfig.addTrace(traceConfig, isBottomXAxis, isLeftYAxis);
+    public void addTrace(TraceConfig traceConfig, Data data, String name, boolean isBottomXAxis, boolean isLeftYAxis) {
+        chartConfig.addTrace(traceConfig, data.getDataSet(), name,  isBottomXAxis, isLeftYAxis);
     }
 
     /**
      * add trace to the last chart stack
-     * @param traceConfig
      */
-    public void addTrace(TraceConfig traceConfig) {
-        addTrace(traceConfig, true, true);
+    public void addTrace(TraceConfig traceConfig, Data data, String name) {
+        addTrace(traceConfig, data, name, true, true);
+    }
+
+    /**
+     * add trace to the last chart stack
+     */
+    public void addTrace(TraceConfig traceConfig, Data data) {
+        addTrace(traceConfig, data, null, true, true);
     }
 
 
@@ -107,26 +111,24 @@ public class Config {
         addPreviewStack(ChartConfig.DEFAULT_WEIGHT);
     }
 
-
     /**
      * add trace to the last preview stack
-     * @param traceConfig
-     * @param isBottomXAxis
-     * @param isLeftYAxis
      */
-    public void addPreviewTrace(TraceConfig traceConfig, boolean isBottomXAxis, boolean isLeftYAxis) {
-        previewConfig.addTrace(traceConfig, isBottomXAxis, isLeftYAxis);
+    public void addPreviewTrace(TraceConfig traceConfig, Data data, String name, boolean isBottomXAxis, boolean isLeftYAxis) {
+        previewConfig.addTrace(traceConfig, data.getDataSet(), name,  isBottomXAxis, isLeftYAxis);
     }
 
     /**
      * add trace to the last preview stack
-     * @param traceConfig
      */
-    public void addPreviewTrace(TraceConfig traceConfig) {
-        addPreviewTrace(traceConfig, true, true);
+    public void addPreviewTrace(TraceConfig traceConfig, Data data, String name) {
+        addPreviewTrace(traceConfig, data, name, true, true);
     }
 
-
-
-
+    /**
+     * add trace to the last preview stack
+     */
+    public void addPreviewTrace(TraceConfig traceConfig, Data data) {
+        addPreviewTrace(traceConfig, data, null, true, true);
+    }
 }

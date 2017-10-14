@@ -97,7 +97,7 @@ public class LegendPainter {
         for (int numberOfItems : itemsPerStringList) {
             int x = x_start;
 
-            // g2.setColor(legendConfig.getBackground());
+            // g2.setDefaultColor(legendConfig.getBackground());
             // g2.fillRect(x, y, maxStringWidth, getStringHeight(g2));
 
             for (int i = 0; i < numberOfItems; i++) {

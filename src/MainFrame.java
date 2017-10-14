@@ -1,11 +1,6 @@
-import base.XYData;
-import base.config.ChartConfig;
 import base.config.traces.AreaTraceConfig;
 import base.config.traces.LineTraceConfig;
-import base.config.traces.TraceConfig;
-import data.Data;
-import data.DataSet;
-import data.XYDataSet;
+import data.XYData;
 
 import javax.swing.*;
 import java.awt.*;
@@ -34,23 +29,20 @@ public class MainFrame extends JFrame {
             yData2[i] =  i;
         }
 
-        XYDataSet xyData1 = new XYDataSet();
+        XYData xyData1 = new XYData();
         xyData1.setYData(yData1);
-        TraceConfig trace1 = new LineTraceConfig(xyData1);
 
-        XYDataSet xyData2 = new XYDataSet();
+        XYData xyData2 = new XYData();
         xyData2.setYData(yData2);
-        TraceConfig trace2 = new AreaTraceConfig(xyData2);
+        xyData2.setXData(yData2);
 
         Config config = new Config();
-        config.addTrace(trace1);
+        config.addTrace(new LineTraceConfig(), xyData1);
         config.addStack(5);
-        config.addTrace(trace2);
+        config.addTrace(new AreaTraceConfig(), xyData2);
 
-        TraceConfig trace3 = new LineTraceConfig(xyData2);
-        TraceConfig trace4 = new LineTraceConfig(xyData1);
-        config.addPreviewTrace(trace4);
-        config.addPreviewTrace(trace3);
+        config.addPreviewTrace(new LineTraceConfig(), xyData1);
+        config.addPreviewTrace(new LineTraceConfig(), xyData2);
 
         config.enablePreview(6000);
 

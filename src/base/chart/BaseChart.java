@@ -1,5 +1,6 @@
 package base.chart;
 
+import base.DataSet;
 import base.axis.Axis;
 import base.config.ChartConfig;
 import base.config.ScrollConfig;
@@ -12,7 +13,6 @@ import base.tooltips.TooltipInfo;
 import base.tooltips.TooltipItem;
 import base.traces.Trace;
 import base.traces.TraceRegister;
-import data.XYDataSet;
 
 
 import java.awt.*;
@@ -23,6 +23,10 @@ import java.util.List;
  * Created by hdablin on 24.03.17.
  */
 public class BaseChart {
+    private final Color GREY = new Color(150, 150, 150);
+    private final Color BROWN = new Color(200, 102, 0);
+    private final Color ORANGE = new Color(255, 153, 0);
+    private Color[] traceColors = {Color.CYAN, Color.MAGENTA, Color.PINK, Color.RED, ORANGE};
 
     private List<Axis> xAxisList = new ArrayList<Axis>(2);
     private List<Axis> yAxisList = new ArrayList<Axis>();
@@ -62,9 +66,11 @@ public class BaseChart {
         ArrayList<LegendItem> legendItems = new ArrayList<LegendItem>(chartConfig.getTraceAmount());
         for (int i = 0; i < chartConfig.getTraceAmount() ; i++) {
             TraceConfig traceConfig = chartConfig.getTraceConfig(i);
-            Trace trace = TraceRegister.getTrace(traceConfig);
-            trace.setXAxis(xAxisList.get(traceConfig.getXAxisIndex()));
-            trace.setYAxis(yAxisList.get(traceConfig.getYAxisIndex()));
+            Trace trace = TraceRegister.getTrace(traceConfig, chartConfig.getTraceData(i));
+            trace.setXAxis(xAxisList.get(chartConfig.getTraceXAxisIndex(i)));
+            trace.setYAxis(yAxisList.get(chartConfig.getTraceYAxisIndex(i)));
+            trace.setDefaultColor(traceColors[traces.size() % traceColors.length]);
+            trace.setName(chartConfig.getTraceName(i));
             LegendItem[] items = trace.getLegendItems();
             for (LegendItem item : items) {
                 legendItems.add(item);
@@ -91,13 +97,11 @@ public class BaseChart {
 
     void setMargin(Graphics2D g2, Margin margin) {
         calculateMarginsAndAreas(g2, margin);
-        xAxisList.get(0).update();
-        xAxisList.get(1).update();
-        for (Axis axis : yAxisList) {
-           axis.update();
-        }
     }
 
+    public void setTraceData(DataSet data, int traceIndex) {
+        traces.get(traceIndex).setData(data);
+    }
 
     void setTopAxisExtremes(Range minMax) {
         xAxisList.get(1).setMinMax(minMax);

@@ -1,5 +1,6 @@
 package data;
 
+import base.DataSet;
 import base.Range;
 import data.series.DoubleSeries;
 import data.series.IntSeries;
@@ -12,28 +13,28 @@ import java.util.List;
 /**
  * Created by galafit on 19/9/17.
  */
-public class DataSet {
-    boolean isOrdered = false;
+public class BaseDataSet implements DataSet {
+    boolean isOrdered = true;
     ArrayList<NumberColumn> numberColumns = new ArrayList<NumberColumn>();
     ArrayList<StringColumn> stringColumns = new ArrayList<StringColumn>();
     int xColumnNumber = - 1; // index of Column with X-data
 
     // for regular data when xColumn is not defined
-    private double startXValue = 0;
-    private double dataInterval = 1;
+    double startXValue = 0;
+    double dataInterval = 1;
 
     // for subsets
     int startIndex = 0;
     int length = -1;
 
-    public DataSet() {
+    public BaseDataSet() {
     }
 
     /**
-     * make a copy DataSet
+     * make a copy BaseDataSet
      * @param dataSet
      */
-    public DataSet(DataSet dataSet, int startIndex, int length) {
+    public BaseDataSet(BaseDataSet dataSet, int startIndex, int length) {
         this.startIndex = startIndex;
         this.length = length;
         dataInterval = dataSet.dataInterval;
@@ -108,30 +109,6 @@ public class DataSet {
         }
     }
 
-    public double getValue(int index, int columnNumber) {
-        return numberColumns.get(columnNumber).getValue(index + startIndex);
-    }
-
-    public double getXValue(int index) {
-        if(xColumnNumber >= 0) {
-            return getValue(index, xColumnNumber);
-        }
-        // if xColumnNumber is not specified we use indexes as xColumn values
-        return startXValue + dataInterval * index;
-    }
-
-    public String getString(int index, int columnNumber) {
-        return stringColumns.get(columnNumber).getString(index + startIndex);
-    }
-
-    public int size() {
-        if(length < 0) {
-          return fullSize();
-        }
-        return length;
-
-    }
-
     private int fullSize() {
         int size = 0;
         if(numberColumns.size() > 0) {
@@ -148,6 +125,44 @@ public class DataSet {
         return size;
     }
 
+
+    @Override
+    public double getValue(int index, int columnNumber) {
+        return numberColumns.get(columnNumber).getValue(index + startIndex);
+    }
+
+    @Override
+    public double getXValue(int index) {
+        if(xColumnNumber >= 0) {
+            return getValue(index, xColumnNumber);
+        }
+        // if xColumnNumber is not specified we use indexes as xColumn values
+        return startXValue + dataInterval * index;
+    }
+
+    @Override
+    public String getString(int index, int columnNumber) {
+        return stringColumns.get(columnNumber).getString(index + startIndex);
+    }
+
+    @Override
+    public int size() {
+        if(length < 0) {
+            return fullSize();
+        }
+        return length;
+
+    }
+
+    @Override
+    public Range getExtremes(int columnNumber) {
+        if(size() == 0) {
+            return null;
+        }
+        return numberColumns.get(columnNumber).getExtremes(startIndex,  size());
+    }
+
+    @Override
     public Range getXExtremes() {
         if(size() == 0) {
             return null;
@@ -173,19 +188,21 @@ public class DataSet {
      * @param xValue
      * @return index of nearest data item
      */
+    @Override
     public int findNearestData(double xValue) {
         if(xColumnNumber >= 0) {
             int lowerBoundIndex = numberColumns.get(xColumnNumber).lowerBound(xValue, startIndex, size());
-            if (lowerBoundIndex < startIndex) {
-                return startIndex;
+            lowerBoundIndex -= startIndex;
+            if (lowerBoundIndex < 0) {
+                return 0;
             }
-            if (lowerBoundIndex == startIndex + size() - 1) {
-                return lowerBoundIndex;
+            if (lowerBoundIndex >= size() - 1) {
+                return size() - 1;
             }
             double distance1 = xValue - getXValue(lowerBoundIndex);
             double distance2 = getXValue(lowerBoundIndex + 1) - xValue;
-            int nearestIndex = (distance1 < distance2) ? lowerBoundIndex : lowerBoundIndex + 1;
-            return nearestIndex - startIndex;
+            int nearestIndex = (distance1 <= distance2) ? lowerBoundIndex : lowerBoundIndex + 1;
+            return nearestIndex;
         }
         // if xColumnNumber is not specified we use indexes as xColumn values
         int nearest = (int) Math.round((xValue - startXValue) / dataInterval);
@@ -198,25 +215,36 @@ public class DataSet {
         return nearest;
     }
 
-    public Range getExtremes(int columnNumber) {
-        if(size() == 0) {
-            return null;
-        }
-        return numberColumns.get(columnNumber).getExtremes(startIndex,  size());
+    @Override
+    public int getAmountOfNumberColumns() {
+        return numberColumns.size();
     }
 
-    public DataSet getSubset(double startXValue, double endXValue) {
+    @Override
+    public int getAmountOfStringColumns() {
+        return stringColumns.size();
+    }
+
+    @Override
+    public boolean isXColumn(int columnNumber) {
+        if(xColumnNumber == columnNumber) {
+            return true;
+        }
+        return false;
+    }
+
+    public BaseDataSet getSubset(double startXValue, double endXValue) {
         return getSubset(startXValue, endXValue, 1);
     }
 
-    public DataSet getSubset(double startXValue, double endXValue, int shoulder) {
+    public BaseDataSet getSubset(double startXValue, double endXValue, int shoulder) {
         if(endXValue < startXValue) {
             String errorMessage = "Error during creating Data subset.Expected StartValue <= EndValue. StartValue = {0}, EndValue = {1}.";
             String formattedError = MessageFormat.format(errorMessage, startXValue, endXValue);
             throw new IllegalArgumentException(formattedError);
         }
         if(!isOrdered()) {
-            return this;
+             return this;
         }
         int subsetStartIndex;
         int subsetEndIndex;
@@ -234,17 +262,19 @@ public class DataSet {
             subsetStartIndex += startIndex;
             subsetEndIndex += startIndex;
         }
+
+        subsetStartIndex -= shoulder;
+        subsetEndIndex += shoulder;
         if(subsetStartIndex >= fullSize() || subsetEndIndex < 0) {
-            return new DataSet(this, 0, 0);
+            return new BaseDataSet(this, 0, -1);
         }
-        if(subsetStartIndex - shoulder < 0){
-            subsetStartIndex = 0 + shoulder;
+        if(subsetStartIndex < 0){
+            subsetStartIndex = 0 ;
         }
-        if(subsetEndIndex + shoulder >= fullSize()) {
-            subsetEndIndex = fullSize() - 1 - shoulder;
+        if(subsetEndIndex  >= fullSize()) {
+            subsetEndIndex = fullSize() - 1;
         }
-         System.out.println("start "+subsetStartIndex+ "  end "+subsetEndIndex);
-        return new DataSet(this, subsetStartIndex, subsetEndIndex - subsetStartIndex + 1);
+        return  new BaseDataSet(this, subsetStartIndex, subsetEndIndex - subsetStartIndex + 1);
     }
 
     /**********************************************************************

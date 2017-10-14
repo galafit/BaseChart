@@ -1,5 +1,6 @@
 package base.traces;
 
+import base.DataSet;
 import base.axis.Axis;
 import base.Range;
 import base.legend.LegendItem;
@@ -13,6 +14,8 @@ import java.awt.*;
 public abstract class Trace {
     private Axis xAxis;
     private Axis yAxis;
+    private String name;
+    private Color defaultColor;
     private int hoverIndex = -1;
 
     public Axis getXAxis() {
@@ -29,6 +32,22 @@ public abstract class Trace {
 
     public void setYAxis(Axis yAxis) {
         this.yAxis = yAxis;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Color getDefaultColor() {
+        return defaultColor;
+    }
+
+    public void setDefaultColor(Color defaultColor) {
+        this.defaultColor = defaultColor;
     }
 
     public int getHoverIndex() {
@@ -48,6 +67,8 @@ public abstract class Trace {
         this.hoverIndex = hoverIndex;
         return isIndexChanged;
     }
+
+    public abstract void setData(DataSet data);
 
     public abstract TooltipItem getTooltipItem();
 

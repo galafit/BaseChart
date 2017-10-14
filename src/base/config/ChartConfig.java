@@ -1,5 +1,6 @@
 package base.config;
 
+import base.DataSet;
 import base.config.axis.AxisConfig;
 import base.config.axis.Orientation;
 import base.config.general.Margin;
@@ -15,10 +16,6 @@ import java.util.*;
  */
 public class ChartConfig {
     public static final int DEFAULT_WEIGHT = 10;
-    private final Color GREY = new Color(150, 150, 150);
-    private final Color BROWN = new Color(200, 102, 0);
-    private final Color ORANGE = new Color(255, 153, 0);
-    private Color[] traceColors = {Color.CYAN, Color.MAGENTA, Color.PINK, Color.RED, ORANGE};
     private boolean isBottomXAxisHasTraces = false;
     private boolean isTopXAxisHasTraces = false;
 
@@ -31,8 +28,10 @@ public class ChartConfig {
     private LegendConfig legendConfig = new LegendConfig();
     private TooltipConfig tooltipConfig = new TooltipConfig();
     private CrosshairConfig crosshairConfig = new CrosshairConfig();
-    private ArrayList<TraceConfig> traces = new ArrayList<TraceConfig>();
     private ArrayList<Integer> weights = new ArrayList<Integer>();
+
+    private ArrayList<TraceInfo> traces = new ArrayList<TraceInfo>();
+
     /*
      * 2 X-base.axis: 0(even) - BOTTOM and 1(odd) - TOP
      * 2 Y-base.axis for every section(stack): even - LEFT and odd - RIGHT;
@@ -145,7 +144,7 @@ public class ChartConfig {
 
 
     // add trace to the last stack
-    public void addTrace(TraceConfig traceConfig, boolean isBottomXAxis, boolean isLeftYAxis) {
+    public void addTrace(TraceConfig traceConfig, DataSet data, String traceName, boolean isBottomXAxis, boolean isLeftYAxis) {
         int xAxisIndex = isBottomXAxis ? 0 : 1;
         int yAxisIndex = isLeftYAxis ? yAxisConfigs.size() - 2 : yAxisConfigs.size() - 1;
         if(isBottomXAxis) {
@@ -156,16 +155,14 @@ public class ChartConfig {
 
         xAxisConfigs.get(xAxisIndex).setVisible(true);
         yAxisConfigs.get(yAxisIndex).setVisible(true);
-        if(traceConfig.getName() == null) {
-            traceConfig.setName("Trace "+traces.size());
-        }
-        if(traceConfig.getColor() == null) {
-            int colorIndex = traces.size() % traceColors.length;
-            traceConfig.setColor(traceColors[colorIndex]);
-        }
-        traceConfig.setXAxisIndex(xAxisIndex);
-        traceConfig.setYAxisIndex(yAxisIndex);
-        traces.add(traceConfig);
+        TraceInfo traceInfo = new TraceInfo();
+        String name = (traceName != null) ? traceName : "Trace "+ traces.size();
+        traceInfo.setName(name);
+        traceInfo.setXAxisIndex(xAxisIndex);
+        traceInfo.setYAxisIndex(yAxisIndex);
+        traceInfo.setData(data);
+        traceInfo.setTraceConfig(traceConfig);
+        traces.add(traceInfo);
     }
 
     public int getTraceAmount() {
@@ -173,7 +170,23 @@ public class ChartConfig {
     }
 
     public TraceConfig getTraceConfig(int index) {
-        return traces.get(index);
+        return traces.get(index).getTraceConfig();
+    }
+
+    public DataSet getTraceData(int index) {
+        return traces.get(index).getData();
+    }
+
+    public String getTraceName(int index){
+        return traces.get(index).getName();
+    }
+
+    public int getTraceXAxisIndex(int index){
+        return traces.get(index).getXAxisIndex();
+    }
+
+    public int getTraceYAxisIndex(int index){
+        return traces.get(index).getYAxisIndex();
     }
 
     public String getTitle() {
@@ -223,5 +236,53 @@ public class ChartConfig {
 
     public CrosshairConfig getCrosshairConfig() {
         return crosshairConfig;
+    }
+
+    class TraceInfo {
+        private TraceConfig traceConfig;
+        private DataSet data;
+        private int xAxisIndex;
+        private int yAxisIndex;
+        private String name;
+
+        public TraceConfig getTraceConfig() {
+            return traceConfig;
+        }
+
+        public void setTraceConfig(TraceConfig traceConfig) {
+            this.traceConfig = traceConfig;
+        }
+
+        public DataSet getData() {
+            return data;
+        }
+
+        public void setData(DataSet data) {
+            this.data = data;
+        }
+
+        public int getXAxisIndex() {
+            return xAxisIndex;
+        }
+
+        public void setXAxisIndex(int xAxisIndex) {
+            this.xAxisIndex = xAxisIndex;
+        }
+
+        public int getYAxisIndex() {
+            return yAxisIndex;
+        }
+
+        public void setYAxisIndex(int yAxisIndex) {
+            this.yAxisIndex = yAxisIndex;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 }

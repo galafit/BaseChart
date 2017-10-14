@@ -1,10 +1,6 @@
 import base.Range;
-import base.XYData;
 import base.chart.BaseChartWithPreview;
-import base.config.traces.TraceConfig;
-import data.Data;
-import data.DataSet;
-import data.XYDataSet;
+import data.BaseDataSet;
 
 import java.awt.*;
 
@@ -14,18 +10,16 @@ import java.awt.*;
 public class Chart {
     Config config;
     BaseChartWithPreview chartWithPreview;
-    DataSet[] tracesData;
+    BaseDataSet[] tracesData;
 
 
     public Chart(Config config, int width, int height) {
         this.config = config;
         Rectangle area = new Rectangle(0, 0, width, height);
         if(config.isPreviewEnable()) {
-            tracesData = new DataSet[config.getChartConfig().getTraceAmount()];
+            tracesData = new BaseDataSet[config.getChartConfig().getTraceAmount()];
             for (int i = 0; i < config.getChartConfig().getTraceAmount(); i++) {
-                Data data = (Data) config.getChartConfig().getTraceConfig(i).getData();
-                tracesData[i] = data.getDataSet();
-                config.getChartConfig().getTraceConfig(i).setData(data.getCopy());
+                tracesData[i] = (BaseDataSet) config.getChartConfig().getTraceData(i);
             }
             chartWithPreview = new BaseChartWithPreview(config.getChartConfig(), config.getPreviewConfig(), area, config.getChartWidth());
         } else {
@@ -34,11 +28,8 @@ public class Chart {
     }
 
     private void adjustData(Range xExtremes) {
-        XYData xyData = null;
         for (int i = 0; i < config.getChartConfig().getTraceAmount(); i++) {
-            Data data = (Data) config.getChartConfig().getTraceConfig(i).getData();
-            data.setDataSet(tracesData[i].getSubset(xExtremes.start(), xExtremes.end()));
-            xyData = (XYDataSet) data;
+          chartWithPreview.setTraceData(tracesData[i].getSubset(xExtremes.start(), xExtremes.end()), i);
            // System.out.println(i+" trace: "+ xyData.size());
         }
     }

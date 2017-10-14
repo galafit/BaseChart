@@ -11,6 +11,7 @@ import base.scales.Tick;
 import base.scales.TickProvider;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,13 @@ import java.util.List;
  * Created by galafit on 5/9/17.
  */
 public class Axis {
+    /** Dirty data in js - the data, that have been changed recently and
+    ** DOM haven't been re-rendered according to this changes yet.
+    ** So dirty checking is diff between next state and current state.
+    **/
+    // if the axis elements (ticks, labels, lines...) are not created or should be updated
+    private boolean isDirty = true;
+    private boolean isTicksOverlappingFixed = false;
     private Scale scale;
     private AxisConfig config;
     private List<Tick> ticks;
@@ -27,19 +35,11 @@ public class Axis {
     private List<Text> tickLabels;
     private Line axisLine;
     private Text axisName;
-    private List<Line> gridLines;
-    private List<Line> minorGridLines;
-    private boolean isTicksOveralppingFixed = false;
     private TickProvider tickProvider;
 
     public Axis(AxisConfig config) {
         this.config = config;
         scale = new ScaleLinear();
-    }
-
-    public void update() {
-        axisLine = null;
-        gridLines = null;
     }
 
     public boolean isAutoScale() {
@@ -62,13 +62,15 @@ public class Axis {
             throw new IllegalArgumentException(formattedError);
         }
         scale.setDomain(min, max);
+        isDirty = true;
     }
 
-    public void setStartEnd(long start, long end) {
+    public void setStartEnd(double start, double end) {
         scale.setRange(start, end);
+        isDirty = true;
     }
     public void setStartEnd(Range startEndRange) {
-        scale.setRange(startEndRange.start(), startEndRange.end());
+        setStartEnd(startEndRange.start(), startEndRange.end());
     }
 
     public double getMin() {
@@ -130,28 +132,44 @@ public class Axis {
         return size;
     }
 
-    public void drawGrid(Graphics2D g,  int axisOriginPoint, int length) {
-        if(gridLines == null) {
-            createGridLines(g, axisOriginPoint, length);
+    public void drawGrid(Graphics2D g, int axisOriginPoint, int length) {
+        AffineTransform initialTransform = g.getTransform();
+        if(config.isHorizontal()) {
+            g.translate(0, axisOriginPoint);
+        } else {
+            g.translate(axisOriginPoint, 0);
         }
+        normalizeTicks(g);
         g.setColor(config.getMinorGridColor());
         g.setStroke(config.getMinorGridLineConfig().getStroke());
-        for (Line minorGridLine : minorGridLines) {
-            minorGridLine.draw(g);
+        if(config.getMinorGridLineConfig().isVisible()) {
+            for (Double minorTick : minorTicks) {
+                tickToGridLine(minorTick, length).draw(g);
+            }
         }
+
         g.setColor(config.getGridColor());
         g.setStroke(config.getGridLineConfig().getStroke());
-        for (Line gridLine : gridLines) {
-            gridLine.draw(g);
+        if(config.getGridLineConfig().isVisible()) {
+            for (Tick tick : ticks) {
+                tickToGridLine(tick.getValue(), length).draw(g);
+            }
         }
+        g.setTransform(initialTransform);
     }
 
     public void drawAxis(Graphics2D g,  int axisOriginPoint) {
         if(!config.isVisible()) {
             return;
         }
-        if(axisLine == null) {
-            createAxisElements(g, axisOriginPoint);
+        if(isDirty) {
+            createAxisElements(g);
+        }
+        AffineTransform initialTransform = g.getTransform();
+        if(config.isHorizontal()) {
+            g.translate(0, axisOriginPoint);
+        } else {
+            g.translate(axisOriginPoint, 0);
         }
         g.setColor(config.getTicksColor());
         g.setStroke(new BasicStroke(config.getTicksConfig().getTickMarkWidth()));
@@ -178,6 +196,7 @@ public class Axis {
             g.setFont(config.getTitleConfig().getTextStyle().getFont());
             axisName.draw(g);
         }
+        g.setTransform(initialTransform);
     }
 
     private TickProvider getTickProvider() {
@@ -197,81 +216,81 @@ public class Axis {
     }
 
 
-    private Line tickToGridLine(Double tickValue, int axisOriginPoint, int length) {
+    private Line tickToGridLine(Double tickValue, int length) {
         if(config.isTop()) {
             int x = (int)scale(tickValue);
-            int y1 = axisOriginPoint;
-            int y2 = axisOriginPoint + length;
+            int y1 = 0;
+            int y2 = length;
             return new Line(x, y1, x, y2);
         }
         if(config.isBottom()) {
             int x = (int)scale(tickValue);
-            int y1 = axisOriginPoint;
-            int y2 = axisOriginPoint - length;
+            int y1 = 0;
+            int y2 = -length;
             return new Line(x, y1, x, y2);
         }
         if(config.isLeft()) {
             int y = (int)scale(tickValue);
-            int x1 = axisOriginPoint;
-            int x2 = axisOriginPoint + length;
+            int x1 = 0;
+            int x2 = length;
             return new Line(x1, y, x2, y);
         }
         // if config.isRight()
         int y = (int)scale(tickValue);
-        int x1 = axisOriginPoint;
-        int x2 = axisOriginPoint - length;
+        int x1 = 0;
+        int x2 = -length;
         return new Line(x1, y, x2, y);
     }
 
-    private Line tickToMarkLine(Tick tick, int axisOriginPoint) {
+    private Line tickToMarkLine(Tick tick) {
         int axisWidth = config.getAxisLineConfig().getWidth();
         if(config.isTop()) {
             int x = (int)scale(tick.getValue());
-            int y1 = axisOriginPoint - axisWidth / 2 - config.getTicksConfig().getTickMarkOutsideSize();
-            int y2 = axisOriginPoint + axisWidth / 2 + config.getTicksConfig().getTickMarkInsideSize();
+            int y1 = -axisWidth / 2 - config.getTicksConfig().getTickMarkOutsideSize();
+            int y2 = axisWidth / 2 + config.getTicksConfig().getTickMarkInsideSize();
             return new Line(x, y1, x, y2);
         }
         if(config.isBottom()) {
             int x = (int)scale(tick.getValue());
-            int y1 = axisOriginPoint + axisWidth / 2 + config.getTicksConfig().getTickMarkOutsideSize();
-            int y2 = axisOriginPoint - axisWidth / 2 - config.getTicksConfig().getTickMarkInsideSize();
+            int y1 = axisWidth / 2 + config.getTicksConfig().getTickMarkOutsideSize();
+            int y2 = -axisWidth / 2 - config.getTicksConfig().getTickMarkInsideSize();
             return new Line(x, y1, x, y2);
         }
         if(config.isLeft()) {
             int y = (int)scale(tick.getValue());
-            int x1 = axisOriginPoint - axisWidth / 2 - config.getTicksConfig().getTickMarkOutsideSize();
-            int x2 = axisOriginPoint + axisWidth / 2 + config.getTicksConfig().getTickMarkInsideSize();
+            int x1 = -axisWidth / 2 - config.getTicksConfig().getTickMarkOutsideSize();
+            int x2 = axisWidth / 2 + config.getTicksConfig().getTickMarkInsideSize();
             return new Line(x1, y, x2, y);
         }
         // if config.isRight()
         int y = (int)scale(tick.getValue());
-        int x1 = axisOriginPoint + axisWidth / 2 + config.getTicksConfig().getTickMarkOutsideSize();
-        int x2 = axisOriginPoint - axisWidth / 2 - config.getTicksConfig().getTickMarkInsideSize();
+        int x1 = axisWidth / 2 + config.getTicksConfig().getTickMarkOutsideSize();
+        int x2 = -axisWidth / 2 - config.getTicksConfig().getTickMarkInsideSize();
         return new Line(x1, y, x2, y);
     }
 
-    private Text tickToLabel(Tick tick, int axisOriginPoint, FontMetrics fm) {
+    private Text tickToLabel(Tick tick, FontMetrics fm) {
         int axisWidth = config.getAxisLineConfig().getWidth();
         int labelPadding = config.getLabelsConfig().getPadding();
         if(config.isTop()) {
             int x = (int)scale(tick.getValue());
-            int y = axisOriginPoint - axisWidth / 2 - config.getTicksConfig().getTickMarkOutsideSize() - labelPadding;
+            int y = -axisWidth / 2 - config.getTicksConfig().getTickMarkOutsideSize() - labelPadding;
             return new Text(tick.getLabel(), x, y, TextAnchor.MIDDLE, TextAnchor.START, fm);
         }
         if(config.isBottom()) {
             int x = (int)scale(tick.getValue());
-            int y = axisOriginPoint + axisWidth / 2 + config.getTicksConfig().getTickMarkOutsideSize() + labelPadding;
+            int y = axisWidth / 2 + config.getTicksConfig().getTickMarkOutsideSize() + labelPadding;
             return new Text(tick.getLabel(), x, y, TextAnchor.MIDDLE, TextAnchor.END, fm);
 
         }
         if(config.isLeft()) {
             int y = (int)scale(tick.getValue());
-            int x = axisOriginPoint - axisWidth / 2 - config.getTicksConfig().getTickMarkInsideSize() - labelPadding;
+            int x = -axisWidth / 2 - config.getTicksConfig().getTickMarkInsideSize() - labelPadding;
             return new Text(tick.getLabel(), x, y, TextAnchor.END, TextAnchor.MIDDLE, fm);
         }
         // if config.isRight()
         int y = (int)scale(tick.getValue());
-        int x = axisOriginPoint + axisWidth / 2 + config.getTicksConfig().getTickMarkInsideSize() + labelPadding;
+        int x = axisWidth / 2 + config.getTicksConfig().getTickMarkInsideSize() + labelPadding;
         return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.MIDDLE, fm);
     }
 
@@ -280,7 +299,7 @@ public class Axis {
             return;
         }
         if(!config.getLabelsConfig().isVisible()) {
-            isTicksOveralppingFixed = true;
+            isTicksOverlappingFixed = true;
             return;
         }
 
@@ -297,42 +316,47 @@ public class Axis {
         int ticksDivider = (int) (requiredSpace / tickPixelInterval) + 1;
         ticks = getTickProvider().getTicks(ticksDivider);
         minorTicks = getTickProvider().getMinorTicks(ticksDivider, config.getMinorGridCounter());
-        isTicksOveralppingFixed = true;
+        isTicksOverlappingFixed = true;
     }
 
-
-    private void createAxisElements(Graphics2D g, int axisOriginPoint) {
+    private void normalizeTicks(Graphics2D g) {
         if(ticks == null) {
             ticks = getTickProvider().getTicks(1);
         }
         FontMetrics fm = g.getFontMetrics(config.getLabelsConfig().getTextStyle().getFont());
-        if(!isTicksOveralppingFixed) {
+        if(!isTicksOverlappingFixed) {
             fixTicksOverlapping(fm);
         }
-        // tick labels
+    }
+
+
+    private void createAxisElements(Graphics2D g) {
+        normalizeTicks(g);
+        // tick lines
         tickLines = new ArrayList<Line>();
         if(config.getTicksConfig().isTickMarksVisible()) {
             for (Tick tick : ticks) {
-                tickLines.add(tickToMarkLine(tick, axisOriginPoint));
+                tickLines.add(tickToMarkLine(tick));
             }
         }
 
-        // tick lines
+        // tick labels
+        FontMetrics fm = g.getFontMetrics(config.getLabelsConfig().getTextStyle().getFont());
         tickLabels = new ArrayList<Text>();
         if(config.getLabelsConfig().isVisible()) {
             for (Tick tick : ticks) {
-                tickLabels.add(tickToLabel(tick, axisOriginPoint, fm));
+                tickLabels.add(tickToLabel(tick, fm));
             }
         }
 
-        // base.axis line
+        // axis line
         if (config.isHorizontal()) {
-            axisLine = new Line(getStart(), axisOriginPoint, getEnd(), axisOriginPoint);
+            axisLine = new Line(getStart(), 0, getEnd(), 0);
         } else {
-            axisLine = new Line(axisOriginPoint, getStart(), axisOriginPoint, getEnd());
+            axisLine = new Line(0, getStart(), 0, getEnd());
         }
 
-        // base.axis title
+        // axis title
         int axisNameDistance = 0;
         if(config.getAxisLineConfig().isVisible()) {
             axisNameDistance += config.getAxisLineConfig().getWidth() / 2;
@@ -352,46 +376,24 @@ public class Axis {
         axisNameDistance += config.getTitleConfig().getPadding();
         fm = g.getFontMetrics(config.getTitleConfig().getTextStyle().getFont());
         if(config.isTop()) {
-            int y = axisOriginPoint - axisNameDistance;
+            int y = -axisNameDistance;
             int x = (getEnd() + getStart()) / 2;
             axisName = new Text(config.getTitle(), x, y, TextAnchor.MIDDLE, TextAnchor.START, fm);
         }
         if(config.isBottom()) {
-            int y = axisOriginPoint + axisNameDistance;
+            int y = axisNameDistance;
             int x = (getEnd() + getStart()) / 2;
             axisName = new Text(config.getTitle(), x, y, TextAnchor.MIDDLE, TextAnchor.END, fm);
         }
         if(config.isLeft()) {
-            int x = axisOriginPoint - axisNameDistance;
+            int x = -axisNameDistance;
             int y = (getEnd() + getStart()) / 2;
             axisName = new Text(config.getTitle(), x, y, TextAnchor.START, TextAnchor.MIDDLE, -90, fm);
         }
         if(config.isRight()) {
-            int x = axisOriginPoint + axisNameDistance;
+            int x = axisNameDistance;
             int y = (getEnd() + getStart()) / 2;
             axisName = new Text(config.getTitle(), x, y, TextAnchor.START, TextAnchor.MIDDLE, +90, fm);
-        }
-    }
-
-    private void createGridLines(Graphics2D g, int axisOriginPoint, int length) {
-        if(ticks == null) {
-            ticks = getTickProvider().getTicks(1);
-        }
-        FontMetrics fm = g.getFontMetrics(config.getLabelsConfig().getTextStyle().getFont());
-        if(!isTicksOveralppingFixed) {
-            fixTicksOverlapping(fm);
-        }
-        gridLines = new ArrayList<Line>();
-        minorGridLines = new ArrayList<Line>();
-        if(config.getGridLineConfig().isVisible()) {
-            for (Tick tick : ticks) {
-                gridLines.add(tickToGridLine(tick.getValue(), axisOriginPoint, length));
-            }
-        }
-        if(config.getMinorGridLineConfig().isVisible()) {
-            for (Double minorTick : minorTicks) {
-                minorGridLines.add(tickToGridLine(minorTick, axisOriginPoint, length));
-            }
         }
     }
 

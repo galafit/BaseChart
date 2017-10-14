@@ -1,5 +1,6 @@
 package base.chart;
 
+import base.DataSet;
 import base.config.ChartConfig;
 import base.config.ScrollConfig;
 import base.config.general.Margin;
@@ -14,8 +15,6 @@ public class BaseChartWithPreview {
     private BaseChart chart;
     private BaseChart preview;
     private ChartConfig chartConfig;
-    private Rectangle area;
-    private long chartWidth;
     private ScrollConfig scrollConfig = new ScrollConfig();
     private Rectangle chartArea;
     private Rectangle previewArea;
@@ -27,8 +26,6 @@ public class BaseChartWithPreview {
 
     public BaseChartWithPreview(ChartConfig chartConfig, ChartConfig previewConfig, Rectangle area, long chartWidth) {
         this.chartConfig = chartConfig;
-        this.area = area;
-        this.chartWidth = chartWidth;
         int chartWeight = chartConfig.getSumWeight();
         int previewWeight = previewConfig.getSumWeight();
 
@@ -48,6 +45,19 @@ public class BaseChartWithPreview {
 
     }
 
+    public void setTraceData(DataSet data, int traceIndex) {
+        if(chart == null) {
+            chart = new BaseChart(chartConfig, chartArea);
+            chart.setBottomAxisExtremes(getScrollExtremes(0));
+            chart.setTopAxisExtremes(getScrollExtremes(1));
+        }
+        chart.setTraceData(data, traceIndex);
+    }
+
+    public void setPreviewTraceData(DataSet data, int traceIndex) {
+        preview.setTraceData(data, traceIndex);
+    }
+
 
 
     public boolean hover(int mouseX, int mouseY) {
@@ -59,29 +69,25 @@ public class BaseChartWithPreview {
      * @return true if scrollValue was changed and false if new scroll value = current scroll value
      */
     public boolean moveScroll(int mouseX, int mouseY) {
-        preview.moveScroll(mouseX, mouseY);
-        chart = null;
-        return true;
-       /* if (preview!= null && preview.isMouseInsideChart(mouseX, mouseY)) {
-            boolean isScrollValueChanged = preview.moveScroll(mouseX, mouseY);
-            if(isScrollValueChanged) {
-                chart = null;
-                return true;
-            }
+        boolean isScrollMoved = preview.moveScroll(mouseX, mouseY);
+        if(isScrollMoved) {
+            chart.setBottomAxisExtremes(getScrollExtremes(0));
+            chart.setTopAxisExtremes(getScrollExtremes(1));
+            chart = null;
         }
-        return false;*/
+        return isScrollMoved;
     }
 
     /**
      * @return true if scrollValue was changed and false if new scroll value = current scroll value
      */
     private boolean moveScroll(double newScrollValue) {
-        boolean isScrollValueChanged = preview.moveScroll(newScrollValue);
-        if(isScrollValueChanged) {
-            chart = null;
-            return true;
+        boolean isScrollMoved = preview.moveScroll(newScrollValue);
+        if(isScrollMoved) {
+            chart.setBottomAxisExtremes(getScrollExtremes(0));
+            chart.setTopAxisExtremes(getScrollExtremes(1));
         }
-        return false;
+        return isScrollMoved;
     }
 
     public Range getScrollExtremes(int xAxisIndex) {
@@ -112,8 +118,8 @@ public class BaseChartWithPreview {
     public void draw(Graphics2D g2d) {
          if(chart == null) {
             chart = new BaseChart(chartConfig, chartArea);
-            chart.setBottomAxisExtremes(getScrollExtremes(0));
-            chart.setTopAxisExtremes(getScrollExtremes(1));
+             chart.setBottomAxisExtremes(getScrollExtremes(0));
+             chart.setTopAxisExtremes(getScrollExtremes(1));
          }
          Margin chartMargin = chart.getMargin(g2d);
          Margin previewMargin = preview.getMargin(g2d);

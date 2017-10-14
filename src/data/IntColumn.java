@@ -3,6 +3,9 @@ package data;
 import base.Range;
 import data.series.IntSeries;
 import data.series.Processing;
+import data.series.grouping.IntAverage;
+import data.series.grouping.IntBinnedSeries;
+import data.series.grouping.IntGroupedSeries;
 
 import java.util.function.IntToDoubleFunction;
 
@@ -48,6 +51,22 @@ class IntColumn implements NumberColumn {
 
     @Override
     public int lowerBound(double value, int from, int length) {
-        return Processing.upperBound(series,  value, from, length);
+        return Processing.lowerBound(series,  value, from, length);
+    }
+
+    @Override
+    public void group(int groupInterval) {
+        series = new IntGroupedSeries(series, new IntAverage(), groupInterval);
+    }
+
+    @Override
+    public void group(IntSeries groupIndexes) {
+        series = new IntGroupedSeries(series, new IntAverage(), groupIndexes);
+    }
+
+    @Override
+    public IntSeries bin(double binInterval) {
+        series = new IntBinnedSeries(series, (int)binInterval);
+        return ((IntBinnedSeries)series).bin();
     }
 }

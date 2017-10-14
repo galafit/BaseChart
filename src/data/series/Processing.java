@@ -174,6 +174,9 @@ public class Processing {
 
     }
 
+    /**
+     * Test method
+     */
     public static void main(String args[]) {
         /******************************
          *   BINARY SEARCH INT TEST
@@ -211,6 +214,11 @@ public class Processing {
         upper = Processing.upperBound(data, -1.2, 0, data.size());
 
         System.out.println("lower(-1.2) = "+lower + ",  upper(-1.2) = "+ upper);
+
+        lower = Processing.lowerBound(data, 4.3, 0, data.size());
+        upper = Processing.upperBound(data, 4.3, 0, data.size());
+
+        System.out.println("lower(4.3) = "+lower + ",  upper(4.3) = "+ upper);
 
         lower = Processing.lowerBound(data, -3, 0, data.size());
         upper = Processing.upperBound(data, 9, 0, data.size());

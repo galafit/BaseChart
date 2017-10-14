@@ -1,7 +1,6 @@
 package data;
 
-import base.Range;
-import base.XYData;
+import base.DataSet;
 import data.series.DoubleSeries;
 import data.series.IntSeries;
 
@@ -10,8 +9,8 @@ import java.util.List;
 /**
  * Created by galafit on 29/9/17.
  */
-public class XYDataSet implements Data, XYData {
-    private DataSet dataSet = new DataSet();
+public class XYData implements Data {
+    private BaseDataSet dataSet = new BaseDataSet();
     private int yColumnNumber = -1;
 
     @Override
@@ -19,17 +18,8 @@ public class XYDataSet implements Data, XYData {
         return dataSet;
     }
 
-    @Override
-    public void setDataSet(DataSet dataSet) {
+    public void setDataSet(BaseDataSet dataSet) {
         this.dataSet = dataSet;
-    }
-
-    @Override
-    public XYDataSet getCopy() {
-        XYDataSet data = new XYDataSet();
-        data.dataSet = dataSet;
-        data.yColumnNumber = yColumnNumber;
-        return data;
     }
 
     public void setXData(IntSeries data) {
@@ -102,30 +92,4 @@ public class XYDataSet implements Data, XYData {
         }
         yColumnNumber = dataSet.addSeries(data);
     }
-
-
-    public int size() {
-        return dataSet.size();
-    }
-
-    public double getX(int index) {
-        return dataSet.getXValue(index);
-    }
-
-    public double getY(int index) {
-        return dataSet.getValue(index, yColumnNumber);
-    }
-
-    public Range getYExtremes() {
-        return dataSet.getExtremes(yColumnNumber);
-    }
-
-    public Range getXExtremes() {
-        return dataSet.getXExtremes();
-    }
-
-    public int findNearest(double xValue) {
-        return dataSet.findNearestData(xValue);
-    }
-
 }
