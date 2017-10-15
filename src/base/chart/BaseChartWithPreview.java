@@ -61,7 +61,7 @@ public class BaseChartWithPreview {
 
 
     public boolean hover(int mouseX, int mouseY) {
-        return chart.hover(mouseX, mouseY);
+        return chart.hover(mouseX, mouseY) || preview.hover(mouseX, mouseY);
     }
 
 

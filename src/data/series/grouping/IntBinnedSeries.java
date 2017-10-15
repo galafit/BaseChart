@@ -40,7 +40,7 @@ public class IntBinnedSeries implements IntSeries {
             }
         }
         // close last bin
-        binIndexes.add(size() - 1);
+        binIndexes.add(length);
         return binIndexes;
     }
 

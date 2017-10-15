@@ -41,7 +41,7 @@ public class DoubleBinnedSeries implements DoubleSeries {
             }
         }
         // close last bin
-        binIndexes.add(size() - 1);
+        binIndexes.add(length);
         return binIndexes;
     }
 
