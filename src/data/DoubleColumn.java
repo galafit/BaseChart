@@ -45,8 +45,8 @@ class DoubleColumn implements NumberColumn {
     }
 
     @Override
-    public void group(int groupInterval) {
-        series = new DoubleGroupedSeries(series, new DoubleAverage(), groupInterval);
+    public void group(int compression) {
+        series = new DoubleGroupedSeries(series, new DoubleAverage(), compression);
     }
 
     @Override
@@ -58,5 +58,10 @@ class DoubleColumn implements NumberColumn {
     public IntSeries bin(double binInterval) {
         series = new DoubleBinnedSeries(series, binInterval);
         return ((DoubleBinnedSeries)series).bin();
+    }
+
+    @Override
+    public NumberColumn copy() {
+        return new DoubleColumn(series);
     }
 }

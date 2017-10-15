@@ -41,10 +41,10 @@ public class BaseDataSet implements DataSet {
         startXValue = dataSet.startXValue + (startIndex - dataSet.startIndex) * dataInterval;
         xColumnNumber = dataSet.xColumnNumber;
         for (NumberColumn numberColumn : dataSet.numberColumns) {
-            numberColumns.add(numberColumn);
+            numberColumns.add(numberColumn.copy());
         }
         for (StringColumn stringColumn : dataSet.stringColumns) {
-            stringColumns.add(stringColumn);
+            stringColumns.add(stringColumn.copy());
         }
     }
 

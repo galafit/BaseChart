@@ -11,18 +11,18 @@ public class DoubleGroupedSeries implements DoubleSeries {
     private DoubleGroupingFunction groupingFunction;
     private IntSeries groupIndexes;
 
-    public DoubleGroupedSeries(DoubleSeries series, DoubleGroupingFunction groupingFunction, int groupingIndexInterval) {
+    public DoubleGroupedSeries(DoubleSeries series, DoubleGroupingFunction groupingFunction, int compression) {
         this.groupingFunction = groupingFunction;
         this.series = series;
         groupIndexes = new IntSeries() {
             @Override
             public int size() {
-                return series.size() / groupingIndexInterval;
+                return series.size() / compression;
             }
 
             @Override
             public int get(int index) {
-                return index * groupingIndexInterval;
+                return index * compression;
             }
         };
     }

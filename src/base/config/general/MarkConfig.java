@@ -7,7 +7,7 @@ import java.awt.*;
  */
 public class MarkConfig {
     private Color color;
-    private int size;
+    private int size = 4;
 
     public boolean isMarksVisible() {
         return (getSize() > 0) ? true: false;

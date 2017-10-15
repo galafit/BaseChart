@@ -10,18 +10,18 @@ public class IntGroupedSeries implements IntSeries{
     private IntGroupingFunction groupingFunction;
     private IntSeries groupIndexes;
 
-    public IntGroupedSeries(IntSeries series, IntGroupingFunction groupingFunction, int groupingIndexInterval) {
+    public IntGroupedSeries(IntSeries series, IntGroupingFunction groupingFunction, int compression) {
         this.groupingFunction = groupingFunction;
         this.series = series;
         groupIndexes = new IntSeries() {
             @Override
             public int size() {
-                return series.size() / groupingIndexInterval;
+                return series.size() / compression;
             }
 
             @Override
             public int get(int index) {
-                return index * groupingIndexInterval;
+                return index * compression;
             }
         };
     }

@@ -19,4 +19,8 @@ class StringColumn {
     public String getString(int index) {
         return series.get(index);
     }
+
+    public StringColumn copy() {
+        return new StringColumn(series);
+    }
 }

@@ -1,6 +1,7 @@
 import base.Range;
 import base.chart.BaseChartWithPreview;
 import data.BaseDataSet;
+import data.GroupedDataSet;
 
 import java.awt.*;
 
@@ -11,7 +12,7 @@ public class Chart {
     Config config;
     BaseChartWithPreview chartWithPreview;
     BaseDataSet[] tracesData;
-
+    BaseDataSet[] previewData;
 
     public Chart(Config config, int width, int height) {
         this.config = config;
@@ -21,7 +22,20 @@ public class Chart {
             for (int i = 0; i < config.getChartConfig().getTraceAmount(); i++) {
                 tracesData[i] = (BaseDataSet) config.getChartConfig().getTraceData(i);
             }
+            previewData = new BaseDataSet[config.getPreviewConfig().getTraceAmount()];
+            for (int i = 0; i < config.getPreviewConfig().getTraceAmount(); i++) {
+                previewData[i] = (BaseDataSet) config.getPreviewConfig().getTraceData(i);
+            }
             chartWithPreview = new BaseChartWithPreview(config.getChartConfig(), config.getPreviewConfig(), area, config.getChartWidth());
+            for (int i = 0; i < previewData.length; i++) {
+                int compression = previewData[i].size() * 20 / width;
+                if(compression > 1) {
+                    GroupedDataSet groupedData = new GroupedDataSet(previewData[i], compression);
+                    chartWithPreview.setPreviewTraceData(groupedData, i);
+                }
+
+            }
+
         } else {
             chartWithPreview = new BaseChartWithPreview(config.getChartConfig(), area);
         }

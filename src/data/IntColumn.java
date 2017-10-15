@@ -55,8 +55,8 @@ class IntColumn implements NumberColumn {
     }
 
     @Override
-    public void group(int groupInterval) {
-        series = new IntGroupedSeries(series, new IntAverage(), groupInterval);
+    public void group(int compression) {
+        series = new IntGroupedSeries(series, new IntAverage(), compression);
     }
 
     @Override
@@ -68,5 +68,10 @@ class IntColumn implements NumberColumn {
     public IntSeries bin(double binInterval) {
         series = new IntBinnedSeries(series, (int)binInterval);
         return ((IntBinnedSeries)series).bin();
+    }
+
+    @Override
+    public NumberColumn copy() {
+        return new IntColumn(series);
     }
 }

@@ -1,6 +1,7 @@
 package data;
 
 
+import base.Range;
 import data.series.IntSeries;
 
 /**
@@ -10,24 +11,26 @@ public class GroupedDataSet extends BaseDataSet {
     BaseDataSet dataSet;
     IntSeries groupIndexes;
 
-    public GroupedDataSet(BaseDataSet dataSet, double groupingInterval) {
+    public GroupedDataSet(BaseDataSet dataSet, int compression) {
         super(dataSet, 0, -1);
         this.dataSet = dataSet;
-
-        if(xColumnNumber < 0) {
-            int groupIndexInterval = (int)(groupingInterval / dataInterval);
-            if(groupIndexInterval > 1) {
+        if(compression > 1) {
+            if(xColumnNumber < 0) {
                 for (NumberColumn numberColumn : numberColumns) {
-                    numberColumn.group(groupIndexInterval);
+                    numberColumn.group(compression);
                 }
-            }
-        } else {
-            groupIndexes = numberColumns.get(xColumnNumber).bin(groupingInterval);
-            for (int i = 0; i < numberColumns.size(); i++) {
-                if(i != xColumnNumber) {
-                   numberColumns.get(i).group(groupIndexes);
+                dataInterval = dataInterval * compression;
+            } else {
+                Range xRange = dataSet.getXExtremes();
+                double groupingInterval = (xRange.end() - xRange.start()) * compression / (dataSet.size() -1);
+                groupIndexes = numberColumns.get(xColumnNumber).bin(groupingInterval);
+                for (int i = 0; i < numberColumns.size(); i++) {
+                    if(i != xColumnNumber) {
+                        numberColumns.get(i).group(groupIndexes);
+                    }
                 }
             }
         }
     }
+
 }
