@@ -1,10 +1,8 @@
 package base.traces;
 
 import base.DataSet;
-import base.Range;
 import base.config.traces.AreaTraceConfig;
-import base.legend.LegendItem;
-import base.tooltips.TooltipItem;
+
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
@@ -25,14 +23,14 @@ public class AreaTrace extends BaseTrace {
 
     @Override
     public void draw(Graphics2D g) {
-        if (data == null || data.size() == 0) {
+        if (xyData == null || xyData.size() == 0) {
             return;
         }
 
         GeneralPath path = new GeneralPath();
 
-        double x_0 = getXAxis().scale(data.getX(0));
-        double y_0 = getYAxis().scale(data.getY(0));
+        double x_0 = getXAxis().scale(xyData.getX(0));
+        double y_0 = getYAxis().scale(xyData.getY(0));
         double x = x_0;
         double y = y_0;
 
@@ -40,9 +38,9 @@ public class AreaTrace extends BaseTrace {
         g.setColor(getMarkColor());
         int pointRadius = traceConfig.getMarkConfig().getSize() / 2;
         g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
-        for (int i = 1; i < data.size(); i++) {
-            x = getXAxis().scale(data.getX(i));
-            y = getYAxis().scale(data.getY(i));
+        for (int i = 1; i < xyData.size(); i++) {
+            x = getXAxis().scale(xyData.getX(i));
+            y = getYAxis().scale(xyData.getY(i));
             path.lineTo(x, y);
             g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
         }

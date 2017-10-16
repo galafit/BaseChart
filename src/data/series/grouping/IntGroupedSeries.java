@@ -16,7 +16,7 @@ public class IntGroupedSeries implements IntSeries{
         groupIndexes = new IntSeries() {
             @Override
             public int size() {
-                return series.size() / compression;
+                return series.size() / compression + 1;
             }
 
             @Override
@@ -24,7 +24,7 @@ public class IntGroupedSeries implements IntSeries{
                 return index * compression;
             }
         };
-    }
+     }
 
     public IntGroupedSeries(IntSeries series, IntGroupingFunction groupingFunction, IntSeries groupIndexes) {
         this.groupingFunction = groupingFunction;

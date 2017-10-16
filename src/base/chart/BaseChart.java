@@ -78,7 +78,33 @@ public class BaseChart {
             traces.add(trace);
         }
         legendPainter = new LegendPainter(legendItems, chartConfig.getLegendConfig());
+        setXAxisDomain();
+        setYAxisDomain();
     }
+
+    int getPreferredTopAxisLength() {
+        Axis topAxis = xAxisList.get(1);
+        int prefLength = 0;
+        for (Trace trace : traces) {
+            if(trace.getXAxis() == topAxis) {
+                prefLength = Math.max(prefLength, trace.getPreferredTraceLength());
+            }
+        }
+        return prefLength;
+    }
+
+
+    int getPreferredBottomAxisLength() {
+        Axis bottomAxis = xAxisList.get(0);
+        int prefLength = 0;
+        for (Trace trace : traces) {
+            if(trace.getXAxis() == bottomAxis) {
+                prefLength = Math.max(prefLength, trace.getPreferredTraceLength());
+            }
+        }
+        return prefLength;
+    }
+
 
     Range getTracesXExtremes() {
         Range xRange = null;
@@ -87,6 +113,17 @@ public class BaseChart {
         }
         return xRange;
     }
+
+    void setTopAxisExtremes(Range minMax) {
+        xAxisList.get(1).setAutoScale(false);
+        xAxisList.get(1).setMinMax(minMax);
+    }
+
+    void setBottomAxisExtremes(Range minMax) {
+        xAxisList.get(0).setAutoScale(false);
+        xAxisList.get(0).setMinMax(minMax);
+    }
+
 
     Margin getMargin(Graphics2D g2) {
         if(margin == null) {
@@ -100,30 +137,43 @@ public class BaseChart {
     }
 
     public void setTraceData(DataSet data, int traceIndex) {
-        traces.get(traceIndex).setData(data);
+        Trace trace = traces.get(traceIndex);
+        trace.setData(data);
+        Axis yAxis = trace.getYAxis();
+        Axis xAxis = trace.getXAxis();
+        if(xAxis.isAutoScale()) {
+            autoscaleXAxis(xAxis);
+        }
+        if(yAxis.isAutoScale()) {
+            autoscaleYAxis(yAxis);
+        }
     }
 
-    void setTopAxisExtremes(Range minMax) {
-        xAxisList.get(1).setMinMax(minMax);
-        xAxisList.get(1).setAutoScale(false);
+    private void autoscaleXAxis(Axis xAxis) {
+        Range xRange = null;
+        for (Trace trace : traces) {
+            if(trace.getXAxis() == xAxis) {
+                xRange = Range.max(xRange, trace.getXExtremes());
+            }
+        }
+        xAxis.setMinMax(xRange);
     }
 
-    void setBottomAxisExtremes(Range minMax) {
-        xAxisList.get(0).setMinMax(minMax);
-        xAxisList.get(0).setAutoScale(false);
+    private void autoscaleYAxis(Axis yAxis) {
+        Range yRange = null;
+        for (Trace trace : traces) {
+            if(trace.getYAxis() == yAxis) {
+                yRange = Range.max(yRange, trace.getYExtremes());
+            }
+        }
+        yAxis.setMinMax(yRange);
     }
 
     private void setXAxisDomain() {
         for (int i = 0; i < xAxisList.size(); i++) {
             Axis xAxis = xAxisList.get(i);
             if (xAxis.isAutoScale()) {
-                Range xRange = null;
-                for (Trace trace : traces) {
-                    if(trace.getXAxis() == xAxis) {
-                        xRange = Range.max(xRange, trace.getXExtremes());
-                    }
-                }
-                xAxis.setMinMax(xRange);
+               autoscaleXAxis(xAxis);
             } else {
                 xAxis.setMinMax(chartConfig.getXAxisConfig(i).getExtremes());
             }
@@ -134,13 +184,7 @@ public class BaseChart {
         for (int i = 0; i < yAxisList.size(); i++) {
             Axis yAxis = yAxisList.get(i);
             if (yAxis.isAutoScale()) {
-                Range yRange = null;
-                for (Trace trace : traces) {
-                    if(trace.getYAxis() == yAxis) {
-                        yRange = Range.max(yRange, trace.getYExtremes());
-                    }
-                }
-                yAxis.setMinMax(yRange);
+                autoscaleYAxis(yAxis);
             } else {
                 yAxis.setMinMax(chartConfig.getYAxisConfig(i).getExtremes());
             }
@@ -249,7 +293,7 @@ public class BaseChart {
             left = margin.left();
             right = margin.right();
         }
-        setXAxisDomain();
+
         // set XAxis ranges
         int xStart = fullArea.x;
         int xEnd = fullArea.x + fullArea.width;
@@ -271,7 +315,6 @@ public class BaseChart {
             bottom += xAxisList.get(0).getThickness(g2);
         }
 
-        setYAxisDomain();
         // set YAxis ranges
         Rectangle paintingArea = new Rectangle(fullArea.x, fullArea.y + top, fullArea.width, fullArea.height - top - bottom);
         for (int i = 0; i < yAxisList.size(); i++) {
@@ -297,13 +340,11 @@ public class BaseChart {
         xEnd = graphArea.x + graphArea.width;
         xAxisList.get(0).setStartEnd(xStart, xEnd);
         xAxisList.get(1).setStartEnd(xStart, xEnd);
-
+        titleArea = new Rectangle(fullArea.x,fullArea.y, fullArea.width, titleHeight);
         if (chartConfig.getLegendConfig().isTop()) {
-            legendArea = new Rectangle(fullArea.x, graphArea.y - legendHeight, fullArea.width, legendHeight);
-            titleArea = new Rectangle(fullArea.x,graphArea.y -legendHeight - titleHeight,fullArea.width, titleHeight);
+            legendArea = new Rectangle(fullArea.x, fullArea.y + titleHeight, fullArea.width, legendHeight);
         } else {
             legendArea = new Rectangle(fullArea.x, fullArea.y + fullArea.height - legendHeight, fullArea.width, legendHeight);
-            titleArea = new Rectangle(fullArea.x,graphArea.y - titleHeight, fullArea.width, titleHeight);
         }
     }
 

@@ -11,7 +11,7 @@ import java.awt.*;
 public class LegendConfig {
     private boolean isVisible = true;
     private TextStyle textStyle = new TextStyle();
-    private Position position = Position.BOTTOM_LEFT;
+    private Position position = Position.TOP_LEFT;
     private Color background = Color.WHITE;
     private Color borderColor = Color.LIGHT_GRAY;
     private int borderWidth = 0;

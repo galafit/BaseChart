@@ -17,6 +17,11 @@ public abstract class Trace {
     private String name;
     private Color defaultColor;
     private int hoverIndex = -1;
+    private DataSet data;
+
+    public void setData(DataSet data) {
+        this.data = data;
+    }
 
     public Axis getXAxis() {
         return xAxis;
@@ -68,21 +73,30 @@ public abstract class Trace {
         return isIndexChanged;
     }
 
-    public abstract void setData(DataSet data);
+    public int findNearest(int mouseX, int mouseY) {
+        double x = getXAxis().invert(mouseX);
+        return data.findNearestData(x);
+    }
 
-    public abstract TooltipItem getTooltipItem();
+    public double getXPosition(int dataIndex) {
+        return getXAxis().scale(data.getXValue(dataIndex));
+    }
 
-    public abstract int findNearest(int mouseX, int mouseY);
+    public double getXValue(int dataIndex) {
+        return data.getXValue(dataIndex);
+    }
 
-    public abstract double getXPosition(int dataIndex);
+    public Range getXExtremes() {
+        return data.getXExtremes();
+    }
 
-    public abstract double getXValue(int dataIndex);
+    public abstract int getPreferredTraceLength();
 
     public abstract LegendItem[] getLegendItems();
 
-    public abstract Range getXExtremes();
-
     public abstract Range getYExtremes();
+
+    public abstract TooltipItem getTooltipItem();
 
     public abstract void draw(Graphics2D g);
 }

@@ -36,18 +36,20 @@ public class Axis {
     private Line axisLine;
     private Text axisName;
     private TickProvider tickProvider;
+    private boolean isAutoscale;
 
     public Axis(AxisConfig config) {
         this.config = config;
+        isAutoscale = config.isAutoScale();
         scale = new ScaleLinear();
     }
 
     public boolean isAutoScale() {
-        return config.isAutoScale();
+        return isAutoscale;
     }
 
     public void setAutoScale(boolean isAutoScale) {
-        config.setAutoScale(isAutoScale);
+        this.isAutoscale = isAutoScale;
     }
 
     public void setMinMax(Range minMaxRange) {
@@ -62,11 +64,15 @@ public class Axis {
             throw new IllegalArgumentException(formattedError);
         }
         scale.setDomain(min, max);
+        ticks = null;
+        isTicksOverlappingFixed = false;
+        tickProvider = null;
         isDirty = true;
     }
 
     public void setStartEnd(double start, double end) {
         scale.setRange(start, end);
+        isTicksOverlappingFixed = false;
         isDirty = true;
     }
     public void setStartEnd(Range startEndRange) {
@@ -133,6 +139,9 @@ public class Axis {
     }
 
     public void drawGrid(Graphics2D g, int axisOriginPoint, int length) {
+        if(isDirty) {
+            createAxisElements(g);
+        }
         AffineTransform initialTransform = g.getTransform();
         if(config.isHorizontal()) {
             g.translate(0, axisOriginPoint);
@@ -209,6 +218,9 @@ public class Axis {
             tickProvider.setTickStep(config.getTicksConfig().getTickStep());
         } else if(config.getTicksConfig().getTickPixelInterval() > 0) {
             int tickAmount = Math.abs(getEnd() - getStart())/ config.getTicksConfig().getTickPixelInterval();
+            if(tickAmount < 3) {
+                tickAmount = 3;
+            }
             tickProvider.setTickAmount(tickAmount);
         }
         this.tickProvider = tickProvider;
@@ -302,7 +314,6 @@ public class Axis {
             isTicksOverlappingFixed = true;
             return;
         }
-
         int labelsSize;
         if(config.isHorizontal()) {
             labelsSize = getMaxTickLabelsWidth(fm, ticks);
@@ -395,6 +406,7 @@ public class Axis {
             int y = (getEnd() + getStart()) / 2;
             axisName = new Text(config.getTitle(), x, y, TextAnchor.START, TextAnchor.MIDDLE, +90, fm);
         }
+        isDirty = false;
     }
 
     private int getMaxTickLabelsWidth(FontMetrics fm, List<Tick> ticks) {

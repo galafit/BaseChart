@@ -24,7 +24,7 @@ public class MainFrame extends JFrame {
             yData1[i] = new Double(rand.nextInt(500));
         }
 
-        int[] yData2 = new int[1500];
+        int[] yData2 = new int[3000];
         for (int i = 0; i < yData2.length ; i++) {
             yData2[i] =  i;
         }
@@ -42,12 +42,12 @@ public class MainFrame extends JFrame {
         Config config = new Config();
         config.addTrace(new LineTraceConfig(), xyData1);
         config.addStack(5);
-        config.addTrace(new AreaTraceConfig(), xyData2);
+        config.addTrace(new AreaTraceConfig(), xyData2, null, false, true);
 
         config.addPreviewTrace(new LineTraceConfig(), xyData2);
         config.addPreviewTrace(new LineTraceConfig(), xyData3);
 
-        config.enablePreview(6000);
+        config.enablePreview(-1);
 
         Chart chart = new Chart(config, width, height);
 

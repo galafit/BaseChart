@@ -274,7 +274,7 @@ public class BaseDataSet implements DataSet {
         if(subsetEndIndex  >= fullSize()) {
             subsetEndIndex = fullSize() - 1;
         }
-        return  new BaseDataSet(this, subsetStartIndex, subsetEndIndex - subsetStartIndex + 1);
+        return new BaseDataSet(this, subsetStartIndex, subsetEndIndex - subsetStartIndex + 1);
     }
 
     /**********************************************************************

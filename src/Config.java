@@ -99,7 +99,6 @@ public class Config {
     public void enablePreview(long chartWidth) {
         this.chartWidth = chartWidth;
         isPreviewEnable = true;
-
     }
 
     public void addPreviewStack(int weight) {

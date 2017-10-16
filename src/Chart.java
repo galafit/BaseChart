@@ -33,18 +33,21 @@ public class Chart {
                     GroupedDataSet groupedData = new GroupedDataSet(previewData[i], compression);
                     chartWithPreview.setPreviewTraceData(groupedData, i);
                 }
-
             }
+           moveScroll(0);
 
         } else {
             chartWithPreview = new BaseChartWithPreview(config.getChartConfig(), area);
         }
     }
 
-    private void adjustData(Range xExtremes) {
+    private void cropData(Range xExtremesBottom, Range xExtremesTop) {
         for (int i = 0; i < config.getChartConfig().getTraceAmount(); i++) {
-          chartWithPreview.setTraceData(tracesData[i].getSubset(xExtremes.start(), xExtremes.end()), i);
-           // System.out.println(i+" trace: "+ xyData.size());
+            if(config.getChartConfig().getTraceXAxisIndex(i) == 0) {
+                chartWithPreview.setTraceData(tracesData[i].getSubset(xExtremesBottom.start(), xExtremesBottom.end()), i);
+            } else {
+                chartWithPreview.setTraceData(tracesData[i].getSubset(xExtremesTop.start(), xExtremesTop.end()), i);
+            }
         }
     }
 
@@ -54,9 +57,18 @@ public class Chart {
 
     public void moveScroll(int mouseX, int mouseY) {
         chartWithPreview.moveScroll(mouseX, mouseY);
-        Range scrollExtremes = chartWithPreview.getScrollExtremes(0);
-        adjustData(scrollExtremes);
+        Range scrollExtremesBottom = chartWithPreview.getScrollExtremes(0);
+        Range scrollExtremesTop = chartWithPreview.getScrollExtremes(1);
+        cropData(scrollExtremesBottom, scrollExtremesTop);
     }
+
+    public void moveScroll(double scrollValue) {
+        chartWithPreview.moveScroll(scrollValue);
+        Range scrollExtremesBottom = chartWithPreview.getScrollExtremes(0);
+        Range scrollExtremesTop = chartWithPreview.getScrollExtremes(1);
+        cropData(scrollExtremesBottom, scrollExtremesTop);
+    }
+
 
     public boolean isMouseInsideScroll(int mouseX, int mouseY) {
        return chartWithPreview.isMouseInsideScroll(mouseX, mouseY);
@@ -65,7 +77,6 @@ public class Chart {
     public boolean isMouseInsidePreview(int mouseX, int mouseY) {
        return chartWithPreview.isMouseInsidePreview(mouseX, mouseY);
     }
-
 
     public void draw(Graphics2D g2d) {
        chartWithPreview.draw(g2d);

@@ -16,12 +16,13 @@ import java.awt.geom.GeneralPath;
  */
 public abstract class BaseTrace extends Trace {
     BaseTraceConfig traceConfig;
-    XYMapper data;
+    XYMapper xyData;
 
     @Override
     public void setData(DataSet dataSet) {
-        data = traceConfig.getMapper();
-        data.setDataSet(dataSet);
+        super.setData(dataSet);
+        xyData = traceConfig.getMapper();
+        xyData.setDataSet(dataSet);
     }
 
     Color getLineColor() {
@@ -48,6 +49,14 @@ public abstract class BaseTrace extends Trace {
         return hoverColor;
     }
 
+    @Override
+    public int getPreferredTraceLength() {
+        int prefLength = xyData.size();
+        if(traceConfig.getMarkConfig().getSize() > 0) {
+            prefLength *= traceConfig.getMarkConfig().getSize();
+        }
+        return prefLength;
+    }
 
     @Override
     public TooltipItem getTooltipItem(){
@@ -55,23 +64,7 @@ public abstract class BaseTrace extends Trace {
             return null;
         }
         String label = getName();
-        return new TooltipItem(label, String.valueOf(data.getY(getHoverIndex())), getLineColor());
-    }
-
-    @Override
-    public int findNearest(int mouseX, int mouseY) {
-        double x = getXAxis().invert(mouseX);
-        return data.findNearest(x);
-    }
-
-    @Override
-    public double getXPosition(int dataIndex) {
-        return getXAxis().scale(data.getX(dataIndex));
-    }
-
-    @Override
-    public double getXValue(int dataIndex) {
-        return data.getX(dataIndex);
+        return new TooltipItem(label, String.valueOf(xyData.getY(getHoverIndex())), getLineColor());
     }
 
     @Override
@@ -81,33 +74,28 @@ public abstract class BaseTrace extends Trace {
     }
 
     @Override
-    public Range getXExtremes() {
-        return data.getXExtremes();
-    }
-
-    @Override
     public Range getYExtremes() {
-        return data.getYExtremes();
+        return xyData.getYExtremes();
     }
 
 
     @Override
     public void draw(Graphics2D g) {
-        if (data == null || data.size() == 0) {
+        if (xyData == null || xyData.size() == 0) {
             return;
         }
 
         GeneralPath path = new GeneralPath();
-        double x = getXAxis().scale(data.getX(0));
-        double y = getYAxis().scale(data.getY(0));
+        double x = getXAxis().scale(xyData.getX(0));
+        double y = getYAxis().scale(xyData.getY(0));
 
         path.moveTo(x, y);
         g.setColor(getMarkColor());
         int pointRadius = traceConfig.getMarkConfig().getSize() / 2;
         g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
-        for (int i = 1; i < data.size(); i++) {
-            x = getXAxis().scale(data.getX(i));
-            y = getYAxis().scale(data.getY(i));
+        for (int i = 1; i < xyData.size(); i++) {
+            x = getXAxis().scale(xyData.getX(i));
+            y = getYAxis().scale(xyData.getY(i));
             path.lineTo(x, y);
             g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
         }
@@ -119,8 +107,8 @@ public abstract class BaseTrace extends Trace {
 
     void drawHover(Graphics2D g) {
         if(getHoverIndex() >= 0) {
-            double x = getXAxis().scale(data.getX(getHoverIndex()));
-            double y = getYAxis().scale(data.getY(getHoverIndex()));
+            double x = getXAxis().scale(xyData.getX(getHoverIndex()));
+            double y = getYAxis().scale(xyData.getY(getHoverIndex()));
             double pointRadius = traceConfig.getHoverSize();
             g.setColor(Color.CYAN);
             g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));

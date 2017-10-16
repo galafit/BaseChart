@@ -73,10 +73,11 @@ public class TitlePainter {
     }
 
     private Margin getMargin(){
-        return new Margin((int)(titleStyle.getFontSize() * 0),
+       /* return new Margin((int)(titleStyle.getFontSize() * 0),
                 (int)(titleStyle.getFontSize() * 0.5),
                 (int)(titleStyle.getFontSize() * 0.5),
-                (int)(titleStyle.getFontSize() * 0.5));
+                (int)(titleStyle.getFontSize() * 0.5));*/
+        return new Margin(0, (int)(titleStyle.getFontSize() * 0.5), 0, (int)(titleStyle.getFontSize() * 0.5));
     }
 
     private int getStringWidth(Graphics2D g2, Font font, String string) {

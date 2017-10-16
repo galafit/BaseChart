@@ -34,23 +34,25 @@ public class BaseChartWithPreview {
         chartArea = new Rectangle(area.x, area.y, area.width, chartHeight);
         previewArea = new Rectangle(area.x, area.y + chartHeight, area.width, previewHeight);
 
-        BaseChart chart = new BaseChart(chartConfig, chartArea);
+        chart = new BaseChart(chartConfig, chartArea);
         preview = new BaseChart(previewConfig, previewArea);
 
         Range minMax = Range.max(chart.getTracesXExtremes(), preview.getTracesXExtremes());
         preview.setBottomAxisExtremes(minMax);
         preview.setTopAxisExtremes(minMax);
-        double extent = (minMax.end() - minMax.start()) * area.width / chartWidth;
-        preview.createScroll(scrollConfig, extent);
-
+        if(chartWidth > 0) {
+            double extent = (minMax.end() - minMax.start()) * area.width / chartWidth;
+            preview.createScroll(scrollConfig, extent);
+        } else {
+            double extentTop = (minMax.end() - minMax.start()) * area.width / chart.getPreferredTopAxisLength();
+            double extentBottom = (minMax.end() - minMax.start()) * area.width / chart.getPreferredBottomAxisLength();
+            preview.createScroll(scrollConfig, extentBottom, extentTop);
+        }
+        chart.setBottomAxisExtremes(getScrollExtremes(0));
+        chart.setTopAxisExtremes(getScrollExtremes(1));
     }
 
     public void setTraceData(DataSet data, int traceIndex) {
-        if(chart == null) {
-            chart = new BaseChart(chartConfig, chartArea);
-            chart.setBottomAxisExtremes(getScrollExtremes(0));
-            chart.setTopAxisExtremes(getScrollExtremes(1));
-        }
         chart.setTraceData(data, traceIndex);
     }
 
@@ -61,7 +63,8 @@ public class BaseChartWithPreview {
 
 
     public boolean hover(int mouseX, int mouseY) {
-        return chart.hover(mouseX, mouseY) || preview.hover(mouseX, mouseY);
+        //return chart.hover(mouseX, mouseY) || preview.hover(mouseX, mouseY);
+        return chart.hover(mouseX, mouseY);
     }
 
 
@@ -73,7 +76,6 @@ public class BaseChartWithPreview {
         if(isScrollMoved) {
             chart.setBottomAxisExtremes(getScrollExtremes(0));
             chart.setTopAxisExtremes(getScrollExtremes(1));
-            chart = null;
         }
         return isScrollMoved;
     }
@@ -81,7 +83,7 @@ public class BaseChartWithPreview {
     /**
      * @return true if scrollValue was changed and false if new scroll value = current scroll value
      */
-    private boolean moveScroll(double newScrollValue) {
+    public boolean moveScroll(double newScrollValue) {
         boolean isScrollMoved = preview.moveScroll(newScrollValue);
         if(isScrollMoved) {
             chart.setBottomAxisExtremes(getScrollExtremes(0));
@@ -116,11 +118,6 @@ public class BaseChartWithPreview {
     }
 
     public void draw(Graphics2D g2d) {
-         if(chart == null) {
-            chart = new BaseChart(chartConfig, chartArea);
-             chart.setBottomAxisExtremes(getScrollExtremes(0));
-             chart.setTopAxisExtremes(getScrollExtremes(1));
-         }
          Margin chartMargin = chart.getMargin(g2d);
          Margin previewMargin = preview.getMargin(g2d);
          if(chartMargin.left() != previewMargin.left() || chartMargin.right() != previewMargin.right()) {
