@@ -3,7 +3,6 @@ package base.chart;
 import base.DataSet;
 import base.axis.Axis;
 import base.config.ChartConfig;
-import base.config.ScrollConfig;
 import base.config.general.Margin;
 import base.config.traces.TraceConfig;
 import base.Range;
@@ -22,7 +21,7 @@ import java.util.List;
 /**
  * Created by hdablin on 24.03.17.
  */
-public class BaseChart {
+public class BaseChart implements BaseMouseListener {
     private final Color GREY = new Color(150, 150, 150);
     private final Color BROWN = new Color(200, 102, 0);
     private final Color ORANGE = new Color(255, 153, 0);
@@ -40,14 +39,14 @@ public class BaseChart {
     private TitlePainter titlePainter;
     private CrosshairPainter crosshairPainter;
     private ChartConfig chartConfig;
-    private ScrollPainter scrollPainter;
-    private boolean isScrollEnabled = false;
 
     private Rectangle fullArea;
     private Rectangle titleArea;
     private Rectangle legendArea;
     private Rectangle graphArea;
     private Margin margin;
+
+    private ArrayList<ChartEventListener> eventsListeners = new ArrayList<ChartEventListener>();
 
 
     public BaseChart(ChartConfig chartConfig, Rectangle area) {
@@ -64,7 +63,7 @@ public class BaseChart {
         crosshairPainter = new CrosshairPainter(chartConfig.getCrosshairConfig());
         titlePainter = new TitlePainter(chartConfig.getTitle(), chartConfig.getTitleTextStyle());
         ArrayList<LegendItem> legendItems = new ArrayList<LegendItem>(chartConfig.getTraceAmount());
-        for (int i = 0; i < chartConfig.getTraceAmount() ; i++) {
+        for (int i = 0; i < chartConfig.getTraceAmount(); i++) {
             TraceConfig traceConfig = chartConfig.getTraceConfig(i);
             Trace trace = TraceRegister.getTrace(traceConfig, chartConfig.getTraceData(i));
             trace.setXAxis(xAxisList.get(chartConfig.getTraceXAxisIndex(i)));
@@ -82,11 +81,15 @@ public class BaseChart {
         setYAxisDomain();
     }
 
+    public void addEventListener(ChartEventListener eventListener) {
+        eventsListeners.add(eventListener);
+    }
+
     int getPreferredTopAxisLength() {
         Axis topAxis = xAxisList.get(1);
         int prefLength = 0;
         for (Trace trace : traces) {
-            if(trace.getXAxis() == topAxis) {
+            if (trace.getXAxis() == topAxis) {
                 prefLength = Math.max(prefLength, trace.getPreferredTraceLength());
             }
         }
@@ -98,7 +101,7 @@ public class BaseChart {
         Axis bottomAxis = xAxisList.get(0);
         int prefLength = 0;
         for (Trace trace : traces) {
-            if(trace.getXAxis() == bottomAxis) {
+            if (trace.getXAxis() == bottomAxis) {
                 prefLength = Math.max(prefLength, trace.getPreferredTraceLength());
             }
         }
@@ -126,10 +129,14 @@ public class BaseChart {
 
 
     Margin getMargin(Graphics2D g2) {
-        if(margin == null) {
+        if (margin == null) {
             calculateMarginsAndAreas(g2, chartConfig.getMargin());
         }
         return margin;
+    }
+
+    Rectangle getGraphArea() {
+        return graphArea;
     }
 
     void setMargin(Graphics2D g2, Margin margin) {
@@ -141,10 +148,10 @@ public class BaseChart {
         trace.setData(data);
         Axis yAxis = trace.getYAxis();
         Axis xAxis = trace.getXAxis();
-        if(xAxis.isAutoScale()) {
+        if (xAxis.isAutoScale()) {
             autoscaleXAxis(xAxis);
         }
-        if(yAxis.isAutoScale()) {
+        if (yAxis.isAutoScale()) {
             autoscaleYAxis(yAxis);
         }
     }
@@ -152,7 +159,7 @@ public class BaseChart {
     private void autoscaleXAxis(Axis xAxis) {
         Range xRange = null;
         for (Trace trace : traces) {
-            if(trace.getXAxis() == xAxis) {
+            if (trace.getXAxis() == xAxis) {
                 xRange = Range.max(xRange, trace.getXExtremes());
             }
         }
@@ -162,7 +169,7 @@ public class BaseChart {
     private void autoscaleYAxis(Axis yAxis) {
         Range yRange = null;
         for (Trace trace : traces) {
-            if(trace.getYAxis() == yAxis) {
+            if (trace.getYAxis() == yAxis) {
                 yRange = Range.max(yRange, trace.getYExtremes());
             }
         }
@@ -173,7 +180,7 @@ public class BaseChart {
         for (int i = 0; i < xAxisList.size(); i++) {
             Axis xAxis = xAxisList.get(i);
             if (xAxis.isAutoScale()) {
-               autoscaleXAxis(xAxis);
+                autoscaleXAxis(xAxis);
             } else {
                 xAxis.setMinMax(chartConfig.getXAxisConfig(i).getExtremes());
             }
@@ -191,41 +198,6 @@ public class BaseChart {
         }
     }
 
-    void createScroll(ScrollConfig scrollConfig, double scrollExtent1, double scrollExtent2) {
-        isScrollEnabled = true;
-        scrollPainter = new ScrollPainter(scrollConfig, scrollExtent1, scrollExtent2, xAxisList.get(0));
-    }
-
-    void createScroll(ScrollConfig scrollConfig, double scrollExtent) {
-        createScroll(scrollConfig, scrollExtent, scrollExtent);
-    }
-
-    /**
-     * @return true if scrollValue was changed and false if newValue = current scroll value
-     */
-    public boolean moveScroll(int mouseX, int mouseY) {
-       return scrollPainter.moveScroll(mouseX, mouseY);
-    }
-
-    /**
-     * @return true if scrollValue was changed and false if newValue = current scroll value
-     */
-    public boolean moveScroll(double newValue) {
-       return scrollPainter.moveScroll(newValue);
-    }
-
-    public Range getScrollExtremes1() {
-        return scrollPainter.getScrollExtremes1();
-    }
-
-    public Range getScrollExtremes2() {
-        return scrollPainter.getScrollExtremes2();
-    }
-
-    boolean isMouseInsideScroll(int mouseX, int mouseY) {
-        return scrollPainter.isMouseInsideScroll(mouseX, mouseY, graphArea);
-    }
-
     boolean isMouseInsideChart(int mouseX, int mouseY) {
         return graphArea.contains(mouseX, mouseY);
     }
@@ -233,8 +205,8 @@ public class BaseChart {
 
     // TODO: handling multiple xAxis!!!!
     // TODO: add separated base.tooltips
-    public boolean hover(int mouseX, int mouseY) {
-        if(!isMouseInsideChart(mouseX, mouseY)) {
+    private boolean hover(int mouseX, int mouseY) {
+        if (!isMouseInsideChart(mouseX, mouseY)) {
             boolean isHoverChanged = false;
             for (int i = 0; i < traces.size(); i++) {
                 isHoverChanged = traces.get(i).setHoverIndex(-1) || isHoverChanged;
@@ -248,8 +220,8 @@ public class BaseChart {
         for (int i = 0; i < traces.size(); i++) {
             nearestIndexes[i] = traces.get(i).findNearest(mouseX, mouseY);
             int x = (int) traces.get(i).getXPosition(nearestIndexes[i]);
-            if(minDistance == null || Math.abs(minDistance) > Math.abs(x - mouseX)) {
-                minDistance =  (x - mouseX);
+            if (minDistance == null || Math.abs(minDistance) > Math.abs(x - mouseX)) {
+                minDistance = (x - mouseX);
             }
         }
 
@@ -260,7 +232,7 @@ public class BaseChart {
             ArrayList<TooltipItem> tooltipItems = new ArrayList<TooltipItem>();
             for (int i = 0; i < traces.size(); i++) {
                 int x = (int) traces.get(i).getXPosition(nearestIndexes[i]);
-                if((x - mouseX) == minDistance) {
+                if ((x - mouseX) == minDistance) {
                     isHoverChanged = traces.get(i).setHoverIndex(nearestIndexes[i]) || isHoverChanged;
                     tooltipItems.add(traces.get(i).getTooltipItem());
                     hoverXValue = traces.get(i).getXValue(nearestIndexes[i]);
@@ -287,7 +259,7 @@ public class BaseChart {
         int right = -1;
         int bottom = -1;
         int top = -1;
-        if(margin != null) {
+        if (margin != null) {
             top = margin.top();
             bottom = margin.bottom();
             left = margin.left();
@@ -299,17 +271,17 @@ public class BaseChart {
         int xEnd = fullArea.x + fullArea.width;
         xAxisList.get(0).setStartEnd(xStart, xEnd);
         xAxisList.get(1).setStartEnd(xStart, xEnd);
-        if(top < 0) {
+        if (top < 0) {
             top = titleHeight;
-            if(chartConfig.getLegendConfig().isTop()) {
+            if (chartConfig.getLegendConfig().isTop()) {
                 top += legendHeight;
             }
             top += xAxisList.get(1).getThickness(g2);
 
         }
-        if(bottom < 0) {
+        if (bottom < 0) {
             bottom = 0;
-            if(!chartConfig.getLegendConfig().isTop()) {
+            if (!chartConfig.getLegendConfig().isTop()) {
                 bottom += legendHeight;
             }
             bottom += xAxisList.get(0).getThickness(g2);
@@ -320,14 +292,14 @@ public class BaseChart {
         for (int i = 0; i < yAxisList.size(); i++) {
             yAxisList.get(i).setStartEnd(chartConfig.getYAxisStartEnd(i, paintingArea));
         }
-        if(left < 0) {
-            for (int i = 0; i < yAxisList.size()/2; i++) {
-                left = Math.max(left, yAxisList.get(i*2).getThickness(g2));
+        if (left < 0) {
+            for (int i = 0; i < yAxisList.size() / 2; i++) {
+                left = Math.max(left, yAxisList.get(i * 2).getThickness(g2));
             }
         }
-        if(right < 0) {
-            for (int i = 0; i < yAxisList.size()/2; i++) {
-                right = Math.max(right, yAxisList.get(i*2 + 1).getThickness(g2));
+        if (right < 0) {
+            for (int i = 0; i < yAxisList.size() / 2; i++) {
+                right = Math.max(right, yAxisList.get(i * 2 + 1).getThickness(g2));
             }
         }
 
@@ -340,7 +312,7 @@ public class BaseChart {
         xEnd = graphArea.x + graphArea.width;
         xAxisList.get(0).setStartEnd(xStart, xEnd);
         xAxisList.get(1).setStartEnd(xStart, xEnd);
-        titleArea = new Rectangle(fullArea.x,fullArea.y, fullArea.width, titleHeight);
+        titleArea = new Rectangle(fullArea.x, fullArea.y, fullArea.width, titleHeight);
         if (chartConfig.getLegendConfig().isTop()) {
             legendArea = new Rectangle(fullArea.x, fullArea.y + titleHeight, fullArea.width, legendHeight);
         } else {
@@ -348,9 +320,13 @@ public class BaseChart {
         }
     }
 
+    Axis getBottomaxis() {
+        return xAxisList.get(0);
+    }
+
 
     public void draw(Graphics2D g2d) {
-        if(margin == null) {
+        if (margin == null) {
             calculateMarginsAndAreas(g2d, chartConfig.getMargin());
         }
 
@@ -425,13 +401,86 @@ public class BaseChart {
         }
         g2d.setClip(clip);
 
-        if(isScrollEnabled) {
-            scrollPainter.draw(g2d, graphArea);
-        }
-
         if (tooltipInfo != null) {
             tooltipPainter.draw(g2d, fullArea, tooltipInfo);
             crosshairPainter.draw(g2d, graphArea, tooltipInfo.getX(), tooltipInfo.getY());
+        }
+    }
+
+    @Override
+    public void mouseMoved(int mouseX, int mouseY) {
+        if (hover(mouseX, mouseY)) {
+            for (ChartEventListener listener : eventsListeners) {
+                listener.onHoverChanged();
+            }
+        }
+    }
+
+    @Override
+    public void mouseDoubleClicked(int mouseX, int mouseY) {
+       // System.out.println("double  click");
+
+    }
+
+    @Override
+    public void mouseClicked(int mouseX, int mouseY) {
+        if (graphArea.contains(mouseX, mouseY) || titleArea.contains(mouseX, mouseY) || legendArea.contains(mouseX, mouseY)) {
+            return;
+        }
+        Rectangle topAxisStartArea = new Rectangle(graphArea.x, graphArea.y - margin.top(), graphArea.width / 2, margin.top());
+        if (topAxisStartArea.contains(mouseX, mouseY)) {
+            for (ChartEventListener listener : eventsListeners) {
+                listener.onXAxisClicked(1, -1);
+            }
+        }
+        Rectangle topAxisEndArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y - margin.top(), graphArea.width / 2, margin.top());
+        if (topAxisEndArea.contains(mouseX, mouseY)) {
+            for (ChartEventListener listener : eventsListeners) {
+                listener.onXAxisClicked(1, 1);
+            }
+        }
+        Rectangle bottomAxisStartArea = new Rectangle(graphArea.x, graphArea.y + graphArea.height, graphArea.width / 2, margin.bottom());
+        if (bottomAxisStartArea.contains(mouseX, mouseY)) {
+            for (ChartEventListener listener : eventsListeners) {
+                listener.onXAxisClicked(0, -1);
+            }
+        }
+        Rectangle bottomAxisEndArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y + graphArea.height, graphArea.width / 2, margin.bottom());
+        if (bottomAxisEndArea.contains(mouseX, mouseY)) {
+            for (ChartEventListener listener : eventsListeners) {
+                listener.onXAxisClicked(0, 1);
+            }
+        }
+    }
+
+    @Override
+    public void mouseWheelMoved(int mouseX, int mouseY, int wheelRotation) {
+        Rectangle leftArea = new Rectangle(graphArea.x, graphArea.y, graphArea.width / 2, graphArea.height);
+        Rectangle rightArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y, graphArea.width / 2, graphArea.height);
+
+        if (leftArea.contains(mouseX, mouseY)) {
+            for (int i = 0; i < yAxisList.size() / 2; i++) {
+                Axis yAxis = yAxisList.get(2 * i);
+                // for yAxis Start > End
+                if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
+                    for (ChartEventListener listener : eventsListeners) {
+                        listener.onYAxisMouseWheelMoved(2*i, wheelRotation);
+                    }
+                    break;
+                }
+            }
+        }
+        if (rightArea.contains(mouseX, mouseY)) {
+            for (int i = 0; i < yAxisList.size() / 2; i++) {
+                Axis yAxis = yAxisList.get(2 * i + 1);
+                // for yAxis Start > End
+                if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
+                    for (ChartEventListener listener : eventsListeners) {
+                        listener.onYAxisMouseWheelMoved(2*i + 1, wheelRotation);
+                    }
+                    break;
+                }
+            }
         }
     }
 }

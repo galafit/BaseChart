@@ -64,7 +64,7 @@ public class Text {
     public void draw(Graphics2D g2) {
         AffineTransform initialTransform = g2.getTransform();
         if(transform != null) {
-            g2.setTransform(transform);
+            g2.transform(transform);
         }
         g2.drawString(text, x, y);
         g2.setTransform(initialTransform);

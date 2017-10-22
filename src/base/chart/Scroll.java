@@ -1,38 +1,35 @@
-package base.painters;
+package base.chart;
 
 import base.Range;
-import base.axis.Axis;
 import base.config.ScrollConfig;
+import base.scales.Scale;
 
 import java.awt.*;
+import java.text.MessageFormat;
 
 
 /**
  * Created by galafit on 21/7/17.
  */
-public class ScrollPainter {
-    private Axis axis;
+public class Scroll {
+    private Scale scale;
     private ScrollConfig scrollConfig;
     private double scrollValue = 0;
-    // two extents because we will scroll two axis (xTop and xBottom)
+    // two extents because we will scroll two scale (xTop and xBottom)
     private double scrollExtent1;
     private double scrollExtent2;
 
-    public ScrollPainter(ScrollConfig scrollConfig, double scrollExtent1, double scrollExtent2, Axis axis) {
-        this.axis = axis;
+    public Scroll(ScrollConfig scrollConfig, double scrollExtent1, double scrollExtent2, Scale scale) {
+        this.scale = scale;
         this.scrollConfig = scrollConfig;
         this.scrollExtent1 = scrollExtent1;
         this.scrollExtent2 = scrollExtent2;
     }
 
-    public ScrollPainter(ScrollConfig scrollConfig, double scrollExtent, Axis axis) {
-       this(scrollConfig, scrollExtent, scrollExtent, axis);
-    }
-
 
     private Rectangle getScrollRectangle(Rectangle area) {
-        double scrollStart = axis.scale(scrollValue);
-        double scrollEnd = axis.scale(scrollValue + getScrollExtent());
+        double scrollStart = scale.scale(scrollValue);
+        double scrollEnd = scale.scale(scrollValue + getScrollExtent());
 
         int scrollWidth = Math.max(scrollConfig.getScrollMinWidth(), (int)(scrollEnd - scrollStart));
         return new Rectangle((int)scrollStart, area.y, scrollWidth, area.height);
@@ -46,19 +43,47 @@ public class ScrollPainter {
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
     public boolean moveScroll(int mouseX, int mouseY) {
-        double value = axis.invert(mouseX);
+        double value = scale.invert(mouseX);
         return moveScroll(value);
     }
+
+    public void setMinMax(Range minMaxRange) {
+        if(minMaxRange == null) {
+            return;
+        }
+        double min = minMaxRange.start();
+        double max = minMaxRange.end();
+        if (min > max){
+            String errorMessage = "Error during setMinMax(). Expected Min < Max. Min = {0}, Max = {1}.";
+            String formattedError = MessageFormat.format(errorMessage,min,max);
+            throw new IllegalArgumentException(formattedError);
+        }
+        scale.setDomain(min, max);
+    }
+
+    public void setStartEnd(double start, double end) {
+        scale.setRange(start, end);
+    }
+
+    double getMin() {
+        return scale.getDomain()[0];
+    }
+
+    double getMax() {
+        return scale.getDomain()[scale.getDomain().length -1];
+    }
+
 
     /**
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
     public boolean moveScroll(double newValue) {
-        if(newValue < axis.getMin()) {
-            newValue = axis.getMin();
+
+        if(newValue < getMin()) {
+            newValue = getMin();
         }
-        if(newValue + getScrollExtent() > axis.getMax()) {
-            newValue = axis.getMax() - getScrollExtent();
+        if(newValue + getScrollExtent() > getMax()) {
+            newValue = getMax() - getScrollExtent();
         }
         if(scrollValue != newValue) {
             scrollValue = newValue;

@@ -5,27 +5,32 @@ import base.config.ChartConfig;
 import base.config.ScrollConfig;
 import base.config.general.Margin;
 import base.Range;
+import base.scales.ScaleLinear;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 /**
  * Created by galafit on 3/10/17.
  */
-public class BaseChartWithPreview {
+public class BaseChartWithPreview  implements BaseMouseListener {
     private BaseChart chart;
     private BaseChart preview;
-    private ChartConfig chartConfig;
     private ScrollConfig scrollConfig = new ScrollConfig();
     private Rectangle chartArea;
     private Rectangle previewArea;
+    private Scroll scroll;
+    private ArrayList<ChangeListener> changeListeners = new ArrayList<ChangeListener>();
+
+
 
     public BaseChartWithPreview(ChartConfig chartConfig, Rectangle area) {
         chart = new BaseChart(chartConfig, area);
+        chart.addEventListener(new EventListener());
     }
 
 
     public BaseChartWithPreview(ChartConfig chartConfig, ChartConfig previewConfig, Rectangle area, long chartWidth) {
-        this.chartConfig = chartConfig;
         int chartWeight = chartConfig.getSumWeight();
         int previewWeight = previewConfig.getSumWeight();
 
@@ -35,6 +40,7 @@ public class BaseChartWithPreview {
         previewArea = new Rectangle(area.x, area.y + chartHeight, area.width, previewHeight);
 
         chart = new BaseChart(chartConfig, chartArea);
+        chart.addEventListener(new EventListener());
         preview = new BaseChart(previewConfig, previewArea);
 
         Range minMax = Range.max(chart.getTracesXExtremes(), preview.getTracesXExtremes());
@@ -42,11 +48,12 @@ public class BaseChartWithPreview {
         preview.setTopAxisExtremes(minMax);
         if(chartWidth > 0) {
             double extent = (minMax.end() - minMax.start()) * area.width / chartWidth;
-            preview.createScroll(scrollConfig, extent);
+            scroll = new Scroll(scrollConfig, extent, extent, preview.getBottomaxis().getScale());
+
         } else {
             double extentTop = (minMax.end() - minMax.start()) * area.width / chart.getPreferredTopAxisLength();
             double extentBottom = (minMax.end() - minMax.start()) * area.width / chart.getPreferredBottomAxisLength();
-            preview.createScroll(scrollConfig, extentBottom, extentTop);
+            scroll = new Scroll(scrollConfig, extentBottom, extentTop,  preview.getBottomaxis().getScale());
         }
         chart.setBottomAxisExtremes(getScrollExtremes(0));
         chart.setTopAxisExtremes(getScrollExtremes(1));
@@ -60,19 +67,14 @@ public class BaseChartWithPreview {
         preview.setTraceData(data, traceIndex);
     }
 
-
-
-    public boolean hover(int mouseX, int mouseY) {
-        //return chart.hover(mouseX, mouseY) || preview.hover(mouseX, mouseY);
-        return chart.hover(mouseX, mouseY);
-    }
-
-
     /**
-     * @return true if scrollValue was changed and false if new scroll value = current scroll value
+     * @return true if scrollValue was changed and false if newValue = current scroll value
      */
     public boolean moveScroll(int mouseX, int mouseY) {
-        boolean isScrollMoved = preview.moveScroll(mouseX, mouseY);
+        if(!previewArea.contains(mouseX, mouseY)) {
+           return false;
+        }
+        boolean isScrollMoved = scroll.moveScroll(mouseX, mouseY);
         if(isScrollMoved) {
             chart.setBottomAxisExtremes(getScrollExtremes(0));
             chart.setTopAxisExtremes(getScrollExtremes(1));
@@ -81,10 +83,10 @@ public class BaseChartWithPreview {
     }
 
     /**
-     * @return true if scrollValue was changed and false if new scroll value = current scroll value
+     * @return true if scrollValue was changed and false if newValue = current scroll value
      */
-    public boolean moveScroll(double newScrollValue) {
-        boolean isScrollMoved = preview.moveScroll(newScrollValue);
+    public boolean moveScroll(double newValue) {
+        boolean isScrollMoved = scroll.moveScroll(newValue);
         if(isScrollMoved) {
             chart.setBottomAxisExtremes(getScrollExtremes(0));
             chart.setTopAxisExtremes(getScrollExtremes(1));
@@ -92,18 +94,20 @@ public class BaseChartWithPreview {
         return isScrollMoved;
     }
 
-    public Range getScrollExtremes(int xAxisIndex) {
-        if(xAxisIndex == 0) {
-            return preview.getScrollExtremes1();
-        }
-        return preview.getScrollExtremes2();
-    }
 
     public boolean isMouseInsideScroll(int mouseX, int mouseY) {
         if(preview == null) {
             return false;
         }
-        return preview.isMouseInsideScroll(mouseX, mouseY);
+        return scroll.isMouseInsideScroll(mouseX, mouseY, preview.getGraphArea());
+    }
+
+
+    public Range getScrollExtremes(int xAxisIndex) {
+        if(xAxisIndex == 0) {
+            return scroll.getScrollExtremes1();
+        }
+        return scroll.getScrollExtremes2();
     }
 
     public boolean isMouseInsidePreview(int mouseX, int mouseY) {
@@ -132,6 +136,55 @@ public class BaseChartWithPreview {
         chart.draw(g2d);
         if (preview != null) {
             preview.draw(g2d);
+            scroll.draw(g2d, preview.getGraphArea());
+        }
+    }
+
+    @Override
+    public void mouseClicked(int mouseX, int mouseY) {
+        chart.mouseClicked(mouseX, mouseY);
+    }
+
+    @Override
+    public void mouseDoubleClicked(int mouseX, int mouseY) {
+        chart.mouseDoubleClicked(mouseX, mouseY);
+    }
+
+    @Override
+    public void mouseMoved(int mouseX, int mouseY) {
+        chart.mouseMoved(mouseX, mouseY);
+    }
+
+    @Override
+    public void mouseWheelMoved(int mouseX, int mouseY, int wheelRotation) {
+        chart.mouseWheelMoved(mouseX, mouseY, wheelRotation);
+    }
+
+    public void addChangeListener(ChangeListener changeListener) {
+        changeListeners.add(changeListener);
+    }
+
+    class EventListener implements  ChartEventListener {
+        @Override
+        public void onHoverChanged() {
+            for (ChangeListener changeListener : changeListeners) {
+                changeListener.update();
+            }
+        }
+
+        @Override
+        public void onXAxisClicked(int xAxisIndex, int clickLocation) {
+           // System.out.println(xAxisIndex+" Axis clicked "+ clickLocation);
+        }
+
+        @Override
+        public void onYAxisMouseWheelMoved(int yAxisIndex, int wheelRotation) {
+           // System.out.println(yAxisIndex+" mouseWheelMoved "+ wheelRotation);
+        }
+
+        @Override
+        public void onYAxisDoubleClicked(int yAxisIndex) {
+           // System.out.println("YAxisDoubleClicked "+ yAxisIndex);
         }
     }
 }

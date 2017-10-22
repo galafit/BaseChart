@@ -16,6 +16,8 @@ import java.util.*;
  */
 public class ChartConfig {
     public static final int DEFAULT_WEIGHT = 10;
+    private boolean isTopOpposite = true;
+    private boolean isRightOpposite = true;
     private boolean isBottomXAxisHasTraces = false;
     private boolean isTopXAxisHasTraces = false;
 
@@ -66,6 +68,22 @@ public class ChartConfig {
         axisConfig.getMinorGridLineConfig().setWidth(0);
         axisConfig.getGridLineConfig().setWidth(0);
         yAxisConfigs.add(axisConfig);
+    }
+
+    public boolean isTopOpposite() {
+        return isTopOpposite;
+    }
+
+    public void setTopOpposite(boolean isTopOpposite) {
+        this.isTopOpposite = isTopOpposite;
+    }
+
+    public boolean isRightOpposite() {
+        return isRightOpposite;
+    }
+
+    public void setRightOpposite(boolean isLeftOpposite) {
+        this.isRightOpposite = isLeftOpposite;
     }
 
     public AxisConfig getTopAxisConfig() {
@@ -144,7 +162,15 @@ public class ChartConfig {
 
 
     // add trace to the last stack
-    public void addTrace(TraceConfig traceConfig, DataSet data, String traceName, boolean isBottomXAxis, boolean isLeftYAxis) {
+    public void addTrace(TraceConfig traceConfig, DataSet data, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {
+        boolean isBottomXAxis = true;
+        boolean isLeftYAxis = true;
+        if(isXAxisOpposite && isTopOpposite || !isXAxisOpposite && !isTopOpposite) {
+            isBottomXAxis = false;
+        }
+        if(isYAxisOpposite && isRightOpposite || !isYAxisOpposite && !isRightOpposite) {
+            isLeftYAxis = false;
+        }
         int xAxisIndex = isBottomXAxis ? 0 : 1;
         int yAxisIndex = isLeftYAxis ? yAxisConfigs.size() - 2 : yAxisConfigs.size() - 1;
         if(isBottomXAxis) {

@@ -40,9 +40,9 @@ public class MainFrame extends JFrame {
         xyData3.setYData(yData2);
 
         Config config = new Config();
-        config.addTrace(new LineTraceConfig(), xyData1);
+        config.addTrace(new LineTraceConfig(), xyData1, null, true, false);
         config.addStack(5);
-        config.addTrace(new AreaTraceConfig(), xyData2, null, false, true);
+        config.addTrace(new AreaTraceConfig(), xyData2);
 
         config.addPreviewTrace(new LineTraceConfig(), xyData2);
         config.addPreviewTrace(new LineTraceConfig(), xyData3);

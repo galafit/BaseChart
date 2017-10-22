@@ -1,5 +1,8 @@
 import base.Range;
 import base.chart.BaseChartWithPreview;
+import base.chart.BaseMouseListener;
+import base.chart.ChangeListener;
+import base.chart.ChartEventListener;
 import data.BaseDataSet;
 import data.GroupedDataSet;
 
@@ -8,7 +11,7 @@ import java.awt.*;
 /**
  * Created by galafit on 6/10/17.
  */
-public class Chart {
+public class Chart implements BaseMouseListener {
     Config config;
     BaseChartWithPreview chartWithPreview;
     BaseDataSet[] tracesData;
@@ -51,9 +54,6 @@ public class Chart {
         }
     }
 
-    public boolean hover(int mouseX, int mouseY) {
-        return chartWithPreview.hover(mouseX, mouseY);
-    }
 
     public void moveScroll(int mouseX, int mouseY) {
         chartWithPreview.moveScroll(mouseX, mouseY);
@@ -80,5 +80,30 @@ public class Chart {
 
     public void draw(Graphics2D g2d) {
        chartWithPreview.draw(g2d);
+    }
+
+    @Override
+    public void mouseClicked(int mouseX, int mouseY) {
+        chartWithPreview.mouseClicked(mouseX, mouseY);
+    }
+
+
+    @Override
+    public void mouseDoubleClicked(int mouseX, int mouseY) {
+        chartWithPreview.mouseDoubleClicked(mouseX, mouseY);
+    }
+
+    @Override
+    public void mouseMoved(int mouseX, int mouseY) {
+        chartWithPreview.mouseMoved(mouseX, mouseY);
+    }
+
+    @Override
+    public void mouseWheelMoved(int mouseX, int mouseY, int wheelRotation) {
+        chartWithPreview.mouseWheelMoved(mouseX, mouseY, wheelRotation);
+    }
+
+    public void addChangeListener(ChangeListener changeListener) {
+        chartWithPreview.addChangeListener(changeListener);
     }
 }

@@ -75,6 +75,11 @@ public class Axis {
         isTicksOverlappingFixed = false;
         isDirty = true;
     }
+
+    public Scale getScale() {
+        return scale;
+    }
+
     public void setStartEnd(Range startEndRange) {
         setStartEnd(startEndRange.start(), startEndRange.end());
     }
@@ -136,76 +141,6 @@ public class Axis {
             size = size + config.getTitleConfig().getPadding() + fm.getHeight();
         }
         return size;
-    }
-
-    public void drawGrid(Graphics2D g, int axisOriginPoint, int length) {
-        if(isDirty) {
-            createAxisElements(g);
-        }
-        AffineTransform initialTransform = g.getTransform();
-        if(config.isHorizontal()) {
-            g.translate(0, axisOriginPoint);
-        } else {
-            g.translate(axisOriginPoint, 0);
-        }
-        normalizeTicks(g);
-        g.setColor(config.getMinorGridColor());
-        g.setStroke(config.getMinorGridLineConfig().getStroke());
-        if(config.getMinorGridLineConfig().isVisible()) {
-            for (Double minorTick : minorTicks) {
-                tickToGridLine(minorTick, length).draw(g);
-            }
-        }
-
-        g.setColor(config.getGridColor());
-        g.setStroke(config.getGridLineConfig().getStroke());
-        if(config.getGridLineConfig().isVisible()) {
-            for (Tick tick : ticks) {
-                tickToGridLine(tick.getValue(), length).draw(g);
-            }
-        }
-        g.setTransform(initialTransform);
-    }
-
-    public void drawAxis(Graphics2D g,  int axisOriginPoint) {
-        if(!config.isVisible()) {
-            return;
-        }
-        if(isDirty) {
-            createAxisElements(g);
-        }
-        AffineTransform initialTransform = g.getTransform();
-        if(config.isHorizontal()) {
-            g.translate(0, axisOriginPoint);
-        } else {
-            g.translate(axisOriginPoint, 0);
-        }
-        g.setColor(config.getTicksColor());
-        g.setStroke(new BasicStroke(config.getTicksConfig().getTickMarkWidth()));
-        for (Line tickLine : tickLines) {
-            tickLine.draw(g);
-        }
-
-        g.setColor(config.getLabelsColor());
-        g.setFont(config.getLabelsConfig().getTextStyle().getFont());
-        g.setStroke(new BasicStroke());
-        for (Text tickLabel : tickLabels) {
-            tickLabel.draw(g);
-        }
-
-        if(config.getAxisLineConfig().isVisible()) {
-            g.setColor(config.getAxisLineColor());
-            g.setStroke(config.getAxisLineConfig().getStroke());
-            axisLine.draw(g);
-        }
-
-        if(config.getTitleConfig().isVisible()) {
-            g.setStroke(new BasicStroke());
-            g.setColor(config.getTitleColor());
-            g.setFont(config.getTitleConfig().getTextStyle().getFont());
-            axisName.draw(g);
-        }
-        g.setTransform(initialTransform);
     }
 
     private TickProvider getTickProvider() {
@@ -415,6 +350,76 @@ public class Axis {
             maxSize = Math.max(maxSize, fm.stringWidth(tick.getLabel()));
         }
         return maxSize;
+    }
+
+    public void drawGrid(Graphics2D g, int axisOriginPoint, int length) {
+        if(isDirty) {
+            createAxisElements(g);
+        }
+        AffineTransform initialTransform = g.getTransform();
+        if(config.isHorizontal()) {
+            g.translate(0, axisOriginPoint);
+        } else {
+            g.translate(axisOriginPoint, 0);
+        }
+        normalizeTicks(g);
+        g.setColor(config.getMinorGridColor());
+        g.setStroke(config.getMinorGridLineConfig().getStroke());
+        if(config.getMinorGridLineConfig().isVisible()) {
+            for (Double minorTick : minorTicks) {
+                tickToGridLine(minorTick, length).draw(g);
+            }
+        }
+
+        g.setColor(config.getGridColor());
+        g.setStroke(config.getGridLineConfig().getStroke());
+        if(config.getGridLineConfig().isVisible()) {
+            for (Tick tick : ticks) {
+                tickToGridLine(tick.getValue(), length).draw(g);
+            }
+        }
+        g.setTransform(initialTransform);
+    }
+
+    public void drawAxis(Graphics2D g,  int axisOriginPoint) {
+        if(!config.isVisible()) {
+            return;
+        }
+        if(isDirty) {
+            createAxisElements(g);
+        }
+        AffineTransform initialTransform = g.getTransform();
+        if(config.isHorizontal()) {
+            g.translate(0, axisOriginPoint);
+        } else {
+            g.translate(axisOriginPoint, 0);
+        }
+        g.setColor(config.getTicksColor());
+        g.setStroke(new BasicStroke(config.getTicksConfig().getTickMarkWidth()));
+        for (Line tickLine : tickLines) {
+            tickLine.draw(g);
+        }
+
+        g.setColor(config.getLabelsColor());
+        g.setFont(config.getLabelsConfig().getTextStyle().getFont());
+        g.setStroke(new BasicStroke());
+        for (Text tickLabel : tickLabels) {
+            tickLabel.draw(g);
+        }
+
+        if(config.getAxisLineConfig().isVisible()) {
+            g.setColor(config.getAxisLineColor());
+            g.setStroke(config.getAxisLineConfig().getStroke());
+            axisLine.draw(g);
+        }
+
+        if(config.getTitleConfig().isVisible()) {
+            g.setStroke(new BasicStroke());
+            g.setColor(config.getTitleColor());
+            g.setFont(config.getTitleConfig().getTextStyle().getFont());
+            axisName.draw(g);
+        }
+        g.setTransform(initialTransform);
     }
 
 }

@@ -69,22 +69,22 @@ public class Config {
     /**
      * add trace to the last chart stack
      */
-    public void addTrace(TraceConfig traceConfig, Data data, String name, boolean isBottomXAxis, boolean isLeftYAxis) {
-        chartConfig.addTrace(traceConfig, data.getDataSet(), name,  isBottomXAxis, isLeftYAxis);
+    public void addTrace(TraceConfig traceConfig, Data data, String name, boolean isXAxisOpposite, boolean isYAxisOpposite) {
+        chartConfig.addTrace(traceConfig, data.getDataSet(), name,  isXAxisOpposite, isYAxisOpposite);
     }
 
     /**
      * add trace to the last chart stack
      */
     public void addTrace(TraceConfig traceConfig, Data data, String name) {
-        addTrace(traceConfig, data, name, true, true);
+        addTrace(traceConfig, data, name, false, false);
     }
 
     /**
      * add trace to the last chart stack
      */
     public void addTrace(TraceConfig traceConfig, Data data) {
-        addTrace(traceConfig, data, null, true, true);
+        addTrace(traceConfig, data, null, false, false);
     }
 
 
@@ -113,21 +113,21 @@ public class Config {
     /**
      * add trace to the last preview stack
      */
-    public void addPreviewTrace(TraceConfig traceConfig, Data data, String name, boolean isBottomXAxis, boolean isLeftYAxis) {
-        previewConfig.addTrace(traceConfig, data.getDataSet(), name,  isBottomXAxis, isLeftYAxis);
+    public void addPreviewTrace(TraceConfig traceConfig, Data data, String name,  boolean isXAxisOpposite, boolean isYAxisOpposite) {
+        previewConfig.addTrace(traceConfig, data.getDataSet(), name,  isXAxisOpposite, isYAxisOpposite);
     }
 
     /**
      * add trace to the last preview stack
      */
     public void addPreviewTrace(TraceConfig traceConfig, Data data, String name) {
-        addPreviewTrace(traceConfig, data, name, true, true);
+        addPreviewTrace(traceConfig, data, name, false, false);
     }
 
     /**
      * add trace to the last preview stack
      */
     public void addPreviewTrace(TraceConfig traceConfig, Data data) {
-        addPreviewTrace(traceConfig, data, null, true, true);
+        addPreviewTrace(traceConfig, data, null, false, false);
     }
 }
