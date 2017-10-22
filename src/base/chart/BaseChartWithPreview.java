@@ -5,7 +5,6 @@ import base.config.ChartConfig;
 import base.config.ScrollConfig;
 import base.config.general.Margin;
 import base.Range;
-import base.scales.ScaleLinear;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -48,12 +47,12 @@ public class BaseChartWithPreview  implements BaseMouseListener {
         preview.setTopAxisExtremes(minMax);
         if(chartWidth > 0) {
             double extent = (minMax.end() - minMax.start()) * area.width / chartWidth;
-            scroll = new Scroll(scrollConfig, extent, extent, preview.getBottomaxis().getScale());
+            scroll = new Scroll(scrollConfig, extent, extent, preview.getBottomAxis().getScale());
 
         } else {
             double extentTop = (minMax.end() - minMax.start()) * area.width / chart.getPreferredTopAxisLength();
             double extentBottom = (minMax.end() - minMax.start()) * area.width / chart.getPreferredBottomAxisLength();
-            scroll = new Scroll(scrollConfig, extentBottom, extentTop,  preview.getBottomaxis().getScale());
+            scroll = new Scroll(scrollConfig, extentBottom, extentTop,  preview.getBottomAxis().getScale());
         }
         chart.setBottomAxisExtremes(getScrollExtremes(0));
         chart.setTopAxisExtremes(getScrollExtremes(1));
@@ -166,25 +165,25 @@ public class BaseChartWithPreview  implements BaseMouseListener {
 
     class EventListener implements  ChartEventListener {
         @Override
-        public void onHoverChanged() {
+        public void hoverChanged() {
             for (ChangeListener changeListener : changeListeners) {
                 changeListener.update();
             }
         }
 
         @Override
-        public void onXAxisClicked(int xAxisIndex, int clickLocation) {
+        public void xAxisActionPerformed(int xAxisIndex, int actionDirection) {
            // System.out.println(xAxisIndex+" Axis clicked "+ clickLocation);
         }
 
         @Override
-        public void onYAxisMouseWheelMoved(int yAxisIndex, int wheelRotation) {
+        public void yAxisActionPerformed(int yAxisIndex, int actionDirection) {
            // System.out.println(yAxisIndex+" mouseWheelMoved "+ wheelRotation);
         }
 
         @Override
-        public void onYAxisDoubleClicked(int yAxisIndex) {
-           // System.out.println("YAxisDoubleClicked "+ yAxisIndex);
+        public void yAxisResetActionPerformed(int yAxisIndex) {
+
         }
     }
 }

@@ -10,7 +10,6 @@ import java.awt.event.*;
  */
 public class ChartPanel extends JPanel {
     private Chart chart;
-    int i;
 
     public ChartPanel(Chart chart) {
         this.chart = chart;
@@ -30,26 +29,7 @@ public class ChartPanel extends JPanel {
             }
         });
 
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                i++;
-                if(e.getClickCount() == 2) {
-                    chart.mouseDoubleClicked(e.getX(), e.getY());
-                    System.out.println("double click: "+i);
-                }
-                else if(e.getClickCount() == 1) {
-                    chart.mouseClicked(e.getX(), e.getY());
-                    if (chart.isMouseInsidePreview(e.getX(), e.getY()) && !chart.isMouseInsideScroll(e.getX(), e.getY())) {
-                        chart.moveScroll(e.getX(), e.getY());
-                        repaint();
-                    }
-                    System.out.println("single click: "+i);
-                }
-
-            }
-
-        });
+        addMouseListener(new ClickListener());
 
         addMouseWheelListener(new MouseWheelListener() {
             @Override
@@ -57,12 +37,65 @@ public class ChartPanel extends JPanel {
                 chart.mouseWheelMoved(e.getX(), e.getY(), e.getWheelRotation());
             }
         });
+    }
 
+    public void singleClickAction(MouseEvent e) {
+        chart.mouseDoubleClicked(e.getX(), e.getY());
+    }
+    public void doubleClickAction(MouseEvent e) {
+        chart.mouseClicked(e.getX(), e.getY());
+        if (chart.isMouseInsidePreview(e.getX(), e.getY()) && !chart.isMouseInsideScroll(e.getX(), e.getY())) {
+            chart.moveScroll(e.getX(), e.getY());
+            repaint();
+        }
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         chart.draw((Graphics2D) g);
+    }
+
+    /**
+     * This class distinguish between single and double click
+     */
+    class ClickListener extends MouseAdapter  {
+        private int clickInterval = 300; //ms
+        MouseEvent lastEvent;
+        private Timer clickTimer;
+
+        public ClickListener() {
+            Object defaultClickInterval = Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
+            if(defaultClickInterval != null) {
+                clickInterval = (Integer) defaultClickInterval;
+            }
+        }
+
+        /**
+         * If we do not want to be limited by the desktop configuration we can
+         * not use e.getClickCount()==2 but instead
+         * choose the interval max between clicks and  handle by oneself the count
+         */
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() > 2) return;
+            if (e.getClickCount() == 1) {
+                lastEvent = e;
+                clickTimer = new Timer(clickInterval, new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        singleClickAction(lastEvent);
+                        System.out.println("single click: ");
+                    }
+                });
+                clickTimer.setRepeats(false);
+                clickTimer.start();
+
+            }
+            if (e.getClickCount() == 2) {
+                clickTimer.stop();
+                doubleClickAction(e);
+                System.out.println("double click: ");
+            }
+        }
     }
 }

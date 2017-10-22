@@ -320,7 +320,7 @@ public class BaseChart implements BaseMouseListener {
         }
     }
 
-    Axis getBottomaxis() {
+    Axis getBottomAxis() {
         return xAxisList.get(0);
     }
 
@@ -411,7 +411,7 @@ public class BaseChart implements BaseMouseListener {
     public void mouseMoved(int mouseX, int mouseY) {
         if (hover(mouseX, mouseY)) {
             for (ChartEventListener listener : eventsListeners) {
-                listener.onHoverChanged();
+                listener.hoverChanged();
             }
         }
     }
@@ -430,25 +430,25 @@ public class BaseChart implements BaseMouseListener {
         Rectangle topAxisStartArea = new Rectangle(graphArea.x, graphArea.y - margin.top(), graphArea.width / 2, margin.top());
         if (topAxisStartArea.contains(mouseX, mouseY)) {
             for (ChartEventListener listener : eventsListeners) {
-                listener.onXAxisClicked(1, -1);
+                listener.xAxisActionPerformed(1, -1);
             }
         }
         Rectangle topAxisEndArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y - margin.top(), graphArea.width / 2, margin.top());
         if (topAxisEndArea.contains(mouseX, mouseY)) {
             for (ChartEventListener listener : eventsListeners) {
-                listener.onXAxisClicked(1, 1);
+                listener.xAxisActionPerformed(1, 1);
             }
         }
         Rectangle bottomAxisStartArea = new Rectangle(graphArea.x, graphArea.y + graphArea.height, graphArea.width / 2, margin.bottom());
         if (bottomAxisStartArea.contains(mouseX, mouseY)) {
             for (ChartEventListener listener : eventsListeners) {
-                listener.onXAxisClicked(0, -1);
+                listener.xAxisActionPerformed(0, -1);
             }
         }
         Rectangle bottomAxisEndArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y + graphArea.height, graphArea.width / 2, margin.bottom());
         if (bottomAxisEndArea.contains(mouseX, mouseY)) {
             for (ChartEventListener listener : eventsListeners) {
-                listener.onXAxisClicked(0, 1);
+                listener.xAxisActionPerformed(0, 1);
             }
         }
     }
@@ -464,7 +464,7 @@ public class BaseChart implements BaseMouseListener {
                 // for yAxis Start > End
                 if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
                     for (ChartEventListener listener : eventsListeners) {
-                        listener.onYAxisMouseWheelMoved(2*i, wheelRotation);
+                        listener.yAxisActionPerformed(2*i, wheelRotation);
                     }
                     break;
                 }
@@ -476,7 +476,7 @@ public class BaseChart implements BaseMouseListener {
                 // for yAxis Start > End
                 if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
                     for (ChartEventListener listener : eventsListeners) {
-                        listener.onYAxisMouseWheelMoved(2*i + 1, wheelRotation);
+                        listener.yAxisActionPerformed(2*i + 1, wheelRotation);
                     }
                     break;
                 }
