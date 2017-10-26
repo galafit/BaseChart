@@ -418,13 +418,55 @@ public class BaseChart implements BaseMouseListener {
 
     @Override
     public void mouseDoubleClicked(int mouseX, int mouseY) {
-       // System.out.println("double  click");
+        if (titleArea.contains(mouseX, mouseY) || legendArea.contains(mouseX, mouseY)) {
+            return;
+        }
+        Rectangle topAxisArea = new Rectangle(graphArea.x, graphArea.y - margin.top(), graphArea.width, margin.top());
+        if (topAxisArea.contains(mouseX, mouseY)) {
+            for (ChartEventListener listener : eventsListeners) {
+                listener.xAxisResetActionPerformed(1);
+            }
+        }
+        Rectangle bottomAxisArea = new Rectangle(graphArea.x, graphArea.y + graphArea.height, graphArea.width, margin.bottom());
+        if (bottomAxisArea.contains(mouseX, mouseY)) {
+            for (ChartEventListener listener : eventsListeners) {
+                listener.xAxisResetActionPerformed(0);
+            }
+        }
+
+        Rectangle leftArea = new Rectangle(graphArea.x, graphArea.y, graphArea.width / 2, graphArea.height);
+        Rectangle rightArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y, graphArea.width / 2, graphArea.height);
+        if (leftArea.contains(mouseX, mouseY)) {
+            for (int i = 0; i < yAxisList.size() / 2; i++) {
+                Axis yAxis = yAxisList.get(2 * i);
+                // for yAxis Start > End
+                if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
+                    for (ChartEventListener listener : eventsListeners) {
+                        listener.yAxisResetActionPerformed(2*i);
+                    }
+                    break;
+                }
+            }
+        }
+        if (rightArea.contains(mouseX, mouseY)) {
+            for (int i = 0; i < yAxisList.size() / 2; i++) {
+                Axis yAxis = yAxisList.get(2 * i + 1);
+                // for yAxis Start > End
+                if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
+                    for (ChartEventListener listener : eventsListeners) {
+                        listener.yAxisResetActionPerformed(2*i + 1);
+                    }
+                    break;
+                }
+            }
+        }
+
 
     }
 
     @Override
     public void mouseClicked(int mouseX, int mouseY) {
-        if (graphArea.contains(mouseX, mouseY) || titleArea.contains(mouseX, mouseY) || legendArea.contains(mouseX, mouseY)) {
+        if (titleArea.contains(mouseX, mouseY) || legendArea.contains(mouseX, mouseY)) {
             return;
         }
         Rectangle topAxisStartArea = new Rectangle(graphArea.x, graphArea.y - margin.top(), graphArea.width / 2, margin.top());

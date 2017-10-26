@@ -1,5 +1,4 @@
 import base.chart.ChangeListener;
-import base.chart.ChartEventListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -40,14 +39,11 @@ public class ChartPanel extends JPanel {
     }
 
     public void singleClickAction(MouseEvent e) {
-        chart.mouseDoubleClicked(e.getX(), e.getY());
-    }
-    public void doubleClickAction(MouseEvent e) {
         chart.mouseClicked(e.getX(), e.getY());
-        if (chart.isMouseInsidePreview(e.getX(), e.getY()) && !chart.isMouseInsideScroll(e.getX(), e.getY())) {
-            chart.moveScroll(e.getX(), e.getY());
-            repaint();
-        }
+    }
+
+    public void doubleClickAction(MouseEvent e) {
+        chart.mouseDoubleClicked(e.getX(), e.getY());
     }
 
     @Override
@@ -61,7 +57,8 @@ public class ChartPanel extends JPanel {
      */
     class ClickListener extends MouseAdapter  {
         private int clickInterval = 300; //ms
-        MouseEvent lastEvent;
+        private MouseEvent lastEvent;
+        private long lastTime;
         private Timer clickTimer;
 
         public ClickListener() {
@@ -71,30 +68,35 @@ public class ChartPanel extends JPanel {
             }
         }
 
+        public ClickListener(int clickInterval) {
+            this.clickInterval = clickInterval;
+        }
+
         /**
-         * If we do not want to be limited by the desktop configuration we can
+         * As we do not want to be limited by the desktop configuration we do
          * not use e.getClickCount()==2 but instead
-         * choose the interval max between clicks and  handle by oneself the count
+         * use clickInterval and and  handle the count by by ourselves
          */
         public void mouseClicked(MouseEvent e) {
-            if (e.getClickCount() > 2) return;
-            if (e.getClickCount() == 1) {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastTime >= clickInterval) { // single click
                 lastEvent = e;
+                lastTime = currentTime;
                 clickTimer = new Timer(clickInterval, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         singleClickAction(lastEvent);
-                        System.out.println("single click: ");
+                       // System.out.println("single click: ");
                     }
                 });
                 clickTimer.setRepeats(false);
                 clickTimer.start();
 
-            }
-            if (e.getClickCount() == 2) {
+            } else { // double click
+                lastTime = 0;
                 clickTimer.stop();
                 doubleClickAction(e);
-                System.out.println("double click: ");
+                //System.out.println("double click: ");
             }
         }
     }

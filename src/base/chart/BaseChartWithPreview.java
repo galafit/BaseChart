@@ -22,12 +22,10 @@ public class BaseChartWithPreview  implements BaseMouseListener {
     private ArrayList<ChangeListener> changeListeners = new ArrayList<ChangeListener>();
 
 
-
     public BaseChartWithPreview(ChartConfig chartConfig, Rectangle area) {
         chart = new BaseChart(chartConfig, area);
         chart.addEventListener(new EventListener());
     }
-
 
     public BaseChartWithPreview(ChartConfig chartConfig, ChartConfig previewConfig, Rectangle area, long chartWidth) {
         int chartWeight = chartConfig.getSumWeight();
@@ -109,17 +107,6 @@ public class BaseChartWithPreview  implements BaseMouseListener {
         return scroll.getScrollExtremes2();
     }
 
-    public boolean isMouseInsidePreview(int mouseX, int mouseY) {
-        if(preview == null) {
-            return false;
-        }
-        return preview.isMouseInsideChart(mouseX, mouseY);
-    }
-
-    public boolean isMouseInsideChart(int mouseX, int mouseY) {
-        return chart.isMouseInsideChart(mouseX, mouseY);
-    }
-
     public void draw(Graphics2D g2d) {
          Margin chartMargin = chart.getMargin(g2d);
          Margin previewMargin = preview.getMargin(g2d);
@@ -141,7 +128,14 @@ public class BaseChartWithPreview  implements BaseMouseListener {
 
     @Override
     public void mouseClicked(int mouseX, int mouseY) {
-        chart.mouseClicked(mouseX, mouseY);
+        if(chartArea.contains(mouseX, mouseY)) {
+            chart.mouseClicked(mouseX, mouseY);
+        } else if(preview != null && previewArea.contains(mouseX, mouseY) && !isMouseInsideScroll(mouseX, mouseY)) {
+            moveScroll(mouseX, mouseY);
+        }
+        for (ChangeListener changeListener : changeListeners) {
+            changeListener.update();
+        }
     }
 
     @Override
@@ -173,17 +167,22 @@ public class BaseChartWithPreview  implements BaseMouseListener {
 
         @Override
         public void xAxisActionPerformed(int xAxisIndex, int actionDirection) {
-           // System.out.println(xAxisIndex+" Axis clicked "+ clickLocation);
+            System.out.println(xAxisIndex+" X AxisAction "+ actionDirection);
         }
 
         @Override
         public void yAxisActionPerformed(int yAxisIndex, int actionDirection) {
-           // System.out.println(yAxisIndex+" mouseWheelMoved "+ wheelRotation);
+            System.out.println(yAxisIndex+" Y AxisAction "+ actionDirection);
         }
 
         @Override
         public void yAxisResetActionPerformed(int yAxisIndex) {
+            System.out.println(yAxisIndex+" Y AxisReset ");
+        }
 
+        @Override
+        public void xAxisResetActionPerformed(int xAxisIndex) {
+            System.out.println(xAxisIndex+" X AxisReset ");
         }
     }
 }

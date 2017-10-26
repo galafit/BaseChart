@@ -70,14 +70,6 @@ public class Chart implements BaseMouseListener {
     }
 
 
-    public boolean isMouseInsideScroll(int mouseX, int mouseY) {
-       return chartWithPreview.isMouseInsideScroll(mouseX, mouseY);
-    }
-
-    public boolean isMouseInsidePreview(int mouseX, int mouseY) {
-       return chartWithPreview.isMouseInsidePreview(mouseX, mouseY);
-    }
-
     public void draw(Graphics2D g2d) {
        chartWithPreview.draw(g2d);
     }

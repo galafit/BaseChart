@@ -13,5 +13,6 @@ public interface ChartEventListener {
      */
     public void xAxisActionPerformed(int xAxisIndex, int actionDirection);
     public void yAxisActionPerformed(int yAxisIndex, int actionDirection);
+    public void xAxisResetActionPerformed(int xAxisIndex);
     public void yAxisResetActionPerformed(int yAxisIndex);
 }
