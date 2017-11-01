@@ -13,8 +13,8 @@ import java.util.ArrayList;
  * Created by galafit on 3/10/17.
  */
 public class BaseChartWithPreview  implements BaseMouseListener {
-    private BaseChart chart;
-    private BaseChart preview;
+    private InteractiveChart chart;
+    private SimpleChart preview;
     private ScrollConfig scrollConfig = new ScrollConfig();
     private Rectangle chartArea;
     private Rectangle previewArea;
@@ -23,7 +23,7 @@ public class BaseChartWithPreview  implements BaseMouseListener {
 
 
     public BaseChartWithPreview(ChartConfig chartConfig, Rectangle area) {
-        chart = new BaseChart(chartConfig, area);
+        chart = new InteractiveChart(chartConfig, area);
         chart.addEventListener(new EventListener());
     }
 
@@ -36,9 +36,9 @@ public class BaseChartWithPreview  implements BaseMouseListener {
         chartArea = new Rectangle(area.x, area.y, area.width, chartHeight);
         previewArea = new Rectangle(area.x, area.y + chartHeight, area.width, previewHeight);
 
-        chart = new BaseChart(chartConfig, chartArea);
+        chart = new InteractiveChart(chartConfig, chartArea);
         chart.addEventListener(new EventListener());
-        preview = new BaseChart(previewConfig, previewArea);
+        preview = new SimpleChart(previewConfig, previewArea);
 
         Range minMax = Range.max(chart.getTracesXExtremes(), preview.getTracesXExtremes());
         preview.setBottomAxisExtremes(minMax);
@@ -125,6 +125,7 @@ public class BaseChartWithPreview  implements BaseMouseListener {
             scroll.draw(g2d, preview.getGraphArea());
         }
     }
+
 
     @Override
     public void mouseClicked(int mouseX, int mouseY) {

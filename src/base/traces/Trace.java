@@ -4,7 +4,7 @@ import base.DataSet;
 import base.axis.Axis;
 import base.Range;
 import base.legend.LegendItem;
-import base.tooltips.TooltipItem;
+import base.tooltips.InfoItem;
 
 import java.awt.*;
 
@@ -82,9 +82,7 @@ public abstract class Trace {
         return getXAxis().scale(data.getXValue(dataIndex));
     }
 
-    public double getXValue(int dataIndex) {
-        return data.getXValue(dataIndex);
-    }
+    public abstract Point getPosition(int dataIndex);
 
     public Range getXExtremes() {
         return data.getXExtremes();
@@ -96,7 +94,7 @@ public abstract class Trace {
 
     public abstract Range getYExtremes();
 
-    public abstract TooltipItem getTooltipItem();
+    public abstract InfoItem[] getInfo(int dataIndex);
 
     public abstract void draw(Graphics2D g);
 }

@@ -9,22 +9,32 @@ import java.awt.event.*;
  */
 public class ChartPanel extends JPanel {
     private Chart chart;
+    private static final int SquareWidth = 10;
+
+    private static final int Max = 100;
+
+    private Rectangle[] squares = new Rectangle[Max];
+
+    private int squareCount = 0;
+
+    private int currentSquareIndex = -1;
+
 
     public ChartPanel(Chart chart) {
         this.chart = chart;
-        this.chart.addChangeListener(new ChangeListener() {
-            @Override
-            public void update() {
-                repaint();
-            }
-        });
 
-        addMouseMotionListener(new MouseMotionAdapter() {
-
+    addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
                 chart.mouseMoved(e.getX(), e.getY());
 
+            }
+        });
+
+        this.chart.addChangeListener(new ChangeListener() {
+            @Override
+            public void update() {
+                repaint();
             }
         });
 
@@ -38,6 +48,7 @@ public class ChartPanel extends JPanel {
         });
     }
 
+
     public void singleClickAction(MouseEvent e) {
         chart.mouseClicked(e.getX(), e.getY());
     }
@@ -47,7 +58,7 @@ public class ChartPanel extends JPanel {
     }
 
     @Override
-    protected void paintComponent(Graphics g) {
+    public void paintComponent(Graphics g) {
         super.paintComponent(g);
         chart.draw((Graphics2D) g);
     }

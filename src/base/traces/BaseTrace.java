@@ -5,7 +5,7 @@ import base.DataSet;
 import base.Range;
 import base.config.traces.BaseTraceConfig;
 import base.legend.LegendItem;
-import base.tooltips.TooltipItem;
+import base.tooltips.InfoItem;
 
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -59,12 +59,21 @@ public abstract class BaseTrace extends Trace {
     }
 
     @Override
-    public TooltipItem getTooltipItem(){
-        if (getHoverIndex() == -1){
-            return null;
+    public Point getPosition(int dataIndex) {
+        return new Point((int)getXAxis().scale(xyData.getX(dataIndex)), (int)getYAxis().scale(xyData.getY(dataIndex)));
+    }
+
+    @Override
+    public InfoItem[] getInfo(int dataIndex){
+        if (dataIndex == -1){
+            return new InfoItem[0];
         }
-        String label = getName();
-        return new TooltipItem(label, String.valueOf(xyData.getY(getHoverIndex())), getLineColor());
+        InfoItem[] infoItems = new InfoItem[3];
+        infoItems[0] = new InfoItem(getName(), "", getLineColor());
+        infoItems[1] = new InfoItem("X: ", String.valueOf(xyData.getX(dataIndex)), null);
+        infoItems[2] = new InfoItem("Y: ", String.valueOf(xyData.getY(dataIndex)), null);
+
+        return infoItems;
     }
 
     @Override

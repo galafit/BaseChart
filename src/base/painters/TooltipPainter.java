@@ -3,7 +3,7 @@ package base.painters;
 import base.config.general.Margin;
 import base.config.TooltipConfig;
 import base.tooltips.TooltipInfo;
-import base.tooltips.TooltipItem;
+import base.tooltips.InfoItem;
 
 import java.awt.*;
 
@@ -14,15 +14,15 @@ public class TooltipPainter {
     private TooltipConfig tooltipConfig;
     private int x_offset = 10;
     private int y_offset = 15;
-    private String separator = ":  ";
+    private String separator = "  ";
 
     public TooltipPainter(TooltipConfig tooltipConfig) {
         this.tooltipConfig = tooltipConfig;
     }
 
     public void draw(Graphics2D g2d, Rectangle area, TooltipInfo tooltipInfo){
-        g2d.setFont(tooltipConfig.getTextStyle().getFont());
-        Dimension tooltipDimension = getTextSize(g2d, tooltipInfo);
+      g2d.setFont(tooltipConfig.getTextStyle().getFont());
+        Dimension tooltipDimension  = getTextSize(g2d, tooltipInfo);
         int tooltipAreaX = tooltipInfo.getX() + x_offset;
         int tooltipAreaY = tooltipInfo.getY() - tooltipDimension.height - y_offset;
         if (tooltipAreaX + tooltipDimension.width > area.width + area.x){
@@ -56,8 +56,11 @@ public class TooltipPainter {
         int lineSpace = getInterLineSpace();
         int x = area.x + margin.left();
         int y = area.y  + margin.top();
-        drawItem(g2, x,y, tooltipInfo.getHeader());
-        y += (lineSpace + stringHeght);
+        if(tooltipInfo.getHeader() != null) {
+            drawItem(g2, x,y, tooltipInfo.getHeader());
+            y += (lineSpace + stringHeght);
+        }
+
         for (int i = 0; i < tooltipInfo.getAmountOfItems(); i++) {
             drawItem(g2, x, y, tooltipInfo.getItem(i));
             //g2.drawRect(x - margin.left(), y, area.width, stringHeght);
@@ -68,26 +71,27 @@ public class TooltipPainter {
     /*
     * http://pawlan.com/monica/articles/texttutorial/other.html
     */
-    private void drawItem(Graphics2D g2, int x, int y, TooltipItem tooltipItem){
+    private void drawItem(Graphics2D g2, int x, int y, InfoItem infoItem){
+
         int string_y = y + getStringAscent(g2, tooltipConfig.getTextStyle().getFont());;
-        if (tooltipItem.getMarkColor() != null) {
-            g2.setColor(tooltipItem.getMarkColor());
+        if (infoItem.getMarkColor() != null) {
+            g2.setColor(infoItem.getMarkColor());
             int colorMarkerSize = getColorMarkerSize();
             g2.fillRect(x, y + (getStringHeight(g2, tooltipConfig.getTextStyle().getFont()) - colorMarkerSize) / 2 + 1, colorMarkerSize, colorMarkerSize);
             x = x + colorMarkerSize + getColorMarkerPadding();
         }
-        if (tooltipItem.getLabel() != null) {
+        if (infoItem.getLabel() != null) {
             g2.setColor(tooltipConfig.getTextStyle().getFontColor());
             g2.setFont(tooltipConfig.getTextStyle().getFont());
-            String labelString = tooltipItem.getLabel() + separator;
+            String labelString = infoItem.getLabel() + separator;
             g2.drawString(labelString, x, string_y);
             x = x + getStringWidth(g2, tooltipConfig.getTextStyle().getFont(), labelString);
         }
-        if (tooltipItem.getValue() != null){
+        if (infoItem.getValue() != null){
             g2.setColor(tooltipConfig.getTextStyle().getFontColor());
             // font for value is always BOLD!
             g2.setFont(new Font(tooltipConfig.getTextStyle().getFontName(), Font.BOLD, tooltipConfig.getTextStyle().getFontSize()));
-            g2.drawString(tooltipItem.getValue(), x, string_y);
+            g2.drawString(infoItem.getValue(), x, string_y);
         }
     }
 
@@ -100,16 +104,16 @@ public class TooltipPainter {
         return (int)(tooltipConfig.getTextStyle().getFontSize() * 0.5);
     }
 
-    private int getItemWidth(Graphics2D g2d, TooltipItem tooltipItem){
+    private int getItemWidth(Graphics2D g2d, InfoItem infoItem){
         String string = "";
-        if (tooltipItem.getValue() != null){
-            string = tooltipItem.getValue();
+        if (infoItem.getValue() != null){
+            string = infoItem.getValue();
         }
-        if (tooltipItem.getLabel() != null){
-            string = tooltipItem.getLabel() + separator + string;
+        if (infoItem.getLabel() != null){
+            string = infoItem.getLabel() + separator + string;
         }
         int itemWidth = getStringWidth(g2d, tooltipConfig.getTextStyle().getFont(), string);
-        if (tooltipItem.getMarkColor() != null){
+        if (infoItem.getMarkColor() != null){
             itemWidth = itemWidth + getColorMarkerPadding() + getColorMarkerSize();
         }
 
@@ -122,7 +126,9 @@ public class TooltipPainter {
         for (int i = 0; i < amountOfItems; i++) {
             textWidth = Math.max(textWidth, getItemWidth(g2, tooltipInfo.getItem(i)));
         }
-        textWidth = Math.max(textWidth,getItemWidth(g2, tooltipInfo.getHeader()));
+        if (tooltipInfo.getHeader() != null) {
+            textWidth = Math.max(textWidth,getItemWidth(g2, tooltipInfo.getHeader()));
+        }
         Margin margin = tooltipConfig.getMargin();
         textWidth += margin.left() + margin.right();
         int textHeight = margin.top() + margin.bottom() + amountOfItems * getStringHeight(g2, tooltipConfig.getTextStyle().getFont());

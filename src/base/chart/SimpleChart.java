@@ -9,7 +9,7 @@ import base.Range;
 import base.legend.LegendItem;
 import base.painters.*;
 import base.tooltips.TooltipInfo;
-import base.tooltips.TooltipItem;
+import base.tooltips.InfoItem;
 import base.traces.Trace;
 import base.traces.TraceRegister;
 
@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Created by hdablin on 24.03.17.
  */
-public class BaseChart implements BaseMouseListener {
+public class SimpleChart  {
     private final Color GREY = new Color(150, 150, 150);
     private final Color BROWN = new Color(200, 102, 0);
     private final Color ORANGE = new Color(255, 153, 0);
@@ -32,12 +32,8 @@ public class BaseChart implements BaseMouseListener {
     private List<Trace> traces = new ArrayList<Trace>();
     private boolean isTicksAlignmentEnable = false;
 
-    private TooltipPainter tooltipPainter;
-    private boolean isTooltipSeparated = true;
-    private TooltipInfo tooltipInfo;
     private LegendPainter legendPainter;
     private TitlePainter titlePainter;
-    private CrosshairPainter crosshairPainter;
     private ChartConfig chartConfig;
 
     private Rectangle fullArea;
@@ -46,10 +42,7 @@ public class BaseChart implements BaseMouseListener {
     private Rectangle graphArea;
     private Margin margin;
 
-    private ArrayList<ChartEventListener> eventsListeners = new ArrayList<ChartEventListener>();
-
-
-    public BaseChart(ChartConfig chartConfig, Rectangle area) {
+    public SimpleChart(ChartConfig chartConfig, Rectangle area) {
         this.chartConfig = chartConfig;
         fullArea = area;
         xAxisList.add(new Axis(chartConfig.getBottomAxisConfig()));
@@ -58,9 +51,6 @@ public class BaseChart implements BaseMouseListener {
             yAxisList.add(new Axis(chartConfig.getLeftAxisConfig(i)));
             yAxisList.add(new Axis(chartConfig.getRightAxisConfig(i)));
         }
-
-        tooltipPainter = new TooltipPainter(chartConfig.getTooltipConfig());
-        crosshairPainter = new CrosshairPainter(chartConfig.getCrosshairConfig());
         titlePainter = new TitlePainter(chartConfig.getTitle(), chartConfig.getTitleTextStyle());
         ArrayList<LegendItem> legendItems = new ArrayList<LegendItem>(chartConfig.getTraceAmount());
         for (int i = 0; i < chartConfig.getTraceAmount(); i++) {
@@ -81,9 +71,6 @@ public class BaseChart implements BaseMouseListener {
         setYAxisDomain();
     }
 
-    public void addEventListener(ChartEventListener eventListener) {
-        eventsListeners.add(eventListener);
-    }
 
     int getPreferredTopAxisLength() {
         Axis topAxis = xAxisList.get(1);
@@ -94,6 +81,10 @@ public class BaseChart implements BaseMouseListener {
             }
         }
         return prefLength;
+    }
+
+    Rectangle getFullArea() {
+        return fullArea;
     }
 
 
@@ -135,13 +126,15 @@ public class BaseChart implements BaseMouseListener {
         return margin;
     }
 
+    void setMargin(Graphics2D g2, Margin margin) {
+        calculateMarginsAndAreas(g2, margin);
+    }
+
+
     Rectangle getGraphArea() {
         return graphArea;
     }
 
-    void setMargin(Graphics2D g2, Margin margin) {
-        calculateMarginsAndAreas(g2, margin);
-    }
 
     public void setTraceData(DataSet data, int traceIndex) {
         Trace trace = traces.get(traceIndex);
@@ -155,6 +148,7 @@ public class BaseChart implements BaseMouseListener {
             autoscaleYAxis(yAxis);
         }
     }
+
 
     private void autoscaleXAxis(Axis xAxis) {
         Range xRange = null;
@@ -205,12 +199,11 @@ public class BaseChart implements BaseMouseListener {
 
     // TODO: handling multiple xAxis!!!!
     // TODO: add separated base.tooltips
-    private boolean hover(int mouseX, int mouseY) {
+    public boolean hover(int mouseX, int mouseY) {
         if (!isMouseInsideChart(mouseX, mouseY)) {
             boolean isHoverChanged = false;
             for (int i = 0; i < traces.size(); i++) {
                 isHoverChanged = traces.get(i).setHoverIndex(-1) || isHoverChanged;
-                tooltipInfo = null;
             }
             return isHoverChanged;
         }
@@ -225,30 +218,41 @@ public class BaseChart implements BaseMouseListener {
             }
         }
 
-        // hover base.traces points that have minDistance to mouseX
+        // hover traces points that have minDistance to mouseX
         boolean isHoverChanged = false;
-        double hoverXValue = 0;
+        Axis xAxis = null;
         if (minDistance != null) {
-            ArrayList<TooltipItem> tooltipItems = new ArrayList<TooltipItem>();
-            for (int i = 0; i < traces.size(); i++) {
+            for (int i = traces.size() - 1; i >= 0 ; i--) {
                 int x = (int) traces.get(i).getXPosition(nearestIndexes[i]);
                 if ((x - mouseX) == minDistance) {
-                    isHoverChanged = traces.get(i).setHoverIndex(nearestIndexes[i]) || isHoverChanged;
-                    tooltipItems.add(traces.get(i).getTooltipItem());
-                    hoverXValue = traces.get(i).getXValue(nearestIndexes[i]);
+                    if(xAxis == null || xAxis == traces.get(i).getXAxis()) {
+                        xAxis = traces.get(i).getXAxis();
+                        isHoverChanged = traces.get(i).setHoverIndex(nearestIndexes[i]) || isHoverChanged;
+                    }
+
                 } else {
                     isHoverChanged = traces.get(i).setHoverIndex(-1) || isHoverChanged;
                 }
             }
-            if (isHoverChanged) {
-                tooltipInfo = new TooltipInfo();
-                tooltipInfo.setItems(tooltipItems);
-                tooltipInfo.setX(mouseX + minDistance);
-                tooltipInfo.setY(mouseY);
-                tooltipInfo.setHeader(new TooltipItem(null, String.valueOf(hoverXValue), null));
-            }
         }
         return isHoverChanged;
+    }
+
+    public int getTraceAmount() {
+        return traces.size();
+    }
+
+    public int getTraceHoverIndex(int traceIndex) {
+        return traces.get(traceIndex).getHoverIndex();
+    }
+
+    public InfoItem[] getDataPointInfo(int traceIndex, int dataIndex) {
+        return traces.get(traceIndex).getInfo(dataIndex);
+
+    }
+
+    public  Point getDataPointPosition(int traceIndex, int dataIndex) {
+        return traces.get(traceIndex).getPosition(dataIndex);
     }
 
     void calculateMarginsAndAreas(Graphics2D g2, Margin margin) {
@@ -400,129 +404,5 @@ public class BaseChart implements BaseMouseListener {
             trace.draw(g2d);
         }
         g2d.setClip(clip);
-
-        if (tooltipInfo != null) {
-            tooltipPainter.draw(g2d, fullArea, tooltipInfo);
-            crosshairPainter.draw(g2d, graphArea, tooltipInfo.getX(), tooltipInfo.getY());
-        }
-    }
-
-    @Override
-    public void mouseMoved(int mouseX, int mouseY) {
-        if (hover(mouseX, mouseY)) {
-            for (ChartEventListener listener : eventsListeners) {
-                listener.hoverChanged();
-            }
-        }
-    }
-
-    @Override
-    public void mouseDoubleClicked(int mouseX, int mouseY) {
-        if (titleArea.contains(mouseX, mouseY) || legendArea.contains(mouseX, mouseY)) {
-            return;
-        }
-        Rectangle topAxisArea = new Rectangle(graphArea.x, graphArea.y - margin.top(), graphArea.width, margin.top());
-        if (topAxisArea.contains(mouseX, mouseY)) {
-            for (ChartEventListener listener : eventsListeners) {
-                listener.xAxisResetActionPerformed(1);
-            }
-        }
-        Rectangle bottomAxisArea = new Rectangle(graphArea.x, graphArea.y + graphArea.height, graphArea.width, margin.bottom());
-        if (bottomAxisArea.contains(mouseX, mouseY)) {
-            for (ChartEventListener listener : eventsListeners) {
-                listener.xAxisResetActionPerformed(0);
-            }
-        }
-
-        Rectangle leftArea = new Rectangle(graphArea.x, graphArea.y, graphArea.width / 2, graphArea.height);
-        Rectangle rightArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y, graphArea.width / 2, graphArea.height);
-        if (leftArea.contains(mouseX, mouseY)) {
-            for (int i = 0; i < yAxisList.size() / 2; i++) {
-                Axis yAxis = yAxisList.get(2 * i);
-                // for yAxis Start > End
-                if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
-                    for (ChartEventListener listener : eventsListeners) {
-                        listener.yAxisResetActionPerformed(2*i);
-                    }
-                    break;
-                }
-            }
-        }
-        if (rightArea.contains(mouseX, mouseY)) {
-            for (int i = 0; i < yAxisList.size() / 2; i++) {
-                Axis yAxis = yAxisList.get(2 * i + 1);
-                // for yAxis Start > End
-                if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
-                    for (ChartEventListener listener : eventsListeners) {
-                        listener.yAxisResetActionPerformed(2*i + 1);
-                    }
-                    break;
-                }
-            }
-        }
-
-
-    }
-
-    @Override
-    public void mouseClicked(int mouseX, int mouseY) {
-        if (titleArea.contains(mouseX, mouseY) || legendArea.contains(mouseX, mouseY)) {
-            return;
-        }
-        Rectangle topAxisStartArea = new Rectangle(graphArea.x, graphArea.y - margin.top(), graphArea.width / 2, margin.top());
-        if (topAxisStartArea.contains(mouseX, mouseY)) {
-            for (ChartEventListener listener : eventsListeners) {
-                listener.xAxisActionPerformed(1, -1);
-            }
-        }
-        Rectangle topAxisEndArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y - margin.top(), graphArea.width / 2, margin.top());
-        if (topAxisEndArea.contains(mouseX, mouseY)) {
-            for (ChartEventListener listener : eventsListeners) {
-                listener.xAxisActionPerformed(1, 1);
-            }
-        }
-        Rectangle bottomAxisStartArea = new Rectangle(graphArea.x, graphArea.y + graphArea.height, graphArea.width / 2, margin.bottom());
-        if (bottomAxisStartArea.contains(mouseX, mouseY)) {
-            for (ChartEventListener listener : eventsListeners) {
-                listener.xAxisActionPerformed(0, -1);
-            }
-        }
-        Rectangle bottomAxisEndArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y + graphArea.height, graphArea.width / 2, margin.bottom());
-        if (bottomAxisEndArea.contains(mouseX, mouseY)) {
-            for (ChartEventListener listener : eventsListeners) {
-                listener.xAxisActionPerformed(0, 1);
-            }
-        }
-    }
-
-    @Override
-    public void mouseWheelMoved(int mouseX, int mouseY, int wheelRotation) {
-        Rectangle leftArea = new Rectangle(graphArea.x, graphArea.y, graphArea.width / 2, graphArea.height);
-        Rectangle rightArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y, graphArea.width / 2, graphArea.height);
-
-        if (leftArea.contains(mouseX, mouseY)) {
-            for (int i = 0; i < yAxisList.size() / 2; i++) {
-                Axis yAxis = yAxisList.get(2 * i);
-                // for yAxis Start > End
-                if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
-                    for (ChartEventListener listener : eventsListeners) {
-                        listener.yAxisActionPerformed(2*i, wheelRotation);
-                    }
-                    break;
-                }
-            }
-        }
-        if (rightArea.contains(mouseX, mouseY)) {
-            for (int i = 0; i < yAxisList.size() / 2; i++) {
-                Axis yAxis = yAxisList.get(2 * i + 1);
-                // for yAxis Start > End
-                if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
-                    for (ChartEventListener listener : eventsListeners) {
-                        listener.yAxisActionPerformed(2*i + 1, wheelRotation);
-                    }
-                    break;
-                }
-            }
-        }
     }
 }

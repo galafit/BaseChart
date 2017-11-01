@@ -5,12 +5,12 @@ import java.awt.*;
 /**
  * Created by galafit on 6/8/17.
  */
-public class TooltipItem {
+public class InfoItem {
     private String label;
     private String value;
     private Color  markColor;
 
-    public TooltipItem(String label, String value, Color markColor) {
+    public InfoItem(String label, String value, Color markColor) {
         this.label = label;
         this.value = value;
         this.markColor = markColor;

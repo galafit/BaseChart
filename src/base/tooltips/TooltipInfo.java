@@ -6,31 +6,28 @@ import java.util.ArrayList;
  * Created by hdablin on 02.08.17.
  */
 public class TooltipInfo {
-    private TooltipItem header;
-    private ArrayList<TooltipItem> items = new ArrayList<TooltipItem>();
+    private InfoItem header;
+    private ArrayList<InfoItem> items = new ArrayList<InfoItem>();
     int x,y;
 
     public int getX() {
         return x;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
     public int getY() {
         return y;
     }
 
-    public void setY(int y) {
+    public void setXY(int x, int y) {
+        this.x = x;
         this.y = y;
     }
 
-    public TooltipItem getHeader() {
+    public InfoItem getHeader() {
         return header;
     }
 
-    public void setHeader(TooltipItem header) {
+    public void setHeader(InfoItem header) {
         this.header = header;
     }
 
@@ -38,15 +35,13 @@ public class TooltipInfo {
         return items.size();
     }
 
-    public TooltipItem getItem(int index){
+    public InfoItem getItem(int index){
         return items.get(index);
     }
 
-    public void addItem(TooltipItem item){
-        items.add(item);
-    }
-
-    public void setItems(ArrayList<TooltipItem> items){
-        this.items = items;
+    public void addItems(InfoItem... items){
+        for (InfoItem item : items) {
+            this.items.add(item);
+        }
     }
 }
