@@ -3,6 +3,7 @@ package base.traces;
 
 import base.DataSet;
 import base.Range;
+import base.XYViewer;
 import base.config.traces.BaseTraceConfig;
 import base.legend.LegendItem;
 import base.tooltips.InfoItem;
@@ -16,13 +17,13 @@ import java.awt.geom.GeneralPath;
  */
 public abstract class BaseTrace extends Trace {
     BaseTraceConfig traceConfig;
-    XYMapper xyData;
+    XYViewer xyData;
 
     @Override
     public void setData(DataSet dataSet) {
         super.setData(dataSet);
-        xyData = traceConfig.getMapper();
-        xyData.setDataSet(dataSet);
+        xyData = new XYViewer();
+        xyData.setData(dataSet);
     }
 
     Color getLineColor() {

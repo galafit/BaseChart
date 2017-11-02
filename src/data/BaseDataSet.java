@@ -15,13 +15,9 @@ import java.util.List;
  */
 public class BaseDataSet implements DataSet {
     boolean isOrdered = true;
-    ArrayList<NumberColumn> numberColumns = new ArrayList<NumberColumn>();
-    ArrayList<StringColumn> stringColumns = new ArrayList<StringColumn>();
-    int xColumnNumber = - 1; // index of Column with X-data
-
-    // for regular data when xColumn is not defined
-    double startXValue = 0;
-    double dataInterval = 1;
+    ArrayList<NumberColumn> yColumns = new ArrayList<NumberColumn>();
+    NumberColumn xColumn = new RegularColumn();
+    StringColumn annotationColumn;
 
     // for subsets
     int startIndex = 0;
@@ -30,120 +26,96 @@ public class BaseDataSet implements DataSet {
     public BaseDataSet() {
     }
 
-    /**
-     * make a copy BaseDataSet
-     * @param dataSet
-     */
-    public BaseDataSet(BaseDataSet dataSet, int startIndex, int length) {
-        this.startIndex = startIndex;
-        this.length = length;
-        dataInterval = dataSet.dataInterval;
-        startXValue = dataSet.startXValue + (startIndex - dataSet.startIndex) * dataInterval;
-        xColumnNumber = dataSet.xColumnNumber;
-        for (NumberColumn numberColumn : dataSet.numberColumns) {
-            numberColumns.add(numberColumn.copy());
+    public BaseDataSet(BaseDataSet dataSet) {
+        for (NumberColumn numberColumn : dataSet.yColumns) {
+            yColumns.add(numberColumn.copy());
         }
-        for (StringColumn stringColumn : dataSet.stringColumns) {
-            stringColumns.add(stringColumn.copy());
-        }
-    }
-
-    public void setXColumn(double startXValue, double dataInterval) {
-        this.startXValue = startXValue;
-        this.dataInterval = dataInterval;
-    }
-
-    public void setXColumn(int xColumnNumber) {
-        this.xColumnNumber = xColumnNumber;
-    }
-
-    public int getStartIndex() {
-        return startIndex;
+        xColumn = dataSet.xColumn.copy();
+        annotationColumn = dataSet.annotationColumn;
     }
 
     public boolean isOrdered() {
-        if(isOrdered || xColumnNumber < 0) {
+        if(isOrdered || xColumn instanceof RegularColumn) {
             return true;
         }
         return false;
     }
 
-    /**
-     * add series as a number column
-     * @param series - series of ints
-     * @return - column index in the list of NumberColumns
-     */
-    public int addSeries(IntSeries series) {
-        numberColumns.add(new IntColumn(series));
-        return numberColumns.size() - 1;
+    public void setXData(double startXValue, double dataInterval) {
+        xColumn = new RegularColumn(startXValue, dataInterval);
     }
 
-    public int addSeries(DoubleSeries series) {
-        numberColumns.add(new DoubleColumn(series));
-        return numberColumns.size() - 1;
+    public void setXData(IntSeries series) {
+        xColumn = new IntColumn(series);
     }
 
-
-    /**
-     * add series as a string column
-     * @param series - series of Strings
-     * @return - column index in the list of StringColumns
-     */
-    public int addSeries(StringSeries series) {
-        stringColumns.add(new StringColumn(series));
-        return stringColumns.size() - 1;
+    public void setXData(DoubleSeries series) {
+        xColumn = new DoubleColumn(series);
     }
 
-    public void removeNumberSeries(int columnNumber) {
-        numberColumns.remove(columnNumber);
+    public void addYData(IntSeries series) {
+        yColumns.add(new IntColumn(series));
     }
 
-    public void removeStringSeries(int columnNumber) {
-        stringColumns.remove(columnNumber);
+    public void addYData(DoubleSeries series) {
+        yColumns.add(new DoubleColumn(series));
     }
 
-    public void removeXSeries() {
-        if(xColumnNumber >= 0) {
-            removeNumberSeries(xColumnNumber);
-            xColumnNumber = - 1;
-        }
+    public void setAnnotations(StringSeries series) {
+        annotationColumn = new StringColumn(series);
     }
 
-    private int fullSize() {
-        int size = 0;
-        if(numberColumns.size() > 0) {
-            size = numberColumns.get(0).size();
-        } else if (stringColumns.size() > 0) {
-            size = stringColumns.get(0).size();
-        }
-        for (NumberColumn column : numberColumns) {
-            size = Math.min(size, column.size());
-        }
-        for (StringColumn column : stringColumns) {
-            size = Math.min(size, column.size());
-        }
-        return size;
+    public void removeYData(int columnNumber) {
+        yColumns.remove(columnNumber);
     }
 
 
     @Override
-    public double getValue(int index, int columnNumber) {
-        return numberColumns.get(columnNumber).getValue(index + startIndex);
+    public int getYDimension() {
+        return yColumns.size();
+    }
+
+
+    @Override
+    public double getYValue(int index, int columnNumber) {
+        return yColumns.get(columnNumber).getValue(index + startIndex);
     }
 
     @Override
     public double getXValue(int index) {
-        if(xColumnNumber >= 0) {
-            return getValue(index, xColumnNumber);
-        }
-        // if xColumnNumber is not specified we use indexes as xColumn values
-        return startXValue + dataInterval * index;
+        return xColumn.getValue(index + startIndex);
     }
 
     @Override
-    public String getString(int index, int columnNumber) {
-        return stringColumns.get(columnNumber).getString(index + startIndex);
+    public String getAnnotation(int index) {
+        if(annotationColumn!= null && index < annotationColumn.size()) {
+            return annotationColumn.getString(index);
+        }
+        return null;
     }
+
+    @Override
+    public Range getXExtremes() {
+        if(size() == 0) {
+            return null;
+        }
+        if(isOrdered()) {
+            double min = xColumn.getValue(startIndex);
+            double max = xColumn.getValue(startIndex + size() - 1);
+            return new Range(min, max);
+        } else {
+            return xColumn.getExtremes(startIndex, size());
+        }
+    }
+
+    @Override
+    public Range getYExtremes(int yColumnNumber) {
+        if(size() == 0) {
+            return null;
+        }
+        return yColumns.get(yColumnNumber).getExtremes(startIndex,  size());
+    }
+
 
     @Override
     public int size() {
@@ -154,34 +126,14 @@ public class BaseDataSet implements DataSet {
 
     }
 
-    @Override
-    public Range getExtremes(int columnNumber) {
-        if(size() == 0) {
-            return null;
+    private int fullSize() {
+        int size = xColumn.size();
+        for (NumberColumn column : yColumns) {
+            size = Math.min(size, column.size());
         }
-        return numberColumns.get(columnNumber).getExtremes(startIndex,  size());
+        return size;
     }
 
-    @Override
-    public Range getXExtremes() {
-        if(size() == 0) {
-            return null;
-        }
-        if(xColumnNumber >= 0) {
-            if(isOrdered()) {
-                double min = numberColumns.get(xColumnNumber).getValue(startIndex);
-                double max = numberColumns.get(xColumnNumber).getValue(startIndex + size() - 1);
-                return new Range(min, max);
-            } else {
-                return numberColumns.get(xColumnNumber).getExtremes(startIndex, size());
-            }
-
-        }
-        // if xColumnNumber is not specified we use indexes as xColumn values
-        double min = startXValue;
-        double max = startXValue + (size() - 1) * dataInterval;
-        return new Range(min, max);
-    }
 
     /**
      *
@@ -190,52 +142,24 @@ public class BaseDataSet implements DataSet {
      */
     @Override
     public int findNearestData(double xValue) {
-        if(xColumnNumber >= 0) {
-            int lowerBoundIndex = numberColumns.get(xColumnNumber).lowerBound(xValue, startIndex, size());
-            lowerBoundIndex -= startIndex;
-            if (lowerBoundIndex < 0) {
-                return 0;
-            }
-            if (lowerBoundIndex >= size() - 1) {
-                return size() - 1;
-            }
-            double distance1 = xValue - getXValue(lowerBoundIndex);
-            double distance2 = getXValue(lowerBoundIndex + 1) - xValue;
-            int nearestIndex = (distance1 <= distance2) ? lowerBoundIndex : lowerBoundIndex + 1;
-            return nearestIndex;
+        int lowerBoundIndex = xColumn.lowerBound(xValue, startIndex, size());
+        lowerBoundIndex -= startIndex;
+        if (lowerBoundIndex < 0) {
+            return 0;
         }
-        // if xColumnNumber is not specified we use indexes as xColumn values
-        int nearest = (int) Math.round((xValue - startXValue) / dataInterval);
-        if(nearest < 0) {
-            nearest = 0;
+        if (lowerBoundIndex >= size() - 1) {
+            return size() - 1;
         }
-        if(nearest >= size()) {
-            nearest = size() - 1;
-        }
-        return nearest;
-    }
-
-    @Override
-    public int getAmountOfNumberColumns() {
-        return numberColumns.size();
-    }
-
-    @Override
-    public int getAmountOfStringColumns() {
-        return stringColumns.size();
-    }
-
-    @Override
-    public boolean isXColumn(int columnNumber) {
-        if(xColumnNumber == columnNumber) {
-            return true;
-        }
-        return false;
+        double distance1 = xValue - getXValue(lowerBoundIndex);
+        double distance2 = getXValue(lowerBoundIndex + 1) - xValue;
+        int nearestIndex = (distance1 <= distance2) ? lowerBoundIndex : lowerBoundIndex + 1;
+        return nearestIndex;
     }
 
     public BaseDataSet getSubset(double startXValue, double endXValue) {
         return getSubset(startXValue, endXValue, 1);
     }
+
 
     public BaseDataSet getSubset(double startXValue, double endXValue, int shoulder) {
         if(endXValue < startXValue) {
@@ -248,25 +172,12 @@ public class BaseDataSet implements DataSet {
         }
         int subsetStartIndex;
         int subsetEndIndex;
-        if(xColumnNumber >= 0) {
-            subsetStartIndex = numberColumns.get(xColumnNumber).lowerBound(startXValue, 0, fullSize());
-            subsetEndIndex = numberColumns.get(xColumnNumber).upperBound(endXValue, 0, fullSize());
-         } else {
-            // if xColumnNumber is not specified we use indexes as xColumn values
-            subsetStartIndex = (int) ((startXValue - this.startXValue) / dataInterval);
-            subsetEndIndex = (int) ((endXValue - this.startXValue) / dataInterval);
-            if(endXValue > getXValue(subsetEndIndex)) {
-                subsetEndIndex++;
-            }
-            // recalculate indexes from 0
-            subsetStartIndex += startIndex;
-            subsetEndIndex += startIndex;
-        }
-
+        subsetStartIndex = xColumn.lowerBound(startXValue, 0, fullSize());
+        subsetEndIndex = xColumn.upperBound(endXValue, 0, fullSize());
         subsetStartIndex -= shoulder;
         subsetEndIndex += shoulder;
         if(subsetStartIndex >= fullSize() || subsetEndIndex < 0) {
-            return new BaseDataSet(this, 0, -1);
+            return new BaseDataSet(this);
         }
         if(subsetStartIndex < 0){
             subsetStartIndex = 0 ;
@@ -274,70 +185,47 @@ public class BaseDataSet implements DataSet {
         if(subsetEndIndex  >= fullSize()) {
             subsetEndIndex = fullSize() - 1;
         }
-        return new BaseDataSet(this, subsetStartIndex, subsetEndIndex - subsetStartIndex + 1);
+        BaseDataSet subset = new BaseDataSet(this);
+        subset.startIndex = subsetStartIndex;
+        subset.length = subsetEndIndex - subsetStartIndex + 1;
+        return subset;
     }
+
 
     /**********************************************************************
      *     Helper Methods to add data
      *********************************************************************/
 
-    public int addSeries(int[] data) {
-       IntSeries series = new IntSeries() {
-           @Override
-           public int size() {
-               return data.length;
-           }
-
-           @Override
-           public int get(int index) {
-               return data[index];
-           }
-       };
-       return addSeries(series);
+    public void setXData(int[] data) {
+        xColumn = new IntColumn(data);
     }
 
-    public int addSeries(double[] data) {
-        DoubleSeries series = new DoubleSeries() {
-            @Override
-            public int size() {
-                return data.length;
-            }
-
-            @Override
-            public double get(int index) {
-                return data[index];
-            }
-        };
-        return addSeries(series);
+    public void setXData(double[] data) {
+        xColumn = new DoubleColumn(data);
     }
 
-    public int addSeries(List<? extends Number> data) {
+    public void setXData(List<? extends Number> data) {
         if(data.size() > 0 && data.get(0) instanceof Integer) {
-            IntSeries series = new IntSeries() {
-                @Override
-                public int size() {
-                    return data.size();
-                }
-
-                @Override
-                public int get(int index) {
-                    return data.get(index).intValue();
-                }
-            };
-            return addSeries(series);
+            xColumn = new IntColumn((List<Integer>) data);
         } else {
-            DoubleSeries series = new DoubleSeries() {
-                @Override
-                public int size() {
-                    return data.size();
-                }
+            xColumn = new DoubleColumn((List<Double>) data);
+        }
+    }
 
-                @Override
-                public double get(int index) {
-                    return data.get(index).doubleValue();
-                }
-            };
-            return addSeries(series);
+
+    public void addYData(int[] data) {
+        yColumns.add(new IntColumn(data));
+    }
+
+    public void addYData(double[] data) {
+        yColumns.add(new DoubleColumn(data));
+    }
+
+    public void addYData(List<? extends Number> data) {
+        if(data.size() > 0 && data.get(0) instanceof Integer) {
+            yColumns.add(new IntColumn((List<Integer>) data));
+        } else {
+            yColumns.add(new DoubleColumn((List<Double>) data));
         }
     }
 }

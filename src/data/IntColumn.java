@@ -7,6 +7,7 @@ import data.series.grouping.IntAverage;
 import data.series.grouping.IntBinnedSeries;
 import data.series.grouping.IntGroupedSeries;
 
+import java.util.List;
 import java.util.function.IntToDoubleFunction;
 
 /**
@@ -24,6 +25,36 @@ class IntColumn implements NumberColumn {
     public IntColumn(IntSeries series) {
         this(series, null);
     }
+
+
+    public IntColumn(int[] data) {
+        this(new IntSeries() {
+            @Override
+            public int size() {
+                return data.length;
+            }
+
+            @Override
+            public int get(int index) {
+                return data[index];
+            }
+        });
+    }
+
+    public IntColumn(List<Integer> data) {
+        this(new IntSeries() {
+            @Override
+            public int size() {
+                return data.size();
+            }
+
+            @Override
+            public int get(int index) {
+                return data.get(index);
+            }
+        });
+    }
+
 
     @Override
     public int size() {

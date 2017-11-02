@@ -9,6 +9,8 @@ import data.series.grouping.DoubleBinnedSeries;
 import data.series.grouping.DoubleGroupedSeries;
 import data.series.grouping.IntGroupedSeries;
 
+import java.util.List;
+
 /**
  * Created by galafit on 27/9/17.
  */
@@ -17,6 +19,34 @@ class DoubleColumn implements NumberColumn {
 
     public DoubleColumn(DoubleSeries series) {
         this.series = series;
+    }
+
+    public DoubleColumn(double[] data) {
+        this(new DoubleSeries() {
+            @Override
+            public int size() {
+                return data.length;
+            }
+
+            @Override
+            public double get(int index) {
+                return data[index];
+            }
+        });
+    }
+
+    public DoubleColumn(List<Double> data) {
+        this(new DoubleSeries() {
+            @Override
+            public int size() {
+                return data.size();
+            }
+
+            @Override
+            public double get(int index) {
+                return data.get(index);
+            }
+        });
     }
 
     @Override

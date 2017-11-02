@@ -2,7 +2,6 @@ package base.config.traces;
 
 import base.config.general.LineConfig;
 import base.config.general.MarkConfig;
-import base.traces.XYMapper;
 
 import java.awt.*;
 
@@ -14,15 +13,6 @@ public abstract class BaseTraceConfig implements TraceConfig {
     private Color hoverColor;
     private MarkConfig markConfig = new MarkConfig();
     private LineConfig lineConfig = new LineConfig();
-    private XYMapper mapper = new XYMapper();
-
-    public XYMapper getMapper() {
-        return mapper;
-    }
-
-    public void setMapper(XYMapper mapper) {
-        this.mapper = mapper;
-    }
 
     public Color getHoverColor() {
         return hoverColor;

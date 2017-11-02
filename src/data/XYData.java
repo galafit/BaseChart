@@ -11,85 +11,65 @@ import java.util.List;
  */
 public class XYData implements Data {
     private BaseDataSet dataSet = new BaseDataSet();
-    private int yColumnNumber = -1;
 
     @Override
     public DataSet getDataSet() {
         return dataSet;
     }
 
-    public void setDataSet(BaseDataSet dataSet) {
-        this.dataSet = dataSet;
-    }
-
     public void setXData(IntSeries data) {
-        dataSet.removeXSeries();
-        int xColumnNumber = dataSet.addSeries(data);
-        dataSet.setXColumn(xColumnNumber);
+        dataSet.setXData(data);
     }
 
     public void setXData(DoubleSeries data) {
-        dataSet.removeXSeries();
-        int xColumnNumber = dataSet.addSeries(data);
-        dataSet.setXColumn(xColumnNumber);
+        dataSet.setXData(data);
     }
 
     public void setXData(List<? extends Number> data) {
-        dataSet.removeXSeries();
-        int xColumnNumber = dataSet.addSeries(data);
-        dataSet.setXColumn(xColumnNumber);
+        dataSet.setXData(data);
     }
 
     public void setXData(double[] data) {
-        dataSet.removeXSeries();
-        int xColumnNumber = dataSet.addSeries(data);
-        dataSet.setXColumn(xColumnNumber);
+        dataSet.setXData(data);
     }
 
     public void setXData(int[] data) {
-        dataSet.removeXSeries();
-        int xColumnNumber = dataSet.addSeries(data);
-        dataSet.setXColumn(xColumnNumber);
+        dataSet.setXData(data);
     }
 
-    public void setXData(double startValue, double dataInterval) {
-        dataSet.removeXSeries();
-        dataSet.setXColumn(startValue, dataInterval);
+    public void setXData(double startXValue, double dataInterval) {
+        dataSet.setXData(startXValue, dataInterval);
     }
-
 
     public void setYData(IntSeries data) {
-        if(yColumnNumber >= 0) {
-            dataSet.removeNumberSeries(yColumnNumber);
-        }
-        yColumnNumber = dataSet.addSeries(data);
+        removeYData();
+        dataSet.addYData(data);
     }
 
     public void setYData(DoubleSeries data) {
-        if(yColumnNumber >= 0) {
-            dataSet.removeNumberSeries(yColumnNumber);
-        }
-        yColumnNumber = dataSet.addSeries(data);
-    }
-
-    public void setYData(int[] data) {
-        if(yColumnNumber >= 0) {
-            dataSet.removeNumberSeries(yColumnNumber);
-        }
-        yColumnNumber = dataSet.addSeries(data);
-    }
-
-    public void setYData(double[] data) {
-        if(yColumnNumber >= 0) {
-            dataSet.removeNumberSeries(yColumnNumber);
-        }
-        yColumnNumber = dataSet.addSeries(data);
+        removeYData();
+        dataSet.addYData(data);
     }
 
     public void setYData(List<? extends Number> data) {
-        if(yColumnNumber >= 0) {
-            dataSet.removeNumberSeries(yColumnNumber);
+        removeYData();
+        dataSet.addYData(data);
+    }
+
+    public void setYData(double[] data) {
+        removeYData();
+        dataSet.addYData(data);
+    }
+
+    public void setYData(int[] data) {
+        removeYData();
+        dataSet.addYData(data);
+    }
+
+    private void removeYData() {
+        int yColumnNumber = dataSet.getYDimension();
+        if(yColumnNumber > 0) {
+            dataSet.removeYData(yColumnNumber - 1);
         }
-        yColumnNumber = dataSet.addSeries(data);
     }
 }

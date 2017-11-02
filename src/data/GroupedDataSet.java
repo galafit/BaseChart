@@ -12,22 +12,20 @@ public class GroupedDataSet extends BaseDataSet {
     IntSeries groupIndexes;
 
     public GroupedDataSet(BaseDataSet dataSet, int compression) {
-        super(dataSet, 0, -1);
+        super(dataSet);
         this.dataSet = dataSet;
         if(compression > 1) {
-            if(xColumnNumber < 0) {
-                for (NumberColumn numberColumn : numberColumns) {
+            if(xColumn instanceof RegularColumn) {
+                for (NumberColumn numberColumn : yColumns) {
                     numberColumn.group(compression);
                 }
-                dataInterval = dataInterval * compression;
+                xColumn.group(compression);
             } else {
                 Range xRange = dataSet.getXExtremes();
                 double groupingInterval = (xRange.end() - xRange.start()) * compression / (dataSet.size() -1);
-                groupIndexes = numberColumns.get(xColumnNumber).bin(groupingInterval);
-                for (int i = 0; i < numberColumns.size(); i++) {
-                    if(i != xColumnNumber) {
-                        numberColumns.get(i).group(groupIndexes);
-                    }
+                groupIndexes = xColumn.bin(groupingInterval);
+                for (NumberColumn numberColumn : yColumns) {
+                    numberColumn.group(groupIndexes);
                 }
             }
         }
