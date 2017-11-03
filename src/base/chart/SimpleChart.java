@@ -34,11 +34,12 @@ public class SimpleChart  {
 
     private LegendPainter legendPainter;
     private TitlePainter titlePainter;
+    private Rectangle titleArea;
+    private Rectangle legendArea;
+
     private ChartConfig chartConfig;
 
     private Rectangle fullArea;
-    private Rectangle titleArea;
-    private Rectangle legendArea;
     private Rectangle graphArea;
     private Margin margin;
 
@@ -71,6 +72,13 @@ public class SimpleChart  {
         setYAxisDomain();
     }
 
+    Rectangle getFullArea() {
+        return fullArea;
+    }
+
+    Rectangle getGraphArea() {
+        return graphArea;
+    }
 
     int getPreferredTopAxisLength() {
         Axis topAxis = xAxisList.get(1);
@@ -82,11 +90,6 @@ public class SimpleChart  {
         }
         return prefLength;
     }
-
-    Rectangle getFullArea() {
-        return fullArea;
-    }
-
 
     int getPreferredBottomAxisLength() {
         Axis bottomAxis = xAxisList.get(0);
@@ -103,7 +106,7 @@ public class SimpleChart  {
     Range getTracesXExtremes() {
         Range xRange = null;
         for (Trace trace : traces) {
-            xRange = Range.max(xRange, trace.getXExtremes());
+            xRange = Range.max(xRange, trace.getData().getXExtremes());
         }
         return xRange;
     }
@@ -131,11 +134,6 @@ public class SimpleChart  {
     }
 
 
-    Rectangle getGraphArea() {
-        return graphArea;
-    }
-
-
     public void setTraceData(DataSet data, int traceIndex) {
         Trace trace = traces.get(traceIndex);
         trace.setData(data);
@@ -154,7 +152,7 @@ public class SimpleChart  {
         Range xRange = null;
         for (Trace trace : traces) {
             if (trace.getXAxis() == xAxis) {
-                xRange = Range.max(xRange, trace.getXExtremes());
+                xRange = Range.max(xRange, trace.getData().getXExtremes());
             }
         }
         xAxis.setMinMax(xRange);
@@ -192,67 +190,24 @@ public class SimpleChart  {
         }
     }
 
-    boolean isMouseInsideChart(int mouseX, int mouseY) {
-        return graphArea.contains(mouseX, mouseY);
-    }
-
-
-    // TODO: handling multiple xAxis!!!!
-    // TODO: add separated base.tooltips
-    public boolean hover(int mouseX, int mouseY) {
-        if (!isMouseInsideChart(mouseX, mouseY)) {
-            boolean isHoverChanged = false;
-            for (int i = 0; i < traces.size(); i++) {
-                isHoverChanged = traces.get(i).setHoverIndex(-1) || isHoverChanged;
-            }
-            return isHoverChanged;
-        }
-        int[] nearestIndexes = new int[traces.size()];
-        Integer minDistance = null;
-        // find min distance from base.traces points to mouseX
-        for (int i = 0; i < traces.size(); i++) {
-            nearestIndexes[i] = traces.get(i).findNearest(mouseX, mouseY);
-            int x = (int) traces.get(i).getXPosition(nearestIndexes[i]);
-            if (minDistance == null || Math.abs(minDistance) > Math.abs(x - mouseX)) {
-                minDistance = (x - mouseX);
-            }
-        }
-
-        // hover traces points that have minDistance to mouseX
-        boolean isHoverChanged = false;
-        Axis xAxis = null;
-        if (minDistance != null) {
-            for (int i = traces.size() - 1; i >= 0 ; i--) {
-                int x = (int) traces.get(i).getXPosition(nearestIndexes[i]);
-                if ((x - mouseX) == minDistance) {
-                    if(xAxis == null || xAxis == traces.get(i).getXAxis()) {
-                        xAxis = traces.get(i).getXAxis();
-                        isHoverChanged = traces.get(i).setHoverIndex(nearestIndexes[i]) || isHoverChanged;
-                    }
-
-                } else {
-                    isHoverChanged = traces.get(i).setHoverIndex(-1) || isHoverChanged;
-                }
-            }
-        }
-        return isHoverChanged;
-    }
-
     public int getTraceAmount() {
         return traces.size();
     }
 
-    public int getTraceHoverIndex(int traceIndex) {
-        return traces.get(traceIndex).getHoverIndex();
+    public DataSet getData(int traceIndex) {
+        return traces.get(traceIndex).getData();
     }
 
-    public InfoItem[] getDataPointInfo(int traceIndex, int dataIndex) {
+    public InfoItem[] getDataInfo(int traceIndex, int dataIndex) {
         return traces.get(traceIndex).getInfo(dataIndex);
-
     }
 
-    public  Point getDataPointPosition(int traceIndex, int dataIndex) {
-        return traces.get(traceIndex).getPosition(dataIndex);
+    public  Point getDataPosition(int traceIndex, int dataIndex) {
+        return traces.get(traceIndex).getDataPosition(dataIndex);
+    }
+
+    public double xPositionToValue(int traceIndex, int mouseX) {
+        return traces.get(traceIndex).getXAxis().invert(mouseX);
     }
 
     void calculateMarginsAndAreas(Graphics2D g2, Margin margin) {

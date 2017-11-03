@@ -2,6 +2,7 @@ package base.chart;
 
 import base.DataSet;
 import base.Range;
+import base.axis.Axis;
 import base.config.ChartConfig;
 import base.config.general.Margin;
 import base.painters.CrosshairPainter;
@@ -19,8 +20,9 @@ public class InteractiveChart implements BaseMouseListener {
     private SimpleChart chart;
     private CrosshairPainter crosshairPainter;
     private TooltipPainter tooltipPainter;
-    private boolean isTooltipSeparated = true;
     private TooltipInfo tooltipInfo;
+    private int activeTraceIndex = 0;
+    private int hoverIndex = -1;
 
     private ArrayList<ChartEventListener> eventsListeners = new ArrayList<ChartEventListener>();
 
@@ -30,24 +32,32 @@ public class InteractiveChart implements BaseMouseListener {
         crosshairPainter = new CrosshairPainter(chartConfig.getCrosshairConfig());
     }
 
+    private void hoverOff() {
+        hoverIndex = -1;
+    }
+
+    private boolean hoverOn(int mouseX, int mouseY) {
+        if(activeTraceIndex < 0) {
+            return false;
+        }
+        int nearestIndex = chart.getData(activeTraceIndex).findNearestData(chart.xPositionToValue(activeTraceIndex, mouseX));
+        if(hoverIndex != nearestIndex) {
+            hoverIndex = nearestIndex;
+            return true;
+        }
+        return false;
+    }
+
+
     private TooltipInfo getTooltipInfo() {
         TooltipInfo tooltipInfo = null;
         int number = 0;
         Point xy = null;
-        for (int i = 0; i < chart.getTraceAmount(); i++) {
-            int hoverIndex = chart.getTraceHoverIndex(i);
-            if(hoverIndex >= 0) {
-                if(tooltipInfo == null) {
-                   tooltipInfo = new TooltipInfo();
-                }
-                if(number > 0) {
-                    tooltipInfo.addItems(new InfoItem("", "", null));
-                }
-                tooltipInfo.addItems(chart.getDataPointInfo(i, hoverIndex));
-                xy = chart.getDataPointPosition(i, hoverIndex);
-                tooltipInfo.setXY(xy.x, xy.y);
-                number++;
-            }
+        if(activeTraceIndex >= 0 && hoverIndex >= 0) {
+            tooltipInfo = new TooltipInfo();
+            tooltipInfo.addItems(chart.getDataInfo(activeTraceIndex, hoverIndex));
+            xy = chart.getDataPosition(activeTraceIndex, hoverIndex);
+            tooltipInfo.setXY(xy.x, xy.y);
         }
         return tooltipInfo;
     }
@@ -78,9 +88,11 @@ public class InteractiveChart implements BaseMouseListener {
     }
 
 
+
+
     @Override
     public void mouseMoved(int mouseX, int mouseY) {
-        if (chart.hover(mouseX, mouseY)) {
+        if (hoverOn(mouseX, mouseY)) {
             tooltipInfo = getTooltipInfo();
             for (ChartEventListener listener : eventsListeners) {
                 listener.hoverChanged();

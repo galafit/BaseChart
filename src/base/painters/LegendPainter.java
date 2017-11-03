@@ -105,7 +105,7 @@ public class LegendPainter {
                 g2.setColor(legendItem.getColor());
                 g2.fillRect(x, y + (getStringHeight(g2, legendConfig.getTextStyle().getFont()) - getColorMarkerSize()) / 2 + 1, getColorMarkerSize(), getColorMarkerSize());
                 x += getColorMarkerSize() + getColorMarkerPadding();
-                g2.setColor(legendConfig.getTextStyle().getFontColor());
+              //  g2.setColor(legendConfig.getTextStyle().getFontColor());
                 g2.drawString(legendItem.getLabel(), x, y + getStringAscent(g2, legendConfig.getTextStyle().getFont()));
                 x += getStringWidth(g2, legendConfig.getTextStyle().getFont(), legendItem.getLabel()) + getInterItemSpace();
                 itemCounter++;

@@ -53,8 +53,6 @@ public class AreaTrace extends BaseTrace {
         path.lineTo(x_0, y_0);
         g.setColor(getFillColor());
         g.fill(path);
-
-        drawHover(g);
     }
 
 }

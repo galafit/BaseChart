@@ -42,13 +42,6 @@ public abstract class BaseTrace extends Trace {
         return markColor;
     }
 
-    Color getHoverColor() {
-        Color hoverColor = traceConfig.getHoverColor();
-        if(hoverColor == null) {
-            hoverColor = getMarkColor().brighter();
-        }
-        return hoverColor;
-    }
 
     @Override
     public int getPreferredTraceLength() {
@@ -57,11 +50,6 @@ public abstract class BaseTrace extends Trace {
             prefLength *= traceConfig.getMarkConfig().getSize();
         }
         return prefLength;
-    }
-
-    @Override
-    public Point getPosition(int dataIndex) {
-        return new Point((int)getXAxis().scale(xyData.getX(dataIndex)), (int)getYAxis().scale(xyData.getY(dataIndex)));
     }
 
     @Override
@@ -90,6 +78,11 @@ public abstract class BaseTrace extends Trace {
 
 
     @Override
+    public Point getDataPosition(int dataIndex) {
+        return new Point((int)getXAxis().scale(xyData.getX(dataIndex)), (int)getYAxis().scale(xyData.getY(dataIndex)));
+    }
+
+    @Override
     public void draw(Graphics2D g) {
         if (xyData == null || xyData.size() == 0) {
             return;
@@ -111,19 +104,6 @@ public abstract class BaseTrace extends Trace {
         }
         g.setColor(getLineColor());
         g.draw(path);
-        drawHover(g);
     }
-
-
-    void drawHover(Graphics2D g) {
-        if(getHoverIndex() >= 0) {
-            double x = getXAxis().scale(xyData.getX(getHoverIndex()));
-            double y = getYAxis().scale(xyData.getY(getHoverIndex()));
-            double pointRadius = traceConfig.getHoverSize();
-            g.setColor(Color.CYAN);
-            g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
-        }
-    }
-
 
 }

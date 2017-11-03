@@ -16,11 +16,14 @@ public abstract class Trace {
     private Axis yAxis;
     private String name;
     private Color defaultColor;
-    private int hoverIndex = -1;
     private DataSet data;
 
     public void setData(DataSet data) {
         this.data = data;
+    }
+
+    public DataSet getData() {
+        return data;
     }
 
     public Axis getXAxis() {
@@ -55,38 +58,7 @@ public abstract class Trace {
         this.defaultColor = defaultColor;
     }
 
-    public int getHoverIndex() {
-        return hoverIndex;
-    }
-
-    /**
-     *
-     * @param hoverIndex
-     * @return true if hover index was changed, false - otherwise
-     */
-    public boolean setHoverIndex(int hoverIndex) {
-        boolean isIndexChanged = false;
-        if(this.hoverIndex != hoverIndex) {
-            isIndexChanged = true;
-        }
-        this.hoverIndex = hoverIndex;
-        return isIndexChanged;
-    }
-
-    public int findNearest(int mouseX, int mouseY) {
-        double x = getXAxis().invert(mouseX);
-        return data.findNearestData(x);
-    }
-
-    public double getXPosition(int dataIndex) {
-        return getXAxis().scale(data.getXValue(dataIndex));
-    }
-
-    public abstract Point getPosition(int dataIndex);
-
-    public Range getXExtremes() {
-        return data.getXExtremes();
-    }
+    public abstract Point getDataPosition(int dataIndex);
 
     public abstract int getPreferredTraceLength();
 
