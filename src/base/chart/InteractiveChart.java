@@ -2,12 +2,13 @@ package base.chart;
 
 import base.DataSet;
 import base.Range;
-import base.axis.Axis;
 import base.config.ChartConfig;
 import base.config.general.Margin;
 import base.painters.CrosshairPainter;
+import base.painters.LegendPainter;
+import base.painters.TitlePainter;
 import base.painters.TooltipPainter;
-import base.tooltips.InfoItem;
+import base.scales.Scale;
 import base.tooltips.TooltipInfo;
 
 import java.awt.*;
@@ -18,18 +19,32 @@ import java.util.ArrayList;
  */
 public class InteractiveChart implements BaseMouseListener {
     private SimpleChart chart;
+
+    private LegendPainter legendPainter;
+    private TitlePainter titlePainter;
+    private Rectangle titleArea;
+    private Rectangle legendArea;
+    private Rectangle fullArea;
+    private ChartConfig chartConfig;
+    private boolean isDirty = true;
+
+
     private CrosshairPainter crosshairPainter;
     private TooltipPainter tooltipPainter;
     private TooltipInfo tooltipInfo;
-    private int activeTraceIndex = 0;
+    private int selectedTraceIndex = 0;
     private int hoverIndex = -1;
 
     private ArrayList<ChartEventListener> eventsListeners = new ArrayList<ChartEventListener>();
 
     public InteractiveChart(ChartConfig chartConfig, Rectangle area) {
-        chart = new SimpleChart(chartConfig, area);
+        fullArea = area;
+        this.chartConfig = chartConfig;
+        chart = new SimpleChart(chartConfig);
         tooltipPainter = new TooltipPainter(chartConfig.getTooltipConfig());
         crosshairPainter = new CrosshairPainter(chartConfig.getCrosshairConfig());
+        titlePainter = new TitlePainter(chartConfig.getTitle(), chartConfig.getTitleTextStyle());
+        legendPainter = new LegendPainter(chart.getTracesInfo(), chartConfig.getLegendConfig());
     }
 
     private void hoverOff() {
@@ -37,10 +52,10 @@ public class InteractiveChart implements BaseMouseListener {
     }
 
     private boolean hoverOn(int mouseX, int mouseY) {
-        if(activeTraceIndex < 0) {
+        if(selectedTraceIndex < 0) {
             return false;
         }
-        int nearestIndex = chart.getData(activeTraceIndex).findNearestData(chart.xPositionToValue(activeTraceIndex, mouseX));
+        int nearestIndex = chart.getData(selectedTraceIndex).findNearestData(chart.xPositionToValue(selectedTraceIndex, mouseX));
         if(hoverIndex != nearestIndex) {
             hoverIndex = nearestIndex;
             return true;
@@ -48,16 +63,13 @@ public class InteractiveChart implements BaseMouseListener {
         return false;
     }
 
-
     private TooltipInfo getTooltipInfo() {
         TooltipInfo tooltipInfo = null;
-        int number = 0;
-        Point xy = null;
-        if(activeTraceIndex >= 0 && hoverIndex >= 0) {
+        if(selectedTraceIndex >= 0 && hoverIndex >= 0) {
             tooltipInfo = new TooltipInfo();
-            tooltipInfo.addItems(chart.getDataInfo(activeTraceIndex, hoverIndex));
-            xy = chart.getDataPosition(activeTraceIndex, hoverIndex);
-            tooltipInfo.setXY(xy.x, xy.y);
+            tooltipInfo.addItems(chart.getDataInfo(selectedTraceIndex, hoverIndex));
+            Point dataPosition = chart.getDataPosition(selectedTraceIndex, hoverIndex);
+            tooltipInfo.setXY(dataPosition.x, dataPosition.y);
         }
         return tooltipInfo;
     }
@@ -67,28 +79,72 @@ public class InteractiveChart implements BaseMouseListener {
     }
 
     Margin getMargin(Graphics2D g2) {
+        if(isDirty) {
+            calculateAreas(g2);
+        }
        return chart.getMargin(g2);
     }
 
     void setMargin(Graphics2D g2, Margin margin) {
+        if(isDirty) {
+            calculateAreas(g2);
+        }
         chart.setMargin(g2, margin);
     }
 
+    Rectangle getGraphArea() {
+        return chart.getGraphArea();
+    }
 
-    public void draw(Graphics2D g2d) {
-        chart.draw(g2d);
-        if (tooltipInfo != null) {
-            tooltipPainter.draw(g2d, chart.getFullArea(), tooltipInfo);
-            crosshairPainter.draw(g2d, chart.getGraphArea(), tooltipInfo.getX(), tooltipInfo.getY());
+    Scale getBottomScale() {
+        return chart.getBottomAxis().getScale();
+    }
+
+    public void setArea(Rectangle area, Graphics2D g2) {
+        fullArea = area;
+        isDirty = true;
+    }
+
+    private void calculateAreas(Graphics2D g2) {
+        int titleHeight = titlePainter.getTitleHeight(g2, fullArea.width);
+        int legendHeight = legendPainter.getLegendHeight(g2, fullArea.width);
+
+        if (chartConfig.getLegendConfig().isTop()) {
+
         }
+        titleArea = new Rectangle(fullArea.x, fullArea.y, fullArea.width, titleHeight);
+        Rectangle chartArea;
+        if (chartConfig.getLegendConfig().isTop()) {
+            legendArea = new Rectangle(fullArea.x, fullArea.y + titleHeight, fullArea.width, legendHeight);
+             chartArea = new Rectangle(fullArea.x, fullArea.y + titleHeight + legendHeight, fullArea.width, fullArea.height - titleHeight - legendHeight);
+        } else {
+            legendArea = new Rectangle(fullArea.x, fullArea.y + fullArea.height - legendHeight, fullArea.width, legendHeight);
+            chartArea = new Rectangle(fullArea.x, fullArea.y + titleHeight, fullArea.width, fullArea.height - titleHeight - legendHeight);
+        }
+        chart.setArea(chartArea);
+        isDirty = false;
+    }
+
+    public void draw(Graphics2D g2) {
+        if(isDirty) {
+            calculateAreas(g2);
+        }
+
+        g2.setColor(chartConfig.getMarginColor());
+        g2.fill(fullArea);
+
+        chart.draw(g2);
+        if (tooltipInfo != null) {
+            tooltipPainter.draw(g2, chart.getFullArea(), tooltipInfo);
+            crosshairPainter.draw(g2, chart.getGraphArea(), tooltipInfo.getX(), tooltipInfo.getY());
+        }
+        titlePainter.draw(g2, titleArea);
+        legendPainter.draw(g2, legendArea);
     }
 
     public void addEventListener(ChartEventListener eventListener) {
         eventsListeners.add(eventListener);
     }
-
-
-
 
     @Override
     public void mouseMoved(int mouseX, int mouseY) {
@@ -104,12 +160,9 @@ public class InteractiveChart implements BaseMouseListener {
         return chart.getPreferredTopAxisLength();
     }
 
-
-
     int getPreferredBottomAxisLength() {
         return chart.getPreferredBottomAxisLength();
     }
-
 
     Range getTracesXExtremes() {
         return chart.getTracesXExtremes();

@@ -32,10 +32,7 @@ public class SimpleChart  {
     private List<Trace> traces = new ArrayList<Trace>();
     private boolean isTicksAlignmentEnable = false;
 
-    private LegendPainter legendPainter;
-    private TitlePainter titlePainter;
-    private Rectangle titleArea;
-    private Rectangle legendArea;
+
 
     private ChartConfig chartConfig;
 
@@ -43,17 +40,14 @@ public class SimpleChart  {
     private Rectangle graphArea;
     private Margin margin;
 
-    public SimpleChart(ChartConfig chartConfig, Rectangle area) {
+    public SimpleChart(ChartConfig chartConfig) {
         this.chartConfig = chartConfig;
-        fullArea = area;
         xAxisList.add(new Axis(chartConfig.getBottomAxisConfig()));
         xAxisList.add(new Axis(chartConfig.getTopAxisConfig()));
         for (int i = 0; i < chartConfig.getStacksAmount(); i++) {
             yAxisList.add(new Axis(chartConfig.getLeftAxisConfig(i)));
             yAxisList.add(new Axis(chartConfig.getRightAxisConfig(i)));
         }
-        titlePainter = new TitlePainter(chartConfig.getTitle(), chartConfig.getTitleTextStyle());
-        ArrayList<LegendItem> legendItems = new ArrayList<LegendItem>(chartConfig.getTraceAmount());
         for (int i = 0; i < chartConfig.getTraceAmount(); i++) {
             TraceConfig traceConfig = chartConfig.getTraceConfig(i);
             Trace trace = TraceRegister.getTrace(traceConfig, chartConfig.getTraceData(i));
@@ -61,15 +55,14 @@ public class SimpleChart  {
             trace.setYAxis(yAxisList.get(chartConfig.getTraceYAxisIndex(i)));
             trace.setDefaultColor(traceColors[traces.size() % traceColors.length]);
             trace.setName(chartConfig.getTraceName(i));
-            LegendItem[] items = trace.getLegendItems();
-            for (LegendItem item : items) {
-                legendItems.add(item);
-            }
             traces.add(trace);
         }
-        legendPainter = new LegendPainter(legendItems, chartConfig.getLegendConfig());
         setXAxisDomain();
         setYAxisDomain();
+    }
+
+    public void setArea(Rectangle area) {
+        fullArea = area;
     }
 
     Rectangle getFullArea() {
@@ -194,6 +187,17 @@ public class SimpleChart  {
         return traces.size();
     }
 
+    public List<LegendItem> getTracesInfo() {
+        ArrayList<LegendItem> legendItems = new ArrayList<LegendItem>(chartConfig.getTraceAmount());
+        for (int i = 0; i < chartConfig.getTraceAmount(); i++) {
+            LegendItem[] items = traces.get(i).getLegendItems();
+            for (LegendItem item : items) {
+                legendItems.add(item);
+            }
+        }
+        return legendItems;
+    }
+
     public DataSet getData(int traceIndex) {
         return traces.get(traceIndex).getData();
     }
@@ -211,9 +215,6 @@ public class SimpleChart  {
     }
 
     void calculateMarginsAndAreas(Graphics2D g2, Margin margin) {
-        int titleHeight = titlePainter.getTitleHeight(g2, fullArea.width);
-        int legendHeight = legendPainter.getLegendHeight(g2, fullArea.width);
-
         int left = -1;
         int right = -1;
         int bottom = -1;
@@ -231,18 +232,10 @@ public class SimpleChart  {
         xAxisList.get(0).setStartEnd(xStart, xEnd);
         xAxisList.get(1).setStartEnd(xStart, xEnd);
         if (top < 0) {
-            top = titleHeight;
-            if (chartConfig.getLegendConfig().isTop()) {
-                top += legendHeight;
-            }
             top += xAxisList.get(1).getThickness(g2);
 
         }
         if (bottom < 0) {
-            bottom = 0;
-            if (!chartConfig.getLegendConfig().isTop()) {
-                bottom += legendHeight;
-            }
             bottom += xAxisList.get(0).getThickness(g2);
         }
 
@@ -271,12 +264,6 @@ public class SimpleChart  {
         xEnd = graphArea.x + graphArea.width;
         xAxisList.get(0).setStartEnd(xStart, xEnd);
         xAxisList.get(1).setStartEnd(xStart, xEnd);
-        titleArea = new Rectangle(fullArea.x, fullArea.y, fullArea.width, titleHeight);
-        if (chartConfig.getLegendConfig().isTop()) {
-            legendArea = new Rectangle(fullArea.x, fullArea.y + titleHeight, fullArea.width, legendHeight);
-        } else {
-            legendArea = new Rectangle(fullArea.x, fullArea.y + fullArea.height - legendHeight, fullArea.width, legendHeight);
-        }
     }
 
     Axis getBottomAxis() {
@@ -322,10 +309,6 @@ public class SimpleChart  {
         g2d.setRenderingHint(
                 RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);  */
-
-        titlePainter.draw(g2d, titleArea);
-        legendPainter.draw(g2d, legendArea);
-
 
         int topPosition = graphArea.y;
         int bottomPosition = graphArea.y + graphArea.height;

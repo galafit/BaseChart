@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 public class BaseChartWithPreview  implements BaseMouseListener {
     private InteractiveChart chart;
-    private SimpleChart preview;
+    private InteractiveChart preview;
     private ScrollConfig scrollConfig = new ScrollConfig();
     private Rectangle chartArea;
     private Rectangle previewArea;
@@ -38,19 +38,19 @@ public class BaseChartWithPreview  implements BaseMouseListener {
 
         chart = new InteractiveChart(chartConfig, chartArea);
         chart.addEventListener(new EventListener());
-        preview = new SimpleChart(previewConfig, previewArea);
+        preview = new InteractiveChart(previewConfig, previewArea);
 
         Range minMax = Range.max(chart.getTracesXExtremes(), preview.getTracesXExtremes());
         preview.setBottomAxisExtremes(minMax);
         preview.setTopAxisExtremes(minMax);
         if(chartWidth > 0) {
             double extent = (minMax.end() - minMax.start()) * area.width / chartWidth;
-            scroll = new Scroll(scrollConfig, extent, extent, preview.getBottomAxis().getScale());
+            scroll = new Scroll(scrollConfig, extent, extent, preview.getBottomScale());
 
         } else {
             double extentTop = (minMax.end() - minMax.start()) * area.width / chart.getPreferredTopAxisLength();
             double extentBottom = (minMax.end() - minMax.start()) * area.width / chart.getPreferredBottomAxisLength();
-            scroll = new Scroll(scrollConfig, extentBottom, extentTop,  preview.getBottomAxis().getScale());
+            scroll = new Scroll(scrollConfig, extentBottom, extentTop,  preview.getBottomScale());
         }
         chart.setBottomAxisExtremes(getScrollExtremes(0));
         chart.setTopAxisExtremes(getScrollExtremes(1));
