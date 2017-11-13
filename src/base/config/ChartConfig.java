@@ -38,7 +38,7 @@ public class ChartConfig {
      * 2 X-base.axis: 0(even) - BOTTOM and 1(odd) - TOP
      * 2 Y-base.axis for every section(stack): even - LEFT and odd - RIGHT;
      * All LEFT and RIGHT Y-base.axis are stacked.
-     * If there is no trace associated with the base.axis... base.axis is invisible.
+     * If there is no trace associated with some axis... this axis is invisible.
      **/
     private ArrayList<AxisConfig> xAxisConfigs = new ArrayList<AxisConfig>();
     private ArrayList<AxisConfig> yAxisConfigs = new ArrayList<AxisConfig>();

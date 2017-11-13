@@ -25,17 +25,22 @@ public class Config {
             Color bgColor = new Color(20, 20, 30);
             Color marginColor = new Color(20, 20, 20);
             Color textColor = new Color(200, 200, 200);
+            Color legendBorderColor = new Color(50, 50, 50);
+            Color legendBgColor = new Color(30, 30, 30);
+            legendBgColor = bgColor;
             chartConfig.setBackground(bgColor);
             chartConfig.setMarginColor(marginColor);
-            chartConfig.getLegendConfig().setBackground(marginColor);
+            chartConfig.getLegendConfig().setBackground(legendBgColor);
             chartConfig.getLegendConfig().setBorderWidth(1);
+            chartConfig.getLegendConfig().setBorderColor(legendBorderColor);
             chartConfig.getLegendConfig().getTextStyle().setFontColor(textColor);
             chartConfig.getTitleTextStyle().setFontColor(textColor);
 
             previewConfig.setBackground(bgColor);
             previewConfig.setMarginColor(marginColor);
-            previewConfig.getLegendConfig().setBackground(marginColor);
+            previewConfig.getLegendConfig().setBackground(legendBgColor);
             previewConfig.getLegendConfig().setBorderWidth(1);
+            previewConfig.getLegendConfig().setBorderColor(legendBorderColor);
             previewConfig.getLegendConfig().getTextStyle().setFontColor(textColor);
             previewConfig.getTitleTextStyle().setFontColor(textColor);
         }

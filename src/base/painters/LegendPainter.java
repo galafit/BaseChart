@@ -5,6 +5,7 @@ import base.config.general.Margin;
 import base.legend.LegendItem;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,60 +15,22 @@ import java.util.List;
  */
 public class LegendPainter {
     private List<LegendItem> items;
-    private int maxStringWidth = 0;
-    private ArrayList<Integer> itemsPerStringList;
     private LegendConfig legendConfig;
+    private Rectangle[] itemAreas;
+    private int selectedItem = 0;
 
     public LegendPainter(List<LegendItem> items, LegendConfig legendConfig) {
         this.items = items;
         this.legendConfig = legendConfig;
+        itemAreas = new Rectangle[items.size()];
     }
 
-    public int getLegendHeight(Graphics2D g2, int areaWidth) {
-        if (!legendConfig.isVisible() || items.size() == 0) {
-            return 0;
-        }
-        g2.setFont(legendConfig.getTextStyle().getFont());
-        itemsToStrings(g2, areaWidth);
-        return getStringHeight(g2, legendConfig.getTextStyle().getFont()) * itemsPerStringList.size()
-                + getInterLineSpace() * (itemsPerStringList.size() - 1)
-                + legendConfig.getMargin().top() + legendConfig.getMargin().bottom();
-    }
-
-    private void itemsToStrings(Graphics2D g2, int areaWidth) {
-        itemsPerStringList = new ArrayList<Integer>();
-        int sumItemsWidth = getItemWidth(g2, items.get(0));
-        int itemCounter = 1;
-        for (int i = 1; i < items.size(); i++) {
-            int currentItemWidth = getItemWidth(g2, items.get(i));
-            if (sumItemsWidth + currentItemWidth + itemCounter * getInterItemSpace() + legendConfig.getMargin().left() + legendConfig.getMargin().right() > areaWidth) {
-                maxStringWidth = Math.max(maxStringWidth, sumItemsWidth + (itemCounter - 1) * getInterItemSpace());
-                itemsPerStringList.add(itemCounter);
-                sumItemsWidth = currentItemWidth;
-                itemCounter = 1;
-            } else {
-                itemCounter++;
-                sumItemsWidth += currentItemWidth;
-            }
-
-        }
-        maxStringWidth = Math.max(maxStringWidth, sumItemsWidth + (itemCounter - 1) * getInterItemSpace());
-        itemsPerStringList.add(itemCounter);
-    }
-
-    private int getItemWidth(Graphics2D g2, LegendItem item) {
-        return getStringWidth(g2, legendConfig.getTextStyle().getFont(), item.getLabel()) + getColorMarkerSize() + getColorMarkerPadding();
-
-    }
-
-    public void draw(Graphics2D g2, Rectangle area) {
-        if (!legendConfig.isVisible() || items.size() == 0) {
-            return;
+    private void createAreas(Graphics2D g2, int legendWidth) {
+        for (int i = 0; i < items.size(); i++) {
+           itemAreas[i] = new Rectangle(0, 0, getItemWidth(g2, items.get(i)), getItemHeight(g2));
         }
 
-        g2.setColor(legendConfig.getTextStyle().getFontColor());
-        g2.setFont(legendConfig.getTextStyle().getFont());
-        Margin margin = legendConfig.getMargin();
+     /*   Margin margin = legendConfig.getMargin();
         int x_start;
         if (legendConfig.getPosition() == Position.BOTTOM_LEFT || legendConfig.getPosition() == Position.TOP_LEFT) {
             x_start = area.x + margin.left();
@@ -77,54 +40,104 @@ public class LegendPainter {
         } else {
             x_start = (area.x + area.width) / 2 - maxStringWidth / 2;
             x_start = Math.max(area.x + margin.left(), x_start);
+        }*/
+
+        int x = 0;
+        int y = 0;
+        for (Rectangle itemArea : itemAreas) {
+            if(x + itemArea.width >= legendWidth) {
+               x = 0;
+               y += itemArea.height;
+                itemArea.x = x;
+                itemArea.y = y;
+            } else {
+                itemArea.x = x;
+                itemArea.y = y;
+                x += itemArea.width + getInterItemSpace();
+            }
         }
+    }
 
+    public int getLegendHeight(Graphics2D g2, int legendWidth) {
+        if (!legendConfig.isVisible() || items.size() == 0) {
+            return 0;
+        }
+        g2.setFont(legendConfig.getTextStyle().getFont());
+        createAreas(g2,  legendWidth);
+        Rectangle lastItemArea = itemAreas[itemAreas.length - 1];
+        return lastItemArea.y + lastItemArea.height;
+    }
+
+
+    public void draw(Graphics2D g2, Rectangle area) {
+        if (!legendConfig.isVisible() || items.size() == 0) {
+            return;
+        }
+        g2.setFont(legendConfig.getTextStyle().getFont());
+        AffineTransform originTransform = g2.getTransform();
+        g2.translate(area.x, area.y);
+        for (int i = 0; i < items.size(); i++) {
+            if(i == selectedItem) {
+                drawItem(i, g2, true);
+            } else {
+                drawItem(i, g2, false);
+            }
+
+        }
+        g2.setTransform(originTransform);
+    }
+
+    private void drawItem(int itemIndex, Graphics2D g2, boolean isSelected) {
+        Rectangle itemRect = itemAreas[itemIndex];
+        LegendItem item = items.get(itemIndex);
         // draw background
-        int legendHeight = getStringHeight(g2, legendConfig.getTextStyle().getFont()) * itemsPerStringList.size()
-                + getInterLineSpace() * (itemsPerStringList.size() - 1)
-                + margin.top() + margin.bottom();
-        int legendWidth = maxStringWidth + margin.left() + margin.right();
         g2.setColor(legendConfig.getBackground());
-        g2.fillRect(x_start - margin.left(), area.y, legendWidth, legendHeight);
-
+        g2.fillRect(itemRect.x, itemRect.y, itemRect.width, itemRect.height);
         // draw border
         g2.setStroke(new BasicStroke(legendConfig.getBorderWidth()));
         g2.setColor(legendConfig.getBorderColor());
-        g2.drawRect(x_start - margin.left(), area.y, legendWidth, legendHeight);
-
-        int itemCounter = 0;
-        int y = area.y + margin.top();
-        for (int numberOfItems : itemsPerStringList) {
-            int x = x_start;
-
-            // g2.setDefaultColor(legendConfig.getBackground());
-            // g2.fillRect(x, y, maxStringWidth, getStringHeight(g2));
-
-            for (int i = 0; i < numberOfItems; i++) {
-                LegendItem legendItem = items.get(itemCounter);
-                g2.setColor(legendItem.getColor());
-                g2.fillRect(x, y + (getStringHeight(g2, legendConfig.getTextStyle().getFont()) - getColorMarkerSize()) / 2 + 1, getColorMarkerSize(), getColorMarkerSize());
-                x += getColorMarkerSize() + getColorMarkerPadding();
-              //  g2.setColor(legendConfig.getTextStyle().getFontColor());
-                g2.drawString(legendItem.getLabel(), x, y + getStringAscent(g2, legendConfig.getTextStyle().getFont()));
-                x += getStringWidth(g2, legendConfig.getTextStyle().getFont(), legendItem.getLabel()) + getInterItemSpace();
-                itemCounter++;
-            }
-            y += getStringHeight(g2, legendConfig.getTextStyle().getFont()) + getInterLineSpace();
+        if(isSelected) {
+            g2.setColor(item.getColor());
         }
+        g2.drawRect(itemRect.x, itemRect.y, itemRect.width, itemRect.height);
+        // draw item color marker
+        int x = itemRect.x + getPadding();
+        int y = itemRect.y + getPadding();
+        g2.setColor(item.getColor());
+        g2.fillRect(x, y, getColorMarkerSize(), itemRect.height - 2 *getPadding());
+        // draw item
+        x += getColorMarkerSize() + getColorMarkerPadding();
+        y = itemRect.y + getPadding() + getStringAscent(g2, legendConfig.getTextStyle().getFont());
+        //g2.setColor(legendConfig.getTextStyle().getFontColor());
+        if(isSelected) {
+           // g2.setColor(item.getColor());
+        }
+        g2.drawString(item.getLabel(), x, y);
+    }
+
+    private int getItemWidth(Graphics2D g2, LegendItem item) {
+        return getStringWidth(g2, legendConfig.getTextStyle().getFont(), item.getLabel())
+                + getColorMarkerSize() + getColorMarkerPadding()
+                + 2 * getPadding();
 
     }
 
-     private int getInterLineSpace() {
+    private int getItemHeight(Graphics2D g2) {
+        return getStringHeight(g2, legendConfig.getTextStyle().getFont())
+                + 2 * getPadding();
+
+    }
+
+    private int getPadding() {
         return (int) (legendConfig.getTextStyle().getFontSize() * 0.2);
     }
 
     private int getInterItemSpace() {
-        return (int) (legendConfig.getTextStyle().getFontSize() * 1);
+        return (int) (legendConfig.getTextStyle().getFontSize() * 0);
     }
 
     private int getColorMarkerSize() {
-        return (int) (legendConfig.getTextStyle().getFontSize() * 0.8);
+        return (int) (legendConfig.getTextStyle().getFontSize() * 0);
     }
 
     private int getColorMarkerPadding() {

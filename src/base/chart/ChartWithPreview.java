@@ -7,27 +7,24 @@ import base.config.general.Margin;
 import base.Range;
 
 import java.awt.*;
-import java.util.ArrayList;
 
 /**
  * Created by galafit on 3/10/17.
  */
-public class BaseChartWithPreview  implements BaseMouseListener {
+public class ChartWithPreview {
     private InteractiveChart chart;
     private InteractiveChart preview;
     private ScrollConfig scrollConfig = new ScrollConfig();
     private Rectangle chartArea;
     private Rectangle previewArea;
     private Scroll scroll;
-    private ArrayList<ChangeListener> changeListeners = new ArrayList<ChangeListener>();
+    private GestureListener mouseListener;
 
-
-    public BaseChartWithPreview(ChartConfig chartConfig, Rectangle area) {
+    public ChartWithPreview(ChartConfig chartConfig, Rectangle area) {
         chart = new InteractiveChart(chartConfig, area);
-        chart.addEventListener(new EventListener());
     }
 
-    public BaseChartWithPreview(ChartConfig chartConfig, ChartConfig previewConfig, Rectangle area, long chartWidth) {
+    public ChartWithPreview(ChartConfig chartConfig, ChartConfig previewConfig, Rectangle area, long chartWidth) {
         int chartWeight = chartConfig.getSumWeight();
         int previewWeight = previewConfig.getSumWeight();
 
@@ -37,7 +34,6 @@ public class BaseChartWithPreview  implements BaseMouseListener {
         previewArea = new Rectangle(area.x, area.y + chartHeight, area.width, previewHeight);
 
         chart = new InteractiveChart(chartConfig, chartArea);
-        chart.addEventListener(new EventListener());
         preview = new InteractiveChart(previewConfig, previewArea);
 
         Range minMax = Range.max(chart.getTracesXExtremes(), preview.getTracesXExtremes());
@@ -126,22 +122,34 @@ public class BaseChartWithPreview  implements BaseMouseListener {
         }
     }
 
+    public GestureListener getMouseListener() {
+        if(mouseListener == null) {
+            mouseListener = chart.getMouseListener();
+        }
+        return mouseListener;
+    }
 
-    @Override
-    public void mouseClicked(int mouseX, int mouseY) {
+    public void addChartListener(ChartEventListener chartEventListener) {
+        chart.addChartListener(chartEventListener);
+    }
+
+
+
+/*    @Override
+    public void onClick(int mouseX, int mouseY) {
         if(chartArea.contains(mouseX, mouseY)) {
-            chart.mouseClicked(mouseX, mouseY);
+            chart.onClick(mouseX, mouseY);
         } else if(preview != null && previewArea.contains(mouseX, mouseY) && !isMouseInsideScroll(mouseX, mouseY)) {
             moveScroll(mouseX, mouseY);
         }
-        for (ChangeListener changeListener : changeListeners) {
-            changeListener.update();
+        for (ChartEventListener changeListener : chartEventListeners) {
+           // changeListener.update();
         }
     }
 
     @Override
-    public void mouseDoubleClicked(int mouseX, int mouseY) {
-        chart.mouseDoubleClicked(mouseX, mouseY);
+    public void onDoubleClick(int mouseX, int mouseY) {
+        chart.onDoubleClick(mouseX, mouseY);
     }
 
     @Override
@@ -150,18 +158,15 @@ public class BaseChartWithPreview  implements BaseMouseListener {
     }
 
     @Override
-    public void mouseWheelMoved(int mouseX, int mouseY, int wheelRotation) {
+    public void onScroll(int mouseX, int mouseY, int wheelRotation) {
         chart.mouseWheelMoved(mouseX, mouseY, wheelRotation);
     }
 
-    public void addChangeListener(ChangeListener changeListener) {
-        changeListeners.add(changeListener);
-    }
 
     class EventListener implements  ChartEventListener {
         @Override
         public void hoverChanged() {
-            for (ChangeListener changeListener : changeListeners) {
+            for (ChartEventListener changeListener : chartEventListeners) {
                 changeListener.update();
             }
         }
@@ -185,5 +190,5 @@ public class BaseChartWithPreview  implements BaseMouseListener {
         public void xAxisResetActionPerformed(int xAxisIndex) {
             System.out.println(xAxisIndex+" X AxisReset ");
         }
-    }
+    }*/
 }

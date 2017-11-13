@@ -7,8 +7,6 @@ import base.config.general.Margin;
 import base.config.traces.TraceConfig;
 import base.Range;
 import base.legend.LegendItem;
-import base.painters.*;
-import base.tooltips.TooltipInfo;
 import base.tooltips.InfoItem;
 import base.traces.Trace;
 import base.traces.TraceRegister;
@@ -31,9 +29,6 @@ public class SimpleChart  {
     private List<Axis> yAxisList = new ArrayList<Axis>();
     private List<Trace> traces = new ArrayList<Trace>();
     private boolean isTicksAlignmentEnable = false;
-
-
-
     private ChartConfig chartConfig;
 
     private Rectangle fullArea;
@@ -72,6 +67,152 @@ public class SimpleChart  {
     Rectangle getGraphArea() {
         return graphArea;
     }
+
+    Margin getMargin(Graphics2D g2) {
+        if (margin == null) {
+            calculateMarginsAndAreas(g2, chartConfig.getMargin());
+        }
+        return margin;
+    }
+
+    void setMargin(Graphics2D g2, Margin margin) {
+        calculateMarginsAndAreas(g2, margin);
+    }
+
+    int getTraceYAxisIndex(int traceIndex) {
+        return chartConfig.getTraceYAxisIndex(traceIndex);
+    }
+
+    int getTraceXAxisIndex(int traceIndex) {
+        return chartConfig.getTraceXAxisIndex(traceIndex);
+    }
+
+    int[] getStackXAxisIndexes(int stackIndex) {
+        boolean isBottom = false;
+        boolean isTop = false;
+        for (int i = 0; i < traces.size(); i++) {
+            int traceStackIndex = getTraceYAxisIndex(i) / 2;
+            if(traceStackIndex == stackIndex) {
+                if(getTraceXAxisIndex(i) == 0) {
+                    isBottom = true;
+                } else {
+                    isTop = true;
+                }
+            }
+        }
+        if(isBottom && isTop) {
+            int[] xAxisIndexes = {0, 1};
+            return xAxisIndexes;
+        }
+        if(isBottom) {
+            int[] xAxisIndexes = {0};
+            return xAxisIndexes;
+        }
+        if(isTop) {
+            int[] xAxisIndexes = {1};
+            return xAxisIndexes;
+        }
+        int[] xAxisIndexes = new int[0];
+        return xAxisIndexes;
+    }
+
+    public void zoomY(int yAxisIndex, double zoomFactor) {
+        yAxisList.get(yAxisIndex).zoom(zoomFactor);
+    }
+
+    public void zoomX(int xAxisIndex, double zoomFactor) {
+        xAxisList.get(xAxisIndex).zoom(zoomFactor);
+    }
+    public void translateY(int yAxisIndex, int translation) {
+        yAxisList.get(yAxisIndex).translate(translation);
+    }
+
+    public void translateX(int xAxisIndex, int translation) {
+        xAxisList.get(xAxisIndex).translate(translation);
+    }
+
+    Range getYAxisRange(int yAxisIndex) {
+        return new Range(yAxisList.get(yAxisIndex).getStart(), yAxisList.get(yAxisIndex).getEnd(), true);
+    }
+
+    int getStackIndex(int y) {
+        for (int i = 0; i < yAxisList.size() / 2; i++) {
+            Axis yAxis = yAxisList.get(2 * i);
+            // for yAxis Start > End
+            if (yAxis.getEnd() <= y && yAxis.getStart() >= y) {
+                return i;
+            }
+        }
+        return - 1;
+    }
+
+    /**
+     * true if there are traces using given Y axis
+     */
+    public boolean isYAxisUsed(int yAxisIndex) {
+        return isYAxisUsed(yAxisList.get(yAxisIndex));
+    }
+
+    /**
+     * true if there are traces using given X axis
+     */
+    public boolean isXAxisUsed(int xAxisIndex) {
+        return isXAxisUsed(xAxisList.get(xAxisIndex));
+    }
+
+    private boolean isYAxisUsed(Axis yAxis) {
+        for (Trace trace : traces) {
+            if(trace.getYAxis() == yAxis) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isXAxisUsed(Axis xAxis) {
+        for (Trace trace : traces) {
+            if(trace.getXAxis() == xAxis) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    int getYAxisIndex(int x, int y) {
+        Rectangle leftArea = new Rectangle(graphArea.x, graphArea.y, graphArea.width / 2, graphArea.height);
+        Rectangle rightArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y, graphArea.width / 2, graphArea.height);
+
+        if (leftArea.contains(x, y)) {
+            for (int i = 0; i < yAxisList.size() / 2; i++) {
+                Axis yAxis = yAxisList.get(2 * i);
+                // for yAxis Start > End
+                if (yAxis.getEnd() <= y && yAxis.getStart() >= y) {
+                    if(isYAxisUsed(yAxis)) {
+                        return 2 * i;
+                    }
+                    else {
+                        return 2 * i + 1;
+                    }
+                }
+            }
+        }
+        if (rightArea.contains(x, y)) {
+            for (int i = 0; i < yAxisList.size() / 2; i++) {
+                Axis yAxis = yAxisList.get(2 * i + 1);
+                // for yAxis Start > End
+                if (yAxis.getEnd() <= y && yAxis.getStart() >= y) {
+                    if(isYAxisUsed(yAxis)) {
+                        return 2 * i + 1;
+                    }
+                    else {
+                        return 2 * i;
+                    }
+                }
+            }
+        }
+        return - 1;
+    }
+
 
     int getPreferredTopAxisLength() {
         Axis topAxis = xAxisList.get(1);
@@ -112,18 +253,6 @@ public class SimpleChart  {
     void setBottomAxisExtremes(Range minMax) {
         xAxisList.get(0).setAutoScale(false);
         xAxisList.get(0).setMinMax(minMax);
-    }
-
-
-    Margin getMargin(Graphics2D g2) {
-        if (margin == null) {
-            calculateMarginsAndAreas(g2, chartConfig.getMargin());
-        }
-        return margin;
-    }
-
-    void setMargin(Graphics2D g2, Margin margin) {
-        calculateMarginsAndAreas(g2, margin);
     }
 
 

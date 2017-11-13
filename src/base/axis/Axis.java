@@ -52,6 +52,31 @@ public class Axis {
         this.isAutoscale = isAutoScale;
     }
 
+    public void zoom(double zoomFactor) {
+        int start = getStart();
+        int end = getEnd();
+        int shift = (int)((end - start) * (zoomFactor - 1) / 2);
+        int newStart = start - shift;
+        int newEnd = end + shift;
+        setStartEnd(newStart, newEnd);
+        double minNew = invert(start);
+        double maxNew = invert(end);
+        setMinMax(minNew, maxNew);
+        setStartEnd(start, end);
+    }
+
+    public void translate(int translation) {
+        int start = getStart();
+        int end = getEnd();
+        double minNew = invert(start + translation);
+        double maxNew = invert(end + translation);
+        setMinMax(minNew, maxNew);
+    }
+
+    public void setMinMax(double min, double max) {
+        setMinMax(new Range(min, max));
+    }
+
     public void setMinMax(Range minMaxRange) {
         if(minMaxRange == null) {
             return;

@@ -1,4 +1,5 @@
-import base.chart.ChangeListener;
+import base.chart.GestureListener;
+import base.chart.ChartEventListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,53 +10,72 @@ import java.awt.event.*;
  */
 public class ChartPanel extends JPanel {
     private Chart chart;
-    private static final int SquareWidth = 10;
-
-    private static final int Max = 100;
-
-    private Rectangle[] squares = new Rectangle[Max];
-
-    private int squareCount = 0;
-
-    private int currentSquareIndex = -1;
-
 
     public ChartPanel(Chart chart) {
         this.chart = chart;
+        GestureListener chartMouseListener = chart.getMouseListener();
 
-    addMouseMotionListener(new MouseMotionAdapter() {
+        addMouseMotionListener(new MouseMotionAdapter() {
             @Override
-            public void mouseMoved(MouseEvent e) {
-                chart.mouseMoved(e.getX(), e.getY());
+            public void mouseDragged(MouseEvent e) {
+                boolean isModified = false;
+                if (e.isAltDown() || e.isControlDown() || e.isShiftDown() || e.isMetaDown()) {
+                    isModified = true;
+                }
+                chartMouseListener.onDrag(e.getX(), e.getY(), isModified);
+             }
+        });
 
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    chartMouseListener.onDoubleClick(e.getX(), e.getY());
+                } else if (e.getClickCount() == 1) {
+                    chartMouseListener.onClick(e.getX(), e.getY());
+                }
+
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                chartMouseListener.onPress(e.getX(), e.getY(), SwingUtilities.isRightMouseButton(e));
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                chartMouseListener.onRelease(e.getX(), e.getY());
+            }
+
+        });
+
+        addMouseWheelListener(new MouseWheelListener() {
+            @Override
+            public void mouseWheelMoved(MouseWheelEvent e) {
+                boolean isModified = false;
+                if (e.isAltDown() || e.isControlDown() || e.isShiftDown() || e.isMetaDown()) {
+                    isModified = true;
+                }
+                int rotation = e.getWheelRotation();
+                int translation = rotation;
+                chartMouseListener.onScroll(translation, isModified);
+                if(e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+                    System.out.println("unit scroll, rotation "+rotation);
+                }
+                if(e.getScrollType() == MouseWheelEvent.WHEEL_BLOCK_SCROLL) {
+                    System.out.println("block scroll, rotation "+rotation);
+                }
             }
         });
 
-        this.chart.addChangeListener(new ChangeListener() {
+        this.chart.addChartListener(new ChartEventListener() {
             @Override
             public void update() {
                 repaint();
             }
         });
-
-        addMouseListener(new ClickListener());
-
-        addMouseWheelListener(new MouseWheelListener() {
-            @Override
-            public void mouseWheelMoved(MouseWheelEvent e) {
-                chart.mouseWheelMoved(e.getX(), e.getY(), e.getWheelRotation());
-            }
-        });
     }
 
-
-    public void singleClickAction(MouseEvent e) {
-        chart.mouseClicked(e.getX(), e.getY());
-    }
-
-    public void doubleClickAction(MouseEvent e) {
-        chart.mouseDoubleClicked(e.getX(), e.getY());
-    }
 
     @Override
     public void paintComponent(Graphics g) {
@@ -66,7 +86,7 @@ public class ChartPanel extends JPanel {
     /**
      * This class distinguish between single and double click
      */
-    class ClickListener extends MouseAdapter  {
+    class ClickListener extends MouseAdapter {
         private int clickInterval = 300; //ms
         private MouseEvent lastEvent;
         private long lastTime;
@@ -74,7 +94,7 @@ public class ChartPanel extends JPanel {
 
         public ClickListener() {
             Object defaultClickInterval = Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
-            if(defaultClickInterval != null) {
+            if (defaultClickInterval != null) {
                 clickInterval = (Integer) defaultClickInterval;
             }
         }
@@ -96,8 +116,8 @@ public class ChartPanel extends JPanel {
                 clickTimer = new Timer(clickInterval, new ActionListener() {
                     @Override
                     public void actionPerformed(ActionEvent e) {
-                        singleClickAction(lastEvent);
-                       // System.out.println("single click: ");
+                        // DO SINGLE CLICK ACTION!
+                        // System.out.println("single click: ");
                     }
                 });
                 clickTimer.setRepeats(false);
@@ -106,7 +126,7 @@ public class ChartPanel extends JPanel {
             } else { // double click
                 lastTime = 0;
                 clickTimer.stop();
-                doubleClickAction(e);
+                // DO SINGLE CLICK ACTION!
                 //System.out.println("double click: ");
             }
         }

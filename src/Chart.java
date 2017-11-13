@@ -1,7 +1,6 @@
 import base.Range;
-import base.chart.BaseChartWithPreview;
-import base.chart.BaseMouseListener;
-import base.chart.ChangeListener;
+import base.chart.ChartWithPreview;
+import base.chart.GestureListener;
 import base.chart.ChartEventListener;
 import data.BaseDataSet;
 import data.GroupedDataSet;
@@ -11,9 +10,9 @@ import java.awt.*;
 /**
  * Created by galafit on 6/10/17.
  */
-public class Chart implements BaseMouseListener {
+public class Chart {
     Config config;
-    BaseChartWithPreview chartWithPreview;
+    ChartWithPreview chartWithPreview;
     BaseDataSet[] tracesData;
     BaseDataSet[] previewData;
 
@@ -29,7 +28,7 @@ public class Chart implements BaseMouseListener {
             for (int i = 0; i < config.getPreviewConfig().getTraceAmount(); i++) {
                 previewData[i] = (BaseDataSet) config.getPreviewConfig().getTraceData(i);
             }
-            chartWithPreview = new BaseChartWithPreview(config.getChartConfig(), config.getPreviewConfig(), area, config.getChartWidth());
+            chartWithPreview = new ChartWithPreview(config.getChartConfig(), config.getPreviewConfig(), area, config.getChartWidth());
             for (int i = 0; i < previewData.length; i++) {
                 int compression = previewData[i].size() * 20 / width;
                 if(compression > 1) {
@@ -40,7 +39,7 @@ public class Chart implements BaseMouseListener {
            moveScroll(0);
 
         } else {
-            chartWithPreview = new BaseChartWithPreview(config.getChartConfig(), area);
+            chartWithPreview = new ChartWithPreview(config.getChartConfig(), area);
         }
     }
 
@@ -69,33 +68,17 @@ public class Chart implements BaseMouseListener {
         cropData(scrollExtremesBottom, scrollExtremesTop);
     }
 
+    public GestureListener getMouseListener() {
+        return chartWithPreview.getMouseListener();
+    }
+
+    public void addChartListener(ChartEventListener chartEventListener) {
+       chartWithPreview.addChartListener(chartEventListener);
+    }
+
+
 
     public void draw(Graphics2D g2d) {
        chartWithPreview.draw(g2d);
-    }
-
-    @Override
-    public void mouseClicked(int mouseX, int mouseY) {
-        chartWithPreview.mouseClicked(mouseX, mouseY);
-    }
-
-
-    @Override
-    public void mouseDoubleClicked(int mouseX, int mouseY) {
-        chartWithPreview.mouseDoubleClicked(mouseX, mouseY);
-    }
-
-    @Override
-    public void mouseMoved(int mouseX, int mouseY) {
-        chartWithPreview.mouseMoved(mouseX, mouseY);
-    }
-
-    @Override
-    public void mouseWheelMoved(int mouseX, int mouseY, int wheelRotation) {
-        chartWithPreview.mouseWheelMoved(mouseX, mouseY, wheelRotation);
-    }
-
-    public void addChangeListener(ChangeListener changeListener) {
-        chartWithPreview.addChangeListener(changeListener);
     }
 }

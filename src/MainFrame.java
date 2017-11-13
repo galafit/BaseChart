@@ -51,7 +51,7 @@ public class MainFrame extends JFrame {
 
         Chart chart = new Chart(config, width, height);
 
-        //base.chart.BaseChartWithPreview chart = new base.chart.BaseChartWithPreview(chartConfig);
+        //base.chart.ChartWithPreview chart = new base.chart.ChartWithPreview(chartConfig);
 
         ChartPanel chartPanel = new ChartPanel(chart);
 

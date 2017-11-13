@@ -17,7 +17,7 @@ import java.util.ArrayList;
 /**
  * Created by galafit on 27/10/17.
  */
-public class InteractiveChart implements BaseMouseListener {
+public class InteractiveChart {
     private SimpleChart chart;
 
     private LegendPainter legendPainter;
@@ -28,14 +28,24 @@ public class InteractiveChart implements BaseMouseListener {
     private ChartConfig chartConfig;
     private boolean isDirty = true;
 
-
     private CrosshairPainter crosshairPainter;
     private TooltipPainter tooltipPainter;
     private TooltipInfo tooltipInfo;
+
     private int selectedTraceIndex = 0;
     private int hoverIndex = -1;
+    private int pastX;
+    private int pastY;
+    private int selectedYAxisIndex;
+    private int[] selectedXAxisIndexes;
 
-    private ArrayList<ChartEventListener> eventsListeners = new ArrayList<ChartEventListener>();
+
+    private GestureListener mouseListener = new GestureListenerImpl();
+    private ArrayList<ChartEventListener> chartEventListeners = new ArrayList<ChartEventListener>();
+
+    // во сколько раз растягивается или сжимается ось при автозуме
+    private double defaultZoomFactor = 2;
+    private boolean isLongPress = false;
 
     public InteractiveChart(ChartConfig chartConfig, Rectangle area) {
         fullArea = area;
@@ -47,16 +57,36 @@ public class InteractiveChart implements BaseMouseListener {
         legendPainter = new LegendPainter(chart.getTracesInfo(), chartConfig.getLegendConfig());
     }
 
-    private void hoverOff() {
-        hoverIndex = -1;
+    public void zoomY(int yAxisIndex, double zoomFactor) {
+        chart.zoomY(yAxisIndex, zoomFactor);
+    }
+
+    public void zoomX(int xAxisIndex, double zoomFactor) {
+        chart.zoomX(xAxisIndex, zoomFactor);
+    }
+
+    public void translateY(int yAxisIndex, int translation) {
+        chart.translateY(yAxisIndex, translation);
+    }
+
+    public void translateX(int xAxisIndex, int translation) {
+        chart.translateX(xAxisIndex, translation);
+    }
+
+    private boolean hoverOff() {
+        if (hoverIndex >= 0) {
+            hoverIndex = -1;
+            return true;
+        }
+        return false;
     }
 
     private boolean hoverOn(int mouseX, int mouseY) {
-        if(selectedTraceIndex < 0) {
+        if (selectedTraceIndex < 0) {
             return false;
         }
         int nearestIndex = chart.getData(selectedTraceIndex).findNearestData(chart.xPositionToValue(selectedTraceIndex, mouseX));
-        if(hoverIndex != nearestIndex) {
+        if (hoverIndex != nearestIndex) {
             hoverIndex = nearestIndex;
             return true;
         }
@@ -65,7 +95,7 @@ public class InteractiveChart implements BaseMouseListener {
 
     private TooltipInfo getTooltipInfo() {
         TooltipInfo tooltipInfo = null;
-        if(selectedTraceIndex >= 0 && hoverIndex >= 0) {
+        if (selectedTraceIndex >= 0 && hoverIndex >= 0) {
             tooltipInfo = new TooltipInfo();
             tooltipInfo.addItems(chart.getDataInfo(selectedTraceIndex, hoverIndex));
             Point dataPosition = chart.getDataPosition(selectedTraceIndex, hoverIndex);
@@ -79,14 +109,14 @@ public class InteractiveChart implements BaseMouseListener {
     }
 
     Margin getMargin(Graphics2D g2) {
-        if(isDirty) {
+        if (isDirty) {
             calculateAreas(g2);
         }
-       return chart.getMargin(g2);
+        return chart.getMargin(g2);
     }
 
     void setMargin(Graphics2D g2, Margin margin) {
-        if(isDirty) {
+        if (isDirty) {
             calculateAreas(g2);
         }
         chart.setMargin(g2, margin);
@@ -116,7 +146,7 @@ public class InteractiveChart implements BaseMouseListener {
         Rectangle chartArea;
         if (chartConfig.getLegendConfig().isTop()) {
             legendArea = new Rectangle(fullArea.x, fullArea.y + titleHeight, fullArea.width, legendHeight);
-             chartArea = new Rectangle(fullArea.x, fullArea.y + titleHeight + legendHeight, fullArea.width, fullArea.height - titleHeight - legendHeight);
+            chartArea = new Rectangle(fullArea.x, fullArea.y + titleHeight + legendHeight, fullArea.width, fullArea.height - titleHeight - legendHeight);
         } else {
             legendArea = new Rectangle(fullArea.x, fullArea.y + fullArea.height - legendHeight, fullArea.width, legendHeight);
             chartArea = new Rectangle(fullArea.x, fullArea.y + titleHeight, fullArea.width, fullArea.height - titleHeight - legendHeight);
@@ -126,7 +156,7 @@ public class InteractiveChart implements BaseMouseListener {
     }
 
     public void draw(Graphics2D g2) {
-        if(isDirty) {
+        if (isDirty) {
             calculateAreas(g2);
         }
 
@@ -134,6 +164,7 @@ public class InteractiveChart implements BaseMouseListener {
         g2.fill(fullArea);
 
         chart.draw(g2);
+        tooltipInfo = getTooltipInfo();
         if (tooltipInfo != null) {
             tooltipPainter.draw(g2, chart.getFullArea(), tooltipInfo);
             crosshairPainter.draw(g2, chart.getGraphArea(), tooltipInfo.getX(), tooltipInfo.getY());
@@ -142,18 +173,14 @@ public class InteractiveChart implements BaseMouseListener {
         legendPainter.draw(g2, legendArea);
     }
 
-    public void addEventListener(ChartEventListener eventListener) {
-        eventsListeners.add(eventListener);
+    private void fireChangeEvent() {
+        for (ChartEventListener chartEventListener : chartEventListeners) {
+            chartEventListener.update();
+        }
     }
 
-    @Override
-    public void mouseMoved(int mouseX, int mouseY) {
-        if (hoverOn(mouseX, mouseY)) {
-            tooltipInfo = getTooltipInfo();
-            for (ChartEventListener listener : eventsListeners) {
-                listener.hoverChanged();
-            }
-        }
+    public void addChartListener(ChartEventListener listener) {
+        chartEventListeners.add(listener);
     }
 
     int getPreferredTopAxisLength() {
@@ -169,120 +196,120 @@ public class InteractiveChart implements BaseMouseListener {
     }
 
     void setTopAxisExtremes(Range minMax) {
-       chart.setTopAxisExtremes(minMax);
+        chart.setTopAxisExtremes(minMax);
     }
 
     void setBottomAxisExtremes(Range minMax) {
         chart.setBottomAxisExtremes(minMax);
     }
 
-    @Override
-    public void mouseDoubleClicked(int mouseX, int mouseY) {
-     /*   if (titleArea.contains(mouseX, mouseY) || legendArea.contains(mouseX, mouseY)) {
-            return;
-        }
-        Rectangle topAxisArea = new Rectangle(graphArea.x, graphArea.y - margin.top(), graphArea.width, margin.top());
-        if (topAxisArea.contains(mouseX, mouseY)) {
-            for (ChartEventListener listener : eventsListeners) {
-                listener.xAxisResetActionPerformed(1);
-            }
-        }
-        Rectangle bottomAxisArea = new Rectangle(graphArea.x, graphArea.y + graphArea.height, graphArea.width, margin.bottom());
-        if (bottomAxisArea.contains(mouseX, mouseY)) {
-            for (ChartEventListener listener : eventsListeners) {
-                listener.xAxisResetActionPerformed(0);
-            }
-        }
-
-        Rectangle leftArea = new Rectangle(graphArea.x, graphArea.y, graphArea.width / 2, graphArea.height);
-        Rectangle rightArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y, graphArea.width / 2, graphArea.height);
-        if (leftArea.contains(mouseX, mouseY)) {
-            for (int i = 0; i < yAxisList.size() / 2; i++) {
-                Axis yAxis = yAxisList.get(2 * i);
-                // for yAxis Start > End
-                if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
-                    for (ChartEventListener listener : eventsListeners) {
-                        listener.yAxisResetActionPerformed(2*i);
-                    }
-                    break;
-                }
-            }
-        }
-        if (rightArea.contains(mouseX, mouseY)) {
-            for (int i = 0; i < yAxisList.size() / 2; i++) {
-                Axis yAxis = yAxisList.get(2 * i + 1);
-                // for yAxis Start > End
-                if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
-                    for (ChartEventListener listener : eventsListeners) {
-                        listener.yAxisResetActionPerformed(2*i + 1);
-                    }
-                    break;
-                }
-            }
-        }*/
-
-
+    public GestureListener getMouseListener() {
+        return mouseListener;
     }
 
-    @Override
-    public void mouseClicked(int mouseX, int mouseY) {
-      /*  if (titleArea.contains(mouseX, mouseY) || legendArea.contains(mouseX, mouseY)) {
-            return;
-        }
-        Rectangle topAxisStartArea = new Rectangle(graphArea.x, graphArea.y - margin.top(), graphArea.width / 2, margin.top());
-        if (topAxisStartArea.contains(mouseX, mouseY)) {
-            for (ChartEventListener listener : eventsListeners) {
-                listener.xAxisActionPerformed(1, -1);
-            }
-        }
-        Rectangle topAxisEndArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y - margin.top(), graphArea.width / 2, margin.top());
-        if (topAxisEndArea.contains(mouseX, mouseY)) {
-            for (ChartEventListener listener : eventsListeners) {
-                listener.xAxisActionPerformed(1, 1);
-            }
-        }
-        Rectangle bottomAxisStartArea = new Rectangle(graphArea.x, graphArea.y + graphArea.height, graphArea.width / 2, margin.bottom());
-        if (bottomAxisStartArea.contains(mouseX, mouseY)) {
-            for (ChartEventListener listener : eventsListeners) {
-                listener.xAxisActionPerformed(0, -1);
-            }
-        }
-        Rectangle bottomAxisEndArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y + graphArea.height, graphArea.width / 2, margin.bottom());
-        if (bottomAxisEndArea.contains(mouseX, mouseY)) {
-            for (ChartEventListener listener : eventsListeners) {
-                listener.xAxisActionPerformed(0, 1);
-            }
-        }*/
-    }
+    class GestureListenerImpl implements GestureListener {
 
-    @Override
-    public void mouseWheelMoved(int mouseX, int mouseY, int wheelRotation) {
-      /*  Rectangle leftArea = new Rectangle(graphArea.x, graphArea.y, graphArea.width / 2, graphArea.height);
-        Rectangle rightArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y, graphArea.width / 2, graphArea.height);
+        public void mouseMoved(int mouseX, int mouseY) {
+            if (hoverOn(mouseX, mouseY)) {
+                tooltipInfo = getTooltipInfo();
+                fireChangeEvent();
+            }
+        }
 
-        if (leftArea.contains(mouseX, mouseY)) {
-            for (int i = 0; i < yAxisList.size() / 2; i++) {
-                Axis yAxis = yAxisList.get(2 * i);
-                // for yAxis Start > End
-                if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
-                    for (ChartEventListener listener : eventsListeners) {
-                        listener.yAxisActionPerformed(2*i, wheelRotation);
-                    }
-                    break;
+        @Override
+        public void onClick(int x, int y) {
+        }
+
+        @Override
+        public void onDoubleClick(int x, int y) {
+
+        }
+
+        @Override
+        public void onPinchZoom(double xZoomFactor, double yZoomFactor) {
+
+        }
+
+        @Override
+        public void onRelease(int x, int y) {
+            if (isLongPress) {
+                if (hoverOff()) {
+                    fireChangeEvent();
+                }
+            }
+            isLongPress = false;
+            //selectedYAxisIndex = -1;
+            //selectedXAxisIndexes = new int[0];
+
+        }
+
+        @Override
+        public void onPress(int x, int y, boolean isLong) {
+            isLongPress = isLong;
+            if (isLong) {
+                if (hoverOn(x, y)) {
+                    fireChangeEvent();
+                }
+            } else {
+                pastX = x;
+                pastY = y;
+                if (selectedTraceIndex >= 0) {
+                    selectedYAxisIndex = chart.getTraceYAxisIndex(selectedTraceIndex);
+                    selectedXAxisIndexes = new int[1];
+                    selectedXAxisIndexes[0] = chart.getTraceXAxisIndex(selectedTraceIndex);
+
+                } else {
+                    selectedYAxisIndex = chart.getYAxisIndex(x, y);
+                    selectedXAxisIndexes = chart.getStackXAxisIndexes(selectedYAxisIndex / 2);
                 }
             }
         }
-        if (rightArea.contains(mouseX, mouseY)) {
-            for (int i = 0; i < yAxisList.size() / 2; i++) {
-                Axis yAxis = yAxisList.get(2 * i + 1);
-                // for yAxis Start > End
-                if (yAxis.getEnd() <= mouseY && yAxis.getStart() >= mouseY) {
-                    for (ChartEventListener listener : eventsListeners) {
-                        listener.yAxisActionPerformed(2*i + 1, wheelRotation);
+
+        @Override
+        public void onDrag(int x, int y, boolean isModified) {
+            if (isLongPress) { // longPressDrag we show tooltip
+                if (hoverOn(x, y)) {
+                    fireChangeEvent();
+                }
+            } else {
+                if (isModified) { // drag with some key pressed (shift, control, alt... ) we zoom y axis
+                    if (selectedYAxisIndex >= 0) {
+                        Range axisRange = chart.getYAxisRange(selectedYAxisIndex);
+                        double dy1 = y - axisRange.start();
+                        double dy2 = pastY - axisRange.start();
+                        double zoomFactor =  Math.abs(dy1/dy2);
+                        if(zoomFactor > 10) {
+                            zoomFactor = 10;
+                        }
+                        if(zoomFactor < 0.1) {
+                            zoomFactor = 0.1;
+                        }
+                        chart.zoomY(selectedYAxisIndex, zoomFactor);
+                        fireChangeEvent();
                     }
-                    break;
+
+                } else { // normal drag we translate x and y axis
+                    int dx = pastX - x;
+                    int dy = pastY - y;
+                    if (selectedYAxisIndex >= 0) {
+                        chart.translateY(selectedYAxisIndex, dy);
+
+                    }
+                    for (int xAxisIndex : selectedXAxisIndexes) {
+                        chart.translateX(xAxisIndex, dx);
+                    }
+                    fireChangeEvent();
                 }
             }
-        }*/
+            pastX = x;
+            pastY = y;
+
+        }
+
+        @Override
+        public void onScroll(int translation, boolean isModified) {
+
+        }
     }
+
 }
