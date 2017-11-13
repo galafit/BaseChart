@@ -52,8 +52,8 @@ public class SimpleChart  {
             trace.setName(chartConfig.getTraceName(i));
             traces.add(trace);
         }
-        setXAxisDomain();
-        setYAxisDomain();
+        autoscaleXAxis();
+        autoscaleYAxis();
     }
 
     public void setArea(Rectangle area) {
@@ -246,12 +246,12 @@ public class SimpleChart  {
     }
 
     void setTopAxisExtremes(Range minMax) {
-        xAxisList.get(1).setAutoScale(false);
+       // xAxisList.get(1).setAutoScale(false);
         xAxisList.get(1).setMinMax(minMax);
     }
 
     void setBottomAxisExtremes(Range minMax) {
-        xAxisList.get(0).setAutoScale(false);
+       // xAxisList.get(0).setAutoScale(false);
         xAxisList.get(0).setMinMax(minMax);
     }
 
@@ -262,50 +262,55 @@ public class SimpleChart  {
         Axis yAxis = trace.getYAxis();
         Axis xAxis = trace.getXAxis();
         if (xAxis.isAutoScale()) {
-            autoscaleXAxis(xAxis);
+            autoscaleXAxis(getTraceXAxisIndex(traceIndex));
         }
         if (yAxis.isAutoScale()) {
-            autoscaleYAxis(yAxis);
+            autoscaleYAxis(getTraceYAxisIndex(traceIndex));
         }
     }
 
 
-    private void autoscaleXAxis(Axis xAxis) {
+    public void autoscale(int traceIndex) {
+        autoscaleXAxis(getTraceXAxisIndex(traceIndex));
+        autoscaleYAxis(getTraceYAxisIndex(traceIndex));
+    }
+
+    public void autoscaleXAxis(int xAxisIndex) {
         Range xRange = null;
-        for (Trace trace : traces) {
-            if (trace.getXAxis() == xAxis) {
-                xRange = Range.max(xRange, trace.getData().getXExtremes());
+        for (int i = 0; i < traces.size(); i++) {
+            if(getTraceXAxisIndex(i) == xAxisIndex) {
+                xRange = Range.max(xRange, traces.get(i).getData().getXExtremes());
             }
         }
-        xAxis.setMinMax(xRange);
+        xAxisList.get(xAxisIndex).setMinMax(xRange);
     }
 
-    private void autoscaleYAxis(Axis yAxis) {
+    public void autoscaleYAxis(int yAxisIndex) {
         Range yRange = null;
-        for (Trace trace : traces) {
-            if (trace.getYAxis() == yAxis) {
-                yRange = Range.max(yRange, trace.getYExtremes());
+        for (int i = 0; i < traces.size(); i++) {
+            if(getTraceYAxisIndex(i) == yAxisIndex) {
+                yRange = Range.max(yRange, traces.get(i).getYExtremes());
             }
         }
-        yAxis.setMinMax(yRange);
+        yAxisList.get(yAxisIndex).setMinMax(yRange);
     }
 
-    private void setXAxisDomain() {
+    public void autoscaleXAxis() {
         for (int i = 0; i < xAxisList.size(); i++) {
             Axis xAxis = xAxisList.get(i);
             if (xAxis.isAutoScale()) {
-                autoscaleXAxis(xAxis);
+                autoscaleXAxis(i);
             } else {
                 xAxis.setMinMax(chartConfig.getXAxisConfig(i).getExtremes());
             }
         }
     }
 
-    private void setYAxisDomain() {
+    public void autoscaleYAxis() {
         for (int i = 0; i < yAxisList.size(); i++) {
             Axis yAxis = yAxisList.get(i);
             if (yAxis.isAutoScale()) {
-                autoscaleYAxis(yAxis);
+                autoscaleYAxis(i);
             } else {
                 yAxis.setMinMax(chartConfig.getYAxisConfig(i).getExtremes());
             }

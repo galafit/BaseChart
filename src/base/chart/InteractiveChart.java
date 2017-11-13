@@ -73,6 +73,7 @@ public class InteractiveChart {
         chart.translateX(xAxisIndex, translation);
     }
 
+
     private boolean hoverOff() {
         if (hoverIndex >= 0) {
             hoverIndex = -1;
@@ -179,6 +180,16 @@ public class InteractiveChart {
         }
     }
 
+    // autoscale
+    private void reset() {
+        if(selectedTraceIndex >= 0) {
+            chart.autoscale(selectedTraceIndex);
+        } else {
+            chart.autoscaleXAxis();
+            chart.autoscaleYAxis();
+        }
+    }
+
     public void addChartListener(ChartEventListener listener) {
         chartEventListeners.add(listener);
     }
@@ -222,7 +233,8 @@ public class InteractiveChart {
 
         @Override
         public void onDoubleClick(int x, int y) {
-
+            reset();
+            fireChangeEvent();
         }
 
         @Override
@@ -238,8 +250,8 @@ public class InteractiveChart {
                 }
             }
             isLongPress = false;
-            //selectedYAxisIndex = -1;
-            //selectedXAxisIndexes = new int[0];
+            selectedYAxisIndex = -1;
+            selectedXAxisIndexes = new int[0];
 
         }
 
@@ -275,15 +287,20 @@ public class InteractiveChart {
                 if (isModified) { // drag with some key pressed (shift, control, alt... ) we zoom y axis
                     if (selectedYAxisIndex >= 0) {
                         Range axisRange = chart.getYAxisRange(selectedYAxisIndex);
-                        double dy1 = y - axisRange.start();
-                        double dy2 = pastY - axisRange.start();
-                        double zoomFactor =  Math.abs(dy1/dy2);
-                        if(zoomFactor > 10) {
-                            zoomFactor = 10;
+                        // scaling relative to the stack
+                        double dy1 = axisRange.start() - y;
+                        double dy2 = axisRange.start() - pastY;
+                        if(selectedTraceIndex >= 0) { // scaling relative to the fullArea
+                            dy1 = fullArea.y + fullArea.height - y;
+                            dy2 = fullArea.y + fullArea.height - pastY;
                         }
-                        if(zoomFactor < 0.1) {
-                            zoomFactor = 0.1;
+                        if(dy1 < 1) {
+                            dy1 = 1;
                         }
+                        if(dy2 < 1) {
+                            dy2 = 1;
+                        }
+                        double zoomFactor = (dy1/dy2);
                         chart.zoomY(selectedYAxisIndex, zoomFactor);
                         fireChangeEvent();
                     }

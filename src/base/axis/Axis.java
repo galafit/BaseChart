@@ -48,9 +48,6 @@ public class Axis {
         return isAutoscale;
     }
 
-    public void setAutoScale(boolean isAutoScale) {
-        this.isAutoscale = isAutoScale;
-    }
 
     public void zoom(double zoomFactor) {
         int start = getStart();
