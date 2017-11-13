@@ -7,6 +7,8 @@ import base.config.general.Margin;
 import base.Range;
 
 import java.awt.*;
+import java.util.List;
+
 
 /**
  * Created by galafit on 3/10/17.
@@ -18,7 +20,6 @@ public class ChartWithPreview {
     private Rectangle chartArea;
     private Rectangle previewArea;
     private Scroll scroll;
-    private GestureListener mouseListener;
 
     public ChartWithPreview(ChartConfig chartConfig, Rectangle area) {
         chart = new InteractiveChart(chartConfig, area);
@@ -122,15 +123,75 @@ public class ChartWithPreview {
         }
     }
 
-    public GestureListener getMouseListener() {
-        if(mouseListener == null) {
-            mouseListener = chart.getMouseListener();
-        }
-        return mouseListener;
+    /**=======================Base methods to interact==========================**/
+
+    public int getSelectedTraceIndex() {
+        return chart.getSelectedTraceIndex();
     }
 
-    public void addChartListener(ChartEventListener chartEventListener) {
-        chart.addChartListener(chartEventListener);
+    public int getTraceYAxisIndex(int traceIndex) {
+        return chart.getTraceYAxisIndex(traceIndex);
+    }
+
+    public int getTraceXAxisIndex(int traceIndex) {
+        return chart.getTraceXAxisIndex(traceIndex);
+    }
+
+
+    public List<Integer> getStackYAxisUsedIndexes(int x, int y) {
+        return chart.getStackYAxisUsedIndexes(x, y);
+    }
+
+    public List<Integer> getStackXAxisUsedIndexes(int x, int y) {
+        return chart.getStackXAxisUsedIndexes(x, y);
+    }
+
+    public List<Integer> getYAxisUsedIndexes() {
+        return chart.getYAxisUsedIndexes();
+    }
+
+    public List<Integer> getXAxisUsedIndexes() {
+        return chart.getXAxisUsedIndexes();
+    }
+
+    public void zoomY(int yAxisIndex, double zoomFactor) {
+        chart.zoomY(yAxisIndex, zoomFactor);
+    }
+
+    public void zoomX(int xAxisIndex, double zoomFactor) {
+        chart.zoomX(xAxisIndex, zoomFactor);
+    }
+
+    public void translateY(int yAxisIndex, int dy) {
+        chart.translateY(yAxisIndex, dy);
+    }
+
+    public void translateX(int xAxisIndex, int dx) {
+        chart.translateX(xAxisIndex, dx);
+    }
+
+    public void zoomY(int yAxisIndex, int dy) {
+        chart.zoomY(yAxisIndex, dy);
+    }
+
+    public void zoomX(int xAxisIndex, int dx) {
+        chart.zoomX(xAxisIndex, dx);
+    }
+
+    public void autoscaleXAxis(int xAxisIndex) {
+        chart.autoscaleXAxis(xAxisIndex);
+    }
+
+    public void autoscaleYAxis(int yAxisIndex) {
+        chart.autoscaleYAxis(yAxisIndex);
+    }
+
+    public boolean hoverOff() {
+       return chart.hoverOff();
+    }
+
+    public boolean hoverOn(int x, int y) {
+       return chart.hoverOn(x, y);
     }
 
 

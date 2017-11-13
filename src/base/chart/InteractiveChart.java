@@ -12,7 +12,8 @@ import base.scales.Scale;
 import base.tooltips.TooltipInfo;
 
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
+import java.util.List;
 
 /**
  * Created by galafit on 27/10/17.
@@ -32,19 +33,11 @@ public class InteractiveChart {
     private TooltipPainter tooltipPainter;
     private TooltipInfo tooltipInfo;
 
-    private int selectedTraceIndex = 0;
+    private int selectedTraceIndex = -1;
     private int hoverIndex = -1;
-    private int pastX;
-    private int pastY;
-    private int selectedYAxisIndex;
-    private int[] selectedXAxisIndexes;
-
-
-    private GestureListener mouseListener = new GestureListenerImpl();
-    private ArrayList<ChartEventListener> chartEventListeners = new ArrayList<ChartEventListener>();
 
     // во сколько раз растягивается или сжимается ось при автозуме
-    private double defaultZoomFactor = 2;
+    private double defaultZoom = 4;
     private boolean isLongPress = false;
 
     public InteractiveChart(ChartConfig chartConfig, Rectangle area) {
@@ -55,43 +48,6 @@ public class InteractiveChart {
         crosshairPainter = new CrosshairPainter(chartConfig.getCrosshairConfig());
         titlePainter = new TitlePainter(chartConfig.getTitle(), chartConfig.getTitleTextStyle());
         legendPainter = new LegendPainter(chart.getTracesInfo(), chartConfig.getLegendConfig());
-    }
-
-    public void zoomY(int yAxisIndex, double zoomFactor) {
-        chart.zoomY(yAxisIndex, zoomFactor);
-    }
-
-    public void zoomX(int xAxisIndex, double zoomFactor) {
-        chart.zoomX(xAxisIndex, zoomFactor);
-    }
-
-    public void translateY(int yAxisIndex, int translation) {
-        chart.translateY(yAxisIndex, translation);
-    }
-
-    public void translateX(int xAxisIndex, int translation) {
-        chart.translateX(xAxisIndex, translation);
-    }
-
-
-    private boolean hoverOff() {
-        if (hoverIndex >= 0) {
-            hoverIndex = -1;
-            return true;
-        }
-        return false;
-    }
-
-    private boolean hoverOn(int mouseX, int mouseY) {
-        if (selectedTraceIndex < 0) {
-            return false;
-        }
-        int nearestIndex = chart.getData(selectedTraceIndex).findNearestData(chart.xPositionToValue(selectedTraceIndex, mouseX));
-        if (hoverIndex != nearestIndex) {
-            hoverIndex = nearestIndex;
-            return true;
-        }
-        return false;
     }
 
     private TooltipInfo getTooltipInfo() {
@@ -174,25 +130,6 @@ public class InteractiveChart {
         legendPainter.draw(g2, legendArea);
     }
 
-    private void fireChangeEvent() {
-        for (ChartEventListener chartEventListener : chartEventListeners) {
-            chartEventListener.update();
-        }
-    }
-
-    // autoscale
-    private void reset() {
-        if(selectedTraceIndex >= 0) {
-            chart.autoscale(selectedTraceIndex);
-        } else {
-            chart.autoscaleXAxis();
-            chart.autoscaleYAxis();
-        }
-    }
-
-    public void addChartListener(ChartEventListener listener) {
-        chartEventListeners.add(listener);
-    }
 
     int getPreferredTopAxisLength() {
         return chart.getPreferredTopAxisLength();
@@ -214,119 +151,91 @@ public class InteractiveChart {
         chart.setBottomAxisExtremes(minMax);
     }
 
-    public GestureListener getMouseListener() {
-        return mouseListener;
+    /**=======================Base methods to interact==========================**/
+
+    public int getSelectedTraceIndex() {
+        return selectedTraceIndex;
     }
 
-    class GestureListenerImpl implements GestureListener {
+    public List<Integer> getStackYAxisUsedIndexes(int x, int y) {
+        return chart.getStackYAxisUsedIndexes(x, y);
+    }
 
-        public void mouseMoved(int mouseX, int mouseY) {
-            if (hoverOn(mouseX, mouseY)) {
-                tooltipInfo = getTooltipInfo();
-                fireChangeEvent();
-            }
+    public List<Integer> getStackXAxisUsedIndexes(int x, int y) {
+        return chart.getStackXAxisUsedIndexes(x, y);
+    }
+
+    public List<Integer> getYAxisUsedIndexes() {
+        return chart.getYAxisUsedIndexes();
+    }
+
+    public List<Integer> getXAxisUsedIndexes() {
+        return chart.getXAxisUsedIndexes();
+    }
+
+    public void zoomY(int yAxisIndex, double zoomFactor) {
+        chart.zoomY(yAxisIndex, zoomFactor);
+    }
+
+    public void zoomX(int xAxisIndex, double zoomFactor) {
+        chart.zoomX(xAxisIndex, zoomFactor);
+    }
+
+    public void translateY(int yAxisIndex, int dy) {
+        chart.translateY(yAxisIndex, dy);
+    }
+
+    public void translateX(int xAxisIndex, int dx) {
+        chart.translateX(xAxisIndex, dx);
+    }
+
+    public void zoomY(int yAxisIndex, int dy) {
+        Range axisRange = chart.getYAxisRange(yAxisIndex);
+        // scaling relative to the stack
+        double zoomFactor = 1 + defaultZoom * dy / axisRange.length();
+        chart.zoomY(yAxisIndex, zoomFactor);
+    }
+
+    public void zoomX(int xAxisIndex, int dx) {
+        double zoomFactor = 1 + defaultZoom * dx / fullArea.width;
+        chart.zoomX(xAxisIndex, zoomFactor);
+    }
+
+    public void autoscaleXAxis(int xAxisIndex) {
+        chart.autoscaleXAxis(xAxisIndex);
+    }
+
+    public void autoscaleYAxis(int yAxisIndex) {
+        chart.autoscaleYAxis(yAxisIndex);
+    }
+
+    public int getTraceYAxisIndex(int traceIndex) {
+        return chart.getTraceYAxisIndex(traceIndex);
+    }
+
+    public int getTraceXAxisIndex(int traceIndex) {
+        return chart.getTraceXAxisIndex(traceIndex);
+    }
+
+
+    public boolean hoverOff() {
+        if (hoverIndex >= 0) {
+            hoverIndex = -1;
+            return true;
         }
+        return false;
+    }
 
-        @Override
-        public void onClick(int x, int y) {
+    public boolean hoverOn(int x, int y) {
+        if (selectedTraceIndex < 0) {
+            return false;
         }
-
-        @Override
-        public void onDoubleClick(int x, int y) {
-            reset();
-            fireChangeEvent();
+        int nearestIndex = chart.getData(selectedTraceIndex).findNearestData(chart.xPositionToValue(selectedTraceIndex, x));
+        if (hoverIndex != nearestIndex) {
+            hoverIndex = nearestIndex;
+            return true;
         }
-
-        @Override
-        public void onPinchZoom(double xZoomFactor, double yZoomFactor) {
-
-        }
-
-        @Override
-        public void onRelease(int x, int y) {
-            if (isLongPress) {
-                if (hoverOff()) {
-                    fireChangeEvent();
-                }
-            }
-            isLongPress = false;
-            selectedYAxisIndex = -1;
-            selectedXAxisIndexes = new int[0];
-
-        }
-
-        @Override
-        public void onPress(int x, int y, boolean isLong) {
-            isLongPress = isLong;
-            if (isLong) {
-                if (hoverOn(x, y)) {
-                    fireChangeEvent();
-                }
-            } else {
-                pastX = x;
-                pastY = y;
-                if (selectedTraceIndex >= 0) {
-                    selectedYAxisIndex = chart.getTraceYAxisIndex(selectedTraceIndex);
-                    selectedXAxisIndexes = new int[1];
-                    selectedXAxisIndexes[0] = chart.getTraceXAxisIndex(selectedTraceIndex);
-
-                } else {
-                    selectedYAxisIndex = chart.getYAxisIndex(x, y);
-                    selectedXAxisIndexes = chart.getStackXAxisIndexes(selectedYAxisIndex / 2);
-                }
-            }
-        }
-
-        @Override
-        public void onDrag(int x, int y, boolean isModified) {
-            if (isLongPress) { // longPressDrag we show tooltip
-                if (hoverOn(x, y)) {
-                    fireChangeEvent();
-                }
-            } else {
-                if (isModified) { // drag with some key pressed (shift, control, alt... ) we zoom y axis
-                    if (selectedYAxisIndex >= 0) {
-                        Range axisRange = chart.getYAxisRange(selectedYAxisIndex);
-                        // scaling relative to the stack
-                        double dy1 = axisRange.start() - y;
-                        double dy2 = axisRange.start() - pastY;
-                        if(selectedTraceIndex >= 0) { // scaling relative to the fullArea
-                            dy1 = fullArea.y + fullArea.height - y;
-                            dy2 = fullArea.y + fullArea.height - pastY;
-                        }
-                        if(dy1 < 1) {
-                            dy1 = 1;
-                        }
-                        if(dy2 < 1) {
-                            dy2 = 1;
-                        }
-                        double zoomFactor = (dy1/dy2);
-                        chart.zoomY(selectedYAxisIndex, zoomFactor);
-                        fireChangeEvent();
-                    }
-
-                } else { // normal drag we translate x and y axis
-                    int dx = pastX - x;
-                    int dy = pastY - y;
-                    if (selectedYAxisIndex >= 0) {
-                        chart.translateY(selectedYAxisIndex, dy);
-
-                    }
-                    for (int xAxisIndex : selectedXAxisIndexes) {
-                        chart.translateX(xAxisIndex, dx);
-                    }
-                    fireChangeEvent();
-                }
-            }
-            pastX = x;
-            pastY = y;
-
-        }
-
-        @Override
-        public void onScroll(int translation, boolean isModified) {
-
-        }
+        return false;
     }
 
 }

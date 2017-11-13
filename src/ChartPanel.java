@@ -1,28 +1,51 @@
-import base.chart.GestureListener;
-import base.chart.ChartEventListener;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by hdablin on 23.06.17.
  */
 public class ChartPanel extends JPanel {
+    int scrollPointsPerRotation = 10;
     private Chart chart;
+    private int pastX;
+    private int pastY;
+
+    private boolean isRightButton = false;
+    private List<Integer> xAxisList = new ArrayList<>();
+    private List<Integer> yAxisList = new ArrayList<>();
 
     public ChartPanel(Chart chart) {
         this.chart = chart;
-        GestureListener chartMouseListener = chart.getMouseListener();
 
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                boolean isModified = false;
-                if (e.isAltDown() || e.isControlDown() || e.isShiftDown() || e.isMetaDown()) {
-                    isModified = true;
+                if(SwingUtilities.isRightMouseButton(e)) {
+                    if(hoverOn(e.getX(), e.getY())) {
+                        repaint();
+                    }
+                } else {
+                    int dy = pastY - e.getY();
+                    int dx = pastX - e.getX();
+                    pastX = e.getX();
+                    pastY = e.getY();
+                    if (e.isAltDown()
+                            || e.isControlDown()
+                            || e.isShiftDown()
+                            || e.isMetaDown()) { // zoomY
+
+                        zoomY(dy);
+                        repaint();
+                    } else { // tranlate X and Y
+                        translateX(dx);
+                        translateY(dy);
+                        repaint();
+                    }
                 }
-                chartMouseListener.onDrag(e.getX(), e.getY(), isModified);
              }
         });
 
@@ -30,58 +53,151 @@ public class ChartPanel extends JPanel {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    chartMouseListener.onDoubleClick(e.getX(), e.getY());
-                } else if (e.getClickCount() == 1) {
-                    chartMouseListener.onClick(e.getX(), e.getY());
+                    updateXAxisList();
+                    updateYAxisList();
+                    autoscaleX();
+                    autoscaleY();
+                    repaint();
                 }
-
             }
 
             @Override
             public void mousePressed(MouseEvent e) {
-                chartMouseListener.onPress(e.getX(), e.getY(), SwingUtilities.isRightMouseButton(e));
+                if(SwingUtilities.isRightMouseButton(e)) {
+                    if(hoverOn(e.getX(), e.getY())) {
+                        repaint();
+                    }
+                } else {
+                    pastX = e.getX();
+                    pastY = e.getY();
+                    updateXAxisList(e.getX(), e.getY());
+                    updateYAxisList(e.getX(), e.getY());
+                }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                chartMouseListener.onRelease(e.getX(), e.getY());
+                if(hoverOff()) {
+                    repaint();
+                }
             }
-
         });
 
         addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
-                boolean isModified = false;
-                if (e.isAltDown() || e.isControlDown() || e.isShiftDown() || e.isMetaDown()) {
-                    isModified = true;
-                }
-                int rotation = e.getWheelRotation();
-                int translation = rotation;
-                chartMouseListener.onScroll(translation, isModified);
-                if(e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
-                    System.out.println("unit scroll, rotation "+rotation);
-                }
-                if(e.getScrollType() == MouseWheelEvent.WHEEL_BLOCK_SCROLL) {
-                    System.out.println("block scroll, rotation "+rotation);
+                updateXAxisList(e.getX(), e.getY());
+                if (e.isAltDown()
+                        || e.isControlDown()
+                        || e.isShiftDown()
+                        || e.isMetaDown()) { // zoomX
+
+                    zoomX(e.getWheelRotation());
+                    repaint();
+                } else { // translate X
+                    translateX(e.getWheelRotation() * scrollPointsPerRotation);
+                    repaint();
                 }
             }
         });
 
-        this.chart.addChartListener(new ChartEventListener() {
-            @Override
-            public void update() {
-                repaint();
-            }
-        });
     }
-
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         chart.draw((Graphics2D) g);
     }
+
+    private void updateXAxisList(int x, int y) {
+        int selectedTraceIndex = chart.getSelectedTraceIndex();
+        if(selectedTraceIndex >= 0) {
+            xAxisList = new ArrayList<>(1);
+            xAxisList.add(chart.getTraceXAxisIndex(selectedTraceIndex));
+        } else {
+            xAxisList = chart.getStackXAxisUsedIndexes(x, y);
+        }
+    }
+
+    private void updateXAxisList() {
+        int selectedTraceIndex = chart.getSelectedTraceIndex();
+        if(selectedTraceIndex >= 0) {
+            xAxisList = new ArrayList<>(1);
+            xAxisList.add(chart.getTraceXAxisIndex(selectedTraceIndex));
+        } else {
+            xAxisList = chart.getXAxisUsedIndexes();
+        }
+    }
+
+    private void updateYAxisList(int x, int y) {
+        int selectedTraceIndex = chart.getSelectedTraceIndex();
+        if(selectedTraceIndex >= 0) {
+            yAxisList = new ArrayList<>(1);
+            yAxisList.add(chart.getTraceYAxisIndex(selectedTraceIndex));
+        } else {
+            yAxisList = chart.getStackYAxisUsedIndexes(x, y);
+        }
+    }
+
+    private void updateYAxisList() {
+        int selectedTraceIndex = chart.getSelectedTraceIndex();
+        if(selectedTraceIndex >= 0) {
+            yAxisList = new ArrayList<>(1);
+            yAxisList.add(chart.getTraceYAxisIndex(selectedTraceIndex));
+        } else {
+            yAxisList = chart.getYAxisUsedIndexes();
+        }
+    }
+
+
+    public void translateY(int dy) {
+        for (Integer yAxisIndex : yAxisList) {
+            chart.translateY(yAxisIndex, dy);
+        }
+    }
+
+    public void translateX(int dx) {
+        for (Integer xAxisIndex : xAxisList) {
+            chart.translateX(xAxisIndex, dx);
+        }
+    }
+
+    public void zoomY(int dy) {
+        for (Integer yAxisIndex : yAxisList) {
+            chart.zoomY(yAxisIndex, dy);
+        }
+    }
+
+    public void zoomX(int dx) {
+        for (Integer xAxisIndex : xAxisList) {
+            chart.zoomX(xAxisIndex, dx);
+        }
+    }
+
+    public void autoscaleX() {
+        for (Integer xAxisIndex : xAxisList) {
+            chart.autoscaleXAxis(xAxisIndex);
+        }
+    }
+
+    public void autoscaleY() {
+        for (Integer yAxisIndex : yAxisList) {
+            chart.autoscaleYAxis(yAxisIndex);
+        }
+    }
+
+
+    public boolean hoverOff() {
+        return chart.hoverOff();
+    }
+
+    public boolean hoverOn(int x, int y) {
+        return chart.hoverOn(x, y);
+    }
+
+
+
+
 
     /**
      * This class distinguish between single and double click

@@ -87,34 +87,99 @@ public class SimpleChart  {
         return chartConfig.getTraceXAxisIndex(traceIndex);
     }
 
-    int[] getStackXAxisIndexes(int stackIndex) {
-        boolean isBottom = false;
-        boolean isTop = false;
+    /**
+     * Find and return Y axis belonging to the stack containing point (x, y)
+     * and used by some trace . If some axis us not used we did not take it into account
+     */
+    List<Integer> getStackYAxisUsedIndexes(int x, int y) {
+        int stackIndex = -1;
+        List<Integer> axisList = new ArrayList<>(1);
+        for (int i = 0; i < yAxisList.size() / 2; i++) {
+            Axis yAxis = yAxisList.get(2 * i);
+            // for yAxis Start > End
+            if (yAxis.getEnd() <= y && yAxis.getStart() >= y) {
+               stackIndex = i;
+               break;
+            }
+        }
+        if(stackIndex >= 0) {
+            if(x <= fullArea.x + fullArea.width / 2) {
+                int yAxisIndex = 2 * stackIndex;
+                if(!isYAxisUsed(yAxisIndex)) {
+                    yAxisIndex = 2 * stackIndex + 1;
+                }
+                axisList.add(yAxisIndex);
+            } else {
+                int yAxisIndex = 2 * stackIndex + 1;
+                if(!isYAxisUsed(yAxisIndex)) {
+                    yAxisIndex = 2 * stackIndex;
+                }
+                axisList.add(yAxisIndex);
+            }
+        }
+        return axisList;
+    }
+
+    private boolean isYAxisUsed(int yAxisIndex) {
         for (int i = 0; i < traces.size(); i++) {
-            int traceStackIndex = getTraceYAxisIndex(i) / 2;
-            if(traceStackIndex == stackIndex) {
-                if(getTraceXAxisIndex(i) == 0) {
-                    isBottom = true;
-                } else {
-                    isTop = true;
+            if(getTraceYAxisIndex(i) == yAxisIndex) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Find and return X axis belonging to the stack containing point (x, y)
+     * and used by some trace . If some axis us not used we did not take it into account
+     */
+    List<Integer> getStackXAxisUsedIndexes(int x, int y) {
+        int stackIndex = -1;
+        List<Integer> axisList = new ArrayList<>(2);
+        for (int i = 0; i < yAxisList.size() / 2; i++) {
+            Axis yAxis = yAxisList.get(2 * i);
+            // for yAxis Start > End
+            if (yAxis.getEnd() <= y && yAxis.getStart() >= y) {
+                stackIndex = i;
+                break;
+            }
+        }
+        if(stackIndex >= 0) {
+            for (int i = 0; i < traces.size(); i++) {
+                int traceStackIndex = getTraceYAxisIndex(i) / 2;
+                if(traceStackIndex == stackIndex) {
+                    int xAxisIndex = getTraceXAxisIndex(i);
+                    if(!axisList.contains(xAxisIndex)) {
+                        axisList.add(xAxisIndex);
+                    }
                 }
             }
         }
-        if(isBottom && isTop) {
-            int[] xAxisIndexes = {0, 1};
-            return xAxisIndexes;
-        }
-        if(isBottom) {
-            int[] xAxisIndexes = {0};
-            return xAxisIndexes;
-        }
-        if(isTop) {
-            int[] xAxisIndexes = {1};
-            return xAxisIndexes;
-        }
-        int[] xAxisIndexes = new int[0];
-        return xAxisIndexes;
+        return axisList;
     }
+
+    List<Integer> getXAxisUsedIndexes() {
+        List<Integer> axisList = new ArrayList<>(2);
+        for (int i = 0; i < traces.size(); i++) {
+            int xAxisIndex = getTraceXAxisIndex(i);
+            if(!axisList.contains(xAxisIndex)) {
+                axisList.add(xAxisIndex);
+            }
+        }
+        return axisList;
+    }
+
+    List<Integer> getYAxisUsedIndexes() {
+        List<Integer> axisList = new ArrayList<>();
+        for (int i = 0; i < traces.size(); i++) {
+            int yAxisIndex = getTraceYAxisIndex(i);
+            if(!axisList.contains(yAxisIndex)) {
+                axisList.add(yAxisIndex);
+            }
+        }
+        return axisList;
+    }
+
 
     public void zoomY(int yAxisIndex, double zoomFactor) {
         yAxisList.get(yAxisIndex).zoom(zoomFactor);
@@ -123,6 +188,7 @@ public class SimpleChart  {
     public void zoomX(int xAxisIndex, double zoomFactor) {
         xAxisList.get(xAxisIndex).zoom(zoomFactor);
     }
+
     public void translateY(int yAxisIndex, int translation) {
         yAxisList.get(yAxisIndex).translate(translation);
     }
@@ -141,73 +207,6 @@ public class SimpleChart  {
             // for yAxis Start > End
             if (yAxis.getEnd() <= y && yAxis.getStart() >= y) {
                 return i;
-            }
-        }
-        return - 1;
-    }
-
-    /**
-     * true if there are traces using given Y axis
-     */
-    public boolean isYAxisUsed(int yAxisIndex) {
-        return isYAxisUsed(yAxisList.get(yAxisIndex));
-    }
-
-    /**
-     * true if there are traces using given X axis
-     */
-    public boolean isXAxisUsed(int xAxisIndex) {
-        return isXAxisUsed(xAxisList.get(xAxisIndex));
-    }
-
-    private boolean isYAxisUsed(Axis yAxis) {
-        for (Trace trace : traces) {
-            if(trace.getYAxis() == yAxis) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean isXAxisUsed(Axis xAxis) {
-        for (Trace trace : traces) {
-            if(trace.getXAxis() == xAxis) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    int getYAxisIndex(int x, int y) {
-        Rectangle leftArea = new Rectangle(graphArea.x, graphArea.y, graphArea.width / 2, graphArea.height);
-        Rectangle rightArea = new Rectangle(graphArea.x + graphArea.width / 2, graphArea.y, graphArea.width / 2, graphArea.height);
-
-        if (leftArea.contains(x, y)) {
-            for (int i = 0; i < yAxisList.size() / 2; i++) {
-                Axis yAxis = yAxisList.get(2 * i);
-                // for yAxis Start > End
-                if (yAxis.getEnd() <= y && yAxis.getStart() >= y) {
-                    if(isYAxisUsed(yAxis)) {
-                        return 2 * i;
-                    }
-                    else {
-                        return 2 * i + 1;
-                    }
-                }
-            }
-        }
-        if (rightArea.contains(x, y)) {
-            for (int i = 0; i < yAxisList.size() / 2; i++) {
-                Axis yAxis = yAxisList.get(2 * i + 1);
-                // for yAxis Start > End
-                if (yAxis.getEnd() <= y && yAxis.getStart() >= y) {
-                    if(isYAxisUsed(yAxis)) {
-                        return 2 * i + 1;
-                    }
-                    else {
-                        return 2 * i;
-                    }
-                }
             }
         }
         return - 1;
@@ -270,11 +269,6 @@ public class SimpleChart  {
     }
 
 
-    public void autoscale(int traceIndex) {
-        autoscaleXAxis(getTraceXAxisIndex(traceIndex));
-        autoscaleYAxis(getTraceYAxisIndex(traceIndex));
-    }
-
     public void autoscaleXAxis(int xAxisIndex) {
         Range xRange = null;
         for (int i = 0; i < traces.size(); i++) {
@@ -295,7 +289,7 @@ public class SimpleChart  {
         yAxisList.get(yAxisIndex).setMinMax(yRange);
     }
 
-    public void autoscaleXAxis() {
+    private void autoscaleXAxis() {
         for (int i = 0; i < xAxisList.size(); i++) {
             Axis xAxis = xAxisList.get(i);
             if (xAxis.isAutoScale()) {
@@ -306,7 +300,7 @@ public class SimpleChart  {
         }
     }
 
-    public void autoscaleYAxis() {
+    private void autoscaleYAxis() {
         for (int i = 0; i < yAxisList.size(); i++) {
             Axis yAxis = yAxisList.get(i);
             if (yAxis.isAutoScale()) {
