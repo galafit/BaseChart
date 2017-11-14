@@ -87,13 +87,8 @@ public class SimpleChart  {
         return chartConfig.getTraceXAxisIndex(traceIndex);
     }
 
-    /**
-     * Find and return Y axis belonging to the stack containing point (x, y)
-     * and used by some trace . If some axis us not used we did not take it into account
-     */
-    List<Integer> getStackYAxisUsedIndexes(int x, int y) {
+    int getYAxisIndex(int x, int y) {
         int stackIndex = -1;
-        List<Integer> axisList = new ArrayList<>(1);
         for (int i = 0; i < yAxisList.size() / 2; i++) {
             Axis yAxis = yAxisList.get(2 * i);
             // for yAxis Start > End
@@ -108,19 +103,19 @@ public class SimpleChart  {
                 if(!isYAxisUsed(yAxisIndex)) {
                     yAxisIndex = 2 * stackIndex + 1;
                 }
-                axisList.add(yAxisIndex);
+                return yAxisIndex;
             } else {
                 int yAxisIndex = 2 * stackIndex + 1;
                 if(!isYAxisUsed(yAxisIndex)) {
                     yAxisIndex = 2 * stackIndex;
                 }
-                axisList.add(yAxisIndex);
+                return yAxisIndex;
             }
         }
-        return axisList;
+        return -1;
     }
 
-    private boolean isYAxisUsed(int yAxisIndex) {
+    public boolean isYAxisUsed(int yAxisIndex) {
         for (int i = 0; i < traces.size(); i++) {
             if(getTraceYAxisIndex(i) == yAxisIndex) {
                 return true;
@@ -129,11 +124,21 @@ public class SimpleChart  {
         return false;
     }
 
+    private boolean isXAxisUsed(int xAxisIndex) {
+        for (int i = 0; i < traces.size(); i++) {
+            if(getTraceXAxisIndex(i) == xAxisIndex) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+
     /**
-     * Find and return X axis belonging to the stack containing point (x, y)
-     * and used by some trace . If some axis us not used we did not take it into account
+     * Find and return X axis used by the traces belonging to the stack containing point (x, y)
      */
-    List<Integer> getStackXAxisUsedIndexes(int x, int y) {
+    List<Integer> getStackXAxisIndexes(int x, int y) {
         int stackIndex = -1;
         List<Integer> axisList = new ArrayList<>(2);
         for (int i = 0; i < yAxisList.size() / 2; i++) {
@@ -158,18 +163,24 @@ public class SimpleChart  {
         return axisList;
     }
 
-    List<Integer> getXAxisUsedIndexes() {
+    /**
+     * return only used by some trace axes
+     */
+    List<Integer> getXAxisIndexes() {
         List<Integer> axisList = new ArrayList<>(2);
-        for (int i = 0; i < traces.size(); i++) {
-            int xAxisIndex = getTraceXAxisIndex(i);
-            if(!axisList.contains(xAxisIndex)) {
-                axisList.add(xAxisIndex);
-            }
+        if(isXAxisUsed(0)) {
+            axisList.add(0);
+        }
+        if(isXAxisUsed(1)) {
+            axisList.add(1);
         }
         return axisList;
     }
 
-    List<Integer> getYAxisUsedIndexes() {
+    /**
+     * return only used by some trace axes
+     */
+    List<Integer> getYAxisIndexes() {
         List<Integer> axisList = new ArrayList<>();
         for (int i = 0; i < traces.size(); i++) {
             int yAxisIndex = getTraceYAxisIndex(i);
@@ -197,7 +208,7 @@ public class SimpleChart  {
         xAxisList.get(xAxisIndex).translate(translation);
     }
 
-    Range getYAxisRange(int yAxisIndex) {
+    public Range getYAxisRange(int yAxisIndex) {
         return new Range(yAxisList.get(yAxisIndex).getStart(), yAxisList.get(yAxisIndex).getEnd(), true);
     }
 
@@ -244,14 +255,8 @@ public class SimpleChart  {
         return xRange;
     }
 
-    void setTopAxisExtremes(Range minMax) {
-       // xAxisList.get(1).setAutoScale(false);
-        xAxisList.get(1).setMinMax(minMax);
-    }
-
-    void setBottomAxisExtremes(Range minMax) {
-       // xAxisList.get(0).setAutoScale(false);
-        xAxisList.get(0).setMinMax(minMax);
+    void setXAxisExtremes(int xAxisIndex, Range minMax) {
+        xAxisList.get(xAxisIndex).setMinMax(minMax);
     }
 
 
@@ -326,7 +331,7 @@ public class SimpleChart  {
         return legendItems;
     }
 
-    public DataSet getData(int traceIndex) {
+    public DataSet getTraceData(int traceIndex) {
         return traces.get(traceIndex).getData();
     }
 

@@ -1,4 +1,6 @@
 
+import base.Range;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -9,12 +11,13 @@ import java.util.List;
  * Created by hdablin on 23.06.17.
  */
 public class ChartPanel extends JPanel {
-    int scrollPointsPerRotation = 10;
+    int scrollPointsPerRotation = 30;
+    // во сколько раз растягивается или сжимается ось при автозуме
+    private double defaultZoom = 2;
     private Chart chart;
     private int pastX;
     private int pastY;
 
-    private boolean isRightButton = false;
     private List<Integer> xAxisList = new ArrayList<>();
     private List<Integer> yAxisList = new ArrayList<>();
 
@@ -115,7 +118,7 @@ public class ChartPanel extends JPanel {
             xAxisList = new ArrayList<>(1);
             xAxisList.add(chart.getTraceXAxisIndex(selectedTraceIndex));
         } else {
-            xAxisList = chart.getStackXAxisUsedIndexes(x, y);
+            xAxisList = chart.getStackXAxisIndexes(x, y);
         }
     }
 
@@ -125,17 +128,17 @@ public class ChartPanel extends JPanel {
             xAxisList = new ArrayList<>(1);
             xAxisList.add(chart.getTraceXAxisIndex(selectedTraceIndex));
         } else {
-            xAxisList = chart.getXAxisUsedIndexes();
+            xAxisList = chart.getXAxisIndexes();
         }
     }
 
     private void updateYAxisList(int x, int y) {
         int selectedTraceIndex = chart.getSelectedTraceIndex();
+        yAxisList = new ArrayList<>(1);
         if(selectedTraceIndex >= 0) {
-            yAxisList = new ArrayList<>(1);
             yAxisList.add(chart.getTraceYAxisIndex(selectedTraceIndex));
         } else {
-            yAxisList = chart.getStackYAxisUsedIndexes(x, y);
+            yAxisList.add(chart.getYAxisIndex(x, y));
         }
     }
 
@@ -145,7 +148,7 @@ public class ChartPanel extends JPanel {
             yAxisList = new ArrayList<>(1);
             yAxisList.add(chart.getTraceYAxisIndex(selectedTraceIndex));
         } else {
-            yAxisList = chart.getYAxisUsedIndexes();
+            yAxisList = chart.getYAxisIndexes();
         }
     }
 
@@ -164,13 +167,16 @@ public class ChartPanel extends JPanel {
 
     public void zoomY(int dy) {
         for (Integer yAxisIndex : yAxisList) {
-            chart.zoomY(yAxisIndex, dy);
+            // scaling relative to the stack
+            double zoomFactor = 1 + defaultZoom * dy / chart.getYAxisRange(yAxisIndex).length();
+            chart.zoomY(yAxisIndex, zoomFactor);
         }
     }
 
     public void zoomX(int dx) {
+        double zoomFactor = 1 + defaultZoom * dx / 100;
         for (Integer xAxisIndex : xAxisList) {
-            chart.zoomX(xAxisIndex, dx);
+            chart.zoomX(xAxisIndex, zoomFactor);
         }
     }
 
@@ -186,65 +192,11 @@ public class ChartPanel extends JPanel {
         }
     }
 
-
     public boolean hoverOff() {
         return chart.hoverOff();
     }
 
     public boolean hoverOn(int x, int y) {
         return chart.hoverOn(x, y);
-    }
-
-
-
-
-
-    /**
-     * This class distinguish between single and double click
-     */
-    class ClickListener extends MouseAdapter {
-        private int clickInterval = 300; //ms
-        private MouseEvent lastEvent;
-        private long lastTime;
-        private Timer clickTimer;
-
-        public ClickListener() {
-            Object defaultClickInterval = Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
-            if (defaultClickInterval != null) {
-                clickInterval = (Integer) defaultClickInterval;
-            }
-        }
-
-        public ClickListener(int clickInterval) {
-            this.clickInterval = clickInterval;
-        }
-
-        /**
-         * As we do not want to be limited by the desktop configuration we do
-         * not use e.getClickCount()==2 but instead
-         * use clickInterval and and  handle the count by by ourselves
-         */
-        public void mouseClicked(MouseEvent e) {
-            long currentTime = System.currentTimeMillis();
-            if (currentTime - lastTime >= clickInterval) { // single click
-                lastEvent = e;
-                lastTime = currentTime;
-                clickTimer = new Timer(clickInterval, new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        // DO SINGLE CLICK ACTION!
-                        // System.out.println("single click: ");
-                    }
-                });
-                clickTimer.setRepeats(false);
-                clickTimer.start();
-
-            } else { // double click
-                lastTime = 0;
-                clickTimer.stop();
-                // DO SINGLE CLICK ACTION!
-                //System.out.println("double click: ");
-            }
-        }
     }
 }

@@ -25,7 +25,7 @@ public class ChartWithPreview {
         chart = new InteractiveChart(chartConfig, area);
     }
 
-    public ChartWithPreview(ChartConfig chartConfig, ChartConfig previewConfig, Rectangle area, long chartWidth) {
+    public ChartWithPreview(ChartConfig chartConfig, ChartConfig previewConfig, Rectangle area, double screenExtent) {
         int chartWeight = chartConfig.getSumWeight();
         int previewWeight = previewConfig.getSumWeight();
 
@@ -38,19 +38,19 @@ public class ChartWithPreview {
         preview = new InteractiveChart(previewConfig, previewArea);
 
         Range minMax = Range.max(chart.getTracesXExtremes(), preview.getTracesXExtremes());
-        preview.setBottomAxisExtremes(minMax);
-        preview.setTopAxisExtremes(minMax);
-        if(chartWidth > 0) {
-            double extent = (minMax.end() - minMax.start()) * area.width / chartWidth;
-            scroll = new Scroll(scrollConfig, extent, extent, preview.getBottomScale());
+
+        preview.setXAxisExtremes(0, minMax);
+        preview.setXAxisExtremes(1, minMax);
+        if(screenExtent > 0) {
+            scroll = new Scroll(scrollConfig, screenExtent, screenExtent, preview.getBottomScale());
 
         } else {
             double extentTop = (minMax.end() - minMax.start()) * area.width / chart.getPreferredTopAxisLength();
             double extentBottom = (minMax.end() - minMax.start()) * area.width / chart.getPreferredBottomAxisLength();
             scroll = new Scroll(scrollConfig, extentBottom, extentTop,  preview.getBottomScale());
         }
-        chart.setBottomAxisExtremes(getScrollExtremes(0));
-        chart.setTopAxisExtremes(getScrollExtremes(1));
+        chart.setXAxisExtremes(0, getScrollExtremes(0));
+        chart.setXAxisExtremes(1, getScrollExtremes(1));
     }
 
     public void setTraceData(DataSet data, int traceIndex) {
@@ -70,8 +70,8 @@ public class ChartWithPreview {
         }
         boolean isScrollMoved = scroll.moveScroll(mouseX, mouseY);
         if(isScrollMoved) {
-            chart.setBottomAxisExtremes(getScrollExtremes(0));
-            chart.setTopAxisExtremes(getScrollExtremes(1));
+            chart.setXAxisExtremes(0, getScrollExtremes(0));
+            chart.setXAxisExtremes(1, getScrollExtremes(1));
         }
         return isScrollMoved;
     }
@@ -82,8 +82,8 @@ public class ChartWithPreview {
     public boolean moveScroll(double newValue) {
         boolean isScrollMoved = scroll.moveScroll(newValue);
         if(isScrollMoved) {
-            chart.setBottomAxisExtremes(getScrollExtremes(0));
-            chart.setTopAxisExtremes(getScrollExtremes(1));
+            chart.setXAxisExtremes(0, getScrollExtremes(0));
+            chart.setXAxisExtremes(1, getScrollExtremes(1));
         }
         return isScrollMoved;
     }
@@ -129,6 +129,10 @@ public class ChartWithPreview {
         return chart.getSelectedTraceIndex();
     }
 
+    public Range getYAxisRange(int yAxisIndex) {
+        return chart.getYAxisRange(yAxisIndex);
+    }
+
     public int getTraceYAxisIndex(int traceIndex) {
         return chart.getTraceYAxisIndex(traceIndex);
     }
@@ -137,21 +141,20 @@ public class ChartWithPreview {
         return chart.getTraceXAxisIndex(traceIndex);
     }
 
-
-    public List<Integer> getStackYAxisUsedIndexes(int x, int y) {
-        return chart.getStackYAxisUsedIndexes(x, y);
+    public int getYAxisIndex(int x, int y) {
+        return chart.getYAxisIndex(x, y);
     }
 
-    public List<Integer> getStackXAxisUsedIndexes(int x, int y) {
-        return chart.getStackXAxisUsedIndexes(x, y);
+    public List<Integer> getStackXAxisIndexes(int x, int y) {
+        return chart.getStackXAxisIndexes(x, y);
     }
 
-    public List<Integer> getYAxisUsedIndexes() {
-        return chart.getYAxisUsedIndexes();
+    public List<Integer> getYAxisIndexes() {
+        return chart.getYAxisIndexes();
     }
 
-    public List<Integer> getXAxisUsedIndexes() {
-        return chart.getXAxisUsedIndexes();
+    public List<Integer> getXAxisIndexes() {
+        return chart.getXAxisIndexes();
     }
 
     public void zoomY(int yAxisIndex, double zoomFactor) {
@@ -168,14 +171,6 @@ public class ChartWithPreview {
 
     public void translateX(int xAxisIndex, int dx) {
         chart.translateX(xAxisIndex, dx);
-    }
-
-    public void zoomY(int yAxisIndex, int dy) {
-        chart.zoomY(yAxisIndex, dy);
-    }
-
-    public void zoomX(int xAxisIndex, int dx) {
-        chart.zoomX(xAxisIndex, dx);
     }
 
     public void autoscaleXAxis(int xAxisIndex) {

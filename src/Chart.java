@@ -77,6 +77,10 @@ public class Chart {
         return chart.getSelectedTraceIndex();
     }
 
+    public Range getYAxisRange(int yAxisIndex) {
+        return chart.getYAxisRange(yAxisIndex);
+    }
+
     public int getTraceYAxisIndex(int traceIndex) {
         return chart.getTraceYAxisIndex(traceIndex);
     }
@@ -85,21 +89,20 @@ public class Chart {
         return chart.getTraceXAxisIndex(traceIndex);
     }
 
-
-    public List<Integer> getStackYAxisUsedIndexes(int x, int y) {
-        return chart.getStackYAxisUsedIndexes(x, y);
+    public int getYAxisIndex(int x, int y) {
+        return chart.getYAxisIndex(x, y);
     }
 
-    public List<Integer> getStackXAxisUsedIndexes(int x, int y) {
-        return chart.getStackXAxisUsedIndexes(x, y);
+    public List<Integer> getStackXAxisIndexes(int x, int y) {
+        return chart.getStackXAxisIndexes(x, y);
     }
 
-    public List<Integer> getYAxisUsedIndexes() {
-        return chart.getYAxisUsedIndexes();
+    public List<Integer> getYAxisIndexes() {
+        return chart.getYAxisIndexes();
     }
 
-    public List<Integer> getXAxisUsedIndexes() {
-        return chart.getXAxisUsedIndexes();
+    public List<Integer> getXAxisIndexes() {
+        return chart.getXAxisIndexes();
     }
 
     public void zoomY(int yAxisIndex, double zoomFactor) {
@@ -116,14 +119,6 @@ public class Chart {
 
     public void translateX(int xAxisIndex, int dx) {
         chart.translateX(xAxisIndex, dx);
-    }
-
-    public void zoomY(int yAxisIndex, int dy) {
-        chart.zoomY(yAxisIndex, dy);
-    }
-
-    public void zoomX(int xAxisIndex, int dx) {
-        chart.zoomX(xAxisIndex, dx);
     }
 
     public void autoscaleXAxis(int xAxisIndex) {

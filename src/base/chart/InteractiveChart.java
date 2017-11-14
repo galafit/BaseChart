@@ -12,7 +12,6 @@ import base.scales.Scale;
 import base.tooltips.TooltipInfo;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
 
 /**
@@ -36,9 +35,6 @@ public class InteractiveChart {
     private int selectedTraceIndex = -1;
     private int hoverIndex = -1;
 
-    // во сколько раз растягивается или сжимается ось при автозуме
-    private double defaultZoom = 4;
-    private boolean isLongPress = false;
 
     public InteractiveChart(ChartConfig chartConfig, Rectangle area) {
         fullArea = area;
@@ -59,6 +55,14 @@ public class InteractiveChart {
             tooltipInfo.setXY(dataPosition.x, dataPosition.y);
         }
         return tooltipInfo;
+    }
+
+    public int getTraceAmount() {
+        return chart.getTraceAmount();
+    }
+
+    public DataSet getTraceData(int traceIndex) {
+        return chart.getTraceData(traceIndex);
     }
 
     public void setTraceData(DataSet data, int traceIndex) {
@@ -143,12 +147,8 @@ public class InteractiveChart {
         return chart.getTracesXExtremes();
     }
 
-    void setTopAxisExtremes(Range minMax) {
-        chart.setTopAxisExtremes(minMax);
-    }
-
-    void setBottomAxisExtremes(Range minMax) {
-        chart.setBottomAxisExtremes(minMax);
+    void setXAxisExtremes(int xAxisIndex, Range minMax) {
+        chart.setXAxisExtremes(xAxisIndex, minMax);
     }
 
     /**=======================Base methods to interact==========================**/
@@ -157,20 +157,24 @@ public class InteractiveChart {
         return selectedTraceIndex;
     }
 
-    public List<Integer> getStackYAxisUsedIndexes(int x, int y) {
-        return chart.getStackYAxisUsedIndexes(x, y);
+    public Range getYAxisRange(int yAxisIndex) {
+        return chart.getYAxisRange(yAxisIndex);
     }
 
-    public List<Integer> getStackXAxisUsedIndexes(int x, int y) {
-        return chart.getStackXAxisUsedIndexes(x, y);
+    public int getYAxisIndex(int x, int y) {
+        return chart.getYAxisIndex(x, y);
     }
 
-    public List<Integer> getYAxisUsedIndexes() {
-        return chart.getYAxisUsedIndexes();
+    public List<Integer> getStackXAxisIndexes(int x, int y) {
+        return chart.getStackXAxisIndexes(x, y);
     }
 
-    public List<Integer> getXAxisUsedIndexes() {
-        return chart.getXAxisUsedIndexes();
+    public List<Integer> getYAxisIndexes() {
+        return chart.getYAxisIndexes();
+    }
+
+    public List<Integer> getXAxisIndexes() {
+        return chart.getXAxisIndexes();
     }
 
     public void zoomY(int yAxisIndex, double zoomFactor) {
@@ -187,18 +191,6 @@ public class InteractiveChart {
 
     public void translateX(int xAxisIndex, int dx) {
         chart.translateX(xAxisIndex, dx);
-    }
-
-    public void zoomY(int yAxisIndex, int dy) {
-        Range axisRange = chart.getYAxisRange(yAxisIndex);
-        // scaling relative to the stack
-        double zoomFactor = 1 + defaultZoom * dy / axisRange.length();
-        chart.zoomY(yAxisIndex, zoomFactor);
-    }
-
-    public void zoomX(int xAxisIndex, int dx) {
-        double zoomFactor = 1 + defaultZoom * dx / fullArea.width;
-        chart.zoomX(xAxisIndex, zoomFactor);
     }
 
     public void autoscaleXAxis(int xAxisIndex) {
@@ -230,7 +222,7 @@ public class InteractiveChart {
         if (selectedTraceIndex < 0) {
             return false;
         }
-        int nearestIndex = chart.getData(selectedTraceIndex).findNearestData(chart.xPositionToValue(selectedTraceIndex, x));
+        int nearestIndex = chart.getTraceData(selectedTraceIndex).findNearestData(chart.xPositionToValue(selectedTraceIndex, x));
         if (hoverIndex != nearestIndex) {
             hoverIndex = nearestIndex;
             return true;
