@@ -70,6 +70,8 @@ public class ChartConfig {
         yAxisConfigs.add(axisConfig);
     }
 
+
+
     public boolean isTopOpposite() {
         return isTopOpposite;
     }

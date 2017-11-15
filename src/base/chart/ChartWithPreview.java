@@ -5,7 +5,6 @@ import base.config.ChartConfig;
 import base.config.ScrollConfig;
 import base.config.general.Margin;
 import base.Range;
-
 import java.awt.*;
 import java.util.List;
 
@@ -41,14 +40,17 @@ public class ChartWithPreview {
 
         preview.setXAxisExtremes(0, minMax);
         preview.setXAxisExtremes(1, minMax);
+
         if(screenExtent > 0) {
-            scroll = new Scroll(scrollConfig, screenExtent, screenExtent, preview.getBottomScale());
+            scroll = new Scroll(scrollConfig, screenExtent, screenExtent, preview.getXAxisType(0));
 
         } else {
             double extentTop = (minMax.end() - minMax.start()) * area.width / chart.getPreferredTopAxisLength();
             double extentBottom = (minMax.end() - minMax.start()) * area.width / chart.getPreferredBottomAxisLength();
-            scroll = new Scroll(scrollConfig, extentBottom, extentTop,  preview.getBottomScale());
+            scroll = new Scroll(scrollConfig, extentBottom, extentTop,  preview.getXAxisType(0));
         }
+        scroll.setMinMax(minMax);
+
         chart.setXAxisExtremes(0, getScrollExtremes(0));
         chart.setXAxisExtremes(1, getScrollExtremes(1));
     }
@@ -64,21 +66,6 @@ public class ChartWithPreview {
     /**
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
-    public boolean moveScroll(int mouseX, int mouseY) {
-        if(!previewArea.contains(mouseX, mouseY)) {
-           return false;
-        }
-        boolean isScrollMoved = scroll.moveScroll(mouseX, mouseY);
-        if(isScrollMoved) {
-            chart.setXAxisExtremes(0, getScrollExtremes(0));
-            chart.setXAxisExtremes(1, getScrollExtremes(1));
-        }
-        return isScrollMoved;
-    }
-
-    /**
-     * @return true if scrollValue was changed and false if newValue = current scroll value
-     */
     public boolean moveScroll(double newValue) {
         boolean isScrollMoved = scroll.moveScroll(newValue);
         if(isScrollMoved) {
@@ -88,12 +75,22 @@ public class ChartWithPreview {
         return isScrollMoved;
     }
 
+    private void shiftScroll(int dx) {
+        scroll.shiftScroll(dx);
+        chart.setXAxisExtremes(0, getScrollExtremes(0));
+        chart.setXAxisExtremes(1, getScrollExtremes(1));
+    }
 
-    public boolean isMouseInsideScroll(int mouseX, int mouseY) {
-        if(preview == null) {
-            return false;
+    private void zoomScroll(int extentNumber, double zoomFactor) {
+        if(extentNumber == 0) {
+            scroll.setScrollExtent1(scroll.getScrollExtent1() * zoomFactor);
+            chart.setXAxisExtremes(0, getScrollExtremes(0));
         }
-        return scroll.isMouseInsideScroll(mouseX, mouseY, preview.getGraphArea());
+
+        if(extentNumber == 1) {
+            scroll.setScrollExtent2(scroll.getScrollExtent2() * zoomFactor);
+            chart.setXAxisExtremes(1, getScrollExtremes(1));
+        }
     }
 
 
@@ -115,6 +112,8 @@ public class ChartWithPreview {
              chart.setMargin(g2d, chartMargin);
              preview.setMargin(g2d, previewMargin);
          }
+        scroll.setStartEnd(preview.getXAxisRange(0));
+
 
         chart.draw(g2d);
         if (preview != null) {
@@ -123,71 +122,147 @@ public class ChartWithPreview {
         }
     }
 
-    /**=======================Base methods to interact==========================**/
+    /**=======================Base methods to interact with chart==========================**/
 
-    public int getSelectedTraceIndex() {
+    public int getChartSelectedTraceIndex() {
         return chart.getSelectedTraceIndex();
     }
 
-    public Range getYAxisRange(int yAxisIndex) {
+    public Range getChartYRange(int yAxisIndex) {
         return chart.getYAxisRange(yAxisIndex);
     }
 
-    public int getTraceYAxisIndex(int traceIndex) {
+    public int getChartTraceYIndex(int traceIndex) {
         return chart.getTraceYAxisIndex(traceIndex);
     }
 
-    public int getTraceXAxisIndex(int traceIndex) {
+    public int getChartTraceXIndex(int traceIndex) {
         return chart.getTraceXAxisIndex(traceIndex);
     }
 
-    public int getYAxisIndex(int x, int y) {
+    public int getChartYIndex(int x, int y) {
         return chart.getYAxisIndex(x, y);
     }
 
-    public List<Integer> getStackXAxisIndexes(int x, int y) {
+    public List<Integer> getChartStackXIndexes(int x, int y) {
         return chart.getStackXAxisIndexes(x, y);
     }
 
-    public List<Integer> getYAxisIndexes() {
+    public List<Integer> getChartYIndexes() {
         return chart.getYAxisIndexes();
     }
 
-    public List<Integer> getXAxisIndexes() {
+    public List<Integer> getChartXIndexes() {
         return chart.getXAxisIndexes();
     }
 
-    public void zoomY(int yAxisIndex, double zoomFactor) {
+    public void zoomChartY(int yAxisIndex, double zoomFactor) {
         chart.zoomY(yAxisIndex, zoomFactor);
     }
 
-    public void zoomX(int xAxisIndex, double zoomFactor) {
-        chart.zoomX(xAxisIndex, zoomFactor);
+    public void zoomChartX(int xAxisIndex, double zoomFactor) {
+        if(preview == null) {
+            chart.zoomX(xAxisIndex, zoomFactor);
+        } else {
+            zoomScroll(xAxisIndex, zoomFactor);
+        }
     }
 
-    public void translateY(int yAxisIndex, int dy) {
+    public void translateChartY(int yAxisIndex, int dy) {
         chart.translateY(yAxisIndex, dy);
     }
 
-    public void translateX(int xAxisIndex, int dx) {
-        chart.translateX(xAxisIndex, dx);
+    public void translateChartX(int xAxisIndex, int dx) {
+        if(preview == null) {
+            chart.translateX(xAxisIndex, dx);
+        } else {
+            shiftScroll(dx);
+        }
     }
 
-    public void autoscaleXAxis(int xAxisIndex) {
+    public void autoscaleChartX(int xAxisIndex) {
         chart.autoscaleXAxis(xAxisIndex);
     }
 
-    public void autoscaleYAxis(int yAxisIndex) {
+    public void autoscaleChartY(int yAxisIndex) {
         chart.autoscaleYAxis(yAxisIndex);
     }
 
-    public boolean hoverOff() {
+    public boolean chartHoverOff() {
        return chart.hoverOff();
     }
 
-    public boolean hoverOn(int x, int y) {
+    public boolean chartHoverOn(int x, int y) {
        return chart.hoverOn(x, y);
     }
+
+    public boolean isPointInsideChart(int x, int y) {
+        return chartArea.contains(x, y);
+    }
+
+    /**=======================Base methods to interact with preview==========================**/
+    public boolean isPointInsideScroll(int x, int y) {
+        if(preview == null) {
+            return false;
+        }
+        return scroll.isMouseInsideScroll(x, y, preview.getGraphArea());
+    }
+
+
+    public boolean isPointInsidePreview(int x, int y) {
+        if(preview == null) {
+            return false;
+        }
+        return previewArea.contains(x, y);
+    }
+
+    /**
+     * @return true if scrollValue was changed and false if newValue = current scroll value
+     */
+    public boolean moveScroll(int x, int y) {
+        if(!previewArea.contains(x, y)) {
+            return false;
+        }
+        boolean isScrollMoved = scroll.moveScroll(x, y);
+        if(isScrollMoved) {
+            chart.setXAxisExtremes(0, getScrollExtremes(0));
+            chart.setXAxisExtremes(1, getScrollExtremes(1));
+        }
+        return isScrollMoved;
+    }
+
+    public int getPreviewSelectedTraceIndex() {
+        return preview.getSelectedTraceIndex();
+    }
+
+    public Range getPreviewYRange(int yAxisIndex) {
+        return preview.getYAxisRange(yAxisIndex);
+    }
+
+    public int getPreviewTraceYIndex(int traceIndex) {
+        return preview.getTraceYAxisIndex(traceIndex);
+    }
+
+    public int getPreviewYIndex(int x, int y) {
+        return preview.getYAxisIndex(x, y);
+    }
+
+    public List<Integer> getPreviewYIndexes() {
+        return preview.getYAxisIndexes();
+    }
+
+    public void zoomPreviewY(int yAxisIndex, double zoomFactor) {
+        preview.zoomY(yAxisIndex, zoomFactor);
+    }
+
+    public void translatePreviewY(int yAxisIndex, int dy) {
+        preview.translateY(yAxisIndex, dy);
+    }
+
+    public void autoscalePreviewY(int yAxisIndex) {
+        preview.autoscaleYAxis(yAxisIndex);
+    }
+
 
 
 

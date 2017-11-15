@@ -2,6 +2,7 @@ package base.chart;
 
 import base.DataSet;
 import base.Range;
+import base.axis.AxisType;
 import base.config.ChartConfig;
 import base.config.general.Margin;
 import base.painters.CrosshairPainter;
@@ -87,9 +88,20 @@ public class InteractiveChart {
         return chart.getGraphArea();
     }
 
-    Scale getBottomScale() {
-        return chart.getBottomAxis().getScale();
+    public AxisType getXAxisType(int xAxisIndex) {
+        return chart.getXAxisType(xAxisIndex);
     }
+
+    public Range getXAxisMinMax(int xAxisIndex) {
+        return chart.getXAxisMinMax(xAxisIndex);
+
+    }
+
+    public Range getXAxisRange(int xAxisIndex) {
+        return chart.getXAxisRange(xAxisIndex);
+    }
+
+
 
     public void setArea(Rectangle area, Graphics2D g2) {
         fullArea = area;

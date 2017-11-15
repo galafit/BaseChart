@@ -1,6 +1,4 @@
 
-import base.Range;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -11,15 +9,17 @@ import java.util.List;
  * Created by hdablin on 23.06.17.
  */
 public class ChartPanel extends JPanel {
-    int scrollPointsPerRotation = 30;
+    int scrollPointsPerRotation = 1;
     // во сколько раз растягивается или сжимается ось при автозуме
     private double defaultZoom = 2;
     private Chart chart;
     private int pastX;
     private int pastY;
+    private boolean isPressedInsideScroll;
 
     private List<Integer> xAxisList = new ArrayList<>();
     private List<Integer> yAxisList = new ArrayList<>();
+    private List<Integer> yAxisListPreview = new ArrayList<>();
 
     public ChartPanel(Chart chart) {
         this.chart = chart;
@@ -32,27 +32,33 @@ public class ChartPanel extends JPanel {
                         repaint();
                     }
                 } else {
-                    int dy = pastY - e.getY();
-                    int dx = pastX - e.getX();
-                    pastX = e.getX();
-                    pastY = e.getY();
-                    if (e.isAltDown()
-                            || e.isControlDown()
-                            || e.isShiftDown()
-                            || e.isMetaDown()) { // zoomY
+                    if(isPressedInsideScroll) {
+                        moveScrollBar(e.getX(), e.getY());
+                        repaint();
+                    } else {
+                        int dy = pastY - e.getY();
+                        int dx = pastX - e.getX();
+                        pastX = e.getX();
+                        pastY = e.getY();
+                        if (e.isAltDown()
+                                || e.isControlDown()
+                                || e.isShiftDown()
+                                || e.isMetaDown()) { // zoomChartY
 
-                        zoomY(dy);
-                        repaint();
-                    } else { // tranlate X and Y
-                        translateX(dx);
-                        translateY(dy);
-                        repaint();
+                            zoomY(dy);
+                            repaint();
+                        } else { // tranlate X and Y
+                            translateX(dx);
+                            translateY(dy);
+                            repaint();
+                        }
                     }
                 }
              }
         });
 
         addMouseListener(new MouseAdapter() {
+
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
@@ -61,6 +67,11 @@ public class ChartPanel extends JPanel {
                     autoscaleX();
                     autoscaleY();
                     repaint();
+                }
+                if (e.getClickCount() == 1) {
+                    if(moveScrollBar(e.getX(), e.getY())) {
+                        repaint();
+                    }
                 }
             }
 
@@ -73,8 +84,13 @@ public class ChartPanel extends JPanel {
                 } else {
                     pastX = e.getX();
                     pastY = e.getY();
-                    updateXAxisList(e.getX(), e.getY());
-                    updateYAxisList(e.getX(), e.getY());
+                    if(chart.isPointInsideScroll(e.getX(), e.getY())) {
+                        isPressedInsideScroll = true;
+                    } else {
+                        isPressedInsideScroll = false;
+                        updateXAxisList(e.getX(), e.getY());
+                        updateYAxisList(e.getX(), e.getY());
+                    }
                 }
             }
 
@@ -93,7 +109,7 @@ public class ChartPanel extends JPanel {
                 if (e.isAltDown()
                         || e.isControlDown()
                         || e.isShiftDown()
-                        || e.isMetaDown()) { // zoomX
+                        || e.isMetaDown()) { // zoomChartX
 
                     zoomX(e.getWheelRotation());
                     repaint();
@@ -113,90 +129,133 @@ public class ChartPanel extends JPanel {
     }
 
     private void updateXAxisList(int x, int y) {
-        int selectedTraceIndex = chart.getSelectedTraceIndex();
+        int selectedTraceIndex = chart.getChartSelectedTraceIndex();
         if(selectedTraceIndex >= 0) {
             xAxisList = new ArrayList<>(1);
-            xAxisList.add(chart.getTraceXAxisIndex(selectedTraceIndex));
+            xAxisList.add(chart.getChartTraceXIndex(selectedTraceIndex));
         } else {
-            xAxisList = chart.getStackXAxisIndexes(x, y);
+            xAxisList = chart.getChartStackXIndexes(x, y);
         }
     }
 
     private void updateXAxisList() {
-        int selectedTraceIndex = chart.getSelectedTraceIndex();
+        int selectedTraceIndex = chart.getChartSelectedTraceIndex();
         if(selectedTraceIndex >= 0) {
             xAxisList = new ArrayList<>(1);
-            xAxisList.add(chart.getTraceXAxisIndex(selectedTraceIndex));
+            xAxisList.add(chart.getChartTraceXIndex(selectedTraceIndex));
         } else {
-            xAxisList = chart.getXAxisIndexes();
+            xAxisList = chart.getChartXIndexes();
         }
     }
 
     private void updateYAxisList(int x, int y) {
-        int selectedTraceIndex = chart.getSelectedTraceIndex();
-        yAxisList = new ArrayList<>(1);
-        if(selectedTraceIndex >= 0) {
-            yAxisList.add(chart.getTraceYAxisIndex(selectedTraceIndex));
-        } else {
-            yAxisList.add(chart.getYAxisIndex(x, y));
+        if(chart.isPointInsideChart(x, y)) {
+            int chartSelectedTraceIndex = chart.getChartSelectedTraceIndex();
+            yAxisList = new ArrayList<>(1);
+            if(chartSelectedTraceIndex >= 0) {
+                yAxisList.add(chart.getChartTraceYIndex(chartSelectedTraceIndex));
+            } else {
+                int yAxisIndex = chart.getChartYIndex(x, y);
+                if(yAxisIndex >= 0)
+                    yAxisList.add(yAxisIndex);
+            }
+            yAxisListPreview = new ArrayList<>(0);
+        }
+
+        if(chart.isPointInsidePreview(x, y)) {
+            int previewSelectedTraceIndex = chart.getPreviewSelectedTraceIndex();
+            yAxisListPreview = new ArrayList<>(1);
+            if(previewSelectedTraceIndex >= 0) {
+                yAxisListPreview.add(chart.getPreviewTraceYIndex(previewSelectedTraceIndex));
+            } else {
+                int yAxisIndex = chart.getPreviewYIndex(x, y);
+                if(yAxisIndex >= 0)
+                    yAxisListPreview.add(yAxisIndex);
+            }
+            yAxisList = new ArrayList<>(0);
         }
     }
 
     private void updateYAxisList() {
-        int selectedTraceIndex = chart.getSelectedTraceIndex();
-        if(selectedTraceIndex >= 0) {
+        int chartSelectedTraceIndex = chart.getChartSelectedTraceIndex();
+        if(chartSelectedTraceIndex >= 0) {
             yAxisList = new ArrayList<>(1);
-            yAxisList.add(chart.getTraceYAxisIndex(selectedTraceIndex));
+            yAxisList.add(chart.getChartTraceYIndex(chartSelectedTraceIndex));
         } else {
-            yAxisList = chart.getYAxisIndexes();
+            yAxisList = chart.getChartYIndexes();
+        }
+
+        int previewSelectedTraceIndex = chart.getPreviewSelectedTraceIndex();
+        if(previewSelectedTraceIndex >= 0) {
+            yAxisListPreview = new ArrayList<>(1);
+            yAxisListPreview.add(chart.getPreviewTraceYIndex(previewSelectedTraceIndex));
+        } else {
+            yAxisListPreview = chart.getPreviewYIndexes();
         }
     }
 
+    private boolean moveScrollBar(int x, int y) {
+        return chart.moveScroll(x, y);
+    }
 
     public void translateY(int dy) {
         for (Integer yAxisIndex : yAxisList) {
-            chart.translateY(yAxisIndex, dy);
+            chart.translateChartY(yAxisIndex, dy);
+        }
+        for (Integer yAxisIndex : yAxisListPreview) {
+            chart.translatePreviewY(yAxisIndex, dy);
         }
     }
 
     public void translateX(int dx) {
         for (Integer xAxisIndex : xAxisList) {
-            chart.translateX(xAxisIndex, dx);
+            chart.translateChartX(xAxisIndex, dx);
         }
     }
 
     public void zoomY(int dy) {
         for (Integer yAxisIndex : yAxisList) {
             // scaling relative to the stack
-            double zoomFactor = 1 + defaultZoom * dy / chart.getYAxisRange(yAxisIndex).length();
-            chart.zoomY(yAxisIndex, zoomFactor);
+            double zoomFactor = 1 + defaultZoom * dy / chart.getChartYRange(yAxisIndex).length();
+            chart.zoomChartY(yAxisIndex, zoomFactor);
+        }
+        for (Integer yAxisIndex : yAxisListPreview) {
+            // scaling relative to the stack
+            double zoomFactor = 1 + defaultZoom * dy / chart.getChartYRange(yAxisIndex).length();
+            chart.zoomPreviewY(yAxisIndex, zoomFactor);
         }
     }
 
     public void zoomX(int dx) {
         double zoomFactor = 1 + defaultZoom * dx / 100;
         for (Integer xAxisIndex : xAxisList) {
-            chart.zoomX(xAxisIndex, zoomFactor);
+            chart.zoomChartX(xAxisIndex, zoomFactor);
         }
     }
 
     public void autoscaleX() {
         for (Integer xAxisIndex : xAxisList) {
-            chart.autoscaleXAxis(xAxisIndex);
+            chart.autoscaleChartX(xAxisIndex);
         }
     }
 
     public void autoscaleY() {
         for (Integer yAxisIndex : yAxisList) {
-            chart.autoscaleYAxis(yAxisIndex);
+            chart.autoscaleChartY(yAxisIndex);
+        }
+        for (Integer yAxisIndex : yAxisListPreview) {
+            chart.autoscalePreviewY(yAxisIndex);
         }
     }
 
     public boolean hoverOff() {
-        return chart.hoverOff();
+        return chart.chartHoverOff();
     }
 
     public boolean hoverOn(int x, int y) {
-        return chart.hoverOn(x, y);
+        return chart.chartHoverOn(x, y);
     }
+
+
+
 }

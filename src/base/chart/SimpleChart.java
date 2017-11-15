@@ -2,6 +2,7 @@ package base.chart;
 
 import base.DataSet;
 import base.axis.Axis;
+import base.axis.AxisType;
 import base.config.ChartConfig;
 import base.config.general.Margin;
 import base.config.traces.TraceConfig;
@@ -191,6 +192,22 @@ public class SimpleChart  {
         return axisList;
     }
 
+    public AxisType getXAxisType(int xAxisIndex) {
+        return chartConfig.getXAxisConfig(xAxisIndex).getType();
+    }
+
+    public AxisType getYAxisType(int yAxisIndex) {
+        return chartConfig.getYAxisConfig(yAxisIndex).getType();
+    }
+
+
+    public Range getXAxisMinMax(int xAxisIndex) {
+        return new Range(xAxisList.get(xAxisIndex).getMin(), xAxisList.get(xAxisIndex).getMax());
+    }
+
+    public Range getXAxisRange(int xAxisIndex) {
+        return new Range(xAxisList.get(xAxisIndex).getStart(), xAxisList.get(xAxisIndex).getEnd());
+    }
 
     public void zoomY(int yAxisIndex, double zoomFactor) {
         yAxisList.get(yAxisIndex).zoom(zoomFactor);
@@ -211,18 +228,6 @@ public class SimpleChart  {
     public Range getYAxisRange(int yAxisIndex) {
         return new Range(yAxisList.get(yAxisIndex).getStart(), yAxisList.get(yAxisIndex).getEnd(), true);
     }
-
-    int getStackIndex(int y) {
-        for (int i = 0; i < yAxisList.size() / 2; i++) {
-            Axis yAxis = yAxisList.get(2 * i);
-            // for yAxis Start > End
-            if (yAxis.getEnd() <= y && yAxis.getStart() >= y) {
-                return i;
-            }
-        }
-        return - 1;
-    }
-
 
     int getPreferredTopAxisLength() {
         Axis topAxis = xAxisList.get(1);
@@ -397,10 +402,6 @@ public class SimpleChart  {
         xEnd = graphArea.x + graphArea.width;
         xAxisList.get(0).setStartEnd(xStart, xEnd);
         xAxisList.get(1).setStartEnd(xStart, xEnd);
-    }
-
-    Axis getBottomAxis() {
-        return xAxisList.get(0);
     }
 
 

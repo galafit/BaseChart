@@ -52,89 +52,135 @@ public class Chart {
         }
     }
 
-
-    public void moveScroll(int mouseX, int mouseY) {
-        chart.moveScroll(mouseX, mouseY);
-        Range scrollExtremesBottom = chart.getScrollExtremes(0);
-        Range scrollExtremesTop = chart.getScrollExtremes(1);
-        cropData(scrollExtremesBottom, scrollExtremesTop);
-    }
-
     public void moveScroll(double scrollValue) {
         chart.moveScroll(scrollValue);
         Range scrollExtremesBottom = chart.getScrollExtremes(0);
         Range scrollExtremesTop = chart.getScrollExtremes(1);
-        cropData(scrollExtremesBottom, scrollExtremesTop);
+       // cropData(scrollExtremesBottom, scrollExtremesTop);
     }
 
     public void draw(Graphics2D g2d) {
        chart.draw(g2d);
     }
 
-    /**=======================Base methods to interact==========================**/
+    /**=======================Base methods to interact with chart==========================**/
 
-    public int getSelectedTraceIndex() {
-        return chart.getSelectedTraceIndex();
+    public int getChartSelectedTraceIndex() {
+        return chart.getChartSelectedTraceIndex();
     }
 
-    public Range getYAxisRange(int yAxisIndex) {
-        return chart.getYAxisRange(yAxisIndex);
+    public Range getChartYRange(int yAxisIndex) {
+        return chart.getChartYRange(yAxisIndex);
     }
 
-    public int getTraceYAxisIndex(int traceIndex) {
-        return chart.getTraceYAxisIndex(traceIndex);
+    public int getChartTraceYIndex(int traceIndex) {
+        return chart.getChartTraceYIndex(traceIndex);
     }
 
-    public int getTraceXAxisIndex(int traceIndex) {
-        return chart.getTraceXAxisIndex(traceIndex);
+    public int getChartTraceXIndex(int traceIndex) {
+        return chart.getChartTraceXIndex(traceIndex);
     }
 
-    public int getYAxisIndex(int x, int y) {
-        return chart.getYAxisIndex(x, y);
+    public int getChartYIndex(int x, int y) {
+        return chart.getChartYIndex(x, y);
     }
 
-    public List<Integer> getStackXAxisIndexes(int x, int y) {
-        return chart.getStackXAxisIndexes(x, y);
+    public List<Integer> getChartStackXIndexes(int x, int y) {
+        return chart.getChartStackXIndexes(x, y);
     }
 
-    public List<Integer> getYAxisIndexes() {
-        return chart.getYAxisIndexes();
+    public List<Integer> getChartYIndexes() {
+        return chart.getChartYIndexes();
     }
 
-    public List<Integer> getXAxisIndexes() {
-        return chart.getXAxisIndexes();
+    public List<Integer> getChartXIndexes() {
+        return chart.getChartXIndexes();
     }
 
-    public void zoomY(int yAxisIndex, double zoomFactor) {
-        chart.zoomY(yAxisIndex, zoomFactor);
+    public void zoomChartY(int yAxisIndex, double zoomFactor) {
+        chart.zoomChartY(yAxisIndex, zoomFactor);
     }
 
-    public void zoomX(int xAxisIndex, double zoomFactor) {
-        chart.zoomX(xAxisIndex, zoomFactor);
+    public void zoomChartX(int xAxisIndex, double zoomFactor) {
+        chart.zoomChartX(xAxisIndex, zoomFactor);
     }
 
-    public void translateY(int yAxisIndex, int dy) {
-        chart.translateY(yAxisIndex, dy);
+    public void translateChartY(int yAxisIndex, int dy) {
+        chart.translateChartY(yAxisIndex, dy);
     }
 
-    public void translateX(int xAxisIndex, int dx) {
-        chart.translateX(xAxisIndex, dx);
+    public void translateChartX(int xAxisIndex, int dx) {
+        chart.translateChartX(xAxisIndex, dx);
     }
 
-    public void autoscaleXAxis(int xAxisIndex) {
-        chart.autoscaleXAxis(xAxisIndex);
+    public void autoscaleChartX(int xAxisIndex) {
+        chart.autoscaleChartX(xAxisIndex);
     }
 
-    public void autoscaleYAxis(int yAxisIndex) {
-        chart.autoscaleYAxis(yAxisIndex);
+    public void autoscaleChartY(int yAxisIndex) {
+        chart.autoscaleChartY(yAxisIndex);
     }
 
-    public boolean hoverOff() {
-        return chart.hoverOff();
+    public boolean chartHoverOff() {
+        return chart.chartHoverOff();
     }
 
-    public boolean hoverOn(int x, int y) {
-        return chart.hoverOn(x, y);
+    public boolean chartHoverOn(int x, int y) {
+        return chart.chartHoverOn(x, y);
+    }
+    public boolean isPointInsideChart(int x, int y) {
+        return chart.isPointInsideChart(x, y);
     }
 
+    /**=======================Base methods to interact with preview==========================**/
+    public boolean isPointInsideScroll(int x, int y) {
+       return chart.isPointInsideScroll(x, y);
+    }
+
+
+    public boolean isPointInsidePreview(int x, int y) {
+       return chart.isPointInsidePreview(x, y);
+    }
+
+    public boolean moveScroll(int x, int y) {
+        boolean isMoved =  chart.moveScroll(x, y);
+        if(isMoved) {
+            Range scrollExtremesBottom = chart.getScrollExtremes(0);
+            Range scrollExtremesTop = chart.getScrollExtremes(1);
+           // cropData(scrollExtremesBottom, scrollExtremesTop);
+        }
+      return isMoved;
+    }
+
+    public int getPreviewSelectedTraceIndex() {
+        return chart.getPreviewSelectedTraceIndex();
+    }
+
+    public Range getPreviewYRange(int yAxisIndex) {
+        return chart.getPreviewYRange(yAxisIndex);
+    }
+
+    public int getPreviewTraceYIndex(int traceIndex) {
+        return chart.getPreviewTraceYIndex(traceIndex);
+    }
+
+    public int getPreviewYIndex(int x, int y) {
+        return chart.getPreviewYIndex(x, y);
+    }
+
+    public List<Integer> getPreviewYIndexes() {
+        return chart.getPreviewYIndexes();
+    }
+
+    public void zoomPreviewY(int yAxisIndex, double zoomFactor) {
+        chart.zoomPreviewY(yAxisIndex, zoomFactor);
+    }
+
+    public void translatePreviewY(int yAxisIndex, int dy) {
+        chart.translatePreviewY(yAxisIndex, dy);
+    }
+
+    public void autoscalePreviewY(int yAxisIndex) {
+        chart.autoscalePreviewY(yAxisIndex);
+    }
 }

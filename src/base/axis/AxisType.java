@@ -6,6 +6,5 @@ package base.axis;
 public enum AxisType {
     LINEAR,
     TIME,
-    LOGARITHMIC,
-    CATEGORY
+    LOGARITHMIC
 }

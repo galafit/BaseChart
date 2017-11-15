@@ -1,5 +1,6 @@
 package base.config.axis;
 
+import base.axis.AxisType;
 import base.config.general.LineConfig;
 import base.Range;
 
@@ -10,7 +11,6 @@ import java.awt.*;
  */
 public class AxisConfig {
     private Orientation orientation;
-    private int weight = 1;
     private Color color =  Color.GRAY;
 
     private boolean isVisible = false;
@@ -26,11 +26,9 @@ public class AxisConfig {
 
     private boolean isRoundingEnabled = true;
     private boolean isAutoScale = true;
-    Range minMax;
+    private AxisType type = AxisType.LINEAR;
 
-    public int getWeight() {
-        return weight;
-    }
+    Range minMax;
 
     public AxisConfig(Orientation orientation) {
         this.orientation = orientation;
@@ -38,6 +36,14 @@ public class AxisConfig {
         getMinorGridLineConfig().setColor(new Color(80, 80, 80));
         getTitleConfig().getTextStyle().setFontSize(14);
         getLabelsConfig().getTextStyle().setFontSize(12);
+    }
+
+    public AxisType getType() {
+        return type;
+    }
+
+    public void setType(AxisType type) {
+        this.type = type;
     }
 
     public void setExtremes(double min, double max) {
