@@ -88,10 +88,10 @@ public class Scroll {
         return moveScroll(value);
     }
 
-    public void translate(double translation) {
+    public boolean translate(double translation) {
         double scrollPosition = scale.scale(scrollValue);
         double newScrollPosition = scrollPosition + translation;
-        moveScroll(scale.invert(newScrollPosition));
+        return moveScroll(scale.invert(newScrollPosition));
     }
 
     public void setMinMax(Range minMaxRange) {

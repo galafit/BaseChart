@@ -152,6 +152,10 @@ public class Chart {
       return isMoved;
     }
 
+    public boolean translateScroll(int dx) {
+        return chart.translateScroll(dx);
+    }
+
     public int getPreviewSelectedTraceIndex() {
         return chart.getPreviewSelectedTraceIndex();
     }

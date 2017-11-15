@@ -266,6 +266,15 @@ public class ChartWithPreview {
         return isScrollMoved;
     }
 
+    public boolean translateScroll(int dx) {
+        boolean isScrollMoved = scroll.translate(dx);
+        if(isScrollMoved) {
+            chart.setXAxisExtremes(0, getScrollExtremes(0));
+            chart.setXAxisExtremes(1, getScrollExtremes(1));
+        }
+        return isScrollMoved;
+    }
+
     public int getPreviewSelectedTraceIndex() {
         return preview.getSelectedTraceIndex();
     }

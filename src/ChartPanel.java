@@ -32,14 +32,15 @@ public class ChartPanel extends JPanel {
                         repaint();
                     }
                 } else {
+                    int dy = pastY - e.getY();
+                    int dx = e.getX() - pastX;
+                    pastX = e.getX();
+                    pastY = e.getY();
                     if(isPressedInsideScroll) {
-                        moveScrollBar(e.getX(), e.getY());
-                        repaint();
+                        if(translateScrollBar(dx)) {
+                            repaint();
+                        }
                     } else {
-                        int dy = pastY - e.getY();
-                        int dx = pastX - e.getX();
-                        pastX = e.getX();
-                        pastY = e.getY();
                         if (e.isAltDown()
                                 || e.isControlDown()
                                // || e.isShiftDown()
@@ -195,6 +196,10 @@ public class ChartPanel extends JPanel {
 
     private boolean moveScrollBar(int x, int y) {
         return chart.moveScroll(x, y);
+    }
+
+    private boolean translateScrollBar(int dx) {
+         return chart.translateScroll(dx);
     }
 
     public void translateY(int dy) {
