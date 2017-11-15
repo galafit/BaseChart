@@ -9,7 +9,7 @@ import java.util.List;
  * Created by hdablin on 23.06.17.
  */
 public class ChartPanel extends JPanel {
-    int scrollPointsPerRotation = 1;
+    int scrollPointsPerRotation = 10;
     // во сколько раз растягивается или сжимается ось при автозуме
     private double defaultZoom = 2;
     private Chart chart;
@@ -42,9 +42,8 @@ public class ChartPanel extends JPanel {
                         pastY = e.getY();
                         if (e.isAltDown()
                                 || e.isControlDown()
-                                || e.isShiftDown()
+                               // || e.isShiftDown()
                                 || e.isMetaDown()) { // zoomChartY
-
                             zoomY(dy);
                             repaint();
                         } else { // tranlate X and Y
@@ -64,8 +63,8 @@ public class ChartPanel extends JPanel {
                 if (e.getClickCount() == 2) {
                     updateXAxisList();
                     updateYAxisList();
-                    autoscaleX();
                     autoscaleY();
+                    autoscaleX();
                     repaint();
                 }
                 if (e.getClickCount() == 1) {
@@ -105,12 +104,12 @@ public class ChartPanel extends JPanel {
         addMouseWheelListener(new MouseWheelListener() {
             @Override
             public void mouseWheelMoved(MouseWheelEvent e) {
+                e.consume(); // avoid the event to be triggered twice
                 updateXAxisList(e.getX(), e.getY());
                 if (e.isAltDown()
                         || e.isControlDown()
-                        || e.isShiftDown()
+                    //    || e.isShiftDown() // JAVA BUG on MAC!!!!
                         || e.isMetaDown()) { // zoomChartX
-
                     zoomX(e.getWheelRotation());
                     repaint();
                 } else { // translate X

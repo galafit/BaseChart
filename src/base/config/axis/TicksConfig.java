@@ -8,7 +8,7 @@ public class TicksConfig {
     private int tickMarkInsideSize = 0; // px
     private int tickMarkOutsideSize = 3; // px
 
-    private int tickPixelInterval = 0;
+    private int tickPixelInterval = 60;
     private double tickStep; // in data_old unit
     private int ticksAmount = 0;
 

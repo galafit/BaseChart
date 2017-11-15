@@ -19,6 +19,7 @@ public class ChartWithPreview {
     private Rectangle chartArea;
     private Rectangle previewArea;
     private Scroll scroll;
+    private double screenExtent;
 
     public ChartWithPreview(ChartConfig chartConfig, Rectangle area) {
         chart = new InteractiveChart(chartConfig, area);
@@ -40,15 +41,9 @@ public class ChartWithPreview {
 
         preview.setXAxisExtremes(0, minMax);
         preview.setXAxisExtremes(1, minMax);
+        this.screenExtent = screenExtent;
+        scroll = new Scroll(scrollConfig, getPreferredBottomExtent(), getPreferredTopExtent(),  preview.getXAxisType(0));
 
-        if(screenExtent > 0) {
-            scroll = new Scroll(scrollConfig, screenExtent, screenExtent, preview.getXAxisType(0));
-
-        } else {
-            double extentTop = (minMax.end() - minMax.start()) * area.width / chart.getPreferredTopAxisLength();
-            double extentBottom = (minMax.end() - minMax.start()) * area.width / chart.getPreferredBottomAxisLength();
-            scroll = new Scroll(scrollConfig, extentBottom, extentTop,  preview.getXAxisType(0));
-        }
         scroll.setMinMax(minMax);
 
         chart.setXAxisExtremes(0, getScrollExtremes(0));
@@ -75,8 +70,39 @@ public class ChartWithPreview {
         return isScrollMoved;
     }
 
-    private void shiftScroll(int dx) {
-        scroll.shiftScroll(dx);
+    private double getPreferredTopExtent() {
+        double extentTop = 0;
+        if(screenExtent > 0) {
+            extentTop = screenExtent;
+        } else {
+            double topAxisPreferredLength = chart.getPreferredTopAxisLength();
+            if(topAxisPreferredLength > 0) {
+                Range minMax = preview.getXAxisMinMax(0);
+                extentTop = (minMax.end() - minMax.start()) * previewArea.width / topAxisPreferredLength;
+            }
+        }
+        return extentTop;
+    }
+
+    private double getPreferredBottomExtent() {
+        double extentBottom = 0;
+        if(screenExtent > 0) {
+            extentBottom = screenExtent;
+        } else {
+            Range minMax = preview.getXAxisMinMax(0);
+            double bottomAxisPreferredLength = chart.getPreferredBottomAxisLength();
+            if(bottomAxisPreferredLength > 0) {
+                extentBottom = (minMax.end() - minMax.start()) * previewArea.width / bottomAxisPreferredLength;
+
+            }
+        }
+        return extentBottom;
+    }
+
+
+    private void shiftChart(int dx) {
+        double scrollTranslation = dx/ scroll.getRation();
+        scroll.translate(scrollTranslation);
         chart.setXAxisExtremes(0, getScrollExtremes(0));
         chart.setXAxisExtremes(1, getScrollExtremes(1));
     }
@@ -166,6 +192,7 @@ public class ChartWithPreview {
         } else {
             zoomScroll(xAxisIndex, zoomFactor);
         }
+
     }
 
     public void translateChartY(int yAxisIndex, int dy) {
@@ -176,12 +203,20 @@ public class ChartWithPreview {
         if(preview == null) {
             chart.translateX(xAxisIndex, dx);
         } else {
-            shiftScroll(dx);
+            shiftChart(dx);
         }
     }
 
     public void autoscaleChartX(int xAxisIndex) {
-        chart.autoscaleXAxis(xAxisIndex);
+        if(preview == null) {
+            chart.autoscaleXAxis(xAxisIndex);
+        } else {
+            scroll.setScrollExtent1(getPreferredBottomExtent());
+            scroll.setScrollExtent2(getPreferredTopExtent());
+            chart.setXAxisExtremes(0, getScrollExtremes(0));
+            chart.setXAxisExtremes(1, getScrollExtremes(1));
+        }
+
     }
 
     public void autoscaleChartY(int yAxisIndex) {

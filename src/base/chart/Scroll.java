@@ -45,7 +45,6 @@ public class Scroll {
         }
         this.scrollExtent2 = scrollExtent2;
         checkBounds();
-
     }
 
     public double getScrollExtent1() {
@@ -55,6 +54,7 @@ public class Scroll {
     public double getScrollExtent2() {
         return scrollExtent2;
     }
+
 
     private Rectangle getScrollRectangle1(Rectangle area) {
         double scrollStart = scale.scale(scrollValue);
@@ -76,22 +76,22 @@ public class Scroll {
         return new Rectangle((int)scrollStart, area.y, scrollWidth, area.height);
     }
 
-    private double getScrollExtent() {
-        return Math.min(scrollExtent1, scrollExtent2);
+    public double getRation() {
+        return (getMax() - getMin()) / Math.min(scrollExtent1, scrollExtent2);
     }
 
     /**
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
-    public boolean moveScroll(int mouseX, int mouseY) {
-        double value = scale.invert(mouseX);
+    public boolean moveScroll(int x, int y) {
+        double value = scale.invert(x);
         return moveScroll(value);
     }
 
-    public void shiftScroll(int dx) {
-        int x = (int)scale.scale(scrollValue);
-        int newX = x + dx;
-        moveScroll(scale.invert(newX));
+    public void translate(double translation) {
+        double scrollPosition = scale.scale(scrollValue);
+        double newScrollPosition = scrollPosition + translation;
+        moveScroll(scale.invert(newScrollPosition));
     }
 
     public void setMinMax(Range minMaxRange) {
