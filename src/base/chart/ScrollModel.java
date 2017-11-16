@@ -3,7 +3,7 @@ package base.chart;
 /**
  * https://docs.google.com/document/d/1x4MSKJopdGXbtrOhlEc4gD2hA0fKTB2f4ps3F2z4Dgw/edit
  * base.painters.ScrollPainter_old model is described in Domain (Data) coordinate.
- * To draw the scroll we  need to translate all model parameters to screen coordinate.
+ * To draw the scroll we  need to translateScroll all model parameters to screen coordinate.
  */
 public class ScrollModel {
 

@@ -1,4 +1,8 @@
 
+import base.Range;
+import base.chart.ChartManager;
+import base.chart.Config;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -12,18 +16,18 @@ public class ChartPanel extends JPanel {
     int scrollPointsPerRotation = 10;
     // во сколько раз растягивается или сжимается ось при автозуме
     private double defaultZoom = 2;
-    private Chart chart;
     private int pastX;
     private int pastY;
     private boolean isPressedInsideScroll;
-
+    private ChartManager chart;
     private List<Integer> xAxisList = new ArrayList<>();
     private List<Integer> yAxisList = new ArrayList<>();
     private List<Integer> yAxisListPreview = new ArrayList<>();
+    private Config config;
 
-    public ChartPanel(Chart chart) {
-        this.chart = chart;
-
+    public ChartPanel(Config config) {
+        this.config = config;
+        chart = new ChartManager(config, new Rectangle(0, 0, 500, 500));
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
@@ -113,20 +117,22 @@ public class ChartPanel extends JPanel {
                         || e.isMetaDown()) { // zoomChartX
                     zoomX(e.getWheelRotation());
                     repaint();
-                } else { // translate X
+                } else { // translateScroll X
                     translateX(e.getWheelRotation() * scrollPointsPerRotation);
                     repaint();
                 }
             }
         });
 
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+               // createChart();
+                repaint();
+            }
+        });
     }
 
-    @Override
-    public void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        chart.draw((Graphics2D) g);
-    }
 
     private void updateXAxisList(int x, int y) {
         int selectedTraceIndex = chart.getChartSelectedTraceIndex();
@@ -195,14 +201,14 @@ public class ChartPanel extends JPanel {
     }
 
     private boolean moveScrollBar(int x, int y) {
-        return chart.moveScroll(x, y);
+        return chart.moveScrollTo(x, y);
     }
 
     private boolean translateScrollBar(int dx) {
          return chart.translateScroll(dx);
     }
 
-    public void translateY(int dy) {
+    private void translateY(int dy) {
         for (Integer yAxisIndex : yAxisList) {
             chart.translateChartY(yAxisIndex, dy);
         }
@@ -211,13 +217,13 @@ public class ChartPanel extends JPanel {
         }
     }
 
-    public void translateX(int dx) {
+    private void translateX(int dx) {
         for (Integer xAxisIndex : xAxisList) {
             chart.translateChartX(xAxisIndex, dx);
         }
     }
 
-    public void zoomY(int dy) {
+    private void zoomY(int dy) {
         for (Integer yAxisIndex : yAxisList) {
             // scaling relative to the stack
             double zoomFactor = 1 + defaultZoom * dy / chart.getChartYRange(yAxisIndex).length();
@@ -230,20 +236,20 @@ public class ChartPanel extends JPanel {
         }
     }
 
-    public void zoomX(int dx) {
+    private void zoomX(int dx) {
         double zoomFactor = 1 + defaultZoom * dx / 100;
         for (Integer xAxisIndex : xAxisList) {
             chart.zoomChartX(xAxisIndex, zoomFactor);
         }
     }
 
-    public void autoscaleX() {
+    private void autoscaleX() {
         for (Integer xAxisIndex : xAxisList) {
             chart.autoscaleChartX(xAxisIndex);
         }
     }
 
-    public void autoscaleY() {
+    private void autoscaleY() {
         for (Integer yAxisIndex : yAxisList) {
             chart.autoscaleChartY(yAxisIndex);
         }
@@ -252,14 +258,138 @@ public class ChartPanel extends JPanel {
         }
     }
 
-    public boolean hoverOff() {
+    private boolean hoverOff() {
         return chart.chartHoverOff();
     }
 
-    public boolean hoverOn(int x, int y) {
+    private boolean hoverOn(int x, int y) {
         return chart.chartHoverOn(x, y);
     }
 
+    @Override
+    public void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        chart.draw((Graphics2D) g);
+    }
 
+    /**=======================Base methods to interact with chart==========================**/
+
+    public int getChartSelectedTraceIndex() {
+        return chart.getChartSelectedTraceIndex();
+    }
+
+    public Range getChartYRange(int yAxisIndex) {
+        return chart.getChartYRange(yAxisIndex);
+    }
+
+    public int getChartTraceYIndex(int traceIndex) {
+        return chart.getChartTraceYIndex(traceIndex);
+    }
+
+    public int getChartTraceXIndex(int traceIndex) {
+        return chart.getChartTraceXIndex(traceIndex);
+    }
+
+    public int getChartYIndex(int x, int y) {
+        return chart.getChartYIndex(x, y);
+    }
+
+    public List<Integer> getChartStackXIndexes(int x, int y) {
+        return chart.getChartStackXIndexes(x, y);
+    }
+
+    public List<Integer> getChartYIndexes() {
+        return chart.getChartYIndexes();
+    }
+
+    public List<Integer> getChartXIndexes() {
+        return chart.getChartXIndexes();
+    }
+
+    public void zoomChartY(int yAxisIndex, double zoomFactor) {
+        chart.zoomChartY(yAxisIndex, zoomFactor);
+    }
+
+    public void zoomChartX(int xAxisIndex, double zoomFactor) {
+        chart.zoomChartX(xAxisIndex, zoomFactor);
+    }
+
+    public void translateChartY(int yAxisIndex, int dy) {
+        chart.translateChartY(yAxisIndex, dy);
+    }
+
+    public void translateChartX(int xAxisIndex, int dx) {
+        chart.translateChartX(xAxisIndex, dx);
+    }
+
+    public void autoscaleChartX(int xAxisIndex) {
+        chart.autoscaleChartX(xAxisIndex);
+    }
+
+    public void autoscaleChartY(int yAxisIndex) {
+        chart.autoscaleChartY(yAxisIndex);
+    }
+
+    public boolean chartHoverOff() {
+        return chart.chartHoverOff();
+    }
+
+    public boolean chartHoverOn(int x, int y) {
+        return chart.chartHoverOn(x, y);
+    }
+
+    public boolean isPointInsideChart(int x, int y) {
+        return chart.isPointInsideChart(x, y);
+    }
+
+    /**=======================Base methods to interact with preview==========================**/
+    public boolean isPointInsideScroll(int x, int y) {
+        return chart.isPointInsideScroll(x, y);
+    }
+
+
+    public boolean isPointInsidePreview(int x, int y) {
+        return chart.isPointInsidePreview(x, y);
+    }
+
+    public boolean moveScrollTo(int x, int y) {
+       return chart.moveScrollTo(x, y);
+    }
+
+    public boolean translateScroll(int dx) {
+        return chart.translateScroll(dx);
+    }
+
+    public int getPreviewSelectedTraceIndex() {
+        return chart.getPreviewSelectedTraceIndex();
+    }
+
+    public Range getPreviewYRange(int yAxisIndex) {
+        return chart.getPreviewYRange(yAxisIndex);
+    }
+
+    public int getPreviewTraceYIndex(int traceIndex) {
+        return chart.getPreviewTraceYIndex(traceIndex);
+    }
+
+    public int getPreviewYIndex(int x, int y) {
+        return chart.getPreviewYIndex(x, y);
+    }
+
+    public List<Integer> getPreviewYIndexes() {
+        return chart.getPreviewYIndexes();
+    }
+
+    public void zoomPreviewY(int yAxisIndex, double zoomFactor) {
+        chart.zoomPreviewY(yAxisIndex, zoomFactor);
+    }
+
+    public void translatePreviewY(int yAxisIndex, int dy) {
+        chart.translatePreviewY(yAxisIndex, dy);
+    }
+
+    public void autoscalePreviewY(int yAxisIndex) {
+        chart.autoscalePreviewY(yAxisIndex);
+    }
 
 }

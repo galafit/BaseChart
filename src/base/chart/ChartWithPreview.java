@@ -25,7 +25,7 @@ public class ChartWithPreview {
         chart = new InteractiveChart(chartConfig, area);
     }
 
-    public ChartWithPreview(ChartConfig chartConfig, ChartConfig previewConfig, Rectangle area, double screenExtent) {
+    public ChartWithPreview(ChartConfig chartConfig, ChartConfig previewConfig, Rectangle area) {
         int chartWeight = chartConfig.getSumWeight();
         int previewWeight = previewConfig.getSumWeight();
 
@@ -41,13 +41,16 @@ public class ChartWithPreview {
 
         preview.setXAxisExtremes(0, minMax);
         preview.setXAxisExtremes(1, minMax);
-        this.screenExtent = screenExtent;
         scroll = new Scroll(scrollConfig, getPreferredBottomExtent(), getPreferredTopExtent(),  preview.getXAxisType(0));
 
         scroll.setMinMax(minMax);
 
         chart.setXAxisExtremes(0, getScrollExtremes(0));
         chart.setXAxisExtremes(1, getScrollExtremes(1));
+    }
+
+    public void addScrollListener(ScrollListener listener) {
+        scroll.addListener(listener);
     }
 
     public void setTraceData(DataSet data, int traceIndex) {
@@ -58,11 +61,23 @@ public class ChartWithPreview {
         preview.setTraceData(data, traceIndex);
     }
 
+    public double getScrollValue() {
+        return scroll.getValue();
+    }
+
+    public double getScrollExtent0() {
+        return scroll.getScrollExtent0();
+    }
+
+    public double getScrollExtent1() {
+        return scroll.getScrollExtent1();
+    }
+
     /**
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
-    public boolean moveScroll(double newValue) {
-        boolean isScrollMoved = scroll.moveScroll(newValue);
+    public boolean moveScrollTo(double newValue) {
+        boolean isScrollMoved = scroll.moveScrollTo(newValue);
         if(isScrollMoved) {
             chart.setXAxisExtremes(0, getScrollExtremes(0));
             chart.setXAxisExtremes(1, getScrollExtremes(1));
@@ -100,21 +115,21 @@ public class ChartWithPreview {
     }
 
 
-    private void shiftChart(int dx) {
+    private void translateChart(int dx) {
         double scrollTranslation = dx/ scroll.getRation();
-        scroll.translate(scrollTranslation);
+        scroll.translateScroll(scrollTranslation);
         chart.setXAxisExtremes(0, getScrollExtremes(0));
         chart.setXAxisExtremes(1, getScrollExtremes(1));
     }
 
     private void zoomScroll(int extentNumber, double zoomFactor) {
         if(extentNumber == 0) {
-            scroll.setScrollExtent1(scroll.getScrollExtent1() * zoomFactor);
+            scroll.setScrollExtent0(scroll.getScrollExtent0() * zoomFactor);
             chart.setXAxisExtremes(0, getScrollExtremes(0));
         }
 
         if(extentNumber == 1) {
-            scroll.setScrollExtent2(scroll.getScrollExtent2() * zoomFactor);
+            scroll.setScrollExtent1(scroll.getScrollExtent1() * zoomFactor);
             chart.setXAxisExtremes(1, getScrollExtremes(1));
         }
     }
@@ -203,7 +218,7 @@ public class ChartWithPreview {
         if(preview == null) {
             chart.translateX(xAxisIndex, dx);
         } else {
-            shiftChart(dx);
+            translateChart(dx);
         }
     }
 
@@ -211,8 +226,8 @@ public class ChartWithPreview {
         if(preview == null) {
             chart.autoscaleXAxis(xAxisIndex);
         } else {
-            scroll.setScrollExtent1(getPreferredBottomExtent());
-            scroll.setScrollExtent2(getPreferredTopExtent());
+            scroll.setScrollExtent0(getPreferredBottomExtent());
+            scroll.setScrollExtent1(getPreferredTopExtent());
             chart.setXAxisExtremes(0, getScrollExtremes(0));
             chart.setXAxisExtremes(1, getScrollExtremes(1));
         }
@@ -254,11 +269,11 @@ public class ChartWithPreview {
     /**
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
-    public boolean moveScroll(int x, int y) {
+    public boolean moveScrollTo(int x, int y) {
         if(!previewArea.contains(x, y)) {
             return false;
         }
-        boolean isScrollMoved = scroll.moveScroll(x, y);
+        boolean isScrollMoved = scroll.moveScrollTo(x, y);
         if(isScrollMoved) {
             chart.setXAxisExtremes(0, getScrollExtremes(0));
             chart.setXAxisExtremes(1, getScrollExtremes(1));
@@ -267,7 +282,7 @@ public class ChartWithPreview {
     }
 
     public boolean translateScroll(int dx) {
-        boolean isScrollMoved = scroll.translate(dx);
+        boolean isScrollMoved = scroll.translateScroll(dx);
         if(isScrollMoved) {
             chart.setXAxisExtremes(0, getScrollExtremes(0));
             chart.setXAxisExtremes(1, getScrollExtremes(1));
@@ -315,9 +330,9 @@ public class ChartWithPreview {
         if(chartArea.contains(mouseX, mouseY)) {
             chart.onClick(mouseX, mouseY);
         } else if(preview != null && previewArea.contains(mouseX, mouseY) && !isMouseInsideScroll(mouseX, mouseY)) {
-            moveScroll(mouseX, mouseY);
+            moveScrollTo(mouseX, mouseY);
         }
-        for (ChartEventListener changeListener : chartEventListeners) {
+        for (ScrollListener changeListener : chartEventListeners) {
            // changeListener.update();
         }
     }
@@ -338,10 +353,10 @@ public class ChartWithPreview {
     }
 
 
-    class EventListener implements  ChartEventListener {
+    class EventListener implements  ScrollListener {
         @Override
         public void hoverChanged() {
-            for (ChartEventListener changeListener : chartEventListeners) {
+            for (ScrollListener changeListener : chartEventListeners) {
                 changeListener.update();
             }
         }

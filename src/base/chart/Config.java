@@ -1,3 +1,5 @@
+package base.chart;
+
 import base.config.ChartConfig;
 import base.config.traces.TraceConfig;
 import data.Data;
@@ -14,7 +16,7 @@ public class Config {
     private boolean isPreviewEnable = false;
     private ChartConfig chartConfig = new ChartConfig();
     private ChartConfig previewConfig = new ChartConfig();
-    private long chartWidth;
+    private double[] screenExtents = new double[2];
 
     public Config() {
         this(DARK_THEME);
@@ -54,8 +56,12 @@ public class Config {
         return previewConfig;
     }
 
-    public long getChartWidth() {
-        return chartWidth;
+      public double getScreenExtent(int index) {
+        return screenExtents[index];
+    }
+
+    public void setScreenExtentTop(double extent, int index) {
+        screenExtents[index] = extent;
     }
 
     /*********************************************
@@ -101,9 +107,8 @@ public class Config {
         return isPreviewEnable;
     }
 
-    public void enablePreview(long chartWidth) {
-        this.chartWidth = chartWidth;
-        isPreviewEnable = true;
+    public void enablePreview(boolean isPreviewEnable) {
+        this.isPreviewEnable = isPreviewEnable;
     }
 
     public void addPreviewStack(int weight) {
@@ -120,6 +125,7 @@ public class Config {
      */
     public void addPreviewTrace(TraceConfig traceConfig, Data data, String name,  boolean isXAxisOpposite, boolean isYAxisOpposite) {
         previewConfig.addTrace(traceConfig, data.getDataSet(), name,  isXAxisOpposite, isYAxisOpposite);
+        isPreviewEnable = true;
     }
 
     /**

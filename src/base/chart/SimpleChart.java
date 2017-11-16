@@ -271,10 +271,10 @@ public class SimpleChart  {
         Axis yAxis = trace.getYAxis();
         Axis xAxis = trace.getXAxis();
         if (xAxis.isAutoScale()) {
-            autoscaleXAxis(getTraceXAxisIndex(traceIndex));
+           // autoscaleXAxis(getTraceXAxisIndex(traceIndex));
         }
         if (yAxis.isAutoScale()) {
-            autoscaleYAxis(getTraceYAxisIndex(traceIndex));
+           // autoscaleYAxis(getTraceYAxisIndex(traceIndex));
         }
     }
 

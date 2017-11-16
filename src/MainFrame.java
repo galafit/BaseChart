@@ -1,3 +1,4 @@
+import base.chart.Config;
 import base.config.traces.AreaTraceConfig;
 import base.config.traces.LineTraceConfig;
 import data.XYData;
@@ -47,13 +48,9 @@ public class MainFrame extends JFrame {
         config.addPreviewTrace(new LineTraceConfig(), xyData2);
         config.addPreviewTrace(new LineTraceConfig(), xyData3);
 
-        config.enablePreview(-1);
+        config.enablePreview(true);
 
-        Chart chart = new Chart(config, width, height);
-
-        //base.chart.ChartWithPreview chart = new base.chart.ChartWithPreview(chartConfig);
-
-        ChartPanel chartPanel = new ChartPanel(chart);
+        ChartPanel chartPanel = new ChartPanel(config);
 
         chartPanel.setPreferredSize(new Dimension(width, height));
         add(chartPanel,BorderLayout.CENTER);

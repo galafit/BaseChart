@@ -8,6 +8,7 @@ import base.scales.ScaleLinear;
 
 import java.awt.*;
 import java.text.MessageFormat;
+import java.util.*;
 
 
 /**
@@ -18,17 +19,37 @@ public class Scroll {
     private ScrollConfig scrollConfig;
     private double scrollValue = 0;
     // two extents because we will scroll two axis (xTop and xBottom)
+    private double scrollExtent0;
     private double scrollExtent1;
-    private double scrollExtent2;
+    private java.util.List<ScrollListener> eventListeners = new ArrayList<ScrollListener>();
 
-    public Scroll(ScrollConfig scrollConfig, double scrollExtent1, double scrollExtent2, AxisType axisType) {
+
+    public Scroll(ScrollConfig scrollConfig, double scrollExtent0, double scrollExtent1, AxisType axisType) {
         scale = new ScaleLinear();
         if(axisType == AxisType.LOGARITHMIC) {
             // scale = new ScaleLogarithmic;
         }
         this.scrollConfig = scrollConfig;
+        this.scrollExtent0 = scrollExtent0;
         this.scrollExtent1 = scrollExtent1;
-        this.scrollExtent2 = scrollExtent2;
+    }
+
+    public void addListener(ScrollListener listener) {
+        eventListeners.add(listener);
+    }
+
+    private void fireListeners(){
+        for (ScrollListener listener : eventListeners) {
+            listener.onScrollMoved(scrollValue, scrollExtent0, scrollExtent1);
+        }
+    }
+
+    public void setScrollExtent0(double scrollExtent0) {
+        if(scrollExtent0 > getMax() - getMin()) {
+            scrollExtent0 = getMax() - getMin();
+        }
+        this.scrollExtent0 = scrollExtent0;
+        checkBounds();
     }
 
     public void setScrollExtent1(double scrollExtent1) {
@@ -39,26 +60,18 @@ public class Scroll {
         checkBounds();
     }
 
-    public void setScrollExtent2(double scrollExtent2) {
-        if(scrollExtent2 > getMax() - getMin()) {
-            scrollExtent2 = getMax() - getMin();
-        }
-        this.scrollExtent2 = scrollExtent2;
-        checkBounds();
+    public double getScrollExtent0() {
+        return scrollExtent0;
     }
 
     public double getScrollExtent1() {
         return scrollExtent1;
     }
 
-    public double getScrollExtent2() {
-        return scrollExtent2;
-    }
-
 
     private Rectangle getScrollRectangle1(Rectangle area) {
         double scrollStart = scale.scale(scrollValue);
-        double scrollEnd = scale.scale(scrollValue + scrollExtent1);
+        double scrollEnd = scale.scale(scrollValue + scrollExtent0);
         int scrollWidth = Math.max(scrollConfig.getScrollMinWidth(), (int)(scrollEnd - scrollStart));
         if(scrollStart + scrollConfig.getScrollMinWidth() > getEnd()) { // prevent that actually thin scroll moves outside screen
             scrollStart = getEnd() - scrollConfig.getScrollMinWidth();
@@ -68,7 +81,7 @@ public class Scroll {
 
     private Rectangle getScrollRectangle2(Rectangle area) {
         double scrollStart = scale.scale(scrollValue);
-        double scrollEnd = scale.scale(scrollValue + scrollExtent2);
+        double scrollEnd = scale.scale(scrollValue + scrollExtent1);
         int scrollWidth = Math.max(scrollConfig.getScrollMinWidth(), (int)(scrollEnd - scrollStart));
         if(scrollStart + scrollConfig.getScrollMinWidth() > getEnd()) { // prevent that actually thin scroll moves outside screen
             scrollStart = getEnd() - scrollConfig.getScrollMinWidth();
@@ -77,21 +90,35 @@ public class Scroll {
     }
 
     public double getRation() {
-        return (getMax() - getMin()) / Math.min(scrollExtent1, scrollExtent2);
+        return (getMax() - getMin()) / Math.min(scrollExtent0, scrollExtent1);
     }
 
     /**
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
-    public boolean moveScroll(int x, int y) {
+    public boolean moveScrollTo(int x, int y) {
         double value = scale.invert(x);
-        return moveScroll(value);
+        return moveScrollTo(value);
     }
 
-    public boolean translate(double translation) {
+    public boolean translateScroll(double translation) {
         double scrollPosition = scale.scale(scrollValue);
         double newScrollPosition = scrollPosition + translation;
-        return moveScroll(scale.invert(newScrollPosition));
+        return moveScrollTo(scale.invert(newScrollPosition));
+    }
+
+    /**
+     * @return true if scrollValue was changed and false if newValue = current scroll value
+     */
+    public boolean moveScrollTo(double newValue) {
+        double oldValue = scrollValue;
+        scrollValue = newValue;
+        checkBounds();
+        if(scrollValue != oldValue) {
+            fireListeners();
+            return true;
+        }
+        return false;
     }
 
     public void setMinMax(Range minMaxRange) {
@@ -128,35 +155,26 @@ public class Scroll {
         return scale.getRange()[scale.getRange().length -1];
     }
 
+    public double getValue() {
+        return scrollValue;
+    }
 
     private void checkBounds() {
-        if(scrollValue + Math.min(scrollExtent1, scrollExtent2) > getMax()) {
-            scrollValue = getMax() - Math.min(scrollExtent1, scrollExtent2);
+        if(scrollValue + Math.min(scrollExtent0, scrollExtent1) > getMax()) {
+            scrollValue = getMax() - Math.min(scrollExtent0, scrollExtent1);
         }
         if(scrollValue < getMin()) {
             scrollValue = getMin();
         }
     }
 
-    /**
-     * @return true if scrollValue was changed and false if newValue = current scroll value
-     */
-    public boolean moveScroll(double newValue) {
-        double oldValue = scrollValue;
-        scrollValue = newValue;
-        checkBounds();
-        if(scrollValue != oldValue) {
-            return true;
-        }
-        return false;
-    }
 
     public Range getScrollExtremes1() {
-        return new Range(scrollValue, scrollValue + scrollExtent1);
+        return new Range(scrollValue, scrollValue + scrollExtent0);
     }
 
     public Range getScrollExtremes2() {
-        return new Range(scrollValue, scrollValue + scrollExtent2);
+        return new Range(scrollValue, scrollValue + scrollExtent1);
     }
 
     public boolean isMouseInsideScroll(int x, int y, Rectangle area) {

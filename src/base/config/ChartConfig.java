@@ -141,14 +141,6 @@ public class ChartConfig {
         return new Range(start, end, true);
     }
 
-    public boolean isBottomXAxisHasTraces() {
-        return isBottomXAxisHasTraces;
-    }
-
-    public boolean isTopXAxisHasTraces() {
-        return isTopXAxisHasTraces;
-    }
-
     public void addStack(int weight) {
         AxisConfig axisConfig = new AxisConfig(Orientation.LEFT);
         axisConfig.getMinorGridLineConfig().setWidth(0);
