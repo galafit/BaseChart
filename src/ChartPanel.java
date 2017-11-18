@@ -52,7 +52,7 @@ public class ChartPanel extends JPanel {
                             zoomY(dy);
                             repaint();
                         } else { // tranlate X and Y
-                            translateX(dx);
+                           // translateX(dx);
                             translateY(dy);
                             repaint();
                         }

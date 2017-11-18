@@ -60,7 +60,7 @@ public abstract class Trace {
 
     public abstract Point getDataPosition(int dataIndex);
 
-    public abstract int getPreferredTraceLength();
+    public abstract int getPreferredDataMarkSize();
 
     public abstract LegendItem[] getLegendItems();
 

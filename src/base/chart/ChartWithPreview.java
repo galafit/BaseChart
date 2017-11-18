@@ -5,6 +5,7 @@ import base.config.ChartConfig;
 import base.config.ScrollConfig;
 import base.config.general.Margin;
 import base.Range;
+
 import java.awt.*;
 import java.util.List;
 
@@ -13,16 +14,17 @@ import java.util.List;
  * Created by galafit on 3/10/17.
  */
 public class ChartWithPreview {
-    private InteractiveChart chart;
-    private InteractiveChart preview;
+    private SimpleChart chart;
+    private SimpleChart preview;
     private ScrollConfig scrollConfig = new ScrollConfig();
     private Rectangle chartArea;
     private Rectangle previewArea;
     private Scroll scroll;
-    private double screenExtent;
+    private double bottomExtent;
+    private double topExtent;
 
     public ChartWithPreview(ChartConfig chartConfig, Rectangle area) {
-        chart = new InteractiveChart(chartConfig, area);
+        chart = new SimpleChart(chartConfig, area);
     }
 
     public ChartWithPreview(ChartConfig chartConfig, ChartConfig previewConfig, Rectangle area) {
@@ -34,19 +36,13 @@ public class ChartWithPreview {
         chartArea = new Rectangle(area.x, area.y, area.width, chartHeight);
         previewArea = new Rectangle(area.x, area.y + chartHeight, area.width, previewHeight);
 
-        chart = new InteractiveChart(chartConfig, chartArea);
-        preview = new InteractiveChart(previewConfig, previewArea);
+        chart = new SimpleChart(chartConfig, chartArea);
+        preview = new SimpleChart(previewConfig, previewArea);
 
-        Range minMax = Range.max(chart.getTracesXExtremes(), preview.getTracesXExtremes());
+        scroll = new Scroll(scrollConfig, getBottomExtent(), getTopExtent(), preview.getXAxisScale(0));
 
-        preview.setXAxisExtremes(0, minMax);
-        preview.setXAxisExtremes(1, minMax);
-        scroll = new Scroll(scrollConfig, getPreferredBottomExtent(), getPreferredTopExtent(),  preview.getXAxisType(0));
-
-        scroll.setMinMax(minMax);
-
-        chart.setXAxisExtremes(0, getScrollExtremes(0));
-        chart.setXAxisExtremes(1, getScrollExtremes(1));
+        //chart.setXAxisExtremes(0, getScrollExtremes(0));
+       // chart.setXAxisExtremes(1, getScrollExtremes(1));
     }
 
     public void addScrollListener(ScrollListener listener) {
@@ -61,6 +57,26 @@ public class ChartWithPreview {
         preview.setTraceData(data, traceIndex);
     }
 
+    /**
+     * @return true if scrollValue was changed and false if newValue = current scroll value
+     */
+    public boolean moveScrollTo(double newValue) {
+        boolean isScrollMoved = scroll.moveScrollTo(newValue);
+        if (isScrollMoved) {
+            chart.setXAxisExtremes(0, getScrollExtremes(0));
+            chart.setXAxisExtremes(1, getScrollExtremes(1));
+        }
+        return isScrollMoved;
+    }
+
+    public void moveScrollToStart() {
+        moveScrollTo(scroll.getMin());
+    }
+
+    public void moveScrollToEnd() {
+        moveScrollTo(scroll.getMax());
+    }
+
     public double getScrollValue() {
         return scroll.getValue();
     }
@@ -73,97 +89,75 @@ public class ChartWithPreview {
         return scroll.getScrollExtent1();
     }
 
-    /**
-     * @return true if scrollValue was changed and false if newValue = current scroll value
-     */
-    public boolean moveScrollTo(double newValue) {
-        boolean isScrollMoved = scroll.moveScrollTo(newValue);
-        if(isScrollMoved) {
-            chart.setXAxisExtremes(0, getScrollExtremes(0));
-            chart.setXAxisExtremes(1, getScrollExtremes(1));
-        }
-        return isScrollMoved;
-    }
-
-    private double getPreferredTopExtent() {
-        double extentTop = 0;
-        if(screenExtent > 0) {
-            extentTop = screenExtent;
-        } else {
-            double topAxisPreferredLength = chart.getPreferredTopAxisLength();
-            if(topAxisPreferredLength > 0) {
-                Range minMax = preview.getXAxisMinMax(0);
-                extentTop = (minMax.end() - minMax.start()) * previewArea.width / topAxisPreferredLength;
+    private double calculatePreferredExtent(int xAxisIndex) {
+        double preferredExtent = 0;
+        for (int i = 0; i < chart.getTraceAmount(); i++) {
+            if (chart.getTraceXAxisIndex(i) == xAxisIndex) {
+                DataSet traceData = chart.getTraceData(i);
+                int preferredTraceLength = (traceData.size() -1) * chart.getPreferredTraceDataMarkSize(i);
+                if(traceData.getXExtremes().length() > chart.getXAxisMinMax(xAxisIndex).length()) {
+                    double extent = traceData.getXExtremes().length() * chartArea.width / preferredTraceLength ;
+                    preferredExtent = Math.max(preferredExtent, extent);
+                } else {
+                    preferredExtent = chart.getXAxisMinMax(xAxisIndex).length();
+                }
             }
         }
-        return extentTop;
+        return preferredExtent;
     }
 
-    private double getPreferredBottomExtent() {
-        double extentBottom = 0;
-        if(screenExtent > 0) {
-            extentBottom = screenExtent;
-        } else {
-            Range minMax = preview.getXAxisMinMax(0);
-            double bottomAxisPreferredLength = chart.getPreferredBottomAxisLength();
-            if(bottomAxisPreferredLength > 0) {
-                extentBottom = (minMax.end() - minMax.start()) * previewArea.width / bottomAxisPreferredLength;
-
-            }
+    private double getBottomExtent() {
+        if(bottomExtent == 0) {
+            bottomExtent = calculatePreferredExtent(0);
         }
-        return extentBottom;
+        return bottomExtent;
+    }
+
+    private double getTopExtent() {
+        if(topExtent == 0) {
+            topExtent = calculatePreferredExtent(1);
+        }
+        return topExtent;
     }
 
 
     private void translateChart(int dx) {
-        double scrollTranslation = dx/ scroll.getRation();
+        double scrollTranslation = dx / scroll.getRation();
         scroll.translateScroll(scrollTranslation);
         chart.setXAxisExtremes(0, getScrollExtremes(0));
         chart.setXAxisExtremes(1, getScrollExtremes(1));
     }
 
-    private void zoomScroll(int extentNumber, double zoomFactor) {
-        if(extentNumber == 0) {
-            scroll.setScrollExtent0(scroll.getScrollExtent0() * zoomFactor);
-            chart.setXAxisExtremes(0, getScrollExtremes(0));
-        }
-
-        if(extentNumber == 1) {
-            scroll.setScrollExtent1(scroll.getScrollExtent1() * zoomFactor);
-            chart.setXAxisExtremes(1, getScrollExtremes(1));
-        }
-    }
-
 
     public Range getScrollExtremes(int xAxisIndex) {
-        if(xAxisIndex == 0) {
+        if (xAxisIndex == 0) {
             return scroll.getScrollExtremes1();
         }
         return scroll.getScrollExtremes2();
     }
 
     public void draw(Graphics2D g2d) {
-         Margin chartMargin = chart.getMargin(g2d);
-         Margin previewMargin = preview.getMargin(g2d);
-         if(chartMargin.left() != previewMargin.left() || chartMargin.right() != previewMargin.right()) {
-             int left = Math.max(chartMargin.left(), previewMargin.left());
-             int right = Math.max(chartMargin.right(), previewMargin.right());
-             chartMargin = new Margin(chartMargin.top(), right, chartMargin.bottom(), left);
-             previewMargin = new Margin(previewMargin.top(), right, previewMargin.bottom(), left);
-             chart.setMargin(g2d, chartMargin);
-             preview.setMargin(g2d, previewMargin);
-         }
-        scroll.setStartEnd(preview.getXAxisRange(0));
-
+        Margin chartMargin = chart.getMargin(g2d);
+        Margin previewMargin = preview.getMargin(g2d);
+        if (chartMargin.left() != previewMargin.left() || chartMargin.right() != previewMargin.right()) {
+            int left = Math.max(chartMargin.left(), previewMargin.left());
+            int right = Math.max(chartMargin.right(), previewMargin.right());
+            chartMargin = new Margin(chartMargin.top(), right, chartMargin.bottom(), left);
+            previewMargin = new Margin(previewMargin.top(), right, previewMargin.bottom(), left);
+            chart.setMargin(g2d, chartMargin);
+            preview.setMargin(g2d, previewMargin);
+        }
 
         chart.draw(g2d);
         if (preview != null) {
             preview.draw(g2d);
-            scroll.draw(g2d, preview.getGraphArea());
+            scroll.draw(g2d, preview.getGraphArea(g2d));
         }
     }
 
-    /**=======================Base methods to interact with chart==========================**/
+    /**
+     * =======================Base methods to interact with chart==========================
+     **/
 
     public int getChartSelectedTraceIndex() {
         return chart.getSelectedTraceIndex();
@@ -202,20 +196,27 @@ public class ChartWithPreview {
     }
 
     public void zoomChartX(int xAxisIndex, double zoomFactor) {
-        if(preview == null) {
+        if (preview == null) {
             chart.zoomX(xAxisIndex, zoomFactor);
         } else {
-            zoomScroll(xAxisIndex, zoomFactor);
-        }
+            chart.zoomX(xAxisIndex, zoomFactor);
+            if(xAxisIndex == 0) {
+                scroll.setScrollExtent0(chart.getXAxisMinMax(xAxisIndex).length());
+            }
+            if(xAxisIndex == 1) {
+                scroll.setScrollExtent1(chart.getXAxisMinMax(xAxisIndex).length());
+            }
 
+        }
     }
+
 
     public void translateChartY(int yAxisIndex, int dy) {
         chart.translateY(yAxisIndex, dy);
     }
 
     public void translateChartX(int xAxisIndex, int dx) {
-        if(preview == null) {
+        if (preview == null) {
             chart.translateX(xAxisIndex, dx);
         } else {
             translateChart(dx);
@@ -223,13 +224,13 @@ public class ChartWithPreview {
     }
 
     public void autoscaleChartX(int xAxisIndex) {
-        if(preview == null) {
+        if (preview == null) {
             chart.autoscaleXAxis(xAxisIndex);
         } else {
-            scroll.setScrollExtent0(getPreferredBottomExtent());
-            scroll.setScrollExtent1(getPreferredTopExtent());
+          /*  scroll.setScrollExtent0(getBottomExtent());
+            scroll.setScrollExtent1(getTopExtent());
             chart.setXAxisExtremes(0, getScrollExtremes(0));
-            chart.setXAxisExtremes(1, getScrollExtremes(1));
+            chart.setXAxisExtremes(1, getScrollExtremes(1)); */
         }
 
     }
@@ -239,28 +240,30 @@ public class ChartWithPreview {
     }
 
     public boolean chartHoverOff() {
-       return chart.hoverOff();
+        return chart.hoverOff();
     }
 
     public boolean chartHoverOn(int x, int y) {
-       return chart.hoverOn(x, y);
+        return chart.hoverOn(x, y);
     }
 
     public boolean isPointInsideChart(int x, int y) {
         return chartArea.contains(x, y);
     }
 
-    /**=======================Base methods to interact with preview==========================**/
+    /**
+     * =======================Base methods to interact with preview==========================
+     **/
     public boolean isPointInsideScroll(int x, int y) {
-        if(preview == null) {
-            return false;
+        if (preview != null && previewArea.contains(x, y) && scroll.isPointInsideScroll(x)) {
+            return true;
         }
-        return scroll.isMouseInsideScroll(x, y, preview.getGraphArea());
+        return false;
     }
 
 
     public boolean isPointInsidePreview(int x, int y) {
-        if(preview == null) {
+        if (preview == null) {
             return false;
         }
         return previewArea.contains(x, y);
@@ -270,11 +273,11 @@ public class ChartWithPreview {
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
     public boolean moveScrollTo(int x, int y) {
-        if(!previewArea.contains(x, y)) {
+        if (!previewArea.contains(x, y)) {
             return false;
         }
         boolean isScrollMoved = scroll.moveScrollTo(x, y);
-        if(isScrollMoved) {
+        if (isScrollMoved) {
             chart.setXAxisExtremes(0, getScrollExtremes(0));
             chart.setXAxisExtremes(1, getScrollExtremes(1));
         }
@@ -283,7 +286,7 @@ public class ChartWithPreview {
 
     public boolean translateScroll(int dx) {
         boolean isScrollMoved = scroll.translateScroll(dx);
-        if(isScrollMoved) {
+        if (isScrollMoved) {
             chart.setXAxisExtremes(0, getScrollExtremes(0));
             chart.setXAxisExtremes(1, getScrollExtremes(1));
         }
@@ -329,7 +332,7 @@ public class ChartWithPreview {
     public void onClick(int mouseX, int mouseY) {
         if(chartArea.contains(mouseX, mouseY)) {
             chart.onClick(mouseX, mouseY);
-        } else if(preview != null && previewArea.contains(mouseX, mouseY) && !isMouseInsideScroll(mouseX, mouseY)) {
+        } else if(preview != null && previewArea.contains(mouseX, mouseY) && !isPointInsideScroll(mouseX, mouseY)) {
             moveScrollTo(mouseX, mouseY);
         }
         for (ScrollListener changeListener : chartEventListeners) {

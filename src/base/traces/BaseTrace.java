@@ -44,12 +44,8 @@ public abstract class BaseTrace extends Trace {
 
 
     @Override
-    public int getPreferredTraceLength() {
-        int prefLength = xyData.size();
-        if(traceConfig.getMarkConfig().getSize() > 0) {
-            prefLength *= traceConfig.getMarkConfig().getSize();
-        }
-        return prefLength;
+    public int getPreferredDataMarkSize() {
+        return Math.max(1, traceConfig.getMarkConfig().getSize());
     }
 
     @Override

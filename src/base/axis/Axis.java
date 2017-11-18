@@ -48,17 +48,22 @@ public class Axis {
         return isAutoscale;
     }
 
-
+    /**
+     * Zoom affects only max value. Min value does not changed!!!
+     * @param zoomFactor
+     */
     public void zoom(double zoomFactor) {
         int start = getStart();
         int end = getEnd();
+        double min = getMin();
         int shift = (int)((end - start) * (zoomFactor - 1) / 2);
-        int newStart = start - shift;
-        int newEnd = end + shift;
-        setStartEnd(newStart, newEnd);
-        double minNew = invert(start);
+        //int newStart = start - shift;
+        int newEnd = end + 2 * shift;
+        //setStartEnd(newStart, newEnd);
+        setStartEnd(start, newEnd);
+       // double minNew = invert(start);
         double maxNew = invert(end);
-        setMinMax(minNew, maxNew);
+        setMinMax(min, maxNew);
         setStartEnd(start, end);
     }
 
@@ -84,6 +89,9 @@ public class Axis {
             String errorMessage = "Error during setMinMax(). Expected Min < Max. Min = {0}, Max = {1}.";
             String formattedError = MessageFormat.format(errorMessage,min,max);
             throw new IllegalArgumentException(formattedError);
+        }
+        if(min == max) {
+            max = min + 1;
         }
         scale.setDomain(min, max);
         ticks = null;

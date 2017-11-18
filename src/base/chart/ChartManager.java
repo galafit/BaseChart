@@ -1,11 +1,9 @@
 package base.chart;
 import base.Range;
-import base.config.ChartConfig;
 import data.BaseDataSet;
 import data.GroupedDataSet;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
 
 /**
@@ -17,6 +15,7 @@ public class ChartManager {
     private BaseDataSet[] tracesData;
     private BaseDataSet[] previewData;
     private GroupedDataSet[] previewGroupedData;
+    private boolean isAutoscaleDuringScroll = true;
 
     public ChartManager(Config config, Rectangle area) {
         this.config = config;
@@ -32,7 +31,7 @@ public class ChartManager {
             chartWithPreview = new ChartWithPreview(config.getChartConfig(), config.getPreviewConfig(), area);
             previewGroupedData = new GroupedDataSet[previewData.length];
             for (int i = 0; i < previewData.length; i++) {
-                int compression = previewData[i].size() * 20 / area.width;
+                int compression = 1;//previewData[i].size() * 20 / area.width;
                 if(compression > 1) {
                     previewGroupedData[i] = new GroupedDataSet(previewData[i], compression);
                     chartWithPreview.setPreviewTraceData(previewGroupedData[i], i);
@@ -40,7 +39,7 @@ public class ChartManager {
             }
             chartWithPreview.addScrollListener(new ScrollListener() {
                 @Override
-                public void onScrollMoved(double scrollValue, double scrollExtent0, double scrollExtent1) {
+                public void onScrollChanged(double scrollValue, double scrollExtent0, double scrollExtent1) {
                     cropData(scrollValue, scrollExtent0, scrollExtent1);
                 }
             });
@@ -57,6 +56,11 @@ public class ChartManager {
                 chartWithPreview.setTraceData(tracesData[i].getSubset(scrollValue, scrollValue + scrollExtent0), i);
             } else {
                 chartWithPreview.setTraceData(tracesData[i].getSubset(scrollValue, scrollValue + scrollExtent1), i);
+            }
+        }
+        if(isAutoscaleDuringScroll) {
+            for (Integer yAxisIndex : getChartYIndexes()) {
+                autoscaleChartY(yAxisIndex);
             }
         }
     }

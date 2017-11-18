@@ -8,10 +8,12 @@ import java.text.MessageFormat;
 public class Range {
     private double start;
     private double end;
+    private boolean isReversed = false;
 
     public Range(double start, double end, boolean isReversed) {
         this.start = start;
         this.end = end;
+        this.isReversed = isReversed;
         if(isReversed) { // when start > end
             if (end > start){
                 String errorMessage = "Error during creating Reversed Range. Expected Start >= End. Start = {0}, End = {1}.";
@@ -29,6 +31,16 @@ public class Range {
 
     public Range(double start, double end) {
        this(start, end, false);
+    }
+
+    public boolean contains(double value) {
+        if(isReversed && value >= end && value <= start) {
+            return true;
+        }
+        if(!isReversed && value >= start && value <= end) {
+            return true;
+        }
+        return false;
     }
 
     public  double start() {
