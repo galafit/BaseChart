@@ -16,7 +16,11 @@ public class Config {
     private boolean isPreviewEnable = false;
     private ChartConfig chartConfig = new ChartConfig();
     private ChartConfig previewConfig = new ChartConfig();
-    private double[] screenExtents = new double[2];
+    private double[] scrollExtents = new double[2];
+
+    private boolean isCropEnable = true;
+    private boolean isGroupingEnable = true;
+
 
     public Config() {
         this(DARK_THEME);
@@ -56,12 +60,28 @@ public class Config {
         return previewConfig;
     }
 
-      public double getScreenExtent(int index) {
-        return screenExtents[index];
+    public double getScrollExtent(int xAxisIndex) {
+        return scrollExtents[xAxisIndex];
     }
 
-    public void setScreenExtentTop(double extent, int index) {
-        screenExtents[index] = extent;
+    public void setScrollExtent(double extent, int xAxisIndex) {
+        scrollExtents[xAxisIndex] = extent;
+    }
+
+    public boolean isCropEnable() {
+        return isCropEnable;
+    }
+
+    public void setCropEnable(boolean isCropEnable) {
+        this.isCropEnable = isCropEnable;
+    }
+
+    public boolean isGroupingEnable() {
+        return isGroupingEnable;
+    }
+
+    public void setGroupingEnable(boolean isGroupingEnable) {
+        this.isGroupingEnable = isGroupingEnable;
     }
 
     /*********************************************

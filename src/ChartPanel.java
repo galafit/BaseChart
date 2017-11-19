@@ -1,6 +1,6 @@
 
 import base.Range;
-import base.chart.ChartManager;
+import base.chart.ChartWithPreview;
 import base.chart.Config;
 
 import javax.swing.*;
@@ -19,7 +19,7 @@ public class ChartPanel extends JPanel {
     private int pastX;
     private int pastY;
     private boolean isPressedInsideScroll;
-    private ChartManager chart;
+    private ChartWithPreview chart;
     private List<Integer> xAxisList = new ArrayList<>();
     private List<Integer> yAxisList = new ArrayList<>();
     private List<Integer> yAxisListPreview = new ArrayList<>();
@@ -27,7 +27,7 @@ public class ChartPanel extends JPanel {
 
     public ChartPanel(Config config) {
         this.config = config;
-        chart = new ChartManager(config, new Rectangle(0, 0, 500, 500));
+        chart = new ChartWithPreview(config, new Rectangle(0, 0, 500, 500));
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {

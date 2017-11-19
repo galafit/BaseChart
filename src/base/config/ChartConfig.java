@@ -18,9 +18,6 @@ public class ChartConfig {
     public static final int DEFAULT_WEIGHT = 10;
     private boolean isTopOpposite = true;
     private boolean isRightOpposite = true;
-    private boolean isBottomXAxisHasTraces = false;
-    private boolean isTopXAxisHasTraces = false;
-
 
     private String title = "Chart title";
     private Color background;
@@ -167,11 +164,6 @@ public class ChartConfig {
         }
         int xAxisIndex = isBottomXAxis ? 0 : 1;
         int yAxisIndex = isLeftYAxis ? yAxisConfigs.size() - 2 : yAxisConfigs.size() - 1;
-        if(isBottomXAxis) {
-            isBottomXAxisHasTraces = true;
-        } else {
-            isTopXAxisHasTraces = true;
-        }
 
         xAxisConfigs.get(xAxisIndex).setVisible(true);
         yAxisConfigs.get(yAxisIndex).setVisible(true);
@@ -193,9 +185,14 @@ public class ChartConfig {
         return traces.get(index).getTraceConfig();
     }
 
-    public DataSet getTraceData(int index) {
-        return traces.get(index).getData();
+    public DataSet getTraceData(int traceIndex) {
+        return traces.get(traceIndex).getData();
     }
+
+    public void setTraceData(DataSet dataSet, int traceIndex) {
+        traces.get(traceIndex).setData(dataSet);
+    }
+
 
     public String getTraceName(int index){
         return traces.get(index).getName();
