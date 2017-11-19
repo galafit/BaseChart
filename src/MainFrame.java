@@ -19,13 +19,13 @@ public class MainFrame extends JFrame {
 
         setTitle("Test chart");
 
-        double[] yData1 = new double[15];
+        double[] yData1 = new double[15000];
         Random rand = new Random();
         for (int i = 0; i < yData1.length ; i++) {
             yData1[i] = new Double(rand.nextInt(500));
         }
 
-        int[] yData2 = new int[30];
+        int[] yData2 = new int[30000];
         for (int i = 0; i < yData2.length ; i++) {
             yData2[i] =  i;
         }

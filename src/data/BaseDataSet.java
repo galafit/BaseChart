@@ -127,10 +127,17 @@ public class BaseDataSet implements DataSet {
     }
 
     private int fullSize() {
+        if(yColumns.size() == 0 && annotationColumn == null) {
+            return 0;
+        }
         int size = xColumn.size();
         for (NumberColumn column : yColumns) {
             size = Math.min(size, column.size());
         }
+        if(annotationColumn != null) {
+            size = Math.min(size, annotationColumn.size());
+        }
+
         return size;
     }
 
@@ -177,7 +184,7 @@ public class BaseDataSet implements DataSet {
         subsetStartIndex -= shoulder;
         subsetEndIndex += shoulder;
         if(subsetStartIndex >= fullSize() || subsetEndIndex < 0) {
-            return new BaseDataSet(this);
+            return new BaseDataSet();
         }
         if(subsetStartIndex < 0){
             subsetStartIndex = 0 ;

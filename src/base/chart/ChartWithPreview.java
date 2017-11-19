@@ -80,13 +80,14 @@ public class ChartWithPreview {
     }
 
     private void cropData() {
+
         if(config.isCropEnable()) {
             for (int i = 0; i < config.getChartConfig().getTraceAmount(); i++) {
                 DataSet subset;
                 if(config.getChartConfig().getTraceXAxisIndex(i) == 0) {
                     subset = chartFullData[i].getSubset(scroll.getValue(), scroll.getValue() + scroll.getScrollExtent0());
                 } else {
-                    subset = chartFullData[i].getSubset(scroll.getValue(), scroll.getValue() + scroll.getScrollExtent0());
+                    subset = chartFullData[i].getSubset(scroll.getValue(), scroll.getValue() + scroll.getScrollExtent1());
                 }
                 if(chart == null) {
                     config.getChartConfig().setTraceData(subset, i);
