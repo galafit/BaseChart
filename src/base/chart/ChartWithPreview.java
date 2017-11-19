@@ -200,19 +200,12 @@ public class ChartWithPreview {
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
     public boolean moveScrollTo(double newValue) {
-        boolean isScrollMoved = scroll.moveScrollTo(newValue);
-        if (isScrollMoved) {
-            chart.setXAxisExtremes(0, getScrollExtremes(0));
-            chart.setXAxisExtremes(1, getScrollExtremes(1));
-        }
-        return isScrollMoved;
+        return scroll.moveScrollTo(newValue);
     }
 
     private void translateChart(int dx) {
         double scrollTranslation = dx / scroll.getRation();
         scroll.translateScroll(scrollTranslation);
-        chart.setXAxisExtremes(0, getScrollExtremes(0));
-        chart.setXAxisExtremes(1, getScrollExtremes(1));
     }
 
 
@@ -283,20 +276,21 @@ public class ChartWithPreview {
     }
 
     public void zoomChartX(int xAxisIndex, double zoomFactor) {
-        if (preview == null) {
+        chart.zoomX(xAxisIndex, zoomFactor);
+        if (preview != null) {
             chart.zoomX(xAxisIndex, zoomFactor);
-        } else {
-            chart.zoomX(xAxisIndex, zoomFactor);
+            Range minMax = Range.max(chart.getXAxisMinMax(0), chart.getXAxisMinMax(1));
+            minMax = Range.max(minMax, preview.getXAxisMinMax(0));
+            preview.setXAxisExtremes(0, minMax);
+            preview.setXAxisExtremes(1, minMax);
             if(xAxisIndex == 0) {
                 scroll.setScrollExtent0(chart.getXAxisMinMax(xAxisIndex).length());
             }
             if(xAxisIndex == 1) {
                 scroll.setScrollExtent1(chart.getXAxisMinMax(xAxisIndex).length());
             }
-
         }
     }
-
 
     public void translateChartY(int yAxisIndex, int dy) {
         chart.translateY(yAxisIndex, dy);
@@ -316,8 +310,7 @@ public class ChartWithPreview {
         } else {
           /*  scroll.setScrollExtent0(getBottomExtent());
             scroll.setScrollExtent1(getTopExtent());
-            chart.setXAxisExtremes(0, getScrollExtremes(0));
-            chart.setXAxisExtremes(1, getScrollExtremes(1)); */
+          */
         }
 
     }
@@ -363,21 +356,11 @@ public class ChartWithPreview {
         if (!previewArea.contains(x, y)) {
             return false;
         }
-        boolean isScrollMoved = scroll.moveScrollTo(x, y);
-        if (isScrollMoved) {
-            chart.setXAxisExtremes(0, getScrollExtremes(0));
-            chart.setXAxisExtremes(1, getScrollExtremes(1));
-        }
-        return isScrollMoved;
+        return scroll.moveScrollTo(x, y);
     }
 
     public boolean translateScroll(int dx) {
-        boolean isScrollMoved = scroll.translateScroll(dx);
-        if (isScrollMoved) {
-            chart.setXAxisExtremes(0, getScrollExtremes(0));
-            chart.setXAxisExtremes(1, getScrollExtremes(1));
-        }
-        return isScrollMoved;
+        return scroll.translateScroll(dx);
     }
 
     public int getPreviewSelectedTraceIndex() {
