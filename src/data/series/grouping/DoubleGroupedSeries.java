@@ -2,16 +2,17 @@ package data.series.grouping;
 
 import data.series.DoubleSeries;
 import data.series.IntSeries;
+import data.series.grouping.aggregation.DoubleAggregateFunction;
 
 /**
  * Created by galafit on 14/10/17.
  */
 public class DoubleGroupedSeries implements DoubleSeries {
     private DoubleSeries series;
-    private DoubleGroupingFunction groupingFunction;
+    private DoubleAggregateFunction groupingFunction;
     private IntSeries groupIndexes;
 
-    public DoubleGroupedSeries(DoubleSeries series, DoubleGroupingFunction groupingFunction, int compression) {
+    public DoubleGroupedSeries(DoubleSeries series, DoubleAggregateFunction groupingFunction, int compression) {
         this.groupingFunction = groupingFunction;
         this.series = series;
         groupIndexes = new IntSeries() {
@@ -27,7 +28,7 @@ public class DoubleGroupedSeries implements DoubleSeries {
         };
     }
 
-    public DoubleGroupedSeries(DoubleSeries series, DoubleGroupingFunction groupingFunction, IntSeries groupIndexes) {
+    public DoubleGroupedSeries(DoubleSeries series, DoubleAggregateFunction groupingFunction, IntSeries groupIndexes) {
         this.groupingFunction = groupingFunction;
         this.groupIndexes = groupIndexes;
         this.series = series;

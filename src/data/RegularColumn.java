@@ -56,11 +56,6 @@ public class RegularColumn implements NumberColumn{
     }
 
     @Override
-    public void group(IntSeries groupIndexes) {
-        // do nothing
-    }
-
-    @Override
     public IntSeries bin(double binInterval) {
         return null;
     }

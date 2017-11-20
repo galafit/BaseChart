@@ -15,7 +15,11 @@ public class GroupedDataSet extends BaseDataSet {
         super(dataSet);
         this.dataSet = dataSet;
         if(compression > 1) {
-            if(xColumn instanceof RegularColumn) {
+            for (NumberColumn numberColumn : yColumns) {
+                numberColumn.group(compression);
+            }
+            xColumn.group(compression);
+           /* if(xColumn instanceof RegularColumn) {
                 for (NumberColumn numberColumn : yColumns) {
                     numberColumn.group(compression);
                 }
@@ -27,7 +31,7 @@ public class GroupedDataSet extends BaseDataSet {
                 for (NumberColumn numberColumn : yColumns) {
                     numberColumn.group(groupIndexes);
                 }
-            }
+            }*/
         }
     }
 

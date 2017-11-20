@@ -1,11 +1,11 @@
-package data.series.grouping;
+package data.series.grouping.aggregation;
 
 import data.series.IntSeries;
 
 /**
  * Created by galafit on 12/10/17.
  */
-public class IntAverage implements IntGroupingFunction {
+public class IntAverage implements IntAggregateFunction {
     @Override
     public int group(IntSeries series, int from, int length) {
         long sum = 0;

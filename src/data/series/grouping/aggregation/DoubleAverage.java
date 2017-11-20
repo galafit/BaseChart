@@ -1,11 +1,11 @@
-package data.series.grouping;
+package data.series.grouping.aggregation;
 
 import data.series.DoubleSeries;
 
 /**
  * Created by galafit on 12/10/17.
  */
-public class DoubleAverage implements DoubleGroupingFunction {
+public class DoubleAverage implements DoubleAggregateFunction {
     @Override
     public double group(DoubleSeries series, int from, int length) {
         long sum = 0;

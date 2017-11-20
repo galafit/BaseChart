@@ -4,10 +4,9 @@ import base.Range;
 import data.series.DoubleSeries;
 import data.series.IntSeries;
 import data.series.Processing;
-import data.series.grouping.DoubleAverage;
+import data.series.grouping.aggregation.DoubleAverage;
 import data.series.grouping.DoubleBinnedSeries;
 import data.series.grouping.DoubleGroupedSeries;
-import data.series.grouping.IntGroupedSeries;
 
 import java.util.List;
 
@@ -79,10 +78,6 @@ class DoubleColumn implements NumberColumn {
         series = new DoubleGroupedSeries(series, new DoubleAverage(), compression);
     }
 
-    @Override
-    public void group(IntSeries groupIndexes) {
-        series = new DoubleGroupedSeries(series, new DoubleAverage(), groupIndexes);
-    }
 
     @Override
     public IntSeries bin(double binInterval) {

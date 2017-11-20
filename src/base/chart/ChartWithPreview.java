@@ -136,6 +136,11 @@ public class ChartWithPreview {
         return extent;
     }
 
+    /**
+     * we need this function in the case when preview has a small number of data points
+     * (number of data points < previewArea.width)
+     * @return preview minMax range for that special case
+     */
     private double calculatePreviewExtent() {
         ChartConfig previewConfig = config.getPreviewConfig();
         double minDataItemInterval = 0;

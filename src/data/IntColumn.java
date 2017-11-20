@@ -3,9 +3,7 @@ package data;
 import base.Range;
 import data.series.IntSeries;
 import data.series.Processing;
-import data.series.grouping.IntAverage;
-import data.series.grouping.IntBinnedSeries;
-import data.series.grouping.IntGroupedSeries;
+import data.series.grouping.GroupedByEqualFrequencyIntSeries;
 
 import java.util.List;
 import java.util.function.IntToDoubleFunction;
@@ -87,12 +85,7 @@ class IntColumn implements NumberColumn {
 
     @Override
     public void group(int compression) {
-        series = new IntGroupedSeries(series, new IntAverage(), compression);
-    }
-
-    @Override
-    public void group(IntSeries groupIndexes) {
-        series = new IntGroupedSeries(series, new IntAverage(), groupIndexes);
+        series = new GroupedByEqualFrequencyIntSeries(series, compression);
     }
 
     @Override
