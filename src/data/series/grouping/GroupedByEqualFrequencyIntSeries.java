@@ -5,13 +5,16 @@ import data.series.grouping.aggregation.IntAggregateFunction;
 import data.series.grouping.aggregation.IntAverage;
 
 /**
- * Created by galafit on 20/11/17.
+ *
+ * Equal frequencies [equal height binning, quantiles] grouping - each group
+ * has equal number of elements or data points.
+ *
  */
 public class GroupedByEqualFrequencyIntSeries extends GroupedIntSeries {
     private IntAggregateFunction aggregateFunction;
 
-    public GroupedByEqualFrequencyIntSeries(IntSeries inputSeries, int numberOfPointsInEachGroup) {
-        this(inputSeries, numberOfPointsInEachGroup, new IntAverage());
+    public GroupedByEqualFrequencyIntSeries(IntSeries inputSeries, int numberOfElementsInEachGroup) {
+        this(inputSeries, numberOfElementsInEachGroup, new IntAverage());
     }
 
 

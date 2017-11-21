@@ -4,19 +4,25 @@ import data.series.IntArrayList;
 import data.series.IntSeries;
 
 /**
- * Created by galafit on 20/11/17.
+ * Group data dividing the hole data range on equal intervals.
+ * Equal intervals [equal width binning] - each bin has equal range value or lengths.
+ *
+ * Черновой вариант. Заготовка на будующее если нужно будет разбивать на
+ * заданные пользователем фиксированные интервалы прежде всего на временной шкале
+ * (min, hour, day, month...)
+ * Группирование X и Y в рамках одного DataSet предполагается
+ * синхронизовать через общие groupsStart индексы.
  */
 public class GroupedByEqualIntervalIntSeries extends GroupedIntSeries {
     private int groupInterval; // value interval
 
-    public GroupedByEqualIntervalIntSeries(IntSeries inputSeries, int length, int groupInterval) {
+    public GroupedByEqualIntervalIntSeries(IntSeries inputSeries,  int groupInterval) {
         super(inputSeries);
         this.groupInterval = groupInterval;
         groupsStartIndexes = new IntArrayList();
-        group(length);
     }
 
-    private void group(int length) {
+    private void group() {
         // first index always 0;
         if (groupsStartIndexes.size() == 0) {
             ((IntArrayList)groupsStartIndexes).add(0);
@@ -24,12 +30,18 @@ public class GroupedByEqualIntervalIntSeries extends GroupedIntSeries {
 
         int lastGroupStartIndex = groupsStartIndexes.get(groupsStartIndexes.size() - 1);
         int groupLastStartValue = (inputSeries.get(lastGroupStartIndex) / groupInterval) * groupInterval;
-        for (int i = lastGroupStartIndex; i < length; i++) {
+        for (int i = lastGroupStartIndex; i < inputSeries.size(); i++) {
             if (inputSeries.get(i) >= groupLastStartValue + groupInterval) {
                 ((IntArrayList)groupsStartIndexes).add(i);
                 groupLastStartValue = (inputSeries.get(i) / groupInterval) * groupInterval;
             }
         }
+    }
+
+    @Override
+    public int size() {
+        group();
+        return super.size();
     }
 
     @Override
@@ -47,9 +59,6 @@ public class GroupedByEqualIntervalIntSeries extends GroupedIntSeries {
         return (inputSeries.get(groupsStartIndexes.get(groupIndex)) / groupInterval) * groupInterval;
     }
 
-    public void update(int length) {
-        group(length);
-    }
 
     /**
      * Test method
@@ -57,18 +66,12 @@ public class GroupedByEqualIntervalIntSeries extends GroupedIntSeries {
     public static void main(String args[]) {
         IntArrayList series = new IntArrayList();
         series.add(1, 2, 3, 6, 7, 10, 14, 16, 20, 100);
-        GroupedByEqualIntervalIntSeries groupedSeries = new GroupedByEqualIntervalIntSeries(series, 3,3);
+        GroupedByEqualIntervalIntSeries groupedSeries = new GroupedByEqualIntervalIntSeries(series, 3);
         IntSeries groupIndexes = groupedSeries.getGroupsStartIndexes();
 
         System.out.println(groupedSeries.size() + " size :"+ groupIndexes.size());
         for (int i = 0; i < groupedSeries.size() ; i++) {
-            System.out.println("bin value: "+ groupedSeries.get(i)+ " bin start index: " + groupIndexes.get(i));
-        }
-
-        groupedSeries.update(series.size());
-        System.out.println(groupedSeries.size() + " size :"+ groupIndexes.size());
-        for (int i = 0; i < groupedSeries.size() ; i++) {
-            System.out.println("bin value: "+ groupedSeries.get(i)+ " bin start index: " + groupIndexes.get(i));
+            System.out.println("group value: "+ groupedSeries.get(i)+ " group start index: " + groupIndexes.get(i));
         }
     }
 

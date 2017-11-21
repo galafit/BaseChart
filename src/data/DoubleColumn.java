@@ -80,12 +80,6 @@ class DoubleColumn implements NumberColumn {
 
 
     @Override
-    public IntSeries bin(double binInterval) {
-        series = new DoubleBinnedSeries(series, binInterval);
-        return ((DoubleBinnedSeries)series).bin();
-    }
-
-    @Override
     public NumberColumn copy() {
         return new DoubleColumn(series);
     }

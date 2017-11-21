@@ -54,12 +54,6 @@ public class RegularColumn implements NumberColumn{
     public void group(int compression) {
         dataInterval = dataInterval * compression;
     }
-
-    @Override
-    public IntSeries bin(double binInterval) {
-        return null;
-    }
-
     @Override
     public NumberColumn copy() {
         return new RegularColumn(startValue, dataInterval);

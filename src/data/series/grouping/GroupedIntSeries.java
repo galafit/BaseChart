@@ -60,7 +60,8 @@ public abstract class GroupedIntSeries implements IntSeries {
      */
     @Override
     public int size() {
-        return groupsStartIndexes.size();
+        // last point we do not count because it will change on adding data
+        return groupsStartIndexes.size() - 1;
     }
 
     /**

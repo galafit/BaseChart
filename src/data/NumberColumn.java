@@ -1,7 +1,6 @@
 package data;
 
 import base.Range;
-import data.series.IntSeries;
 
 /**
  * Created by galafit on 17/9/17.
@@ -14,7 +13,6 @@ public interface NumberColumn {
     public int upperBound(double value, int from, int length);
     public int lowerBound(double value, int from, int length);
     public void group(int compression);
-    public IntSeries bin(double binInterval);
     public NumberColumn copy();
 }
 

@@ -12,8 +12,8 @@ import java.util.function.IntToDoubleFunction;
  * Created by galafit on 27/9/17.
  */
 class IntColumn implements NumberColumn {
-    IntSeries series;
-    IntToDoubleFunction intToDoubleFunction;
+    private IntSeries series;
+    private IntToDoubleFunction intToDoubleFunction;
 
     public IntColumn(IntSeries series, IntToDoubleFunction intToDoubleFunction) {
         this.series = series;
@@ -88,11 +88,6 @@ class IntColumn implements NumberColumn {
         series = new GroupedByEqualFrequencyIntSeries(series, compression);
     }
 
-    @Override
-    public IntSeries bin(double binInterval) {
-        series = new IntBinnedSeries(series, (int)binInterval);
-        return ((IntBinnedSeries)series).bin();
-    }
 
     @Override
     public NumberColumn copy() {
