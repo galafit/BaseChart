@@ -1,4 +1,4 @@
-package base.chart;
+package base.config;
 
 import base.config.ChartConfig;
 import base.config.traces.TraceConfig;

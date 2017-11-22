@@ -74,10 +74,19 @@ class DoubleColumn implements NumberColumn {
     }
 
     @Override
-    public void group(int compression) {
-        series = new DoubleGroupedSeries(series, new DoubleAverage(), compression);
+    public void groupByNumber(int numberOfElementsInGroup) {
+        series = new DoubleGroupedSeries(series, new DoubleAverage(), numberOfElementsInGroup);
     }
 
+    @Override
+    public IntSeries groupByInterval(double groupsInterval) {
+        return null;
+    }
+
+    @Override
+    public void groupCustom(IntSeries groupsStartIndexes) {
+
+    }
 
     @Override
     public NumberColumn copy() {

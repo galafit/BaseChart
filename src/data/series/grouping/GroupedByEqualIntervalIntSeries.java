@@ -4,7 +4,7 @@ import data.series.IntArrayList;
 import data.series.IntSeries;
 
 /**
- * Group data dividing the hole data range on equal intervals.
+ * This class groups data dividing the hole data range on equal intervals.
  * Equal intervals [equal width binning] - each bin has equal range value or lengths.
  *
  * Черновой вариант. Заготовка на будующее если нужно будет разбивать на
@@ -16,9 +16,9 @@ import data.series.IntSeries;
 public class GroupedByEqualIntervalIntSeries extends GroupedIntSeries {
     private int groupInterval; // value interval
 
-    public GroupedByEqualIntervalIntSeries(IntSeries inputSeries,  int groupInterval) {
+    public GroupedByEqualIntervalIntSeries(IntSeries inputSeries,  double groupInterval) {
         super(inputSeries);
-        this.groupInterval = groupInterval;
+        this.groupInterval = (int)Math.round(groupInterval);
         groupsStartIndexes = new IntArrayList();
     }
 
@@ -46,7 +46,7 @@ public class GroupedByEqualIntervalIntSeries extends GroupedIntSeries {
 
     @Override
     public int getStartBoundary(int groupIndex) {
-        return getGroupedValue(groupIndex);
+        return (inputSeries.get(groupsStartIndexes.get(groupIndex)) / groupInterval) * groupInterval;
     }
 
     @Override
@@ -56,7 +56,9 @@ public class GroupedByEqualIntervalIntSeries extends GroupedIntSeries {
 
     @Override
     protected int getGroupedValue(int groupIndex) {
-        return (inputSeries.get(groupsStartIndexes.get(groupIndex)) / groupInterval) * groupInterval;
+        return getStartBoundary(groupIndex);
+        // if we want middle point instead start point it will be:
+        // return getStartBoundary(groupIndex) + groupInterval / 2;
     }
 
 
@@ -71,7 +73,7 @@ public class GroupedByEqualIntervalIntSeries extends GroupedIntSeries {
 
         System.out.println(groupedSeries.size() + " size :"+ groupIndexes.size());
         for (int i = 0; i < groupedSeries.size() ; i++) {
-            System.out.println("group value: "+ groupedSeries.get(i)+ " group start index: " + groupIndexes.get(i));
+            System.out.println("groupByNumber value: "+ groupedSeries.get(i)+ " groupByNumber start index: " + groupIndexes.get(i));
         }
     }
 

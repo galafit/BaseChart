@@ -5,11 +5,11 @@ package data.series;
  * Input data could be a filter, function and so on
  */
 
-public class IntCachingSeries implements IntSeries {
+public class CachingIntSeries implements IntSeries {
     protected IntSeries inputData;
     protected IntArrayList cachedData;
 
-    public IntCachingSeries(IntSeries inputData) {
+    public CachingIntSeries(IntSeries inputData) {
         this.inputData = inputData;
         cachedData = new IntArrayList(inputData.size());
         cacheData();

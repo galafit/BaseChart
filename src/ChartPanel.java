@@ -1,7 +1,7 @@
 
 import base.Range;
-import base.chart.ChartWithPreview;
-import base.chart.Config;
+import base.ChartWithPreview;
+import base.config.Config;
 
 import javax.swing.*;
 import java.awt.*;
@@ -270,6 +270,12 @@ public class ChartPanel extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         chart.draw((Graphics2D) g);
+    }
+
+    public void update() {
+        if(chart.update()) {
+            repaint();
+        }
     }
 
     /**=======================Base methods to interact with chart==========================**/

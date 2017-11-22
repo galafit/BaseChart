@@ -51,9 +51,20 @@ public class RegularColumn implements NumberColumn{
     }
 
     @Override
-    public void group(int compression) {
-        dataInterval = dataInterval * compression;
+    public void groupByNumber(int numberOfElementsInGroup) {
+        dataInterval = dataInterval * numberOfElementsInGroup;
     }
+
+    @Override
+    public IntSeries groupByInterval(double groupsInterval) {
+        return null;
+    }
+
+    @Override
+    public void groupCustom(IntSeries groupsStartIndexes) {
+
+    }
+
     @Override
     public NumberColumn copy() {
         return new RegularColumn(startValue, dataInterval);

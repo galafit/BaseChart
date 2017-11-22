@@ -9,30 +9,27 @@ import data.series.IntSeries;
  */
 public class GroupedDataSet extends BaseDataSet {
     BaseDataSet dataSet;
-    IntSeries groupIndexes;
 
     public GroupedDataSet(BaseDataSet dataSet, int compression) {
         super(dataSet);
         this.dataSet = dataSet;
-        if(compression > 1) {
+        if(compression > 1 && (xColumn instanceof RegularColumn)) {
             for (NumberColumn numberColumn : yColumns) {
-                numberColumn.group(compression);
+                numberColumn.groupByNumber(compression);
             }
-            xColumn.group(compression);
-           /* if(xColumn instanceof RegularColumn) {
-                for (NumberColumn numberColumn : yColumns) {
-                    numberColumn.group(compression);
-                }
-                xColumn.group(compression);
-            } else {
-                Range xRange = dataSet.getXExtremes();
-                double groupingInterval = (xRange.end() - xRange.start()) * compression / (dataSet.size() -1);
-                groupIndexes = xColumn.bin(groupingInterval);
-                for (NumberColumn numberColumn : yColumns) {
-                    numberColumn.group(groupIndexes);
-                }
-            }*/
+            xColumn.groupByNumber(compression);
         }
+
+        // interval grouping:
+        if(compression > 1 && ! (xColumn instanceof RegularColumn)) {
+            Range xRange = dataSet.getXExtremes();
+            double groupingInterval = (xRange.end() - xRange.start()) * compression / (dataSet.size() -1);
+            IntSeries groupsStartIndexis = xColumn.groupByInterval(groupingInterval);
+            for (NumberColumn numberColumn : yColumns) {
+                numberColumn.groupCustom(groupsStartIndexis);
+            }
+        }
+
     }
 
 }

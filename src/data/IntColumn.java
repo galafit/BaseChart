@@ -1,9 +1,13 @@
 package data;
 
 import base.Range;
+import data.series.CachingIntSeries;
 import data.series.IntSeries;
 import data.series.Processing;
+import data.series.grouping.CustomGroupedIntSeries;
 import data.series.grouping.GroupedByEqualFrequencyIntSeries;
+import data.series.grouping.GroupedByEqualIntervalIntSeries;
+import data.series.grouping.GroupedIntSeries;
 
 import java.util.List;
 import java.util.function.IntToDoubleFunction;
@@ -84,10 +88,22 @@ class IntColumn implements NumberColumn {
     }
 
     @Override
-    public void group(int compression) {
-        series = new GroupedByEqualFrequencyIntSeries(series, compression);
+    public void groupByNumber(int numberOfElementsInGroup) {
+        series = new CachingIntSeries(new GroupedByEqualFrequencyIntSeries(series, numberOfElementsInGroup));
     }
 
+    @Override
+    public IntSeries groupByInterval(double groupsInterval) {
+        GroupedIntSeries groupedSeries = new GroupedByEqualIntervalIntSeries(series, groupsInterval);
+        series = new CachingIntSeries(groupedSeries);
+        return groupedSeries.getGroupsStartIndexes();
+    }
+
+    @Override
+    public void groupCustom(IntSeries groupsStartIndexes) {
+        series = new CachingIntSeries(new CustomGroupedIntSeries(series, groupsStartIndexes));
+
+    }
 
     @Override
     public NumberColumn copy() {

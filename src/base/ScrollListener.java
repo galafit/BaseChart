@@ -1,4 +1,4 @@
-package base.chart;
+package base;
 
 /**
  * Created by galafit on 16/11/17.

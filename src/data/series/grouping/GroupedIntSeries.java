@@ -7,8 +7,8 @@ import data.series.IntSeries;
  * Data grouping or data binning (banding) with aggregation.
  * Serves to reduce large number of data.
  * <p>
- * Binning is a way to group a number of more or less continuous values
- * into a smaller number of buckets (bins).  Each group/bucket/bin defines
+ * Binning is a way to groupByNumber a number of more or less continuous values
+ * into a smaller number of buckets (bins).  Each groupByNumber/bucket/bin defines
  * an numerical interval and usually is characterized by a name and two boundaries -
  * the start or lower boundary and the stop or upper one.
  * <p>
@@ -22,7 +22,7 @@ import data.series.IntSeries;
  * <ol>
  *  <li>Equal intervals [equal width binning] - each bin has equal range value or lengths. </li>
  *  <li>Equal frequencies [equal height binning, quantiles] - each bin has equal number of elements or data points.
- *  Percentile ranks - % of the total data to group into bins, or  the number of points in bins are specified. </li>
+ *  Percentile ranks - % of the total data to groupByNumber into bins, or  the number of points in bins are specified. </li>
  *  <li>Custom Edges - edge values of each bin are specified. The edge value is always the lower boundary of the bin.</li>
  *  <li>Custom Elements [list] - the elements for each bin are specified manually.</li>
  * </ol>
@@ -46,12 +46,12 @@ public abstract class GroupedIntSeries implements IntSeries {
     }
 
     /**
-     * Gets start or lower boundary of the group/bin
+     * Gets start or lower boundary of the groupByNumber/bin
      */
     public abstract int getStartBoundary(int groupIndex);
 
     /**
-     * Gets start or upper boundary of the group/bin
+     * Gets start or upper boundary of the groupByNumber/bin
      */
     public abstract int getStopBoundary(int groupIndex);
 
@@ -66,7 +66,7 @@ public abstract class GroupedIntSeries implements IntSeries {
 
     /**
      * Gets the (aggregated) value corresponding to the bin
-     * @param groupIndex index of the group/bin
+     * @param groupIndex index of the groupByNumber/bin
      * @return aggregated value corresponding to the bin
      */
     @Override
@@ -86,10 +86,10 @@ public abstract class GroupedIntSeries implements IntSeries {
 
 
     /**
-     * Gets the name of the group/bin.
+     * Gets the name of the groupByNumber/bin.
      * By default the name is: "[LowerBoundary - UpperBoundary)"
-     * @param groupIndex index of the group/bin
-     * @return the name of the group/bin
+     * @param groupIndex index of the groupByNumber/bin
+     * @return the name of the groupByNumber/bin
      */
     public String getGroupName(int groupIndex) {
         return new String("["+getStartBoundary(groupIndex)+" - "+getStopBoundary(groupIndex)+")");

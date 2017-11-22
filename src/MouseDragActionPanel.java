@@ -12,6 +12,9 @@ import java.awt.event.WindowEvent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+/**
+ * Just curious example of mouse drawing
+ */
 public class MouseDragActionPanel extends JPanel implements MouseMotionListener {
     private static final int SquareWidth = 10;
 

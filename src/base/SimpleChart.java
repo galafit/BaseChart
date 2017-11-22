@@ -1,4 +1,4 @@
-package base.chart;
+package base;
 
 import base.DataSet;
 import base.axis.Axis;

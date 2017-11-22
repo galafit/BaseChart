@@ -1,6 +1,5 @@
-package base.chart;
+package base;
 
-import base.Range;
 import base.config.ScrollConfig;
 import base.scales.Scale;
 
@@ -98,7 +97,7 @@ public class Scroll {
     }
 
 
-    private double getMinExtent() {
+    public double getMinExtent() {
         double extent = scrollExtent0;
         if(scrollExtent0 == 0) {
             extent = scrollExtent1;
@@ -120,6 +119,7 @@ public class Scroll {
         double value = scale.invert(x);
         return moveScrollTo(value);
     }
+
 
     public boolean translateScroll(double translation) {
         double scrollPosition = scale.scale(scrollValue);

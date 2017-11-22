@@ -5,10 +5,9 @@ import data.series.grouping.aggregation.IntAggregateFunction;
 import data.series.grouping.aggregation.IntAverage;
 
 /**
- *
- * Equal frequencies [equal height binning, quantiles] grouping - each group
+ * This class groups data in such a way that each groupByNumber
  * has equal number of elements or data points.
- *
+ * Equal frequencies [equal height binning, quantiles] grouping.
  */
 public class GroupedByEqualFrequencyIntSeries extends GroupedIntSeries {
     private IntAggregateFunction aggregateFunction;
@@ -43,18 +42,11 @@ public class GroupedByEqualFrequencyIntSeries extends GroupedIntSeries {
 
     @Override
     public int getStopBoundary(int groupIndex) {
-        if(groupIndex + 1 < size() - 1) {
-            inputSeries.get(groupsStartIndexes.get(groupIndex + 1));
-        }
-        return inputSeries.get(size() - 1);
+        return inputSeries.get(groupsStartIndexes.get(groupIndex + 1));
     }
 
     @Override
     protected int getGroupedValue(int groupIndex) {
-        if(groupIndex + 1 < size() - 1) {
-            return aggregateFunction.group(inputSeries, groupsStartIndexes.get(groupIndex), groupsStartIndexes.get(groupIndex + 1) - groupsStartIndexes.get(groupIndex));
-
-        }
-        return aggregateFunction.group(inputSeries, groupsStartIndexes.get(groupIndex), (inputSeries.size() - 1) - groupsStartIndexes.get(groupIndex));
+        return aggregateFunction.group(inputSeries, groupsStartIndexes.get(groupIndex), groupsStartIndexes.get(groupIndex + 1) - groupsStartIndexes.get(groupIndex));
     }
 }

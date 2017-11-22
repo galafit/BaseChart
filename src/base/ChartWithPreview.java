@@ -1,10 +1,9 @@
-package base.chart;
+package base;
 
-import base.DataSet;
 import base.config.ChartConfig;
+import base.config.Config;
 import base.config.ScrollConfig;
 import base.config.general.Margin;
-import base.Range;
 import data.BaseDataSet;
 import data.GroupedDataSet;
 
@@ -20,7 +19,6 @@ public class ChartWithPreview {
     private BaseDataSet[] chartFullData;
     private BaseDataSet[] previewFullData;
     private BaseDataSet[] previewGroupedData;
-    private boolean isAutoscaleDuringScroll = true;
 
     private SimpleChart chart;
     private SimpleChart preview;
@@ -29,9 +27,13 @@ public class ChartWithPreview {
     private Rectangle previewArea;
     private Scroll scroll;
 
-    private int minPixPerDataItem = 5;
     private double topExtent;
     private double bottomExtent;
+
+    private boolean isAutoscaleDuringScroll = true;
+    private int minPixPerDataItem = 5;
+    private boolean isAutoScroll = true;
+
 
     public ChartWithPreview(Config config, Rectangle area) {
         this.config = config;
@@ -73,14 +75,16 @@ public class ChartWithPreview {
                 chart.setXAxisExtremes(1, getScrollExtremes(1));
             }
         });
-        cropData();
         chart = new SimpleChart(config.getChartConfig(), chartArea);
+        if(isAutoScroll) {
+            autoScroll();
+        }
+        cropData();
         chart.setXAxisExtremes(0, getScrollExtremes(0));
         chart.setXAxisExtremes(1, getScrollExtremes(1));
     }
 
     private void cropData() {
-
         if(config.isCropEnable()) {
             for (int i = 0; i < config.getChartConfig().getTraceAmount(); i++) {
                 DataSet subset;
@@ -108,6 +112,7 @@ public class ChartWithPreview {
             for (int i = 0; i < previewGroupedData.length; i++) {
                 BaseDataSet groupDataSet = previewGroupedData[i];
                 int compression = minPixPerDataItem * groupDataSet.size() /  previewArea.width;
+                compression = 50;
                 if(compression > 1) {
                     previewGroupedData[i] = new GroupedDataSet(previewGroupedData[i], compression);
                     if(preview == null) {
@@ -168,7 +173,7 @@ public class ChartWithPreview {
 
 
         Range previewMinMax = null;
-        for (BaseDataSet traceData : chartFullData) {
+        for (BaseDataSet traceData : previewFullData) {
             previewMinMax = Range.max(previewMinMax, traceData.getXExtremes());
         }
         min = previewMinMax.start();
@@ -209,11 +214,6 @@ public class ChartWithPreview {
         return scroll.moveScrollTo(newValue);
     }
 
-    private void translateChart(int dx) {
-        double scrollTranslation = dx / scroll.getRation();
-        scroll.translateScroll(scrollTranslation);
-    }
-
 
     public Range getScrollExtremes(int xAxisIndex) {
         if (xAxisIndex == 0) {
@@ -240,6 +240,51 @@ public class ChartWithPreview {
             scroll.draw(g2d, preview.getGraphArea(g2d));
         }
     }
+
+    private Range getChartDataMinMax() {
+        Range minMax = null;
+        for (BaseDataSet traceData : chartFullData) {
+            minMax = Range.max(minMax, traceData.getXExtremes());
+        }
+        return minMax;
+    }
+
+    private Range getPreviewDataMinMax() {
+        Range minMax = null;
+        for (BaseDataSet traceData : previewFullData) {
+            minMax = Range.max(minMax, traceData.getXExtremes());
+        }
+        return minMax;
+    }
+
+    public boolean update() {
+        if(preview != null) {
+            Range dataMinMax = Range.max(getChartDataMinMax(), getPreviewDataMinMax());
+            Range previewMinMAx = Range.max(dataMinMax, preview.getXAxisMinMax(0));
+            preview.setXAxisExtremes(0, previewMinMAx);
+            preview.setXAxisExtremes(1, previewMinMAx);
+
+            Range chartMinMAx = Range.max(dataMinMax, chart.getXAxisMinMax(0));
+            chart.setXAxisExtremes(0, chartMinMAx);
+            chart.setXAxisExtremes(1, chartMinMAx);
+
+            if(isAutoScroll) {
+                return autoScroll();
+            }
+        }
+        return false;
+    }
+
+    private boolean autoScroll() {
+        Range dataMinMax = getChartDataMinMax();
+        return moveScrollTo(dataMinMax.end() - scroll.getMinExtent());
+    }
+
+    private void translateChart(int dx) {
+        double scrollTranslation = dx / scroll.getRation();
+        scroll.translateScroll(scrollTranslation);
+    }
+
 
     /**
      * =======================Base methods to interact with chart==========================
