@@ -1,12 +1,9 @@
 package data;
 
 import base.Range;
-import data.series.DoubleSeries;
-import data.series.IntSeries;
-import data.series.Processing;
-import data.series.grouping.aggregation.DoubleAverage;
-import data.series.grouping.DoubleBinnedSeries;
-import data.series.grouping.DoubleGroupedSeries;
+import data.series.*;
+import data.series.grouping.GroupedByNumberDoubleSeries;
+import data.series.grouping.aggregation.*;
 
 import java.util.List;
 
@@ -74,18 +71,24 @@ class DoubleColumn implements NumberColumn {
     }
 
     @Override
-    public void groupByNumber(int numberOfElementsInGroup) {
-        series = new DoubleGroupedSeries(series, new DoubleAverage(), numberOfElementsInGroup);
-    }
+    public void groupByNumber(int numberOfElementsInGroup, GroupingType groupingType) {
+        DoubleAggregateFunction aggregateFunction = new DoubleAverage();
+        if(groupingType == GroupingType.FIRST) {
+            aggregateFunction = new DoubleFirst();
+        }
 
-    @Override
-    public IntSeries groupByInterval(double groupsInterval) {
-        return null;
-    }
+        if(groupingType == GroupingType.MAX) {
+            aggregateFunction = new DoubleMax();
+        }
 
-    @Override
-    public void groupCustom(IntSeries groupsStartIndexes) {
-
+        DoubleSeries originalSeries = series;
+        series = new CachingDoubleSeries(new GroupedByNumberDoubleSeries(originalSeries, numberOfElementsInGroup, aggregateFunction));
+        if(originalSeries instanceof CachingDoubleSeries) {
+            // force to group and cache resultant data on the base of previous cached data
+            series.size();
+            // reset (disable) caching results of previous grouped data
+            ((CachingDoubleSeries) originalSeries).disableCashing();
+        }
     }
 
     @Override

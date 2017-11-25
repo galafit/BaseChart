@@ -81,7 +81,7 @@ public class IntArrayList implements IntSeries {
     public void ensureCapacity(int minCapacity) {
         int oldCapacity = data.length;
         if (minCapacity > oldCapacity) {
-            int[] oldData = data;
+           // int[] oldData = data;
             int newCapacity = (oldCapacity * 3)/2 + 1;
             if (newCapacity < minCapacity) {
                 newCapacity = minCapacity;

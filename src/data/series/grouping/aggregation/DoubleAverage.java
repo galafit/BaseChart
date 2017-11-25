@@ -8,10 +8,10 @@ import data.series.DoubleSeries;
 public class DoubleAverage implements DoubleAggregateFunction {
     @Override
     public double group(DoubleSeries series, int from, int length) {
-        long sum = 0;
+        double sum = 0;
         for (int i = from; i < from + length; i++) {
             sum += series.get(i);
         }
-        return (int)(sum / length);
+        return sum / length;
     }
 }

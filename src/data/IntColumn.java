@@ -4,10 +4,11 @@ import base.Range;
 import data.series.CachingIntSeries;
 import data.series.IntSeries;
 import data.series.Processing;
-import data.series.grouping.CustomGroupedIntSeries;
-import data.series.grouping.GroupedByEqualFrequencyIntSeries;
-import data.series.grouping.GroupedByEqualIntervalIntSeries;
-import data.series.grouping.GroupedIntSeries;
+import data.series.grouping.GroupedByNumberIntSeries;
+import data.series.grouping.aggregation.IntAggregateFunction;
+import data.series.grouping.aggregation.IntAverage;
+import data.series.grouping.aggregation.IntFirst;
+import data.series.grouping.aggregation.IntMax;
 
 import java.util.List;
 import java.util.function.IntToDoubleFunction;
@@ -88,22 +89,38 @@ class IntColumn implements NumberColumn {
     }
 
     @Override
-    public void groupByNumber(int numberOfElementsInGroup) {
-        series = new CachingIntSeries(new GroupedByEqualFrequencyIntSeries(series, numberOfElementsInGroup));
+    public void groupByNumber(int numberOfElementsInGroup, GroupingType groupingType) {
+        IntAggregateFunction aggregateFunction = new IntAverage();
+        if(groupingType == GroupingType.FIRST) {
+            aggregateFunction = new IntFirst();
+        }
+
+        if(groupingType == GroupingType.MAX) {
+            aggregateFunction = new IntMax();
+        }
+
+        IntSeries originalSeries = series;
+        series = new CachingIntSeries(new GroupedByNumberIntSeries(originalSeries, numberOfElementsInGroup, aggregateFunction));
+        if(originalSeries instanceof CachingIntSeries) {
+            // force to group and cache resultant data on the base of previous cached data
+            series.size();
+            // reset (disable) caching results of previous grouped data
+            ((CachingIntSeries) originalSeries).disableCashing();
+        }
     }
 
-    @Override
+/*    @Override
     public IntSeries groupByInterval(double groupsInterval) {
-        GroupedIntSeries groupedSeries = new GroupedByEqualIntervalIntSeries(series, groupsInterval);
+        GroupedIntSeries groupedSeries = new GroupedByIntervalIntSeries(series, groupsInterval);
         series = new CachingIntSeries(groupedSeries);
         return groupedSeries.getGroupsStartIndexes();
     }
 
     @Override
     public void groupCustom(IntSeries groupsStartIndexes) {
-        series = new CachingIntSeries(new CustomGroupedIntSeries(series, groupsStartIndexes));
+        series = new CachingIntSeries(new GroupedCustomIntSeries(series, groupsStartIndexes));
 
-    }
+    } */
 
     @Override
     public NumberColumn copy() {

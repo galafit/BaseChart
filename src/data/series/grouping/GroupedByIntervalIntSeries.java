@@ -13,10 +13,10 @@ import data.series.IntSeries;
  * Группирование X и Y в рамках одного DataSet предполагается
  * синхронизовать через общие groupsStart индексы.
  */
-public class GroupedByEqualIntervalIntSeries extends GroupedIntSeries {
+public class GroupedByIntervalIntSeries extends GroupedIntSeries {
     private int groupInterval; // value interval
 
-    public GroupedByEqualIntervalIntSeries(IntSeries inputSeries,  double groupInterval) {
+    public GroupedByIntervalIntSeries(IntSeries inputSeries, double groupInterval) {
         super(inputSeries);
         this.groupInterval = (int)Math.round(groupInterval);
         groupsStartIndexes = new IntArrayList();
@@ -44,12 +44,12 @@ public class GroupedByEqualIntervalIntSeries extends GroupedIntSeries {
         return super.size();
     }
 
-    @Override
+  //  @Override
     public int getStartBoundary(int groupIndex) {
         return (inputSeries.get(groupsStartIndexes.get(groupIndex)) / groupInterval) * groupInterval;
     }
 
-    @Override
+  //  @Override
     public int getStopBoundary(int groupIndex) {
         return getStartBoundary(groupIndex) + groupInterval;
     }
@@ -61,6 +61,11 @@ public class GroupedByEqualIntervalIntSeries extends GroupedIntSeries {
         // return getStartBoundary(groupIndex) + groupInterval / 2;
     }
 
+    // delete this method if the same method in base class will be activated!!!
+    public IntSeries getGroupsStartIndexes() {
+        return groupsStartIndexes;
+    }
+
 
     /**
      * Test method
@@ -68,7 +73,7 @@ public class GroupedByEqualIntervalIntSeries extends GroupedIntSeries {
     public static void main(String args[]) {
         IntArrayList series = new IntArrayList();
         series.add(1, 2, 3, 6, 7, 10, 14, 16, 20, 100);
-        GroupedByEqualIntervalIntSeries groupedSeries = new GroupedByEqualIntervalIntSeries(series, 3);
+        GroupedByIntervalIntSeries groupedSeries = new GroupedByIntervalIntSeries(series, 3);
         IntSeries groupIndexes = groupedSeries.getGroupsStartIndexes();
 
         System.out.println(groupedSeries.size() + " size :"+ groupIndexes.size());

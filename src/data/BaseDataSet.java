@@ -198,6 +198,28 @@ public class BaseDataSet implements DataSet {
         return subset;
     }
 
+    public BaseDataSet group(int numberOfElementsInGroups, GroupingType yGroupingType) {
+        BaseDataSet groupedSet = new BaseDataSet(this);
+        if(numberOfElementsInGroups > 1) {
+            for (NumberColumn numberColumn : groupedSet.yColumns) {
+                numberColumn.groupByNumber(numberOfElementsInGroups, yGroupingType);
+            }
+            groupedSet.xColumn.groupByNumber(numberOfElementsInGroups, GroupingType.AVG);
+        }
+        return groupedSet;
+
+        // at the moment "grouping by equal interval" is not used. But that is draft realisation
+        // just for the case we will need it in the future
+         /*   if(numberOfElementsInGroups > 1 && ! (xColumn instanceof RegularColumn)) {
+            Range xRange = getXExtremes();
+            double groupingInterval = (xRange.end() - xRange.start()) * numberOfElementsInGroups / (size() -1);
+            IntSeries groupsStartIndexes = groupedSet.xColumn.groupByInterval(groupingInterval);
+            for (NumberColumn numberColumn : groupedSet.yColumns) {
+                numberColumn.groupCustom(groupsStartIndexes);
+            }
+         } */
+    }
+
 
     /**********************************************************************
      *     Helper Methods to add data

@@ -51,18 +51,8 @@ public class RegularColumn implements NumberColumn{
     }
 
     @Override
-    public void groupByNumber(int numberOfElementsInGroup) {
+    public void groupByNumber(int numberOfElementsInGroup, GroupingType groupingType) {
         dataInterval = dataInterval * numberOfElementsInGroup;
-    }
-
-    @Override
-    public IntSeries groupByInterval(double groupsInterval) {
-        return null;
-    }
-
-    @Override
-    public void groupCustom(IntSeries groupsStartIndexes) {
-
     }
 
     @Override

@@ -2,6 +2,7 @@ import base.config.Config;
 import base.config.traces.AreaTraceConfig;
 import base.config.traces.LineTraceConfig;
 import data.XYData;
+import data.series.DoubleArrayList;
 import data.series.IntArrayList;
 
 import javax.swing.*;
@@ -16,8 +17,8 @@ import java.util.Random;
  */
 public class MainFrame extends JFrame {
     IntArrayList yData1;
-    IntArrayList yData2;
-    IntArrayList xData;
+    DoubleArrayList yData2;
+    DoubleArrayList xData;
     ChartPanel chartPanel;
 
     public MainFrame() throws HeadlessException {
@@ -32,16 +33,15 @@ public class MainFrame extends JFrame {
             yData1.add(rand.nextInt(500));
         }
 
-        yData2 = new IntArrayList();
+        yData2 = new DoubleArrayList();
         for (int i = 0; i < 800 ; i++) {
             yData2.add(i);
         }
 
-        xData = new IntArrayList();
+        xData = new DoubleArrayList();
         for (int i = 0; i < 800 ; i++) {
             xData.add(i);
         }
-
 
 
         XYData xyData1 = new XYData();
@@ -103,7 +103,7 @@ public class MainFrame extends JFrame {
         }
 
         for (int i = 1; i <=400 ; i++) {
-            int lastValue = xData.get(xData.size() - 1);
+            double lastValue = xData.get(xData.size() - 1);
             xData.add(lastValue + 1);
            // xData.add(lastValue + 2);
         }

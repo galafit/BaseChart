@@ -14,7 +14,6 @@ public class DoubleArrayList implements DoubleSeries {
             throw new IllegalArgumentException("Illegal Capacity: "+ initialCapacity);
         }
         data = new double[initialCapacity];
-        size = initialCapacity;
     }
 
     public DoubleArrayList() {

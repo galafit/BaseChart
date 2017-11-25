@@ -13,10 +13,15 @@ public interface NumberColumn {
     public Range getExtremes(int from, int length);
     public int upperBound(double value, int from, int length);
     public int lowerBound(double value, int from, int length);
-    public void groupByNumber(int numberOfElementsInGroups);
-    public IntSeries groupByInterval(double groupsInterval);
-    public void groupCustom(IntSeries groupsStartIndexes);
-
     public NumberColumn copy();
+    public void groupByNumber(int numberOfElementsInGroups, GroupingType groupingType);
+
+    // at the moment "grouping by equal interval" is not used. But that is draft realisation
+    // just for the case we will need it in the future
+
+   // public IntSeries groupByInterval(double groupsInterval);
+    // public void groupCustom(IntSeries groupsStartIndexes);
+
+
 }
 

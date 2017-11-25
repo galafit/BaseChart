@@ -5,7 +5,7 @@ import base.config.Config;
 import base.config.ScrollConfig;
 import base.config.general.Margin;
 import data.BaseDataSet;
-import data.GroupedDataSet;
+import data.GroupingType;
 
 import java.awt.*;
 import java.util.List;
@@ -114,7 +114,7 @@ public class ChartWithPreview {
                 int compression = minPixPerDataItem * groupDataSet.size() /  previewArea.width;
                 compression = 50;
                 if(compression > 1) {
-                    previewGroupedData[i] = new GroupedDataSet(previewGroupedData[i], compression);
+                    previewGroupedData[i] = previewGroupedData[i].group(compression, GroupingType.AVG);
                     if(preview == null) {
                         config.getPreviewConfig().setTraceData(previewGroupedData[i], i);
                     } else {

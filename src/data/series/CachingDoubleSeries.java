@@ -1,19 +1,17 @@
 package data.series;
 
 /**
- * Class is designed to store/cache a computed input data and to give quick access to them.
- * Input data could be a filter, function and so on
+ * Created by galafit on 25/11/17.
  */
-
-public class CachingIntSeries implements IntSeries {
-    private IntSeries inputData;
-    private IntArrayList cachedData;
+public class CachingDoubleSeries implements DoubleSeries {
+    private DoubleSeries inputData;
+    private DoubleArrayList cachedData;
     private boolean isCashingEnabled = true;
 
 
-    public CachingIntSeries(IntSeries inputData) {
+    public CachingDoubleSeries(DoubleSeries inputData) {
         this.inputData = inputData;
-        cachedData = new IntArrayList(inputData.size());
+        cachedData = new DoubleArrayList(inputData.size());
         cacheData();
     }
 
@@ -31,7 +29,7 @@ public class CachingIntSeries implements IntSeries {
     }
 
     @Override
-    public int get(int index) {
+    public double get(int index) {
         if(isCashingEnabled) {
             return cachedData.get(index);
         }
@@ -48,4 +46,3 @@ public class CachingIntSeries implements IntSeries {
         return inputData.size();
     }
 }
-
