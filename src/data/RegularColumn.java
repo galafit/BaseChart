@@ -46,12 +46,17 @@ public class RegularColumn implements NumberColumn{
     }
 
     @Override
+    public void setGroupingType(GroupingType groupingType) {
+        // DO NOTHING!!!
+    }
+
+    @Override
     public int lowerBound(double value, int from, int length) {
         return (int) ((value - startValue) / dataInterval);
     }
 
     @Override
-    public void groupByNumber(int numberOfElementsInGroup, GroupingType groupingType) {
+    public void groupByNumber(int numberOfElementsInGroup) {
         dataInterval = dataInterval * numberOfElementsInGroup;
     }
 

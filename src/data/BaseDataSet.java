@@ -41,6 +41,12 @@ public class BaseDataSet implements DataSet {
         return false;
     }
 
+
+    public void setYGroupingType(GroupingType groupingType, int columnNumber) {
+        yColumns.get(columnNumber).setGroupingType(groupingType);
+    }
+
+
     public void setXData(double startXValue, double dataInterval) {
         xColumn = new RegularColumn(startXValue, dataInterval);
     }
@@ -198,13 +204,13 @@ public class BaseDataSet implements DataSet {
         return subset;
     }
 
-    public BaseDataSet group(int numberOfElementsInGroups, GroupingType yGroupingType) {
+    public BaseDataSet group(int numberOfElementsInGroups) {
         BaseDataSet groupedSet = new BaseDataSet(this);
         if(numberOfElementsInGroups > 1) {
             for (NumberColumn numberColumn : groupedSet.yColumns) {
-                numberColumn.groupByNumber(numberOfElementsInGroups, yGroupingType);
+                numberColumn.groupByNumber(numberOfElementsInGroups);
             }
-            groupedSet.xColumn.groupByNumber(numberOfElementsInGroups, GroupingType.AVG);
+            groupedSet.xColumn.groupByNumber(numberOfElementsInGroups);
         }
         return groupedSet;
 

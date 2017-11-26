@@ -1,6 +1,5 @@
 package base.config;
 
-import base.config.ChartConfig;
 import base.config.traces.TraceConfig;
 import data.Data;
 
@@ -20,6 +19,7 @@ public class Config {
 
     private boolean isCropEnable = true;
     private boolean isGroupingEnable = true;
+    private int compression = 576;
 
 
     public Config() {
@@ -58,6 +58,14 @@ public class Config {
 
     public ChartConfig getPreviewConfig() {
         return previewConfig;
+    }
+
+    public int getCompression() {
+        return compression;
+    }
+
+    public void setCompression(int compression) {
+        this.compression = compression;
     }
 
     public double getScrollExtent(int xAxisIndex) {

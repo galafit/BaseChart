@@ -7,7 +7,7 @@ import java.awt.*;
  */
 public class ScrollConfig {
     private Color scrollColor = Color.RED;
-    private int scrollMinWidth = 10; //px
+    private int scrollMinWidth = 1; //px
 
 
     public Color getScrollColor() {

@@ -17,6 +17,7 @@ import java.util.function.IntToDoubleFunction;
  * Created by galafit on 27/9/17.
  */
 class IntColumn implements NumberColumn {
+    private GroupingType groupingType = GroupingType.AVG;
     private IntSeries series;
     private IntToDoubleFunction intToDoubleFunction;
 
@@ -89,7 +90,12 @@ class IntColumn implements NumberColumn {
     }
 
     @Override
-    public void groupByNumber(int numberOfElementsInGroup, GroupingType groupingType) {
+    public void setGroupingType(GroupingType groupingType) {
+        this.groupingType = groupingType;
+    }
+
+    @Override
+    public void groupByNumber(int numberOfElementsInGroup) {
         IntAggregateFunction aggregateFunction = new IntAverage();
         if(groupingType == GroupingType.FIRST) {
             aggregateFunction = new IntFirst();

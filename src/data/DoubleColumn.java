@@ -12,6 +12,7 @@ import java.util.List;
  */
 class DoubleColumn implements NumberColumn {
     DoubleSeries series;
+    private GroupingType groupingType = GroupingType.AVG;
 
     public DoubleColumn(DoubleSeries series) {
         this.series = series;
@@ -71,7 +72,12 @@ class DoubleColumn implements NumberColumn {
     }
 
     @Override
-    public void groupByNumber(int numberOfElementsInGroup, GroupingType groupingType) {
+    public void setGroupingType(GroupingType groupingType) {
+        this.groupingType = groupingType;
+    }
+
+    @Override
+    public void groupByNumber(int numberOfElementsInGroup) {
         DoubleAggregateFunction aggregateFunction = new DoubleAverage();
         if(groupingType == GroupingType.FIRST) {
             aggregateFunction = new DoubleFirst();

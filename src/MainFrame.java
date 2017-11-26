@@ -60,7 +60,7 @@ public class MainFrame extends JFrame {
         config.addTrace(new LineTraceConfig(), xyData2);
 
         config.addPreviewTrace(new LineTraceConfig(), xyData2);
-        config.addPreviewTrace(new LineTraceConfig(), xyData3);
+        //config.addPreviewTrace(new LineTraceConfig(), xyData3);
 
 
         config.enablePreview(true);
@@ -98,17 +98,19 @@ public class MainFrame extends JFrame {
 
     public void update() {
         Random rand = new Random();
-        for (int i = 1; i <= 400 ; i++) {
+        for (int i = 1; i <= 800 ; i++) {
             yData1.add(rand.nextInt(500));
         }
 
-        for (int i = 1; i <=400 ; i++) {
+        for (int i = 1; i <=800 ; i++) {
             double lastValue = xData.get(xData.size() - 1);
             xData.add(lastValue + 1);
            // xData.add(lastValue + 2);
         }
-        for (int i = 1; i <=400 ; i++) {
+        for (int i = 1; i <=800 ; i++) {
             yData2.add(i);
+            double lastValue = yData2.get(yData2.size() - 1);
+            //yData2.add(lastValue + 1);
         }
         chartPanel.update();
     }
@@ -118,12 +120,12 @@ public class MainFrame extends JFrame {
         MainFrame mainFrame = new MainFrame();
 
 
-        final Timer timer = new Timer(500, new ActionListener() {
+        final Timer timer = new Timer(100, new ActionListener() {
 
             int counter = 0;
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(counter < 5) {
+                if(counter < 50) {
                     mainFrame.update();
                     counter++;
                 }

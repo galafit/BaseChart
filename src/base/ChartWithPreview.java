@@ -5,7 +5,6 @@ import base.config.Config;
 import base.config.ScrollConfig;
 import base.config.general.Margin;
 import data.BaseDataSet;
-import data.GroupingType;
 
 import java.awt.*;
 import java.util.List;
@@ -33,7 +32,7 @@ public class ChartWithPreview {
     private boolean isAutoscaleDuringScroll = true;
     private int minPixPerDataItem = 5;
     private boolean isAutoScroll = true;
-
+    private int sumCompression = 1;
 
     public ChartWithPreview(Config config, Rectangle area) {
         this.config = config;
@@ -62,7 +61,7 @@ public class ChartWithPreview {
         }
         groupData();
         preview = new SimpleChart(config.getPreviewConfig(), previewArea);
-        Range previewMinMax = getPreviewMinMax();
+        Range previewMinMax = EstimatePreviewInitialMinMax();
         preview.setXAxisExtremes(0, previewMinMax);
         preview.setXAxisExtremes(1, previewMinMax);
 
@@ -109,12 +108,17 @@ public class ChartWithPreview {
 
     private void groupData() {
         if(config.isGroupingEnable()) {
+            int compression = config.getCompression();
             for (int i = 0; i < previewGroupedData.length; i++) {
-                BaseDataSet groupDataSet = previewGroupedData[i];
-                int compression = minPixPerDataItem * groupDataSet.size() /  previewArea.width;
-                compression = 50;
+                if(compression <= 0) { // autocompression
+                    BaseDataSet groupedDataSet = previewGroupedData[i];
+                    compression = minPixPerDataItem * groupedDataSet.size() /  previewArea.width;
+                    compression++;
+                    sumCompression = sumCompression * compression;
+                }
+                System.out.println(sumCompression+" compression "+compression);
                 if(compression > 1) {
-                    previewGroupedData[i] = previewGroupedData[i].group(compression, GroupingType.AVG);
+                    previewGroupedData[i] = previewGroupedData[i].group(compression);
                     if(preview == null) {
                         config.getPreviewConfig().setTraceData(previewGroupedData[i], i);
                     } else {
@@ -161,7 +165,7 @@ public class ChartWithPreview {
     }
 
 
-    private Range getPreviewMinMax() {
+    private Range EstimatePreviewInitialMinMax() {
         Range chartMinMax = null;
         for (BaseDataSet traceData : chartFullData) {
             chartMinMax = Range.max(chartMinMax, traceData.getXExtremes());
@@ -199,13 +203,13 @@ public class ChartWithPreview {
     }
 
 
-    public void setTraceData(DataSet data, int traceIndex) {
+   /* public void setTraceData(DataSet data, int traceIndex) {
         chart.setTraceData(data, traceIndex);
     }
 
     public void setPreviewTraceData(DataSet data, int traceIndex) {
         preview.setTraceData(data, traceIndex);
-    }
+    } */
 
     /**
      * @return true if scrollValue was changed and false if newValue = current scroll value
@@ -259,14 +263,22 @@ public class ChartWithPreview {
 
     public boolean update() {
         if(preview != null) {
-            Range dataMinMax = Range.max(getChartDataMinMax(), getPreviewDataMinMax());
-            Range previewMinMAx = Range.max(dataMinMax, preview.getXAxisMinMax(0));
-            preview.setXAxisExtremes(0, previewMinMAx);
-            preview.setXAxisExtremes(1, previewMinMAx);
+            if(config.getCompression() <= 0) { // autocompression every update
+                groupData();
+            }
 
-            Range chartMinMAx = Range.max(dataMinMax, chart.getXAxisMinMax(0));
-            chart.setXAxisExtremes(0, chartMinMAx);
-            chart.setXAxisExtremes(1, chartMinMAx);
+            Range dataMinMax = Range.max(getChartDataMinMax(), getPreviewDataMinMax());
+            Range previewMinMax = Range.max(dataMinMax, preview.getXAxisMinMax(0));
+            preview.setXAxisExtremes(0, previewMinMax);
+            preview.setXAxisExtremes(1, previewMinMax);
+
+            for (Integer yAxisIndex : getPreviewYIndexes()) {
+                autoscalePreviewY(yAxisIndex);
+            }
+
+            Range chartMinMax = Range.max(dataMinMax, chart.getXAxisMinMax(0));
+            chart.setXAxisExtremes(0, chartMinMax);
+            chart.setXAxisExtremes(1, chartMinMax);
 
             if(isAutoScroll) {
                 return autoScroll();

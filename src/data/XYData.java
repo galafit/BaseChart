@@ -17,6 +17,11 @@ public class XYData implements Data {
         return dataSet;
     }
 
+
+    public void setYGroupingType(GroupingType groupingType) {
+        dataSet.setYGroupingType(groupingType, 0);
+    }
+
     public void setXData(IntSeries data) {
         dataSet.setXData(data);
     }
