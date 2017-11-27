@@ -82,6 +82,14 @@ public class SimpleChart  {
         autoscaleYAxis();
     }
 
+    public void setData(ArrayList<DataSet> data) {
+        chartConfig.setData(data);
+        for (int i = 0; i < chartConfig.getTraceAmount(); i++) {
+            traces.get(i).setData(chartConfig.getTraceData(i));
+        }
+    }
+
+
     private TooltipInfo getTooltipInfo() {
         TooltipInfo tooltipInfo = null;
         if (selectedTraceIndex >= 0 && hoverIndex >= 0) {

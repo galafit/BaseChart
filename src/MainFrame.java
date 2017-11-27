@@ -1,5 +1,3 @@
-import base.config.Config;
-import base.config.traces.AreaTraceConfig;
 import base.config.traces.LineTraceConfig;
 import data.XYData;
 import data.series.DoubleArrayList;
@@ -29,17 +27,17 @@ public class MainFrame extends JFrame {
 
         yData1 = new IntArrayList();
         Random rand = new Random();
-        for (int i = 0; i < 800 ; i++) {
+        for (int i = 0; i < 20 ; i++) {
             yData1.add(rand.nextInt(500));
         }
 
         yData2 = new DoubleArrayList();
-        for (int i = 0; i < 800 ; i++) {
+        for (int i = 0; i < 20 ; i++) {
             yData2.add(i);
         }
 
         xData = new DoubleArrayList();
-        for (int i = 0; i < 800 ; i++) {
+        for (int i = 0; i < 20 ; i++) {
             xData.add(i);
         }
 
@@ -74,26 +72,6 @@ public class MainFrame extends JFrame {
         setLocationRelativeTo(null);
         setVisible(true);
 
-       /* try {
-            Thread.sleep(3000);
-            xyList.addPoint(150 , 150.0);
-            chartPanel.update();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }*/
-
-      /* for (int j = 0; j < 10; j++) {
-           try {
-               Thread.sleep(1000);
-               for (int i = 0; i < 10; i++) {
-                   xyList.addPoint(150 + j*30,(i + j) * 50.0);
-               }
-               chartPanel.update();
-           } catch (InterruptedException e) {
-               e.printStackTrace();
-           }
-        }*/
-
     }
 
     public void update() {
@@ -120,7 +98,7 @@ public class MainFrame extends JFrame {
         MainFrame mainFrame = new MainFrame();
 
 
-        final Timer timer = new Timer(100, new ActionListener() {
+       final Timer timer = new Timer(100, new ActionListener() {
 
             int counter = 0;
             @Override

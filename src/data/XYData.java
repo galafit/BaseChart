@@ -13,7 +13,7 @@ public class XYData implements Data {
     private BaseDataSet dataSet = new BaseDataSet();
 
     @Override
-    public DataSet getDataSet() {
+    public BaseDataSet getDataSet() {
         return dataSet;
     }
 

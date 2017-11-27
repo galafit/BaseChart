@@ -1,7 +1,6 @@
 
 import base.Range;
 import base.ChartWithPreview;
-import base.config.Config;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,11 +22,11 @@ public class ChartPanel extends JPanel {
     private List<Integer> xAxisList = new ArrayList<>();
     private List<Integer> yAxisList = new ArrayList<>();
     private List<Integer> yAxisListPreview = new ArrayList<>();
-    private Config config;
+    private ChartWithDataManager chartDataManager;
 
     public ChartPanel(Config config) {
-        this.config = config;
-        chart = new ChartWithPreview(config, new Rectangle(0, 0, 500, 500));
+        chartDataManager = new ChartWithDataManager(config, new Rectangle(0, 0, 500, 500));
+        chart = chartDataManager.getChartWithPreview();
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
@@ -273,7 +272,7 @@ public class ChartPanel extends JPanel {
     }
 
     public void update() {
-        if(chart.update()) {
+        if(chartDataManager.update()) {
             repaint();
         }
     }

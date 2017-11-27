@@ -1,12 +1,10 @@
 package base;
 
 import base.config.ChartConfig;
-import base.config.Config;
 import base.config.ScrollConfig;
 import base.config.general.Margin;
-import data.BaseDataSet;
-
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -14,202 +12,53 @@ import java.util.List;
  * Created by galafit on 3/10/17.
  */
 public class ChartWithPreview {
-    private Config config;
-    private BaseDataSet[] chartFullData;
-    private BaseDataSet[] previewFullData;
-    private BaseDataSet[] previewGroupedData;
-
     private SimpleChart chart;
     private SimpleChart preview;
-    private ScrollConfig scrollConfig = new ScrollConfig();
     private Rectangle chartArea;
     private Rectangle previewArea;
     private Scroll scroll;
 
-    private double topExtent;
-    private double bottomExtent;
-
-    private boolean isAutoscaleDuringScroll = true;
-    private int minPixPerDataItem = 5;
-    private boolean isAutoScroll = true;
-    private int sumCompression = 1;
-
-    public ChartWithPreview(Config config, Rectangle area) {
-        this.config = config;
-        topExtent = config.getScrollExtent(1);
-        bottomExtent = config.getScrollExtent(0);
-        int chartWeight = config.getChartConfig().getSumWeight();
-        int previewWeight = config.getPreviewConfig().getSumWeight();
-
+    public ChartWithPreview(ChartConfig chartConfig, ChartConfig previewConfig, ScrollConfig scrollConfig, double scrollExtent0, double scrollExtent1, Rectangle area) {
+        int chartWeight = chartConfig.getSumWeight();
+        int previewWeight = previewConfig.getSumWeight();
         int chartHeight = area.height * chartWeight / (chartWeight + previewWeight);
         int previewHeight = area.height * previewWeight / (chartWeight + previewWeight);
         chartArea = new Rectangle(area.x, area.y, area.width, chartHeight);
         previewArea = new Rectangle(area.x, area.y + chartHeight, area.width, previewHeight);
-
-        chartFullData = new BaseDataSet[config.getChartConfig().getTraceAmount()];
-        for (int i = 0; i < config.getChartConfig().getTraceAmount(); i++) {
-            chartFullData[i] = (BaseDataSet) config.getChartConfig().getTraceData(i);
-        }
-        previewFullData = new BaseDataSet[config.getPreviewConfig().getTraceAmount()];
-        for (int i = 0; i < config.getPreviewConfig().getTraceAmount(); i++) {
-            previewFullData[i] = (BaseDataSet) config.getPreviewConfig().getTraceData(i);
-        }
-
-        previewGroupedData = new BaseDataSet[previewFullData.length];
-        for (int i = 0; i < previewFullData.length; i++) {
-            previewGroupedData[i] = previewFullData[i];
-        }
-        groupData();
-        preview = new SimpleChart(config.getPreviewConfig(), previewArea);
-        Range previewMinMax = EstimatePreviewInitialMinMax();
-        preview.setXAxisExtremes(0, previewMinMax);
-        preview.setXAxisExtremes(1, previewMinMax);
-
-        scroll = new Scroll(scrollConfig, getBottomExtent(), getTopExtent(), preview.getXAxisScale(0));
+        chart = new SimpleChart(chartConfig, chartArea);
+        preview = new SimpleChart(previewConfig, previewArea);
+        scroll = new Scroll(scrollConfig, scrollExtent0, scrollExtent1, preview.getXAxisScale(0));
         scroll.addListener(new ScrollListener() {
             @Override
             public void onScrollChanged(double scrollValue, double scrollExtent0, double scrollExtent1) {
-                cropData();
                 chart.setXAxisExtremes(0, getScrollExtremes(0));
                 chart.setXAxisExtremes(1, getScrollExtremes(1));
             }
         });
-        chart = new SimpleChart(config.getChartConfig(), chartArea);
-        if(isAutoScroll) {
-            autoScroll();
-        }
-        cropData();
         chart.setXAxisExtremes(0, getScrollExtremes(0));
         chart.setXAxisExtremes(1, getScrollExtremes(1));
     }
 
-    private void cropData() {
-        if(config.isCropEnable()) {
-            for (int i = 0; i < config.getChartConfig().getTraceAmount(); i++) {
-                DataSet subset;
-                if(config.getChartConfig().getTraceXAxisIndex(i) == 0) {
-                    subset = chartFullData[i].getSubset(scroll.getValue(), scroll.getValue() + scroll.getScrollExtent0());
-                } else {
-                    subset = chartFullData[i].getSubset(scroll.getValue(), scroll.getValue() + scroll.getScrollExtent1());
-                }
-                if(chart == null) {
-                    config.getChartConfig().setTraceData(subset, i);
-                } else {
-                    chart.setTraceData(subset, i);
-                }
-            }
-            if(isAutoscaleDuringScroll && chart != null) {
-                for (Integer yAxisIndex : getChartYIndexes()) {
-                    autoscaleChartY(yAxisIndex);
-                }
-            }
-        }
+    public void setPreviewMinMax(Range minMax) {
+        preview.setXAxisExtremes(0, minMax);
+        preview.setXAxisExtremes(1, minMax);
     }
 
-    private void groupData() {
-        if(config.isGroupingEnable()) {
-            int compression = config.getCompression();
-            for (int i = 0; i < previewGroupedData.length; i++) {
-                if(compression <= 0) { // autocompression
-                    BaseDataSet groupedDataSet = previewGroupedData[i];
-                    compression = minPixPerDataItem * groupedDataSet.size() /  previewArea.width;
-                    compression++;
-                    sumCompression = sumCompression * compression;
-                }
-                System.out.println(sumCompression+" compression "+compression);
-                if(compression > 1) {
-                    previewGroupedData[i] = previewGroupedData[i].group(compression);
-                    if(preview == null) {
-                        config.getPreviewConfig().setTraceData(previewGroupedData[i], i);
-                    } else {
-                        preview.setTraceData(previewGroupedData[i], i);
-                    }
-                }
-            }
-        }
+    public Range getPreviewMinMax() {
+        return preview.getXAxisMinMax(0);
     }
 
-    private double calculateChartExtent(int xAxisIndex) {
-        ChartConfig chartConfig = config.getChartConfig();
-        double minDataItemInterval = 0;
-        for(int i = 0; i < chartConfig.getTraceAmount(); i++) {
-            if(chartConfig.getTraceXAxisIndex(i) == xAxisIndex) {
-                DataSet traceData = chartFullData[i];
-                if(traceData.size() > 1) {
-                    double dataItemInterval = traceData.getXExtremes().length() / (traceData.size() -1);
-                    minDataItemInterval = (minDataItemInterval == 0) ? dataItemInterval : Math.min(minDataItemInterval, dataItemInterval);
-                }
-            }
-        }
-        double extent = minDataItemInterval * chartArea.width / minPixPerDataItem;
-        return extent;
+    public void addScrollListener(ScrollListener scrollListener) {
+        scroll.addListener(scrollListener);
     }
 
-    /**
-     * we need this function in the case when preview has a small number of data points
-     * (number of data points < previewArea.width)
-     * @return preview minMax range for that special case
-     */
-    private double calculatePreviewExtent() {
-        ChartConfig previewConfig = config.getPreviewConfig();
-        double minDataItemInterval = 0;
-        for(int i = 0; i < previewConfig.getTraceAmount(); i++) {
-            DataSet traceData = previewGroupedData[i];
-            if(traceData.size() > 1) {
-                double dataItemInterval = traceData.getXExtremes().length() / (traceData.size() -1);
-                minDataItemInterval = (minDataItemInterval == 0) ? dataItemInterval : Math.min(minDataItemInterval, dataItemInterval);
-            }
-        }
-        double extent = minDataItemInterval * chartArea.width / minPixPerDataItem;
-        return extent;
+    public void setChartData(ArrayList<DataSet> data) {
+       chart.setData(data);
     }
 
-
-    private Range EstimatePreviewInitialMinMax() {
-        Range chartMinMax = null;
-        for (BaseDataSet traceData : chartFullData) {
-            chartMinMax = Range.max(chartMinMax, traceData.getXExtremes());
-        }
-        double maxExtent = Math.max(getTopExtent(), getBottomExtent());
-        double min = chartMinMax.start();
-        double maxLength = Math.max(maxExtent, chartMinMax.length());
-        chartMinMax = new Range(min, min + maxLength);
-
-
-        Range previewMinMax = null;
-        for (BaseDataSet traceData : previewFullData) {
-            previewMinMax = Range.max(previewMinMax, traceData.getXExtremes());
-        }
-        min = previewMinMax.start();
-        maxLength = Math.max(calculatePreviewExtent(), previewMinMax.length());
-        previewMinMax = new Range(min, min + maxLength);
-        previewMinMax = Range.max(previewMinMax, chartMinMax);
-        return previewMinMax;
+    public void setPreviewData(ArrayList<DataSet> data) {
+        preview.setData(data);
     }
-
-
-    private double getBottomExtent() {
-        if(bottomExtent == 0) {
-            bottomExtent = calculateChartExtent(0);
-        }
-        return bottomExtent;
-    }
-
-    private double getTopExtent() {
-        if(topExtent == 0) {
-            topExtent = calculateChartExtent(1);
-        }
-        return topExtent;
-    }
-
-
-   /* public void setTraceData(DataSet data, int traceIndex) {
-        chart.setTraceData(data, traceIndex);
-    }
-
-    public void setPreviewTraceData(DataSet data, int traceIndex) {
-        preview.setTraceData(data, traceIndex);
-    } */
 
     /**
      * @return true if scrollValue was changed and false if newValue = current scroll value
@@ -245,52 +94,6 @@ public class ChartWithPreview {
         }
     }
 
-    private Range getChartDataMinMax() {
-        Range minMax = null;
-        for (BaseDataSet traceData : chartFullData) {
-            minMax = Range.max(minMax, traceData.getXExtremes());
-        }
-        return minMax;
-    }
-
-    private Range getPreviewDataMinMax() {
-        Range minMax = null;
-        for (BaseDataSet traceData : previewFullData) {
-            minMax = Range.max(minMax, traceData.getXExtremes());
-        }
-        return minMax;
-    }
-
-    public boolean update() {
-        if(preview != null) {
-            if(config.getCompression() <= 0) { // autocompression every update
-                groupData();
-            }
-
-            Range dataMinMax = Range.max(getChartDataMinMax(), getPreviewDataMinMax());
-            Range previewMinMax = Range.max(dataMinMax, preview.getXAxisMinMax(0));
-            preview.setXAxisExtremes(0, previewMinMax);
-            preview.setXAxisExtremes(1, previewMinMax);
-
-            for (Integer yAxisIndex : getPreviewYIndexes()) {
-                autoscalePreviewY(yAxisIndex);
-            }
-
-            Range chartMinMax = Range.max(dataMinMax, chart.getXAxisMinMax(0));
-            chart.setXAxisExtremes(0, chartMinMax);
-            chart.setXAxisExtremes(1, chartMinMax);
-
-            if(isAutoScroll) {
-                return autoScroll();
-            }
-        }
-        return false;
-    }
-
-    private boolean autoScroll() {
-        Range dataMinMax = getChartDataMinMax();
-        return moveScrollTo(dataMinMax.end() - scroll.getMinExtent());
-    }
 
     private void translateChart(int dx) {
         double scrollTranslation = dx / scroll.getRation();

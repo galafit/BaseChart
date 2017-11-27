@@ -1,25 +1,31 @@
-package base.config;
-
+import base.config.ChartConfig;
+import base.config.ScrollConfig;
 import base.config.traces.TraceConfig;
+import data.BaseDataSet;
 import data.Data;
 
 import java.awt.*;
-
+import java.util.ArrayList;
+import java.util.List;
 /**
  * Created by galafit on 6/10/17.
  */
 public class Config {
     public static final int DARK_THEME = 1;
     public static final int LIGHT_THEME = 2;
+    private ArrayList<BaseDataSet> chartData = new ArrayList<BaseDataSet>();
+    private ArrayList<BaseDataSet> previewData = new ArrayList<BaseDataSet>();
 
     private boolean isPreviewEnable = false;
     private ChartConfig chartConfig = new ChartConfig();
     private ChartConfig previewConfig = new ChartConfig();
+    private ScrollConfig scrollConfig = new ScrollConfig();
     private double[] scrollExtents = new double[2];
 
     private boolean isCropEnable = true;
     private boolean isGroupingEnable = true;
-    private int compression = 576;
+    private int compression = 0;
+
 
 
     public Config() {
@@ -60,6 +66,14 @@ public class Config {
         return previewConfig;
     }
 
+    public List<BaseDataSet> getChartData() {
+        return chartData;
+    }
+
+    public List<BaseDataSet> getPreviewData() {
+        return previewData;
+    }
+
     public int getCompression() {
         return compression;
     }
@@ -68,12 +82,16 @@ public class Config {
         this.compression = compression;
     }
 
+    public ScrollConfig getScrollConfig() {
+        return scrollConfig;
+    }
+
     public double getScrollExtent(int xAxisIndex) {
         return scrollExtents[xAxisIndex];
     }
 
-    public void setScrollExtent(double extent, int xAxisIndex) {
-        scrollExtents[xAxisIndex] = extent;
+    public void setScrollExtent(int xAxisIndex, double extent) {
+        scrollExtents[xAxisIndex] =  extent;
     }
 
     public boolean isCropEnable() {
@@ -109,7 +127,8 @@ public class Config {
      * add trace to the last chart stack
      */
     public void addTrace(TraceConfig traceConfig, Data data, String name, boolean isXAxisOpposite, boolean isYAxisOpposite) {
-        chartConfig.addTrace(traceConfig, data.getDataSet(), name,  isXAxisOpposite, isYAxisOpposite);
+        chartData.add(data.getDataSet());
+        chartConfig.addTrace(traceConfig, chartData.size() - 1, name,  isXAxisOpposite, isYAxisOpposite);
     }
 
     /**
@@ -152,7 +171,8 @@ public class Config {
      * add trace to the last preview stack
      */
     public void addPreviewTrace(TraceConfig traceConfig, Data data, String name,  boolean isXAxisOpposite, boolean isYAxisOpposite) {
-        previewConfig.addTrace(traceConfig, data.getDataSet(), name,  isXAxisOpposite, isYAxisOpposite);
+        previewData.add(data.getDataSet());
+        previewConfig.addTrace(traceConfig, previewData.size() - 1, name,  isXAxisOpposite, isYAxisOpposite);
         isPreviewEnable = true;
     }
 

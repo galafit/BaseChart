@@ -10,6 +10,7 @@ import base.Range;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * Created by galafit on 18/8/17.
@@ -28,9 +29,6 @@ public class ChartConfig {
     private TooltipConfig tooltipConfig = new TooltipConfig();
     private CrosshairConfig crosshairConfig = new CrosshairConfig();
     private ArrayList<Integer> weights = new ArrayList<Integer>();
-
-    private ArrayList<TraceInfo> traces = new ArrayList<TraceInfo>();
-
     /*
      * 2 X-base.axis: 0(even) - BOTTOM and 1(odd) - TOP
      * 2 Y-base.axis for every section(stack): even - LEFT and odd - RIGHT;
@@ -39,6 +37,9 @@ public class ChartConfig {
      **/
     private ArrayList<AxisConfig> xAxisConfigs = new ArrayList<AxisConfig>();
     private ArrayList<AxisConfig> yAxisConfigs = new ArrayList<AxisConfig>();
+
+    private ArrayList<TraceInfo> traces = new ArrayList<TraceInfo>();
+    private ArrayList<DataSet> data = new ArrayList<DataSet>();
 
 
     public ChartConfig() {
@@ -67,7 +68,9 @@ public class ChartConfig {
         yAxisConfigs.add(axisConfig);
     }
 
-
+    public void setData(ArrayList<DataSet> data) {
+        this.data = data;
+    }
 
     public boolean isTopOpposite() {
         return isTopOpposite;
@@ -113,6 +116,14 @@ public class ChartConfig {
         return yAxisConfigs.get(axisIndex);
     }
 
+    public void setXAxisMinMax(int xAxisIndex, Range minMax) {
+        getXAxisConfig(xAxisIndex).setExtremes(minMax.start(), minMax.end());
+    }
+
+    public void setYAxisMinMax(int yAxisIndex, Range minMax) {
+        getYAxisConfig(yAxisIndex).setExtremes(minMax.start(), minMax.end());
+    }
+
     public int getSumWeight() {
         int weightSum = 0;
         for (Integer weight : weights) {
@@ -151,9 +162,8 @@ public class ChartConfig {
         weights.add(weight);
     }
 
-
     // add trace to the last stack
-    public void addTrace(TraceConfig traceConfig, DataSet data, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {
+    public void addTrace(TraceConfig traceConfig, int dataIndex, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {
         boolean isBottomXAxis = true;
         boolean isLeftYAxis = true;
         if(isXAxisOpposite && isTopOpposite || !isXAxisOpposite && !isTopOpposite) {
@@ -165,6 +175,7 @@ public class ChartConfig {
         int xAxisIndex = isBottomXAxis ? 0 : 1;
         int yAxisIndex = isLeftYAxis ? yAxisConfigs.size() - 2 : yAxisConfigs.size() - 1;
 
+
         xAxisConfigs.get(xAxisIndex).setVisible(true);
         yAxisConfigs.get(yAxisIndex).setVisible(true);
         TraceInfo traceInfo = new TraceInfo();
@@ -172,9 +183,17 @@ public class ChartConfig {
         traceInfo.setName(name);
         traceInfo.setXAxisIndex(xAxisIndex);
         traceInfo.setYAxisIndex(yAxisIndex);
-        traceInfo.setData(data);
+        traceInfo.setDataIndex(dataIndex);
         traceInfo.setTraceConfig(traceConfig);
         traces.add(traceInfo);
+    }
+
+
+
+        // add trace to the last stack
+    public void addTrace(TraceConfig traceConfig, DataSet dataSet, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {
+        data.add(dataSet);
+        addTrace(traceConfig, data.size() - 1, traceName, isXAxisOpposite, isXAxisOpposite);
     }
 
     public int getTraceAmount() {
@@ -186,24 +205,23 @@ public class ChartConfig {
     }
 
     public DataSet getTraceData(int traceIndex) {
-        return traces.get(traceIndex).getData();
+        return data.get(traces.get(traceIndex).getDataIndex());
     }
 
-    public void setTraceData(DataSet dataSet, int traceIndex) {
-        traces.get(traceIndex).setData(dataSet);
+    public String getTraceName(int traceIndex){
+        return traces.get(traceIndex).getName();
     }
 
-
-    public String getTraceName(int index){
-        return traces.get(index).getName();
+    public int getTraceXAxisIndex(int traceIndex){
+        return traces.get(traceIndex).getXAxisIndex();
     }
 
-    public int getTraceXAxisIndex(int index){
-        return traces.get(index).getXAxisIndex();
+    public int getTraceYAxisIndex(int traceIndex){
+        return traces.get(traceIndex).getYAxisIndex();
     }
 
-    public int getTraceYAxisIndex(int index){
-        return traces.get(index).getYAxisIndex();
+    public int getTraceDataIndex(int traceIndex) {
+        return traces.get(traceIndex).getDataIndex();
     }
 
     public String getTitle() {
@@ -257,7 +275,7 @@ public class ChartConfig {
 
     class TraceInfo {
         private TraceConfig traceConfig;
-        private DataSet data;
+        private int dataIndex;
         private int xAxisIndex;
         private int yAxisIndex;
         private String name;
@@ -270,12 +288,12 @@ public class ChartConfig {
             this.traceConfig = traceConfig;
         }
 
-        public DataSet getData() {
-            return data;
+        public int getDataIndex() {
+            return dataIndex;
         }
 
-        public void setData(DataSet data) {
-            this.data = data;
+        public void setDataIndex(int dataIndex) {
+            this.dataIndex = dataIndex;
         }
 
         public int getXAxisIndex() {

@@ -27,6 +27,7 @@ public class Scroll {
         this.scrollExtent0 = scrollExtent0;
         this.scrollExtent1 = scrollExtent1;
         scrollValue = getMin();
+        System.out.println("scroll "+scrollValue);
     }
 
     public void addListener(ScrollListener listener) {
