@@ -1,6 +1,6 @@
 
 import base.Range;
-import base.ChartWithPreview;
+import base.ScrollableChart;
 
 import javax.swing.*;
 import java.awt.*;
@@ -18,13 +18,13 @@ public class ChartPanel extends JPanel {
     private int pastX;
     private int pastY;
     private boolean isPressedInsideScroll;
-    private ChartWithPreview chart;
+    private ScrollableChart chart;
     private List<Integer> xAxisList = new ArrayList<>();
     private List<Integer> yAxisList = new ArrayList<>();
     private List<Integer> yAxisListPreview = new ArrayList<>();
     private ChartWithDataManager chartDataManager;
 
-    public ChartPanel(Config config) {
+    public ChartPanel(ChartConfig config) {
         chartDataManager = new ChartWithDataManager(config, new Rectangle(0, 0, 500, 500));
         chart = chartDataManager.getChartWithPreview();
         addMouseMotionListener(new MouseMotionAdapter() {
@@ -200,7 +200,7 @@ public class ChartPanel extends JPanel {
     }
 
     private boolean moveScrollBar(int x, int y) {
-        return chart.moveScrollTo(x, y);
+        return chart.moveScrollsTo(x, y);
     }
 
     private boolean translateScrollBar(int dx) {
@@ -358,7 +358,7 @@ public class ChartPanel extends JPanel {
     }
 
     public boolean moveScrollTo(int x, int y) {
-       return chart.moveScrollTo(x, y);
+       return chart.moveScrollsTo(x, y);
     }
 
     public boolean translateScroll(int dx) {

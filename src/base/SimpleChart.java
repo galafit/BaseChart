@@ -1,11 +1,9 @@
 package base;
 
-import base.DataSet;
 import base.axis.Axis;
-import base.config.ChartConfig;
+import base.config.SimpleChartConfig;
 import base.config.general.Margin;
 import base.config.traces.TraceConfig;
-import base.Range;
 import base.legend.LegendItem;
 import base.painters.CrosshairPainter;
 import base.painters.LegendPainter;
@@ -41,7 +39,7 @@ public class SimpleChart  {
     private Rectangle titleArea;
     private Rectangle chartArea;
     private Rectangle graphArea;
-    private ChartConfig chartConfig;
+    private SimpleChartConfig chartConfig;
     private Margin margin;
 
     private boolean isDirty = true;
@@ -55,7 +53,7 @@ public class SimpleChart  {
     private int hoverIndex = -1;
 
 
-    public SimpleChart(ChartConfig chartConfig, Rectangle area) {
+    public SimpleChart(SimpleChartConfig chartConfig, Rectangle area) {
         this.chartConfig = chartConfig;
         this.fullArea = area;
         xAxisList.add(new Axis(chartConfig.getBottomAxisConfig()));
@@ -378,29 +376,15 @@ public class SimpleChart  {
     /**
      * return only used by some trace axes
      */
-    public List<Integer> getXAxisIndexes() {
-        List<Integer> axisList = new ArrayList<>(2);
-        if(isXAxisUsed(0)) {
-            axisList.add(0);
-        }
-        if(isXAxisUsed(1)) {
-            axisList.add(1);
-        }
-        return axisList;
+    public List<Integer> getUsedXAxisIndexes() {
+       return chartConfig.getUsedXAxisIndexes();
     }
 
     /**
      * return only used by some trace axes
      */
-    public List<Integer> getYAxisIndexes() {
-        List<Integer> axisList = new ArrayList<>();
-        for (int i = 0; i < traces.size(); i++) {
-            int yAxisIndex = getTraceYAxisIndex(i);
-            if(!axisList.contains(yAxisIndex)) {
-                axisList.add(yAxisIndex);
-            }
-        }
-        return axisList;
+    public List<Integer> getUsedYAxisIndexes() {
+        return chartConfig.getUsedYAxisIndexes();
     }
 
     public int getYAxisIndex(int x, int y) {

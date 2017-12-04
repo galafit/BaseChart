@@ -27,17 +27,17 @@ public class MainFrame extends JFrame {
 
         yData1 = new IntArrayList();
         Random rand = new Random();
-        for (int i = 0; i < 20 ; i++) {
+        for (int i = 0; i < 800 ; i++) {
             yData1.add(rand.nextInt(500));
         }
 
         yData2 = new DoubleArrayList();
-        for (int i = 0; i < 20 ; i++) {
+        for (int i = 0; i < 800 ; i++) {
             yData2.add(i);
         }
 
         xData = new DoubleArrayList();
-        for (int i = 0; i < 20 ; i++) {
+        for (int i = 0; i < 800 ; i++) {
             xData.add(i);
         }
 
@@ -52,7 +52,7 @@ public class MainFrame extends JFrame {
         XYData xyData3 = new XYData();
         xyData3.setYData(yData2);
 
-        Config config = new Config();
+        ChartConfig config = new ChartConfig();
         config.addTrace(new LineTraceConfig(), xyData1, null, true, false);
         config.addStack(5);
         config.addTrace(new LineTraceConfig(), xyData2);
@@ -60,8 +60,6 @@ public class MainFrame extends JFrame {
         config.addPreviewTrace(new LineTraceConfig(), xyData2);
         //config.addPreviewTrace(new LineTraceConfig(), xyData3);
 
-
-        config.enablePreview(true);
 
         chartPanel = new ChartPanel(config);
 
@@ -98,19 +96,19 @@ public class MainFrame extends JFrame {
         MainFrame mainFrame = new MainFrame();
 
 
-       final Timer timer = new Timer(100, new ActionListener() {
+      /* final Timer timer = new Timer(100, new ActionListener() {
 
             int counter = 0;
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(counter < 50) {
+                if(counter < 80) {
                     mainFrame.update();
                     counter++;
                 }
             }
         });
         timer.setInitialDelay(0);
-        timer.start();
+        timer.start();*/
 
     }
 

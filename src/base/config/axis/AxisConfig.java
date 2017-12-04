@@ -10,7 +10,7 @@ import java.awt.*;
  * Created by galafit on 5/9/17.
  */
 public class AxisConfig {
-    private Orientation orientation;
+    private AxisOrientation orientation;
     private Color color =  Color.GRAY;
 
     private boolean isVisible = false;
@@ -30,7 +30,7 @@ public class AxisConfig {
 
     Range minMax;
 
-    public AxisConfig(Orientation orientation) {
+    public AxisConfig(AxisOrientation orientation) {
         this.orientation = orientation;
         getGridLineConfig().setColor(new Color(100, 100, 100));
         getMinorGridLineConfig().setColor(new Color(80, 80, 80));
@@ -56,35 +56,35 @@ public class AxisConfig {
     }
 
     public boolean isTop() {
-        if(orientation == Orientation.TOP) {
+        if(orientation == AxisOrientation.TOP) {
             return true;
         }
         return false;
     }
 
     public boolean isBottom() {
-        if(orientation == Orientation.BOTTOM) {
+        if(orientation == AxisOrientation.BOTTOM) {
             return true;
         }
         return false;
     }
 
     public boolean isLeft() {
-        if(orientation == Orientation.LEFT) {
+        if(orientation == AxisOrientation.LEFT) {
             return true;
         }
         return false;
     }
 
     public boolean isRight() {
-        if(orientation == Orientation.RIGHT) {
+        if(orientation == AxisOrientation.RIGHT) {
             return true;
         }
         return false;
     }
 
     public boolean isHorizontal() {
-        if(orientation == Orientation.BOTTOM || orientation == Orientation.TOP) {
+        if(orientation == AxisOrientation.BOTTOM || orientation == AxisOrientation.TOP) {
             return true;
         }
         return false;

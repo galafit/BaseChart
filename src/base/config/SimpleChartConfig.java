@@ -2,7 +2,7 @@ package base.config;
 
 import base.DataSet;
 import base.config.axis.AxisConfig;
-import base.config.axis.Orientation;
+import base.config.axis.AxisOrientation;
 import base.config.general.Margin;
 import base.config.general.TextStyle;
 import base.config.traces.TraceConfig;
@@ -15,10 +15,8 @@ import java.util.List;
 /**
  * Created by galafit on 18/8/17.
  */
-public class ChartConfig {
+public class SimpleChartConfig {
     public static final int DEFAULT_WEIGHT = 10;
-    private boolean isTopOpposite = true;
-    private boolean isRightOpposite = true;
 
     private String title = "Chart title";
     private Color background;
@@ -39,53 +37,69 @@ public class ChartConfig {
     private ArrayList<AxisConfig> yAxisConfigs = new ArrayList<AxisConfig>();
 
     private ArrayList<TraceInfo> traces = new ArrayList<TraceInfo>();
-    private ArrayList<DataSet> data = new ArrayList<DataSet>();
+    private List<DataSet> data = new ArrayList<DataSet>();
 
 
-    public ChartConfig() {
+    public SimpleChartConfig() {
         getTitleTextStyle().setBold(true);
         getTitleTextStyle().setFontSize(14);
         weights.add(DEFAULT_WEIGHT);
 
-        AxisConfig axisConfig = new AxisConfig(Orientation.BOTTOM);
+        AxisConfig axisConfig = new AxisConfig(AxisOrientation.BOTTOM);
         axisConfig.getMinorGridLineConfig().setWidth(0);
         axisConfig.getGridLineConfig().setWidth(1);
         xAxisConfigs.add(axisConfig);
 
-        axisConfig = new AxisConfig(Orientation.TOP);
+        axisConfig = new AxisConfig(AxisOrientation.TOP);
         axisConfig.getMinorGridLineConfig().setWidth(0);
         axisConfig.getGridLineConfig().setWidth(0);
         xAxisConfigs.add(axisConfig);
 
-        axisConfig = new AxisConfig(Orientation.LEFT);
+        axisConfig = new AxisConfig(AxisOrientation.LEFT);
         axisConfig.getMinorGridLineConfig().setWidth(0);
         axisConfig.getGridLineConfig().setWidth(1);
         yAxisConfigs.add(axisConfig);
 
-        axisConfig = new AxisConfig(Orientation.RIGHT);
+        axisConfig = new AxisConfig(AxisOrientation.RIGHT);
         axisConfig.getMinorGridLineConfig().setWidth(0);
         axisConfig.getGridLineConfig().setWidth(0);
         yAxisConfigs.add(axisConfig);
+    }
+
+    /**
+     * return only used by some trace axes
+     */
+    public List<Integer> getUsedXAxisIndexes() {
+        List<Integer> axisList = new ArrayList<>();
+        for (int i = 0; i < traces.size(); i++) {
+            int xAxisIndex = getTraceXAxisIndex(i);
+            if(!axisList.contains(xAxisIndex)) {
+                axisList.add(xAxisIndex);
+            }
+        }
+        return axisList;
+    }
+
+    /**
+     * return only used by some trace axes
+     */
+    public List<Integer> getUsedYAxisIndexes() {
+        List<Integer> axisList = new ArrayList<>();
+        for (int i = 0; i < traces.size(); i++) {
+            int yAxisIndex = getTraceYAxisIndex(i);
+            if(!axisList.contains(yAxisIndex)) {
+                axisList.add(yAxisIndex);
+            }
+        }
+        return axisList;
     }
 
     public void setData(ArrayList<DataSet> data) {
         this.data = data;
     }
 
-    public boolean isTopOpposite() {
-        return isTopOpposite;
-    }
-
-    public void setTopOpposite(boolean isTopOpposite) {
-        this.isTopOpposite = isTopOpposite;
-    }
-
-    public boolean isRightOpposite() {
-        return isRightOpposite;
-    }
-
-    public void setRightOpposite(boolean isLeftOpposite) {
-        this.isRightOpposite = isLeftOpposite;
+    public List<DataSet> getData() {
+        return data;
     }
 
     public AxisConfig getTopAxisConfig() {
@@ -150,12 +164,12 @@ public class ChartConfig {
     }
 
     public void addStack(int weight) {
-        AxisConfig axisConfig = new AxisConfig(Orientation.LEFT);
+        AxisConfig axisConfig = new AxisConfig(AxisOrientation.LEFT);
         axisConfig.getMinorGridLineConfig().setWidth(0);
         axisConfig.getGridLineConfig().setWidth(1);
         yAxisConfigs.add(axisConfig);
 
-        axisConfig = new AxisConfig(Orientation.RIGHT);
+        axisConfig = new AxisConfig(AxisOrientation.RIGHT);
         axisConfig.getMinorGridLineConfig().setWidth(0);
         axisConfig.getGridLineConfig().setWidth(0);
         yAxisConfigs.add(axisConfig);
@@ -166,10 +180,10 @@ public class ChartConfig {
     public void addTrace(TraceConfig traceConfig, int dataIndex, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {
         boolean isBottomXAxis = true;
         boolean isLeftYAxis = true;
-        if(isXAxisOpposite && isTopOpposite || !isXAxisOpposite && !isTopOpposite) {
+        if(isXAxisOpposite) {
             isBottomXAxis = false;
         }
-        if(isYAxisOpposite && isRightOpposite || !isYAxisOpposite && !isRightOpposite) {
+        if(isYAxisOpposite) {
             isLeftYAxis = false;
         }
         int xAxisIndex = isBottomXAxis ? 0 : 1;
@@ -186,14 +200,6 @@ public class ChartConfig {
         traceInfo.setDataIndex(dataIndex);
         traceInfo.setTraceConfig(traceConfig);
         traces.add(traceInfo);
-    }
-
-
-
-        // add trace to the last stack
-    public void addTrace(TraceConfig traceConfig, DataSet dataSet, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {
-        data.add(dataSet);
-        addTrace(traceConfig, data.size() - 1, traceName, isXAxisOpposite, isXAxisOpposite);
     }
 
     public int getTraceAmount() {

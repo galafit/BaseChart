@@ -1,69 +1,46 @@
-import base.config.ChartConfig;
+import base.config.ScrollableChartConfig;
+import base.config.SimpleChartConfig;
 import base.config.ScrollConfig;
 import base.config.traces.TraceConfig;
 import data.BaseDataSet;
 import data.Data;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+
 /**
  * Created by galafit on 6/10/17.
  */
-public class Config {
+public class ChartConfig {
     public static final int DARK_THEME = 1;
     public static final int LIGHT_THEME = 2;
     private ArrayList<BaseDataSet> chartData = new ArrayList<BaseDataSet>();
     private ArrayList<BaseDataSet> previewData = new ArrayList<BaseDataSet>();
+    private ScrollableChartConfig scrollableChartConfig;
 
-    private boolean isPreviewEnable = false;
-    private ChartConfig chartConfig = new ChartConfig();
-    private ChartConfig previewConfig = new ChartConfig();
-    private ScrollConfig scrollConfig = new ScrollConfig();
-    private double[] scrollExtents = new double[2];
-
-    private boolean isCropEnable = true;
+    private boolean isDataCropEnable = true;
     private boolean isGroupingEnable = true;
     private int compression = 0;
 
-
-
-    public Config() {
-        this(DARK_THEME);
+    public ChartConfig() {
+        this(1);
     }
 
-    public Config(int theme) {
-        if(theme == DARK_THEME) {
-            Color bgColor = new Color(20, 20, 30);
-            Color marginColor = new Color(20, 20, 20);
-            Color textColor = new Color(200, 200, 200);
-            Color legendBorderColor = new Color(50, 50, 50);
-            Color legendBgColor = new Color(30, 30, 30);
-            legendBgColor = bgColor;
-            chartConfig.setBackground(bgColor);
-            chartConfig.setMarginColor(marginColor);
-            chartConfig.getLegendConfig().setBackground(legendBgColor);
-            chartConfig.getLegendConfig().setBorderWidth(1);
-            chartConfig.getLegendConfig().setBorderColor(legendBorderColor);
-            chartConfig.getLegendConfig().getTextStyle().setFontColor(textColor);
-            chartConfig.getTitleTextStyle().setFontColor(textColor);
-
-            previewConfig.setBackground(bgColor);
-            previewConfig.setMarginColor(marginColor);
-            previewConfig.getLegendConfig().setBackground(legendBgColor);
-            previewConfig.getLegendConfig().setBorderWidth(1);
-            previewConfig.getLegendConfig().setBorderColor(legendBorderColor);
-            previewConfig.getLegendConfig().getTextStyle().setFontColor(textColor);
-            previewConfig.getTitleTextStyle().setFontColor(textColor);
-        }
+    public ChartConfig(int theme) {
+        scrollableChartConfig = new ScrollableChartConfig(theme);
     }
 
-    public ChartConfig getChartConfig() {
-        return chartConfig;
+    public ScrollableChartConfig getScrollableChartConfig() {
+        return scrollableChartConfig;
     }
 
-    public ChartConfig getPreviewConfig() {
-        return previewConfig;
+    public SimpleChartConfig getChartConfig() {
+        return scrollableChartConfig.getChartConfig();
+    }
+
+    public SimpleChartConfig getPreviewConfig() {
+        return scrollableChartConfig.getPreviewConfig();
     }
 
     public List<BaseDataSet> getChartData() {
@@ -83,23 +60,33 @@ public class Config {
     }
 
     public ScrollConfig getScrollConfig() {
-        return scrollConfig;
+        return scrollableChartConfig.getScrollConfig();
     }
 
-    public double getScrollExtent(int xAxisIndex) {
-        return scrollExtents[xAxisIndex];
+    public Double getScrollExtent(int xAxisIndex) {
+        return scrollableChartConfig.getScrollExtent(xAxisIndex);
     }
 
-    public void setScrollExtent(int xAxisIndex, double extent) {
-        scrollExtents[xAxisIndex] =  extent;
+    public void addScroll(int xAxisIndex, double extent) {
+        scrollableChartConfig.addScroll(xAxisIndex, extent);
     }
+
+    public Set<Integer> getXAxisWithScroll() {
+        return scrollableChartConfig.getXAxisWithScroll();
+    }
+
+    public double[] getScrollsExtents() {
+        return  scrollableChartConfig.getScrollsExtents();
+    }
+
+
 
     public boolean isCropEnable() {
-        return isCropEnable;
+        return isDataCropEnable;
     }
 
     public void setCropEnable(boolean isCropEnable) {
-        this.isCropEnable = isCropEnable;
+        this.isDataCropEnable = isCropEnable;
     }
 
     public boolean isGroupingEnable() {
@@ -115,12 +102,12 @@ public class Config {
      *********************************************/
 
     public void addStack(int weight) {
-        chartConfig.addStack(weight);
+        scrollableChartConfig.getChartConfig().addStack(weight);
 
     }
 
     public void addStack() {
-        addStack(ChartConfig.DEFAULT_WEIGHT);
+        addStack(SimpleChartConfig.DEFAULT_WEIGHT);
     }
 
     /**
@@ -128,7 +115,7 @@ public class Config {
      */
     public void addTrace(TraceConfig traceConfig, Data data, String name, boolean isXAxisOpposite, boolean isYAxisOpposite) {
         chartData.add(data.getDataSet());
-        chartConfig.addTrace(traceConfig, chartData.size() - 1, name,  isXAxisOpposite, isYAxisOpposite);
+        scrollableChartConfig.getChartConfig().addTrace(traceConfig, chartData.size() - 1, name,  isXAxisOpposite, isYAxisOpposite);
     }
 
     /**
@@ -150,21 +137,13 @@ public class Config {
      *              PREVIEW CONFIG
      *********************************************/
 
-    public boolean isPreviewEnable() {
-        return isPreviewEnable;
-    }
-
-    public void enablePreview(boolean isPreviewEnable) {
-        this.isPreviewEnable = isPreviewEnable;
-    }
-
     public void addPreviewStack(int weight) {
-        previewConfig.addStack(weight);
+        scrollableChartConfig.getPreviewConfig().addStack(weight);
 
     }
 
     public void addPreviewStack() {
-        addPreviewStack(ChartConfig.DEFAULT_WEIGHT);
+        addPreviewStack(SimpleChartConfig.DEFAULT_WEIGHT);
     }
 
     /**
@@ -172,8 +151,7 @@ public class Config {
      */
     public void addPreviewTrace(TraceConfig traceConfig, Data data, String name,  boolean isXAxisOpposite, boolean isYAxisOpposite) {
         previewData.add(data.getDataSet());
-        previewConfig.addTrace(traceConfig, previewData.size() - 1, name,  isXAxisOpposite, isYAxisOpposite);
-        isPreviewEnable = true;
+        scrollableChartConfig.getPreviewConfig().addTrace(traceConfig, previewData.size() - 1, name,  isXAxisOpposite, isYAxisOpposite);
     }
 
     /**
