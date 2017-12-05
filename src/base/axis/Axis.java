@@ -36,17 +36,12 @@ public class Axis {
     private Line axisLine;
     private Text axisName;
     private TickProvider tickProvider;
-    private boolean isAutoscale;
 
     public Axis(AxisConfig config) {
         this.config = config;
-        isAutoscale = config.isAutoScale();
         scale = new ScaleLinear();
     }
 
-    public boolean isAutoScale() {
-        return isAutoscale;
-    }
 
     /**
      * Zoom affects only max value. Min value does not changed!!!

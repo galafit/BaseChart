@@ -56,11 +56,11 @@ public class SimpleChart  {
     public SimpleChart(SimpleChartConfig chartConfig, Rectangle area) {
         this.chartConfig = chartConfig;
         this.fullArea = area;
-        xAxisList.add(new Axis(chartConfig.getBottomAxisConfig()));
-        xAxisList.add(new Axis(chartConfig.getTopAxisConfig()));
-        for (int i = 0; i < chartConfig.getStacksAmount(); i++) {
-            yAxisList.add(new Axis(chartConfig.getLeftAxisConfig(i)));
-            yAxisList.add(new Axis(chartConfig.getRightAxisConfig(i)));
+        for (int i = 0; i < chartConfig.getNumberOfXAxis(); i++) {
+            xAxisList.add(new Axis(chartConfig.getXAxisConfig(i)));
+        }
+        for (int i = 0; i < chartConfig.getNumberOfYAxis(); i++) {
+            yAxisList.add(new Axis(chartConfig.getYAxisConfig(i)));
         }
         for (int i = 0; i < chartConfig.getTraceAmount(); i++) {
             TraceConfig traceConfig = chartConfig.getTraceConfig(i);
@@ -76,8 +76,26 @@ public class SimpleChart  {
         titlePainter = new TitlePainter(chartConfig.getTitle(), chartConfig.getTitleTextStyle());
         legendPainter = new LegendPainter(getTracesInfo(), chartConfig.getLegendConfig());
 
-        autoscaleXAxis();
-        autoscaleYAxis();
+        // set min and max for x axis
+        for (int i = 0; i < xAxisList.size(); i++) {
+            Range minMax = chartConfig.getXAxisMinMax(i);
+            if(minMax != null) {
+                xAxisList.get(i).setMinMax(minMax);
+
+            } else {
+                autoscaleXAxis(i);
+            }
+        }
+        // set min and max for y axis
+        for (int i = 0; i < yAxisList.size(); i++) {
+            Range minMax = chartConfig.getYAxisMinMax(i);
+            if(minMax != null) {
+                yAxisList.get(i).setMinMax(minMax);
+
+            } else {
+                autoscaleYAxis(i);
+            }
+        }
     }
 
     public void setData(ArrayList<DataSet> data) {
@@ -85,6 +103,14 @@ public class SimpleChart  {
         for (int i = 0; i < chartConfig.getTraceAmount(); i++) {
             traces.get(i).setData(chartConfig.getTraceData(i));
         }
+    }
+
+    public int getNumberOfXAxis() {
+        return xAxisList.size();
+    }
+
+    public int getNumberOfYAxis() {
+        return yAxisList.size();
     }
 
 
@@ -126,14 +152,6 @@ public class SimpleChart  {
         return false;
     }
 
-    private boolean isXAxisUsed(int xAxisIndex) {
-        for (int i = 0; i < traces.size(); i++) {
-            if(getTraceXAxisIndex(i) == xAxisIndex) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     int getPreferredTraceDataMarkSize(int traceIndex) {
         return traces.get(traceIndex).getPreferredDataMarkSize();
@@ -145,41 +163,6 @@ public class SimpleChart  {
 
     Scale getXAxisScale(int xAxisIndex) {
         return xAxisList.get(xAxisIndex).getScale();
-    }
-
-    public void setTraceData(DataSet data, int traceIndex) {
-        Trace trace = traces.get(traceIndex);
-        trace.setData(data);
-    }
-
-    DataSet getTraceData(int traceIndex) {
-        return traces.get(traceIndex).getData();
-    }
-
-    private void autoscaleXAxis() {
-        for (int i = 0; i < xAxisList.size(); i++) {
-            Axis xAxis = xAxisList.get(i);
-            if (xAxis.isAutoScale()) {
-                autoscaleXAxis(i);
-            } else {
-                xAxis.setMinMax(chartConfig.getXAxisConfig(i).getExtremes());
-            }
-        }
-    }
-
-    private void autoscaleYAxis() {
-        for (int i = 0; i < yAxisList.size(); i++) {
-            Axis yAxis = yAxisList.get(i);
-            if (yAxis.isAutoScale()) {
-                autoscaleYAxis(i);
-            } else {
-                yAxis.setMinMax(chartConfig.getYAxisConfig(i).getExtremes());
-            }
-        }
-    }
-
-    public int getTraceAmount() {
-        return traces.size();
     }
 
     private List<LegendItem> getTracesInfo() {

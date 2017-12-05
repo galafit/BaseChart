@@ -23,51 +23,55 @@ public class Text {
 
     public Text(String string, int x, int y, TextAnchor hTextAnchor, TextAnchor vTextAnchor, FontMetrics fm) {
         text = string;
-        if(hTextAnchor == TextAnchor.MIDDLE) {
-            x -= fm.stringWidth(string) / 2;
+        if(text != null && !text.isEmpty()) {
+            if(hTextAnchor == TextAnchor.MIDDLE) {
+                x -= fm.stringWidth(string) / 2;
+            }
+            if(hTextAnchor == TextAnchor.END) {
+                x -= fm.stringWidth(string);
+            }
+            if(vTextAnchor == TextAnchor.MIDDLE) {
+                y = y + fm.getHeight()/2 - fm.getDescent();
+            }
+            if(vTextAnchor == TextAnchor.END) {
+                y = y + fm.getAscent();
+            }
+            this.x = x;
+            this.y = y;
         }
-        if(hTextAnchor == TextAnchor.END) {
-            x -= fm.stringWidth(string);
-        }
-        if(vTextAnchor == TextAnchor.MIDDLE) {
-            y = y + fm.getHeight()/2 - fm.getDescent();
-        }
-        if(vTextAnchor == TextAnchor.END) {
-            y = y + fm.getAscent();
-        }
-        this.x = x;
-        this.y = y;
     }
 
     public Text(String string, int x, int y, TextAnchor hTextAnchor, TextAnchor vTextAnchor, int rotationAngle, FontMetrics fm) {
         text = string;
+        if(text != null && !text.isEmpty()) {
+            transform = new AffineTransform();
+            transform.translate(x, y);
+            transform.rotate(Math.toRadians(rotationAngle));
 
-        transform = new AffineTransform();
-        transform.translate(x, y);
-        transform.rotate(Math.toRadians(rotationAngle));
-
-        if(vTextAnchor == TextAnchor.MIDDLE) {
-            transform.translate(-fm.stringWidth(text)/2, 0);
+            if(vTextAnchor == TextAnchor.MIDDLE) {
+                transform.translate(-fm.stringWidth(text)/2, 0);
+            }
+            if(vTextAnchor == TextAnchor.END) {
+                transform.translate(-fm.stringWidth(text), 0);
+            }
+            if(hTextAnchor == TextAnchor.END) {
+                transform.translate(0, + fm.getAscent());
+            }
+            if(hTextAnchor == TextAnchor.MIDDLE) {
+                transform.translate(0, +  (fm.getHeight()/2 - fm.getDescent()));
+            }
         }
-        if(vTextAnchor == TextAnchor.END) {
-            transform.translate(-fm.stringWidth(text), 0);
-        }
-        if(hTextAnchor == TextAnchor.END) {
-            transform.translate(0, + fm.getAscent());
-        }
-        if(hTextAnchor == TextAnchor.MIDDLE) {
-            transform.translate(0, +  (fm.getHeight()/2 - fm.getDescent()));
-        }
-
     }
 
     public void draw(Graphics2D g2) {
-        AffineTransform initialTransform = g2.getTransform();
-        if(transform != null) {
-            g2.transform(transform);
+        if(text != null && !text.isEmpty()) {
+            AffineTransform initialTransform = g2.getTransform();
+            if(transform != null) {
+                g2.transform(transform);
+            }
+            g2.drawString(text, x, y);
+            g2.setTransform(initialTransform);
         }
-        g2.drawString(text, x, y);
-        g2.setTransform(initialTransform);
     }
 
     public String getText() {

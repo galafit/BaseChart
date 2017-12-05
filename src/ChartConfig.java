@@ -1,3 +1,4 @@
+import base.Range;
 import base.config.ScrollableChartConfig;
 import base.config.SimpleChartConfig;
 import base.config.ScrollConfig;
@@ -79,7 +80,9 @@ public class ChartConfig {
         return  scrollableChartConfig.getScrollsExtents();
     }
 
-
+    public void setPreviewMinMax(Range minMax) {
+        scrollableChartConfig.setPreviewMinMax(minMax);
+    }
 
     public boolean isCropEnable() {
         return isDataCropEnable;

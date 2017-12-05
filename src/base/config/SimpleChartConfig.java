@@ -26,7 +26,8 @@ public class SimpleChartConfig {
     private LegendConfig legendConfig = new LegendConfig();
     private TooltipConfig tooltipConfig = new TooltipConfig();
     private CrosshairConfig crosshairConfig = new CrosshairConfig();
-    private ArrayList<Integer> weights = new ArrayList<Integer>();
+
+    private ArrayList<Integer> stackWeights = new ArrayList<Integer>();
     /*
      * 2 X-base.axis: 0(even) - BOTTOM and 1(odd) - TOP
      * 2 Y-base.axis for every section(stack): even - LEFT and odd - RIGHT;
@@ -35,6 +36,8 @@ public class SimpleChartConfig {
      **/
     private ArrayList<AxisConfig> xAxisConfigs = new ArrayList<AxisConfig>();
     private ArrayList<AxisConfig> yAxisConfigs = new ArrayList<AxisConfig>();
+    private Map<Integer,Range>  xAxisExtremes = new HashMap<Integer,Range>();
+    private Map<Integer,Range>  yAxisExtremes = new HashMap<Integer,Range>();
 
     private ArrayList<TraceInfo> traces = new ArrayList<TraceInfo>();
     private List<DataSet> data = new ArrayList<DataSet>();
@@ -43,7 +46,7 @@ public class SimpleChartConfig {
     public SimpleChartConfig() {
         getTitleTextStyle().setBold(true);
         getTitleTextStyle().setFontSize(14);
-        weights.add(DEFAULT_WEIGHT);
+        stackWeights.add(DEFAULT_WEIGHT);
 
         AxisConfig axisConfig = new AxisConfig(AxisOrientation.BOTTOM);
         axisConfig.getMinorGridLineConfig().setWidth(0);
@@ -102,24 +105,13 @@ public class SimpleChartConfig {
         return data;
     }
 
-    public AxisConfig getTopAxisConfig() {
-        return xAxisConfigs.get(1);
-    }
 
-    public AxisConfig getBottomAxisConfig() {
-        return xAxisConfigs.get(0);
-    }
+   public int getNumberOfXAxis() {
+        return xAxisConfigs.size();
+   }
 
-    public AxisConfig getLeftAxisConfig(int stackIndex) {
-        return yAxisConfigs.get(stackIndex * 2);
-    }
-
-    public AxisConfig getRightAxisConfig(int stackIndex) {
-        return yAxisConfigs.get(stackIndex * 2 + 1);
-    }
-
-    public int getStacksAmount() {
-        return yAxisConfigs.size() / 2;
+    public int getNumberOfYAxis() {
+        return yAxisConfigs.size();
     }
 
     public AxisConfig getXAxisConfig(int axisIndex) {
@@ -131,31 +123,38 @@ public class SimpleChartConfig {
     }
 
     public void setXAxisMinMax(int xAxisIndex, Range minMax) {
-        getXAxisConfig(xAxisIndex).setExtremes(minMax.start(), minMax.end());
+       xAxisExtremes.put(xAxisIndex, minMax);
     }
 
     public void setYAxisMinMax(int yAxisIndex, Range minMax) {
-        getYAxisConfig(yAxisIndex).setExtremes(minMax.start(), minMax.end());
+        yAxisExtremes.put(yAxisIndex, minMax);
+    }
+
+    public Range getXAxisMinMax(int xAxisIndex) {
+        return xAxisExtremes.get(xAxisIndex);
+    }
+
+    public Range getYAxisMinMax(int xAxisIndex) {
+        return yAxisExtremes.get(xAxisIndex);
     }
 
     public int getSumWeight() {
         int weightSum = 0;
-        for (Integer weight : weights) {
+        for (Integer weight : stackWeights) {
             weightSum += weight;
         }
         return weightSum;
     }
-
 
     public Range getYAxisStartEnd(int yAxisIndex, Rectangle area) {
         int weightSum = getSumWeight();
 
         int weightSumTillYAxis = 0;
         for (int i = 0; i < yAxisIndex / 2 ; i++) {
-            weightSumTillYAxis += weights.get(i);
+            weightSumTillYAxis += stackWeights.get(i);
         }
 
-        int yAxisWeight = weights.get(yAxisIndex / 2);
+        int yAxisWeight = stackWeights.get(yAxisIndex / 2);
         int axisHeight = area.height *  yAxisWeight / weightSum;
 
         int end = area.y + area.height * weightSumTillYAxis / weightSum;
@@ -173,7 +172,7 @@ public class SimpleChartConfig {
         axisConfig.getMinorGridLineConfig().setWidth(0);
         axisConfig.getGridLineConfig().setWidth(0);
         yAxisConfigs.add(axisConfig);
-        weights.add(weight);
+        stackWeights.add(weight);
     }
 
     // add trace to the last stack

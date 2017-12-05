@@ -1,9 +1,6 @@
 package base.config.axis;
 
-import base.axis.AxisType;
 import base.config.general.LineConfig;
-import base.Range;
-
 import java.awt.*;
 
 /**
@@ -14,7 +11,6 @@ public class AxisConfig {
     private Color color =  Color.GRAY;
 
     private boolean isVisible = false;
-    private String title = "Title";
     private TitleConfig titleConfig = new TitleConfig();
     private LineConfig axisLineConfig = new LineConfig();
     private LineConfig gridLineConfig = new LineConfig();
@@ -23,36 +19,24 @@ public class AxisConfig {
 
     private TicksConfig ticksConfig = new TicksConfig();
     private LabelsConfig labelsConfig = new LabelsConfig();
-
-    private boolean isRoundingEnabled = true;
-    private boolean isAutoScale = true;
-    private AxisType type = AxisType.LINEAR;
-
-    Range minMax;
+    private String title;
 
     public AxisConfig(AxisOrientation orientation) {
         this.orientation = orientation;
+        getGridLineConfig().setWidth(1);
         getGridLineConfig().setColor(new Color(100, 100, 100));
+        getMinorGridLineConfig().setWidth(0);
         getMinorGridLineConfig().setColor(new Color(80, 80, 80));
         getTitleConfig().getTextStyle().setFontSize(14);
         getLabelsConfig().getTextStyle().setFontSize(12);
     }
 
-    public AxisType getType() {
-        return type;
+    public String getTitle() {
+        return title;
     }
 
-    public void setType(AxisType type) {
-        this.type = type;
-    }
-
-    public void setExtremes(double min, double max) {
-        this.minMax = new Range(min, max);
-        setAutoScale(false);
-    }
-
-    public Range getExtremes() {
-        return minMax;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public boolean isTop() {
@@ -130,14 +114,6 @@ public class AxisConfig {
         this.isVisible = isVisible;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public TitleConfig getTitleConfig() {
         return titleConfig;
     }
@@ -164,22 +140,5 @@ public class AxisConfig {
 
     public LabelsConfig getLabelsConfig() {
         return labelsConfig;
-    }
-
-
-    public boolean isRoundingEnabled() {
-        return isRoundingEnabled;
-    }
-
-    public void setRoundingEnabled(boolean isRoundingEnabled) {
-        this.isRoundingEnabled = isRoundingEnabled;
-    }
-
-    public boolean isAutoScale() {
-        return isAutoScale;
-    }
-
-    public void setAutoScale(boolean isAutoScale) {
-        this.isAutoScale = isAutoScale;
     }
 }

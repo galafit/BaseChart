@@ -33,11 +33,15 @@ public class ScrollableChart {
             chartArea = new Rectangle(area.x, area.y, area.width, chartHeight);
             previewArea = new Rectangle(area.x, area.y + chartHeight, area.width, previewHeight);
             chart = new SimpleChart(chartConfig, chartArea);
-            Range previewMinMax = null;
-            for (Integer xAxisIndex : scrollableAxis) {
-                 previewMinMax = Range.max(previewMinMax, chart.getXAxisMinMax(xAxisIndex));
+
+            if(config.getPreviewMinMax() == null) {
+                Range previewMinMax = null;
+                for (Integer xAxisIndex : scrollableAxis) {
+                    previewMinMax = Range.max(previewMinMax, chart.getXAxisMinMax(xAxisIndex));
+                }
+                config.setPreviewMinMax(previewMinMax);
             }
-            config.setPreviewMinMax(previewMinMax);
+
             preview = new SimpleChart(previewConfig, previewArea);
 
             for (Integer xAxisIndex : scrollableAxis) {
@@ -57,8 +61,9 @@ public class ScrollableChart {
 
 
     public void setPreviewMinMax(Range minMax) {
-        preview.setXAxisExtremes(0, minMax);
-        preview.setXAxisExtremes(1, minMax);
+        for (int i = 0; i < preview.getNumberOfXAxis(); i++) {
+            preview.setXAxisExtremes(i, minMax);
+        }
     }
 
     public Range getPreviewMinMax() {

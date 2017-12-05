@@ -18,6 +18,7 @@ public class ScrollableChartConfig {
     private SimpleChartConfig previewConfig = new SimpleChartConfig();
     private ScrollConfig scrollConfig = new ScrollConfig();
     private Map<Integer, Double> scrollExtents = new Hashtable<Integer, Double>(2);
+    private Range previewMinMax;
 
     public ScrollableChartConfig(int theme) {
         if(theme == DARK_THEME) {
@@ -54,16 +55,14 @@ public class ScrollableChartConfig {
     }
 
     public void setPreviewMinMax(Range minMax) {
-        previewConfig.setXAxisMinMax(0, minMax);
-        previewConfig.setXAxisMinMax(1, minMax);
+      previewMinMax = minMax;
+        for (int i = 0; i < previewConfig.getNumberOfXAxis(); i++) {
+            previewConfig.setXAxisMinMax(i, minMax);
+        }
     }
 
-    public void setChartConfig(SimpleChartConfig chartConfig) {
-        this.chartConfig = chartConfig;
-    }
-
-    public void setPreviewConfig(SimpleChartConfig previewConfig) {
-        this.previewConfig = previewConfig;
+    public Range getPreviewMinMax() {
+        return previewMinMax;
     }
 
     public ScrollConfig getScrollConfig() {
