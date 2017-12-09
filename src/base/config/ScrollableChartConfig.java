@@ -20,6 +20,10 @@ public class ScrollableChartConfig {
     private Map<Integer, Double> scrollExtents = new Hashtable<Integer, Double>(2);
     private Range previewMinMax;
 
+    public ScrollableChartConfig() {
+        this(1);
+    }
+
     public ScrollableChartConfig(int theme) {
         if(theme == DARK_THEME) {
             Color bgColor = new Color(20, 20, 30);
@@ -46,12 +50,18 @@ public class ScrollableChartConfig {
         }
     }
 
+
+
     public SimpleChartConfig getChartConfig() {
         return chartConfig;
     }
 
     public SimpleChartConfig getPreviewConfig() {
         return previewConfig;
+    }
+
+    public boolean isPreviewEnable() {
+        return ! scrollExtents.isEmpty();
     }
 
     public void setPreviewMinMax(Range minMax) {
@@ -69,7 +79,7 @@ public class ScrollableChartConfig {
         return scrollConfig;
     }
 
-    public double getScrollExtent(int xAxisIndex) {
+    public Double getScrollExtent(int xAxisIndex) {
         return scrollExtents.get(xAxisIndex);
     }
 
@@ -89,5 +99,23 @@ public class ScrollableChartConfig {
 
     public Set<Integer> getXAxisWithScroll() {
         return scrollExtents.keySet();
+    }
+
+    public void addPreviewStack(int weight) {
+        previewConfig.addStack(weight);
+
+    }
+
+    public void addPreviewStack() {
+        addPreviewStack(SimpleChartConfig.DEFAULT_WEIGHT);
+    }
+
+    public void addChartStack(int weight) {
+        chartConfig.addStack(weight);
+
+    }
+
+    public void addChartStack() {
+        addChartStack(SimpleChartConfig.DEFAULT_WEIGHT);
     }
 }

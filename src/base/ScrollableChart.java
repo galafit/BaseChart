@@ -18,11 +18,13 @@ public class ScrollableChart {
     private Rectangle chartArea;
     private Rectangle previewArea;
     private ArrayList<Scroll> scrolls = new ArrayList<Scroll>(2);
+    private ScrollableChartConfig config;
 
     public ScrollableChart(ScrollableChartConfig config, Rectangle area) {
+        this.config = config;
         SimpleChartConfig chartConfig = config.getChartConfig();
         Set<Integer> scrollableAxis = config.getXAxisWithScroll();
-        if(scrollableAxis.isEmpty()) {
+        if(!isPreviewEnable()) {
             chart = new SimpleChart(chartConfig, area);
         } else {
             SimpleChartConfig previewConfig = config.getPreviewConfig();
@@ -59,6 +61,9 @@ public class ScrollableChart {
         }
     }
 
+    public boolean isPreviewEnable() {
+       return config.isPreviewEnable();
+    }
 
     public void setPreviewMinMax(Range minMax) {
         for (int i = 0; i < preview.getNumberOfXAxis(); i++) {
@@ -97,25 +102,23 @@ public class ScrollableChart {
 
 
     public void draw(Graphics2D g2d) {
-        Margin chartMargin = chart.getMargin(g2d);
-        Margin previewMargin = preview.getMargin(g2d);
-        if (chartMargin.left() != previewMargin.left() || chartMargin.right() != previewMargin.right()) {
-            int left = Math.max(chartMargin.left(), previewMargin.left());
-            int right = Math.max(chartMargin.right(), previewMargin.right());
-            chartMargin = new Margin(chartMargin.top(), right, chartMargin.bottom(), left);
-            previewMargin = new Margin(previewMargin.top(), right, previewMargin.bottom(), left);
-            chart.setMargin(g2d, chartMargin);
-            preview.setMargin(g2d, previewMargin);
-        }
-
-        chart.draw(g2d);
-        if (preview != null) {
+        if(preview != null) {
+            Margin chartMargin = chart.getMargin(g2d);
+            Margin previewMargin = preview.getMargin(g2d);
+            if (chartMargin.left() != previewMargin.left() || chartMargin.right() != previewMargin.right()) {
+                int left = Math.max(chartMargin.left(), previewMargin.left());
+                int right = Math.max(chartMargin.right(), previewMargin.right());
+                chartMargin = new Margin(chartMargin.top(), right, chartMargin.bottom(), left);
+                previewMargin = new Margin(previewMargin.top(), right, previewMargin.bottom(), left);
+                chart.setMargin(g2d, chartMargin);
+                preview.setMargin(g2d, previewMargin);
+            }
             preview.draw(g2d);
             for (Scroll scroll : scrolls) {
                 scroll.draw(g2d, preview.getGraphArea(g2d));
             }
-
         }
+        chart.draw(g2d);
     }
 
 

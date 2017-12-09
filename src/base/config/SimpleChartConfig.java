@@ -151,6 +151,12 @@ public class SimpleChartConfig {
         stackWeights.add(weight);
     }
 
+
+    public void addTrace(TraceConfig traceConfig, DataSet traceData, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {
+        data.add(traceData);
+        addTrace(traceConfig, data.size() - 1, traceName, isXAxisOpposite, isYAxisOpposite);
+    }
+
     // add trace to the last stack
     public void addTrace(TraceConfig traceConfig, int dataIndex, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {
         boolean isBottomXAxis = true;

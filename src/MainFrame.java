@@ -1,3 +1,4 @@
+import base.Range;
 import base.config.traces.LineTraceConfig;
 import data.XYData;
 import data.series.DoubleArrayList;
@@ -54,11 +55,14 @@ public class MainFrame extends JFrame {
 
         ChartConfig config = new ChartConfig();
         config.addTrace(new LineTraceConfig(), xyData1, null, true, false);
-        config.addStack(5);
+        config.addChartStack(5);
         config.addTrace(new LineTraceConfig(), xyData2);
 
-        config.addPreviewTrace(new LineTraceConfig(), xyData2);
-        //config.addPreviewTrace(new LineTraceConfig(), xyData3);
+        config.setPreviewMinMax(new Range(0, 1000));
+        config.addScroll(0, 100);
+
+      // config.addPreviewTrace(new LineTraceConfig(), xyData2);
+      // config.addPreviewTrace(new LineTraceConfig(), xyData3);
 
 
         chartPanel = new ChartPanel(config);
@@ -96,19 +100,19 @@ public class MainFrame extends JFrame {
         MainFrame mainFrame = new MainFrame();
 
 
-      /* final Timer timer = new Timer(100, new ActionListener() {
+       final Timer timer = new Timer(100, new ActionListener() {
 
             int counter = 0;
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(counter < 80) {
+                if(counter < 40) {
                     mainFrame.update();
                     counter++;
                 }
             }
         });
         timer.setInitialDelay(0);
-        timer.start();*/
+        timer.start();
 
     }
 
