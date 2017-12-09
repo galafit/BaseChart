@@ -149,7 +149,10 @@ public class ChartPanel extends JPanel {
             xAxisList = new ArrayList<>(1);
             xAxisList.add(chart.getChartTraceXIndex(selectedTraceIndex));
         } else {
-            xAxisList = chart.getChartXIndexes();
+            xAxisList = new ArrayList<>(chart.getChartNumberOfXAxis());
+            for (int i = 0; i < chart.getChartNumberOfXAxis(); i++) {
+                xAxisList.add(i) ;
+            }
         }
     }
 
@@ -187,7 +190,10 @@ public class ChartPanel extends JPanel {
             yAxisList = new ArrayList<>(1);
             yAxisList.add(chart.getChartTraceYIndex(chartSelectedTraceIndex));
         } else {
-            yAxisList = chart.getChartYIndexes();
+            yAxisList = new ArrayList<>(chart.getChartNumberOfYAxis());
+            for (int i = 0; i < chart.getChartNumberOfYAxis(); i++) {
+                yAxisList.add(i) ;
+            }
         }
 
         int previewSelectedTraceIndex = chart.getPreviewSelectedTraceIndex();
@@ -195,7 +201,10 @@ public class ChartPanel extends JPanel {
             yAxisListPreview = new ArrayList<>(1);
             yAxisListPreview.add(chart.getPreviewTraceYIndex(previewSelectedTraceIndex));
         } else {
-            yAxisListPreview = chart.getPreviewYIndexes();
+            yAxisListPreview = new ArrayList<>(chart.getPreviewNumberOfYAxis());
+            for (int i = 0; i < chart.getPreviewNumberOfYAxis(); i++) {
+                yAxisListPreview.add(i) ;
+            }
         }
     }
 
@@ -303,14 +312,6 @@ public class ChartPanel extends JPanel {
         return chart.getChartStackXIndexes(x, y);
     }
 
-    public List<Integer> getChartYIndexes() {
-        return chart.getChartYIndexes();
-    }
-
-    public List<Integer> getChartXIndexes() {
-        return chart.getChartXIndexes();
-    }
-
     public void zoomChartY(int yAxisIndex, double zoomFactor) {
         chart.zoomChartY(yAxisIndex, zoomFactor);
     }
@@ -381,9 +382,6 @@ public class ChartPanel extends JPanel {
         return chart.getPreviewYIndex(x, y);
     }
 
-    public List<Integer> getPreviewYIndexes() {
-        return chart.getPreviewYIndexes();
-    }
 
     public void zoomPreviewY(int yAxisIndex, double zoomFactor) {
         chart.zoomPreviewY(yAxisIndex, zoomFactor);

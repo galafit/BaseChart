@@ -69,34 +69,6 @@ public class SimpleChartConfig {
         yAxisConfigs.add(axisConfig);
     }
 
-    /**
-     * return only used by some trace axes
-     */
-    public List<Integer> getUsedXAxisIndexes() {
-        List<Integer> axisList = new ArrayList<>();
-        for (int i = 0; i < traces.size(); i++) {
-            int xAxisIndex = getTraceXAxisIndex(i);
-            if(!axisList.contains(xAxisIndex)) {
-                axisList.add(xAxisIndex);
-            }
-        }
-        return axisList;
-    }
-
-    /**
-     * return only used by some trace axes
-     */
-    public List<Integer> getUsedYAxisIndexes() {
-        List<Integer> axisList = new ArrayList<>();
-        for (int i = 0; i < traces.size(); i++) {
-            int yAxisIndex = getTraceYAxisIndex(i);
-            if(!axisList.contains(yAxisIndex)) {
-                axisList.add(yAxisIndex);
-            }
-        }
-        return axisList;
-    }
-
     public void setData(ArrayList<DataSet> data) {
         this.data = data;
     }
@@ -112,6 +84,10 @@ public class SimpleChartConfig {
 
     public int getNumberOfYAxis() {
         return yAxisConfigs.size();
+    }
+
+    public int getNumberOfTraces() {
+        return traces.size();
     }
 
     public AxisConfig getXAxisConfig(int axisIndex) {

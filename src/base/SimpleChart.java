@@ -105,14 +105,6 @@ public class SimpleChart  {
         }
     }
 
-    public int getNumberOfXAxis() {
-        return xAxisList.size();
-    }
-
-    public int getNumberOfYAxis() {
-        return yAxisList.size();
-    }
-
 
     private TooltipInfo getTooltipInfo() {
         TooltipInfo tooltipInfo = null;
@@ -315,6 +307,14 @@ public class SimpleChart  {
 
     /**=======================Base methods to interact==========================**/
 
+    public int getNumberOfXAxis() {
+        return xAxisList.size();
+    }
+
+    public int getNumberOfYAxis() {
+        return yAxisList.size();
+    }
+
 
     public Range getXAxisMinMax(int xAxisIndex) {
         return new Range(xAxisList.get(xAxisIndex).getMin(), xAxisList.get(xAxisIndex).getMax());
@@ -354,20 +354,6 @@ public class SimpleChart  {
             }
         }
         return axisList;
-    }
-
-    /**
-     * return only used by some trace axes
-     */
-    public List<Integer> getUsedXAxisIndexes() {
-       return chartConfig.getUsedXAxisIndexes();
-    }
-
-    /**
-     * return only used by some trace axes
-     */
-    public List<Integer> getUsedYAxisIndexes() {
-        return chartConfig.getUsedYAxisIndexes();
     }
 
     public int getYAxisIndex(int x, int y) {

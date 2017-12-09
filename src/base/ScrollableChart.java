@@ -147,12 +147,12 @@ public class ScrollableChart {
         return chart.getStackXAxisIndexes(x, y);
     }
 
-    public List<Integer> getChartYIndexes() {
-        return chart.getUsedYAxisIndexes();
+    public int getChartNumberOfXAxis() {
+        return chart.getNumberOfXAxis();
     }
 
-    public List<Integer> getChartXIndexes() {
-        return chart.getUsedXAxisIndexes();
+    public int getChartNumberOfYAxis() {
+        return chart.getNumberOfYAxis();
     }
 
     public void zoomChartY(int yAxisIndex, double zoomFactor) {
@@ -218,6 +218,16 @@ public class ScrollableChart {
     /**
      * =======================Base methods to interact with preview==========================
      **/
+
+    public int getPreviewNumberOfXAxis() {
+        return preview.getNumberOfXAxis();
+    }
+
+    public int getPreviewNumberOfYAxis() {
+        return preview.getNumberOfYAxis();
+    }
+
+
     public boolean isPointInsideScroll(int x, int y) {
         for (Scroll scroll : scrolls) {
             if(scroll.isPointInsideScroll(x)) {
@@ -279,12 +289,6 @@ public class ScrollableChart {
         return -1;
     }
 
-    public List<Integer> getPreviewYIndexes() {
-        if(preview != null) {
-            return preview.getUsedYAxisIndexes();
-        }
-        return new ArrayList<Integer>(0);
-    }
 
     public void zoomPreviewY(int yAxisIndex, double zoomFactor) {
         if(preview != null) {

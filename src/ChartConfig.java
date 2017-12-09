@@ -44,11 +44,11 @@ public class ChartConfig {
         return scrollableChartConfig.getPreviewConfig();
     }
 
-    public List<BaseDataSet> getChartData() {
+    public List<BaseDataSet> getOriginalChartData() {
         return chartData;
     }
 
-    public List<BaseDataSet> getPreviewData() {
+    public List<BaseDataSet> getOriginalPreviewData() {
         return previewData;
     }
 

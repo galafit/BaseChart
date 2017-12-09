@@ -5,7 +5,6 @@ import data.BaseDataSet;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Created by galafit on 26/11/17.
@@ -31,17 +30,26 @@ public class ChartWithDataManager {
         SimpleChartConfig previewConfig = config.getPreviewConfig();
         SimpleChartConfig chartConfig = config.getChartConfig();
         chartData = new ArrayList<DataSet>();
-        for (BaseDataSet data : config.getChartData()) {
+        for (BaseDataSet data : config.getOriginalChartData()) {
             chartData.add(data);
         }
 
         previewData = new ArrayList<DataSet>();
-        for (BaseDataSet data : config.getPreviewData()) {
+        for (BaseDataSet data : config.getOriginalPreviewData()) {
             previewData.add(data);
         }
 
+        // create list of x axis used by some traces
+        List<Integer> usedXAxisIndexes = new ArrayList<>();
+        for (int i = 0; i < chartConfig.getNumberOfTraces(); i++) {
+            int xAxisIndex = chartConfig.getTraceXAxisIndex(i);
+            if(!usedXAxisIndexes.contains(xAxisIndex)) {
+                usedXAxisIndexes.add(xAxisIndex);
+            }
+        }
+
         if(config.getXAxisWithScroll().isEmpty() && previewData.size() > 0) {
-            for (Integer xAxisIndex : chartConfig.getUsedXAxisIndexes()) {
+            for (Integer xAxisIndex : usedXAxisIndexes) {
                 config.addScroll(xAxisIndex, calculateChartExtent(xAxisIndex));
             }
         }
@@ -50,7 +58,7 @@ public class ChartWithDataManager {
         Range previewMinMax = calculatePreviewInitialMinMax(config.getScrollsExtents());
 
         if(config.isCropEnable()) { // cropData
-            for (Integer xAxisIndex : chartConfig.getUsedXAxisIndexes()) {
+            for (Integer xAxisIndex : usedXAxisIndexes) {
                 cropChartData(xAxisIndex, new Range(previewMinMax.start(), config.getScrollExtent(xAxisIndex)));
             }
         }
@@ -96,7 +104,7 @@ public class ChartWithDataManager {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             DataSet subset;
             if(chartConfig.getTraceXAxisIndex(traceIndex) == xAxisIndex) {
-                subset = config.getChartData().get(traceDataIndex).getSubset(scrollExtremes.start(), scrollExtremes.end());
+                subset = config.getOriginalChartData().get(traceDataIndex).getSubset(scrollExtremes.start(), scrollExtremes.end());
                 chartData.set(traceDataIndex, subset);
             }
         }
@@ -125,21 +133,21 @@ public class ChartWithDataManager {
 
     private void autoscaleChartY() {
         if(isAutoscaleDuringScroll) {
-            for (Integer yAxisIndex : scrollableChart.getChartYIndexes()) {
-                scrollableChart.autoscaleChartY(yAxisIndex);
+            for (int i = 0; i < scrollableChart.getChartNumberOfYAxis(); i++) {
+                scrollableChart.autoscaleChartY(i);
             }
         }
     }
 
     private void autoscalePreviewY() {
-        for (Integer yAxisIndex : scrollableChart.getPreviewYIndexes()) {
-            scrollableChart.autoscalePreviewY(yAxisIndex);
+        for (int i = 0; i < scrollableChart.getPreviewNumberOfYAxis(); i++) {
+            scrollableChart.autoscalePreviewY(i);
         }
     }
 
     private Range calculatePreviewInitialMinMax(double[] scrollsExtents) {
         Range chartMinMax = null;
-        for (BaseDataSet chartData : config.getChartData()) {
+        for (BaseDataSet chartData : config.getOriginalChartData()) {
             chartMinMax = Range.max(chartMinMax, chartData.getXExtremes());
         }
         double maxExtent = 0;
@@ -151,7 +159,7 @@ public class ChartWithDataManager {
         chartMinMax = new Range(min, min + maxLength);
 
         Range previewMinMax = null;
-        for (BaseDataSet previewData : config.getPreviewData()) {
+        for (BaseDataSet previewData : config.getOriginalPreviewData()) {
             previewMinMax = Range.max(previewMinMax, previewData.getXExtremes());
         }
         min = previewMinMax.start();
@@ -164,7 +172,7 @@ public class ChartWithDataManager {
 
     private double calculateChartExtent(int xAxisIndex) {
         SimpleChartConfig chartConfig = config.getChartConfig();
-        List<BaseDataSet> chartData = config.getChartData();
+        List<BaseDataSet> chartData = config.getOriginalChartData();
         double minDataItemInterval = 0;
         for(int traceIndex = 0; traceIndex < chartConfig.getTraceAmount(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
@@ -187,7 +195,7 @@ public class ChartWithDataManager {
      */
     private double calculatePreviewExtent() {
         SimpleChartConfig previewConfig = config.getPreviewConfig();
-        List<BaseDataSet> previewData = config.getPreviewData();
+        List<BaseDataSet> previewData = config.getOriginalPreviewData();
         double minDataItemInterval = 0;
         for(int traceIndex = 0; traceIndex < previewConfig.getTraceAmount(); traceIndex++) {
             int traceDataIndex = previewConfig.getTraceDataIndex(traceIndex);
@@ -204,7 +212,7 @@ public class ChartWithDataManager {
     private Range getChartDataMinMax() {
         Range minMax = null;
         SimpleChartConfig chartConfig = config.getChartConfig();
-        List<BaseDataSet> chartData = config.getChartData();
+        List<BaseDataSet> chartData = config.getOriginalChartData();
         for(int traceIndex = 0; traceIndex < chartConfig.getTraceAmount(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             DataSet traceData = chartData.get(traceDataIndex);
@@ -216,7 +224,7 @@ public class ChartWithDataManager {
     private Range getPreviewDataMinMax() {
         Range minMax = null;
         SimpleChartConfig previewConfig = config.getPreviewConfig();
-        List<BaseDataSet> previewData = config.getPreviewData();
+        List<BaseDataSet> previewData = config.getOriginalPreviewData();
         for(int traceIndex = 0; traceIndex < previewConfig.getTraceAmount(); traceIndex++) {
             int traceDataIndex = previewConfig.getTraceDataIndex(traceIndex);
             DataSet traceData = previewData.get(traceDataIndex);
