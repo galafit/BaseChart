@@ -7,12 +7,16 @@ import data.series.IntSeries;
  * Created by galafit on 1/11/17.
  */
 public class RegularColumn implements NumberColumn{
-    double startValue;
-    double dataInterval;
+    private double startValue;
+    private double dataInterval;
 
     public RegularColumn(double startValue, double dataInterval) {
         this.startValue = startValue;
         this.dataInterval = dataInterval;
+    }
+
+    public double getDataInterval() {
+        return dataInterval;
     }
 
     public RegularColumn() {

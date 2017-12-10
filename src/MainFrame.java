@@ -1,4 +1,3 @@
-import base.Range;
 import base.config.traces.LineTraceConfig;
 import data.XYData;
 import data.series.DoubleArrayList;
@@ -58,11 +57,12 @@ public class MainFrame extends JFrame {
         config.addChartStack(5);
         config.addTrace(new LineTraceConfig(), xyData2);
 
-        config.setPreviewMinMax(new Range(0, 1000));
-        config.addScroll(0, 100);
+       // config.setPreviewMinMax(new Range(0, 1000));
+       // config.addScroll(0, 100);
 
-      // config.addPreviewTrace(new LineTraceConfig(), xyData2);
-      // config.addPreviewTrace(new LineTraceConfig(), xyData3);
+       config.addPreviewTrace(new LineTraceConfig(), xyData2);
+       config.addPreviewTrace(new LineTraceConfig(), xyData3);
+       config.addGroupingInterval(400);
 
 
         chartPanel = new ChartPanel(config);

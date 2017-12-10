@@ -35,7 +35,7 @@ public class BaseDataSet implements DataSet {
     }
 
     public boolean isOrdered() {
-        if(isOrdered || xColumn instanceof RegularColumn) {
+        if (isOrdered || xColumn instanceof RegularColumn) {
             return true;
         }
         return false;
@@ -94,7 +94,7 @@ public class BaseDataSet implements DataSet {
 
     @Override
     public String getAnnotation(int index) {
-        if(annotationColumn!= null && index < annotationColumn.size()) {
+        if (annotationColumn != null && index < annotationColumn.size()) {
             return annotationColumn.getString(index);
         }
         return null;
@@ -102,10 +102,10 @@ public class BaseDataSet implements DataSet {
 
     @Override
     public Range getXExtremes() {
-        if(size() == 0) {
+        if (size() == 0) {
             return null;
         }
-        if(isOrdered()) {
+        if (isOrdered()) {
             double min = xColumn.getValue(startIndex);
             double max = xColumn.getValue(startIndex + size() - 1);
             return new Range(min, max);
@@ -116,16 +116,16 @@ public class BaseDataSet implements DataSet {
 
     @Override
     public Range getYExtremes(int yColumnNumber) {
-        if(size() == 0) {
+        if (size() == 0) {
             return null;
         }
-        return yColumns.get(yColumnNumber).getExtremes(startIndex,  size());
+        return yColumns.get(yColumnNumber).getExtremes(startIndex, size());
     }
 
 
     @Override
     public int size() {
-        if(length < 0) {
+        if (length < 0) {
             return fullSize();
         }
         return length;
@@ -133,14 +133,14 @@ public class BaseDataSet implements DataSet {
     }
 
     private int fullSize() {
-        if(yColumns.size() == 0 && annotationColumn == null) {
+        if (yColumns.size() == 0 && annotationColumn == null) {
             return 0;
         }
         int size = xColumn.size();
         for (NumberColumn column : yColumns) {
             size = Math.min(size, column.size());
         }
-        if(annotationColumn != null) {
+        if (annotationColumn != null) {
             size = Math.min(size, annotationColumn.size());
         }
 
@@ -149,7 +149,6 @@ public class BaseDataSet implements DataSet {
 
 
     /**
-     *
      * @param xValue
      * @return index of nearest data item
      */
@@ -175,13 +174,13 @@ public class BaseDataSet implements DataSet {
 
 
     public BaseDataSet getSubset(double startXValue, double endXValue, int shoulder) {
-        if(endXValue < startXValue) {
+        if (endXValue < startXValue) {
             String errorMessage = "Error during creating Data subset.Expected StartValue <= EndValue. StartValue = {0}, EndValue = {1}.";
             String formattedError = MessageFormat.format(errorMessage, startXValue, endXValue);
             throw new IllegalArgumentException(formattedError);
         }
-        if(!isOrdered()) {
-             return this;
+        if (!isOrdered()) {
+            return this;
         }
         int subsetStartIndex;
         int subsetEndIndex;
@@ -189,13 +188,13 @@ public class BaseDataSet implements DataSet {
         subsetEndIndex = xColumn.upperBound(endXValue, 0, fullSize());
         subsetStartIndex -= shoulder;
         subsetEndIndex += shoulder;
-        if(subsetStartIndex >= fullSize() || subsetEndIndex < 0) {
+        if (subsetStartIndex >= fullSize() || subsetEndIndex < 0) {
             return new BaseDataSet();
         }
-        if(subsetStartIndex < 0){
-            subsetStartIndex = 0 ;
+        if (subsetStartIndex < 0) {
+            subsetStartIndex = 0;
         }
-        if(subsetEndIndex  >= fullSize()) {
+        if (subsetEndIndex >= fullSize()) {
             subsetEndIndex = fullSize() - 1;
         }
         BaseDataSet subset = new BaseDataSet(this);
@@ -204,9 +203,15 @@ public class BaseDataSet implements DataSet {
         return subset;
     }
 
-    public BaseDataSet group(int numberOfElementsInGroups) {
+    /**
+     * Grouping by equal number of elements in each group
+     *
+     * @param numberOfElementsInGroups
+     * @return DataSet with grouped data
+     */
+    public BaseDataSet groupByNumber(int numberOfElementsInGroups) {
         BaseDataSet groupedSet = new BaseDataSet(this);
-        if(numberOfElementsInGroups > 1) {
+        if (numberOfElementsInGroups > 1) {
             for (NumberColumn numberColumn : groupedSet.yColumns) {
                 numberColumn.groupByNumber(numberOfElementsInGroups);
             }
@@ -214,16 +219,47 @@ public class BaseDataSet implements DataSet {
         }
         return groupedSet;
 
-        // at the moment "grouping by equal interval" is not used. But that is draft realisation
+
+    }
+
+    /**
+     * At the moment not realised correctly!!! work only for regular DataSet
+     * <p>
+     * grouping by equal interval
+     *
+     * @param groupingInterval
+     * @return DataSet with grouped data
+     */
+    public BaseDataSet groupByInterval(double groupingInterval) {
+        // at the moment "grouping by equal interval" is not fully realized.
+        // That is draft realisation
         // just for the case we will need it in the future
-         /*   if(numberOfElementsInGroups > 1 && ! (xColumn instanceof RegularColumn)) {
-            Range xRange = getXExtremes();
-            double groupingInterval = (xRange.end() - xRange.start()) * numberOfElementsInGroups / (size() -1);
+       /* if (!(xColumn instanceof RegularColumn)) {
+            BaseDataSet groupedSet = new BaseDataSet(this);
             IntSeries groupsStartIndexes = groupedSet.xColumn.groupByInterval(groupingInterval);
             for (NumberColumn numberColumn : groupedSet.yColumns) {
                 numberColumn.groupCustom(groupsStartIndexes);
             }
-         } */
+            return groupedSet;
+        }*/
+
+        double avgDataInterval = getAverageDataInterval();
+        if(avgDataInterval > 0) {
+            int avgNumberOfElementsInGroups = (int)(groupingInterval / getAverageDataInterval());
+            return groupByNumber(avgNumberOfElementsInGroups);
+        }
+        return new BaseDataSet(this);
+    }
+
+
+    public double getAverageDataInterval() {
+        if(xColumn instanceof RegularColumn) {
+            return ((RegularColumn)xColumn).getDataInterval();
+        }
+        if(size() > 1) {
+            return getXExtremes().length() / (size() - 1);
+        }
+        return -1;
     }
 
 
@@ -240,7 +276,7 @@ public class BaseDataSet implements DataSet {
     }
 
     public void setXData(List<? extends Number> data) {
-        if(data.size() > 0 && data.get(0) instanceof Integer) {
+        if (data.size() > 0 && data.get(0) instanceof Integer) {
             xColumn = new IntColumn((List<Integer>) data);
         } else {
             xColumn = new DoubleColumn((List<Double>) data);
@@ -257,7 +293,7 @@ public class BaseDataSet implements DataSet {
     }
 
     public void addYData(List<? extends Number> data) {
-        if(data.size() > 0 && data.get(0) instanceof Integer) {
+        if (data.size() > 0 && data.get(0) instanceof Integer) {
             yColumns.add(new IntColumn((List<Integer>) data));
         } else {
             yColumns.add(new DoubleColumn((List<Double>) data));

@@ -3,6 +3,9 @@ import base.config.ScrollableChartConfig;
 import base.config.traces.TraceConfig;
 import data.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by galafit on 6/10/17.
  */
@@ -12,15 +15,14 @@ public class ChartConfig extends ScrollableChartConfig {
 
     private boolean isDataCropEnable = true;
     private boolean isGroupingEnable = true;
-    private int compression = 0;
+    private ArrayList<Double> groupingIntervals = new ArrayList<Double>();
 
-
-    public int getCompression() {
-        return compression;
+    public List<Double> getGroupingIntervals() {
+        return groupingIntervals;
     }
 
-    public void setCompression(int compression) {
-        this.compression = compression;
+    public void addGroupingInterval(double groupingInterval) {
+        groupingIntervals.add(groupingInterval);
     }
 
     public boolean isCropEnable() {

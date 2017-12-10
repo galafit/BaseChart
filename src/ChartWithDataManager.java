@@ -14,7 +14,7 @@ public class ChartWithDataManager {
 
     private boolean isAutoscaleDuringScroll = true;
     private int minPixPerDataItem = 5;
-    private int sumCompression = 1;
+    private double currentGroupingInterval = 0;
 
     private boolean isAutoScroll = true;
     private ScrollableChart scrollableChart;
@@ -82,7 +82,7 @@ public class ChartWithDataManager {
 
             chartConfig.setData(chartData);
             if(config.isGroupingEnable()) {
-                groupPreviewData(config.getCompression());
+                groupPreviewData(previewMinMax);
             }
             previewConfig.setData(previewData);
 
@@ -121,28 +121,23 @@ public class ChartWithDataManager {
         }
     }
 
-    private void groupPreviewData(int compression) {
-        if(previewData == null) {
-           return;
-        }
-        if (compression > 1) {
-            for (int i = 0; i < previewData.size(); i++) {
-                previewData.set(i, ((BaseDataSet) previewData.get(i)).group(compression));
-            }
-        }
-        if (compression <= 0) { // autoCompression
-            for (int i = 0; i < previewData.size(); i++) {
-                compression = minPixPerDataItem * previewData.get(i).size() / area.width;
-                compression++;
-                if (compression > 1) {
-                    previewData.set(i, ((BaseDataSet) previewData.get(i)).group(compression));
-                }
-                sumCompression = sumCompression * compression;
 
-            }
+    private void groupPreviewData(Range previewMinMax) {
+        double groupingInterval = currentGroupingInterval;
+        for (Double interval : config.getGroupingIntervals()) {
+           if(interval > groupingInterval) {
+               groupingInterval = interval;
+               currentGroupingInterval = interval;
+           }
         }
+        if(groupingInterval <= 0) {
+            groupingInterval = minPixPerDataItem * previewMinMax.length() / area.width;
+        }
+        for (int i = 0; i < previewData.size(); i++) {
+            previewData.set(i, ((BaseDataSet) previewData.get(i)).groupByInterval(groupingInterval));
+        }
+
     }
-
 
     private void autoscaleChartY() {
         if(isAutoscaleDuringScroll) {
@@ -243,12 +238,9 @@ public class ChartWithDataManager {
     }
 
     public boolean update() {
-        if(config.getCompression() <= 0) { // autocompression every update
-            groupPreviewData(config.getCompression());
-        }
-
         Range dataMinMax = Range.max(getChartDataMinMax(), getPreviewDataMinMax());
         Range previewMinMax = Range.max(dataMinMax, scrollableChart.getPreviewMinMax());
+        groupPreviewData(previewMinMax);
         scrollableChart.setPreviewMinMax(previewMinMax);
         scrollableChart.setPreviewData(previewData);
         autoscalePreviewY();
