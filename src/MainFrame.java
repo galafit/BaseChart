@@ -62,7 +62,7 @@ public class MainFrame extends JFrame {
 
        config.addPreviewTrace(new LineTraceConfig(), xyData2);
        config.addPreviewTrace(new LineTraceConfig(), xyData3);
-       config.addGroupingInterval(400);
+      // config.addGroupingInterval(400);
 
 
         chartPanel = new ChartPanel(config);
@@ -85,7 +85,6 @@ public class MainFrame extends JFrame {
         for (int i = 1; i <=800 ; i++) {
             double lastValue = xData.get(xData.size() - 1);
             xData.add(lastValue + 1);
-           // xData.add(lastValue + 2);
         }
         for (int i = 1; i <=800 ; i++) {
             yData2.add(i);

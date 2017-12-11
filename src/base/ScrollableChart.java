@@ -4,9 +4,8 @@ import base.config.ScrollableChartConfig;
 import base.config.SimpleChartConfig;
 import base.config.general.Margin;
 import java.awt.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -17,7 +16,7 @@ public class ScrollableChart {
     private SimpleChart preview;
     private Rectangle chartArea;
     private Rectangle previewArea;
-    private ArrayList<Scroll> scrolls = new ArrayList<Scroll>(2);
+    private Map<Integer, Scroll> scrolls = new Hashtable<Integer, Scroll>(2);
     private ScrollableChartConfig config;
 
     public ScrollableChart(ScrollableChartConfig config, Rectangle area) {
@@ -47,14 +46,14 @@ public class ScrollableChart {
             preview = new SimpleChart(previewConfig, previewArea);
 
             for (Integer xAxisIndex : scrollableAxis) {
-                Scroll scroll = new Scroll(xAxisIndex, config.getScrollExtent(xAxisIndex), config.getScrollConfig(), preview.getXAxisScale(0));
-                scrolls.add(scroll);
-                Range scrollRange = new Range(scroll.getValue(), scroll.getValue() + scroll.getScrollExtent());
+                Scroll scroll = new Scroll(config.getScrollExtent(xAxisIndex), config.getScrollConfig(), preview.getXAxisScale(0));
+                scrolls.put(xAxisIndex, scroll);
+                Range scrollRange = new Range(scroll.getValue(), scroll.getValue() + scroll.getExtent());
                 chart.setXAxisExtremes(xAxisIndex,  scrollRange);
                 scroll.addListener(new ScrollListener() {
                     @Override
-                    public void onScrollChanged(int axisIndex, double scrollValue, double scrollExtent) {
-                        chart.setXAxisExtremes(axisIndex, new Range(scrollValue, scrollValue + scrollExtent));
+                    public void onScrollChanged(double scrollValue, double scrollExtent) {
+                        chart.setXAxisExtremes(xAxisIndex, new Range(scrollValue, scrollValue + scrollExtent));
                     }
                 });
             }
@@ -75,10 +74,8 @@ public class ScrollableChart {
         return preview.getXAxisMinMax(0);
     }
 
-    public void addScrollsListener(ScrollListener scrollListener) {
-        for (Scroll scroll : scrolls) {
-            scroll.addListener(scrollListener);
-        }
+    public void addScrollsListener(int xAxisIndex, ScrollListener scrollListener) {
+        scrolls.get(xAxisIndex).addListener(scrollListener);
     }
 
     public void setChartData(ArrayList<DataSet> data) {
@@ -94,8 +91,8 @@ public class ScrollableChart {
      */
     public boolean moveScrollsTo(double newValue) {
         boolean scrollsMoved = false;
-        for (Scroll scroll : scrolls) {
-            scrollsMoved = scroll.moveScrollTo(newValue);
+        for (Integer xAxisIndex : scrolls.keySet()) {
+            scrollsMoved = scrolls.get(xAxisIndex).moveScrollTo(newValue);
         }
         return scrollsMoved;
     }
@@ -114,13 +111,12 @@ public class ScrollableChart {
                 preview.setMargin(g2d, previewMargin);
             }
             preview.draw(g2d);
-            for (Scroll scroll : scrolls) {
-                scroll.draw(g2d, preview.getGraphArea(g2d));
+            for (Integer key : scrolls.keySet()) {
+                scrolls.get(key).draw(g2d, preview.getGraphArea(g2d));
             }
         }
         chart.draw(g2d);
     }
-
 
     /**
      * =======================Base methods to interact with chart==========================
@@ -170,11 +166,7 @@ public class ScrollableChart {
             minMax = Range.max(minMax, preview.getXAxisMinMax(0));
             preview.setXAxisExtremes(0, minMax);
             preview.setXAxisExtremes(1, minMax);
-            for (Scroll scroll : scrolls) {
-                if(scroll.getAxisIndex() == xAxisIndex) {
-                    scroll.setScrollExtent(chart.getXAxisMinMax(xAxisIndex).length());
-                }
-            }
+            scrolls.get(xAxisIndex).setExtent(chart.getXAxisMinMax(xAxisIndex).length());
         }
     }
 
@@ -187,11 +179,11 @@ public class ScrollableChart {
             chart.translateX(xAxisIndex, dx);
         } else {
             double scrollTranslation = dx / scrolls.get(0).getRation();
-            for (int i = 1; i < scrolls.size(); i++) {
-                scrollTranslation = Math.min(scrollTranslation, dx / scrolls.get(i).getRation());
+            for (Integer key : scrolls.keySet()) {
+                scrollTranslation = Math.min(scrollTranslation, dx / scrolls.get(key).getRation());
             }
-            for (Scroll scroll : scrolls) {
-                scroll.translateScroll(scrollTranslation);
+            for (Integer key : scrolls.keySet()) {
+                scrolls.get(key).translateScroll(scrollTranslation);
             }
         }
     }
@@ -222,6 +214,23 @@ public class ScrollableChart {
      * =======================Base methods to interact with preview==========================
      **/
 
+
+    public Set<Integer> getXAxisWithScroll() {
+        return scrolls.keySet();
+    }
+    public void addScrollListener(int xAxisIndex, ScrollListener listener) {
+        scrolls.get(xAxisIndex).addListener(listener);
+    }
+
+    public double getScrollExtent(int xAxisIndex) {
+        return scrolls.get(xAxisIndex).getExtent();
+    }
+
+    public double getScrollValue(int xAxisIndex) {
+        return scrolls.get(xAxisIndex).getValue();
+    }
+
+
     public int getPreviewNumberOfXAxis() {
         return preview.getNumberOfXAxis();
     }
@@ -232,8 +241,8 @@ public class ScrollableChart {
 
 
     public boolean isPointInsideScroll(int x, int y) {
-        for (Scroll scroll : scrolls) {
-            if(scroll.isPointInsideScroll(x)) {
+        for (Integer key : scrolls.keySet()) {
+            if(scrolls.get(key).isPointInsideScroll(x)) {
                 return true;
             }
         }
@@ -256,16 +265,16 @@ public class ScrollableChart {
             return false;
         }
         boolean scrollsMoved = false;
-        for (Scroll scroll : scrolls) {
-            scrollsMoved = scroll.moveScrollTo(x, y);
+        for (Integer key : scrolls.keySet()) {
+            scrollsMoved = scrolls.get(key).moveScrollTo(x, y);
         }
         return scrollsMoved;
     }
 
     public boolean translateScroll(int dx) {
        boolean isScrollMoved = false;
-        for (Scroll scroll : scrolls) {
-            isScrollMoved = scroll.translateScroll(dx);
+        for (Integer key : scrolls.keySet()) {
+            isScrollMoved = scrolls.get(key).translateScroll(dx);
         }
         return isScrollMoved;
     }

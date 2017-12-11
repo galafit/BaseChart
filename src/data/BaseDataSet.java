@@ -243,16 +243,16 @@ public class BaseDataSet implements DataSet {
             return groupedSet;
         }*/
 
-        double avgDataInterval = getAverageDataInterval();
+        double avgDataInterval = averageDataInterval();
         if(avgDataInterval > 0) {
-            int avgNumberOfElementsInGroups = (int)(groupingInterval / getAverageDataInterval());
+            int avgNumberOfElementsInGroups = (int) Math.round(groupingInterval / averageDataInterval());
             return groupByNumber(avgNumberOfElementsInGroups);
         }
         return new BaseDataSet(this);
     }
 
 
-    public double getAverageDataInterval() {
+    public double averageDataInterval() {
         if(xColumn instanceof RegularColumn) {
             return ((RegularColumn)xColumn).getDataInterval();
         }

@@ -13,7 +13,6 @@ import java.util.List;
  * Created by galafit on 21/7/17.
  */
 public class Scroll {
-    private int axisIndex;
     private Scale scale;
     private ScrollConfig scrollConfig;
     private double scrollValue;
@@ -21,11 +20,10 @@ public class Scroll {
     private List<ScrollListener> eventListeners = new ArrayList<ScrollListener>();
 
 
-    public Scroll(int axisIndex, double scrollExtent, ScrollConfig scrollConfig, Scale scale) {
+    public Scroll(double scrollExtent, ScrollConfig scrollConfig, Scale scale) {
         this.scale = scale;
-        this.axisIndex = axisIndex;
         this.scrollConfig = scrollConfig;
-        setScrollExtent(scrollExtent);
+        setExtent(scrollExtent);
         scrollValue = getMin();
     }
 
@@ -35,11 +33,11 @@ public class Scroll {
 
     private void fireListeners() {
         for (ScrollListener listener : eventListeners) {
-            listener.onScrollChanged(axisIndex, scrollValue, scrollExtent);
+            listener.onScrollChanged(scrollValue, scrollExtent);
         }
     }
 
-    public void setScrollExtent(double scrollExtent) {
+    public void setExtent(double scrollExtent) {
         if (scrollExtent > getMax() - getMin() || scrollExtent <= 0) {
             scrollExtent = getMax() - getMin();
         }
@@ -133,13 +131,10 @@ public class Scroll {
         return scrollValue;
     }
 
-    public double getScrollExtent() {
+    public double getExtent() {
         return scrollExtent;
     }
 
-    public int getAxisIndex() {
-        return axisIndex;
-    }
 
     private void checkBounds() {
         if (scrollValue + scrollExtent > getMax()) {
