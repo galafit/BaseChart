@@ -99,12 +99,11 @@ public class MainFrame extends JFrame {
         MainFrame mainFrame = new MainFrame();
 
 
-     /*  final Timer timer = new Timer(100, new ActionListener() {
-
+      /* final Timer timer = new Timer(100, new ActionListener() {
             int counter = 0;
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(counter < 40) {
+                if(counter < 20) {
                     mainFrame.update();
                     counter++;
                 }

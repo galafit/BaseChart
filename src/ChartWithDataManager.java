@@ -12,9 +12,10 @@ import java.util.List;
 public class ChartWithDataManager {
     private ChartConfig config;
 
-    private boolean isAutoscaleDuringScroll = true;
+    private boolean isAutoScaleDuringScroll = true;
     private int minPixPerDataItem = 5;
-    private double currentGroupingInterval = 0;
+    private double currentGroupingInterval =
+            0;
 
     private boolean isAutoScroll = true;
     private ScrollableChart scrollableChart;
@@ -47,9 +48,9 @@ public class ChartWithDataManager {
                 config.addScroll(xAxisIndex, calculateChartExtent(xAxisIndex));
             }
         }
+        chartOriginalData = chartConfig.getData();
 
         if (config.isPreviewEnable()) {
-            chartOriginalData = chartConfig.getData();
             previewOriginalData = previewConfig.getData();
 
             chartData = new ArrayList<DataSet>();
@@ -93,10 +94,13 @@ public class ChartWithDataManager {
                     if (config.isCropEnable()) {
                         cropChartData(xAxisIndex, new Range(scrollValue, scrollValue + scrollExtent));
                         scrollableChart.setChartData(chartData);
-                        autoscaleChartY();
+                        autoScaleChartY();
                     }
                 }
             });
+        }
+        if(isAutoScroll) {
+            autoScroll();
         }
     }
 
@@ -141,15 +145,15 @@ public class ChartWithDataManager {
 
     }
 
-    private void autoscaleChartY() {
-        if (isAutoscaleDuringScroll) {
+    private void autoScaleChartY() {
+        if (isAutoScaleDuringScroll) {
             for (int i = 0; i < scrollableChart.getChartNumberOfYAxis(); i++) {
                 scrollableChart.autoScaleChartY(i);
             }
         }
     }
 
-    private void autoscalePreviewY() {
+    private void autoScalePreviewY() {
         for (int i = 0; i < scrollableChart.getPreviewNumberOfYAxis(); i++) {
             scrollableChart.autoScalePreviewY(i);
         }
@@ -218,7 +222,7 @@ public class ChartWithDataManager {
         groupPreviewData(previewMinMax);
         scrollableChart.setPreviewMinMax(previewMinMax);
         scrollableChart.setPreviewData(previewData);
-        autoscalePreviewY();
+        autoScalePreviewY();
         if (isAutoScroll) {
             return autoScroll();
         }

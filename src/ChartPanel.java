@@ -40,7 +40,7 @@ public class ChartPanel extends JPanel {
                     pastX = e.getX();
                     pastY = e.getY();
                     if(isPressedInsideScroll) {
-                        if(translateScrollBar(dx)) {
+                        if(chart.translateScrolls(dx)) {
                             repaint();
                         }
                     } else {
@@ -71,7 +71,7 @@ public class ChartPanel extends JPanel {
                     repaint();
                 }
                 if (e.getClickCount() == 1) {
-                    if(moveScrollBar(e.getX(), e.getY())) {
+                    if(chart.setScrollsPosition(e.getX(), e.getY())) {
                         repaint();
                     }
                 }
@@ -125,8 +125,8 @@ public class ChartPanel extends JPanel {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-               // createChart();
-                repaint();
+               chart.setArea(getBounds());
+               repaint();
             }
         });
     }
@@ -211,13 +211,6 @@ public class ChartPanel extends JPanel {
         }
     }
 
-    private boolean moveScrollBar(int x, int y) {
-        return chart.setScrollsPosition(x, y);
-    }
-
-    private boolean translateScrollBar(int dx) {
-         return chart.translateScrolls(dx);
-    }
 
     private void translateY(int dy) {
         for (Integer yAxisIndex : yAxisList) {

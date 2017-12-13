@@ -43,8 +43,7 @@ public class SimpleChart  {
     private Margin margin;
 
     private boolean isDirty = true;
-    // if true traces with a small number of points will be stretched over the whole graphArea
-    private boolean isTracesStretched = false;
+
 
     private CrosshairPainter crosshairPainter;
     private TooltipPainter tooltipPainter;
@@ -195,11 +194,12 @@ public class SimpleChart  {
         xEnd = graphArea.x + graphArea.width;
         xAxisList.get(0).setStartEnd(xStart, xEnd);
         xAxisList.get(1).setStartEnd(xStart, xEnd);
+        isDirty = false;
     }
 
 
     public void draw(Graphics2D g2d) {
-        if (margin == null) {
+        if (isDirty) {
             calculateMarginsAndAreas(g2d, chartConfig.getMargin());
         }
 
@@ -280,6 +280,11 @@ public class SimpleChart  {
     }
 
     /**=======================Base methods to interact==========================**/
+
+    public void setArea(Rectangle area) {
+        fullArea = area;
+        isDirty = true;
+    }
 
     public void setData(ArrayList<DataSet> data) {
         chartConfig.setData(data);

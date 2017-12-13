@@ -59,12 +59,6 @@ public class Scroll {
         return new Range(scrollStart, scrollStart + scrollWidth);
     }
 
-
-    public double getExtentRatio() {
-        return  extent / (getMax() - getMin());
-    }
-
-
     public double getExtent() {
         return extent;
     }

@@ -18,23 +18,19 @@ public class ScrollableChart {
     private Map<Integer, Scroll> scrolls = new Hashtable<Integer, Scroll>(2);
     private ScrollableChartConfig config;
 
+    private boolean isDirty = true;
+
+
     public ScrollableChart(ScrollableChartConfig config, Rectangle area) {
         this.config = config;
         SimpleChartConfig chartConfig = config.getChartConfig();
         Set<Integer> scrollableAxis = config.getXAxisWithScroll();
+        calculateAreas(area);
         if(!isPreviewEnable()) {
-            chart = new SimpleChart(chartConfig, area);
-            chartArea = area;
+            chart = new SimpleChart(chartConfig, chartArea);
         } else {
             SimpleChartConfig previewConfig = config.getPreviewConfig();
-            int chartWeight = chartConfig.getSumWeight();
-            int previewWeight = previewConfig.getSumWeight();
-            int chartHeight = area.height * chartWeight / (chartWeight + previewWeight);
-            int previewHeight = area.height * previewWeight / (chartWeight + previewWeight);
-            chartArea = new Rectangle(area.x, area.y, area.width, chartHeight);
-            previewArea = new Rectangle(area.x, area.y + chartHeight, area.width, previewHeight);
             chart = new SimpleChart(chartConfig, chartArea);
-
             if(config.getPreviewMinMax() == null) {
                 Range previewMinMax = null;
                 for (Integer xAxisIndex : scrollableAxis) {
@@ -62,15 +58,17 @@ public class ScrollableChart {
 
     public void draw(Graphics2D g2d) {
         if(preview != null) {
-            Margin chartMargin = chart.getMargin(g2d);
-            Margin previewMargin = preview.getMargin(g2d);
-            if (chartMargin.left() != previewMargin.left() || chartMargin.right() != previewMargin.right()) {
-                int left = Math.max(chartMargin.left(), previewMargin.left());
-                int right = Math.max(chartMargin.right(), previewMargin.right());
-                chartMargin = new Margin(chartMargin.top(), right, chartMargin.bottom(), left);
-                previewMargin = new Margin(previewMargin.top(), right, previewMargin.bottom(), left);
-                chart.setMargin(g2d, chartMargin);
-                preview.setMargin(g2d, previewMargin);
+            if(isDirty) {
+                Margin chartMargin = chart.getMargin(g2d);
+                Margin previewMargin = preview.getMargin(g2d);
+                if (chartMargin.left() != previewMargin.left() || chartMargin.right() != previewMargin.right()) {
+                    int left = Math.max(chartMargin.left(), previewMargin.left());
+                    int right = Math.max(chartMargin.right(), previewMargin.right());
+                    chartMargin = new Margin(chartMargin.top(), right, chartMargin.bottom(), left);
+                    previewMargin = new Margin(previewMargin.top(), right, previewMargin.bottom(), left);
+                    chart.setMargin(g2d, chartMargin);
+                    preview.setMargin(g2d, previewMargin);
+                }
             }
             preview.draw(g2d);
             for (Integer key : scrolls.keySet()) {
@@ -78,6 +76,28 @@ public class ScrollableChart {
             }
         }
         chart.draw(g2d);
+    }
+
+    private void calculateAreas(Rectangle area) {
+        if (!isPreviewEnable()) {
+            chartArea = area;
+        } else {
+            int chartWeight = config.getChartConfig().getSumWeight();
+            int previewWeight = config.getPreviewConfig().getSumWeight();
+            int chartHeight = area.height * chartWeight / (chartWeight + previewWeight);
+            int previewHeight = area.height * previewWeight / (chartWeight + previewWeight);
+            chartArea = new Rectangle(area.x, area.y, area.width, chartHeight);
+            previewArea = new Rectangle(area.x, area.y + chartHeight, area.width, previewHeight);
+        }
+    }
+
+    public void setArea(Rectangle area) {
+        calculateAreas(area);
+        chart.setArea(chartArea);
+        if(preview != null) {
+            preview.setArea(previewArea);
+        }
+        isDirty = true;
     }
 
     /**
