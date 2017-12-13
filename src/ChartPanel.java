@@ -61,7 +61,6 @@ public class ChartPanel extends JPanel {
         });
 
         addMouseListener(new MouseAdapter() {
-
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
@@ -116,7 +115,7 @@ public class ChartPanel extends JPanel {
                         || e.isMetaDown()) { // zoomChartX
                     zoomX(e.getWheelRotation());
                     repaint();
-                } else { // translateScroll X
+                } else { // translateScrolls X
                     translateX(e.getWheelRotation() * scrollPointsPerRotation);
                     repaint();
                 }
@@ -135,11 +134,14 @@ public class ChartPanel extends JPanel {
 
     private void updateXAxisList(int x, int y) {
         int selectedTraceIndex = chart.getChartSelectedTraceIndex();
+        xAxisList = new ArrayList<>(1);
         if(selectedTraceIndex >= 0) {
-            xAxisList = new ArrayList<>(1);
             xAxisList.add(chart.getChartTraceXIndex(selectedTraceIndex));
         } else {
-            xAxisList = chart.getChartStackXIndexes(x, y);
+           int xAxisIndex = chart.getChartXIndex(x, y);
+           if(xAxisIndex >= 0) {
+               xAxisList.add(chart.getChartXIndex(x, y));
+           }
         }
     }
 
@@ -164,8 +166,9 @@ public class ChartPanel extends JPanel {
                 yAxisList.add(chart.getChartTraceYIndex(chartSelectedTraceIndex));
             } else {
                 int yAxisIndex = chart.getChartYIndex(x, y);
-                if(yAxisIndex >= 0)
+                if(yAxisIndex >= 0) {
                     yAxisList.add(yAxisIndex);
+                }
             }
             yAxisListPreview = new ArrayList<>(0);
         }
@@ -209,11 +212,11 @@ public class ChartPanel extends JPanel {
     }
 
     private boolean moveScrollBar(int x, int y) {
-        return chart.moveScrollsTo(x, y);
+        return chart.setScrollsPosition(x, y);
     }
 
     private boolean translateScrollBar(int dx) {
-         return chart.translateScroll(dx);
+         return chart.translateScrolls(dx);
     }
 
     private void translateY(int dy) {
@@ -234,12 +237,12 @@ public class ChartPanel extends JPanel {
     private void zoomY(int dy) {
         for (Integer yAxisIndex : yAxisList) {
             // scaling relative to the stack
-            double zoomFactor = 1 + defaultZoom * dy / chart.getChartYRange(yAxisIndex).length();
+            double zoomFactor = 1 + defaultZoom * dy / chart.getChartYStartEnd(yAxisIndex).length();
             chart.zoomChartY(yAxisIndex, zoomFactor);
         }
         for (Integer yAxisIndex : yAxisListPreview) {
             // scaling relative to the stack
-            double zoomFactor = 1 + defaultZoom * dy / chart.getChartYRange(yAxisIndex).length();
+            double zoomFactor = 1 + defaultZoom * dy / chart.getChartYStartEnd(yAxisIndex).length();
             chart.zoomPreviewY(yAxisIndex, zoomFactor);
         }
     }
@@ -253,16 +256,16 @@ public class ChartPanel extends JPanel {
 
     private void autoscaleX() {
         for (Integer xAxisIndex : xAxisList) {
-            chart.autoscaleChartX(xAxisIndex);
+            chart.autoScaleChartX(xAxisIndex);
         }
     }
 
     private void autoscaleY() {
         for (Integer yAxisIndex : yAxisList) {
-            chart.autoscaleChartY(yAxisIndex);
+            chart.autoScaleChartY(yAxisIndex);
         }
         for (Integer yAxisIndex : yAxisListPreview) {
-            chart.autoscalePreviewY(yAxisIndex);
+            chart.autoScalePreviewY(yAxisIndex);
         }
     }
 
@@ -293,7 +296,7 @@ public class ChartPanel extends JPanel {
     }
 
     public Range getChartYRange(int yAxisIndex) {
-        return chart.getChartYRange(yAxisIndex);
+        return chart.getChartYStartEnd(yAxisIndex);
     }
 
     public int getChartTraceYIndex(int traceIndex) {
@@ -308,8 +311,8 @@ public class ChartPanel extends JPanel {
         return chart.getChartYIndex(x, y);
     }
 
-    public List<Integer> getChartStackXIndexes(int x, int y) {
-        return chart.getChartStackXIndexes(x, y);
+    public int getChartXIndex(int x, int y) {
+        return chart.getChartXIndex(x, y);
     }
 
     public void zoomChartY(int yAxisIndex, double zoomFactor) {
@@ -329,11 +332,11 @@ public class ChartPanel extends JPanel {
     }
 
     public void autoscaleChartX(int xAxisIndex) {
-        chart.autoscaleChartX(xAxisIndex);
+        chart.autoScaleChartX(xAxisIndex);
     }
 
     public void autoscaleChartY(int yAxisIndex) {
-        chart.autoscaleChartY(yAxisIndex);
+        chart.autoScaleChartY(yAxisIndex);
     }
 
     public boolean chartHoverOff() {
@@ -359,11 +362,11 @@ public class ChartPanel extends JPanel {
     }
 
     public boolean moveScrollTo(int x, int y) {
-       return chart.moveScrollsTo(x, y);
+       return chart.setScrollsPosition(x, y);
     }
 
     public boolean translateScroll(int dx) {
-        return chart.translateScroll(dx);
+        return chart.translateScrolls(dx);
     }
 
     public int getPreviewSelectedTraceIndex() {
@@ -371,7 +374,7 @@ public class ChartPanel extends JPanel {
     }
 
     public Range getPreviewYRange(int yAxisIndex) {
-        return chart.getPreviewYRange(yAxisIndex);
+        return chart.getPreviewYStartEnd(yAxisIndex);
     }
 
     public int getPreviewTraceYIndex(int traceIndex) {
@@ -392,7 +395,7 @@ public class ChartPanel extends JPanel {
     }
 
     public void autoscalePreviewY(int yAxisIndex) {
-        chart.autoscalePreviewY(yAxisIndex);
+        chart.autoScalePreviewY(yAxisIndex);
     }
 
 }

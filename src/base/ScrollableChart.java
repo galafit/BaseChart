@@ -5,7 +5,6 @@ import base.config.SimpleChartConfig;
 import base.config.general.Margin;
 import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 
 /**
@@ -25,6 +24,7 @@ public class ScrollableChart {
         Set<Integer> scrollableAxis = config.getXAxisWithScroll();
         if(!isPreviewEnable()) {
             chart = new SimpleChart(chartConfig, area);
+            chartArea = area;
         } else {
             SimpleChartConfig previewConfig = config.getPreviewConfig();
             int chartWeight = chartConfig.getSumWeight();
@@ -38,7 +38,7 @@ public class ScrollableChart {
             if(config.getPreviewMinMax() == null) {
                 Range previewMinMax = null;
                 for (Integer xAxisIndex : scrollableAxis) {
-                    previewMinMax = Range.max(previewMinMax, chart.getXAxisMinMax(xAxisIndex));
+                    previewMinMax = Range.max(previewMinMax, chart.getXMinMax(xAxisIndex));
                 }
                 config.setPreviewMinMax(previewMinMax);
             }
@@ -49,54 +49,16 @@ public class ScrollableChart {
                 Scroll scroll = new Scroll(config.getScrollExtent(xAxisIndex), config.getScrollConfig(), preview.getXAxisScale(0));
                 scrolls.put(xAxisIndex, scroll);
                 Range scrollRange = new Range(scroll.getValue(), scroll.getValue() + scroll.getExtent());
-                chart.setXAxisExtremes(xAxisIndex,  scrollRange);
+                chart.setXMinMax(xAxisIndex,  scrollRange);
                 scroll.addListener(new ScrollListener() {
                     @Override
                     public void onScrollChanged(double scrollValue, double scrollExtent) {
-                        chart.setXAxisExtremes(xAxisIndex, new Range(scrollValue, scrollValue + scrollExtent));
+                        chart.setXMinMax(xAxisIndex, new Range(scrollValue, scrollValue + scrollExtent));
                     }
                 });
             }
         }
     }
-
-    public boolean isPreviewEnable() {
-       return config.isPreviewEnable();
-    }
-
-    public void setPreviewMinMax(Range minMax) {
-        for (int i = 0; i < preview.getNumberOfXAxis(); i++) {
-            preview.setXAxisExtremes(i, minMax);
-        }
-    }
-
-    public Range getPreviewMinMax() {
-        return preview.getXAxisMinMax(0);
-    }
-
-    public void addScrollsListener(int xAxisIndex, ScrollListener scrollListener) {
-        scrolls.get(xAxisIndex).addListener(scrollListener);
-    }
-
-    public void setChartData(ArrayList<DataSet> data) {
-       chart.setData(data);
-    }
-
-    public void setPreviewData(ArrayList<DataSet> data) {
-        preview.setData(data);
-    }
-
-    /**
-     * @return true if scrollValue was changed and false if newValue = current scroll value
-     */
-    public boolean moveScrollsTo(double newValue) {
-        boolean scrollsMoved = false;
-        for (Integer xAxisIndex : scrolls.keySet()) {
-            scrollsMoved = scrolls.get(xAxisIndex).moveScrollTo(newValue);
-        }
-        return scrollsMoved;
-    }
-
 
     public void draw(Graphics2D g2d) {
         if(preview != null) {
@@ -122,28 +84,40 @@ public class ScrollableChart {
      * =======================Base methods to interact with chart==========================
      **/
 
+    public void setChartData(ArrayList<DataSet> data) {
+        chart.setData(data);
+    }
+
     public int getChartSelectedTraceIndex() {
         return chart.getSelectedTraceIndex();
     }
 
-    public Range getChartYRange(int yAxisIndex) {
-        return chart.getYAxisRange(yAxisIndex);
+    public Range getChartYStartEnd(int yAxisIndex) {
+        return chart.getYStartEnd(yAxisIndex);
+    }
+
+    public void setChartYMinMax(int yAxisIndex, Range minMax) {
+        chart.setYMinMax(yAxisIndex, minMax);
+    }
+
+    public Range getChartYMinMax(int yAxisIndex) {
+        return chart.getYMinMax(yAxisIndex);
     }
 
     public int getChartTraceYIndex(int traceIndex) {
-        return chart.getTraceYAxisIndex(traceIndex);
+        return chart.getTraceYIndex(traceIndex);
     }
 
     public int getChartTraceXIndex(int traceIndex) {
-        return chart.getTraceXAxisIndex(traceIndex);
+        return chart.getTraceXIndex(traceIndex);
     }
 
     public int getChartYIndex(int x, int y) {
-        return chart.getYAxisIndex(x, y);
+        return chart.getYIndex(x, y);
     }
 
-    public List<Integer> getChartStackXIndexes(int x, int y) {
-        return chart.getStackXAxisIndexes(x, y);
+    public int getChartXIndex(int x, int y) {
+        return chart.getXIndex(x, y);
     }
 
     public int getChartNumberOfXAxis() {
@@ -162,11 +136,11 @@ public class ScrollableChart {
         chart.zoomX(xAxisIndex, zoomFactor);
         if (preview != null) {
             chart.zoomX(xAxisIndex, zoomFactor);
-            Range minMax = Range.max(chart.getXAxisMinMax(0), chart.getXAxisMinMax(1));
-            minMax = Range.max(minMax, preview.getXAxisMinMax(0));
-            preview.setXAxisExtremes(0, minMax);
-            preview.setXAxisExtremes(1, minMax);
-            scrolls.get(xAxisIndex).setExtent(chart.getXAxisMinMax(xAxisIndex).length());
+            Range minMax = Range.max(chart.getXMinMax(0), chart.getXMinMax(1));
+            minMax = Range.max(minMax, preview.getXMinMax(0));
+            preview.setXMinMax(0, minMax);
+            preview.setXMinMax(1, minMax);
+            scrolls.get(xAxisIndex).setExtent(chart.getXMinMax(xAxisIndex).length());
         }
     }
 
@@ -175,27 +149,22 @@ public class ScrollableChart {
     }
 
     public void translateChartX(int xAxisIndex, int dx) {
-        if (preview == null) {
-            chart.translateX(xAxisIndex, dx);
-        } else {
-            double scrollTranslation = dx / scrolls.get(0).getRation();
-            for (Integer key : scrolls.keySet()) {
-                scrollTranslation = Math.min(scrollTranslation, dx / scrolls.get(key).getRation());
-            }
-            for (Integer key : scrolls.keySet()) {
-                scrolls.get(key).translateScroll(scrollTranslation);
-            }
+        chart.translateX(xAxisIndex, dx);
+        if (preview != null) {
+            double scrollValue = chart.getXMinMax(xAxisIndex).start();
+            setScrollsValue(scrollValue);
+            chart.setXMinMax(xAxisIndex, new Range(scrolls.get(xAxisIndex).getValue(), scrolls.get(xAxisIndex).getValue() + scrolls.get(xAxisIndex).getExtent()));
         }
     }
 
-    public void autoscaleChartX(int xAxisIndex) {
+    public void autoScaleChartX(int xAxisIndex) {
         if (preview == null) {
-            chart.autoscaleXAxis(xAxisIndex);
+            chart.autoScaleX(xAxisIndex);
         }
     }
 
-    public void autoscaleChartY(int yAxisIndex) {
-        chart.autoscaleYAxis(yAxisIndex);
+    public void autoScaleChartY(int yAxisIndex) {
+        chart.autoScaleY(yAxisIndex);
     }
 
     public boolean chartHoverOff() {
@@ -214,10 +183,52 @@ public class ScrollableChart {
      * =======================Base methods to interact with preview==========================
      **/
 
+    public boolean isPreviewEnable() {
+        return config.isPreviewEnable();
+    }
+
+    public void setPreviewData(ArrayList<DataSet> data) {
+        preview.setData(data);
+    }
+
+    /**
+     * @return true if scrollValue was changed and false if newValue = current scroll value
+     */
+    public boolean setScrollsValue(double newValue) {
+        boolean scrollsMoved = false;
+        for (Integer xAxisIndex : scrolls.keySet()) {
+            scrollsMoved = scrolls.get(xAxisIndex).setValue(newValue) || scrollsMoved;
+        }
+        return scrollsMoved;
+    }
+
+    /**
+     * @return true if scrollValue was changed and false if newValue = current scroll value
+     */
+    public boolean setScrollsPosition(double x, double y) {
+        if (previewArea == null || !previewArea.contains(x, y)) {
+            return false;
+        }
+        boolean scrollsMoved = false;
+        for (Integer key : scrolls.keySet()) {
+            scrollsMoved = scrolls.get(key).setPosition(x) || scrollsMoved;
+        }
+        return scrollsMoved;
+    }
+
+    public boolean translateScrolls(int dx) {
+        Double maxScrollsPosition = null;
+        for (Integer key : scrolls.keySet()) {
+            maxScrollsPosition = (maxScrollsPosition == null) ? scrolls.get(key).getPosition() : Math.max(maxScrollsPosition, scrolls.get(key).getPosition());
+        }
+        return setScrollsPosition(maxScrollsPosition + dx, previewArea.y);
+    }
+
 
     public Set<Integer> getXAxisWithScroll() {
         return scrolls.keySet();
     }
+
     public void addScrollListener(int xAxisIndex, ScrollListener listener) {
         scrolls.get(xAxisIndex).addListener(listener);
     }
@@ -229,7 +240,6 @@ public class ScrollableChart {
     public double getScrollValue(int xAxisIndex) {
         return scrolls.get(xAxisIndex).getValue();
     }
-
 
     public int getPreviewNumberOfXAxis() {
         return preview.getNumberOfXAxis();
@@ -257,28 +267,6 @@ public class ScrollableChart {
         return false;
     }
 
-    /**
-     * @return true if scrollValue was changed and false if newValue = current scroll value
-     */
-    public boolean moveScrollsTo(int x, int y) {
-        if (previewArea != null || !previewArea.contains(x, y)) {
-            return false;
-        }
-        boolean scrollsMoved = false;
-        for (Integer key : scrolls.keySet()) {
-            scrollsMoved = scrolls.get(key).moveScrollTo(x, y);
-        }
-        return scrollsMoved;
-    }
-
-    public boolean translateScroll(int dx) {
-       boolean isScrollMoved = false;
-        for (Integer key : scrolls.keySet()) {
-            isScrollMoved = scrolls.get(key).translateScroll(dx);
-        }
-        return isScrollMoved;
-    }
-
     public int getPreviewSelectedTraceIndex() {
         if(preview != null) {
             return preview.getSelectedTraceIndex();
@@ -286,17 +274,35 @@ public class ScrollableChart {
         return -1;
     }
 
-    public Range getPreviewYRange(int yAxisIndex) {
-        return preview.getYAxisRange(yAxisIndex);
+    public void setPreviewMinMax(Range minMax) {
+        for (int i = 0; i < preview.getNumberOfXAxis(); i++) {
+            preview.setXMinMax(i, minMax);
+        }
+    }
+
+    public Range getPreviewMinMax() {
+        return preview.getXMinMax(0);
+    }
+
+    public Range getPreviewYStartEnd(int yAxisIndex) {
+        return preview.getYStartEnd(yAxisIndex);
+    }
+
+    public void setPreviewYMinMax(int yAxisIndex, Range minMax) {
+        chart.setYMinMax(yAxisIndex, minMax);
+    }
+
+    public Range getPreviewYMinMax(int yAxisIndex) {
+        return chart.getYMinMax(yAxisIndex);
     }
 
     public int getPreviewTraceYIndex(int traceIndex) {
-        return preview.getTraceYAxisIndex(traceIndex);
+        return preview.getTraceYIndex(traceIndex);
     }
 
     public int getPreviewYIndex(int x, int y) {
         if(preview != null) {
-            return preview.getYAxisIndex(x, y);
+            return preview.getYIndex(x, y);
         }
         return -1;
     }
@@ -315,9 +321,9 @@ public class ScrollableChart {
 
     }
 
-    public void autoscalePreviewY(int yAxisIndex) {
+    public void autoScalePreviewY(int yAxisIndex) {
         if(preview != null) {
-            preview.autoscaleYAxis(yAxisIndex);
+            preview.autoScaleY(yAxisIndex);
         }
     }
 
@@ -329,7 +335,7 @@ public class ScrollableChart {
         if(chartArea.contains(mouseX, mouseY)) {
             chart.onClick(mouseX, mouseY);
         } else if(preview != null && previewArea.contains(mouseX, mouseY) && !isPointInsideScroll(mouseX, mouseY)) {
-            moveScrollsTo(mouseX, mouseY);
+            setScrollsValue(mouseX, mouseY);
         }
         for (ScrollListener changeListener : chartEventListeners) {
            // changeListener.update();

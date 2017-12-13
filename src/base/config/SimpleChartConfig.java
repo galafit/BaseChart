@@ -77,41 +77,17 @@ public class SimpleChartConfig {
         return data;
     }
 
+    public void addStack(int weight) {
+        AxisConfig axisConfig = new AxisConfig(AxisOrientation.LEFT);
+        axisConfig.getMinorGridLineConfig().setWidth(0);
+        axisConfig.getGridLineConfig().setWidth(1);
+        yAxisConfigs.add(axisConfig);
 
-   public int getNumberOfXAxis() {
-        return xAxisConfigs.size();
-   }
-
-    public int getNumberOfYAxis() {
-        return yAxisConfigs.size();
-    }
-
-    public int getNumberOfTraces() {
-        return traces.size();
-    }
-
-    public AxisConfig getXAxisConfig(int axisIndex) {
-        return xAxisConfigs.get(axisIndex);
-    }
-
-    public AxisConfig getYAxisConfig(int axisIndex) {
-        return yAxisConfigs.get(axisIndex);
-    }
-
-    public void setXAxisMinMax(int xAxisIndex, Range minMax) {
-       xAxisExtremes.put(xAxisIndex, minMax);
-    }
-
-    public void setYAxisMinMax(int yAxisIndex, Range minMax) {
-        yAxisExtremes.put(yAxisIndex, minMax);
-    }
-
-    public Range getXAxisMinMax(int xAxisIndex) {
-        return xAxisExtremes.get(xAxisIndex);
-    }
-
-    public Range getYAxisMinMax(int xAxisIndex) {
-        return yAxisExtremes.get(xAxisIndex);
+        axisConfig = new AxisConfig(AxisOrientation.RIGHT);
+        axisConfig.getMinorGridLineConfig().setWidth(0);
+        axisConfig.getGridLineConfig().setWidth(0);
+        yAxisConfigs.add(axisConfig);
+        stackWeights.add(weight);
     }
 
     public int getSumWeight() {
@@ -122,7 +98,7 @@ public class SimpleChartConfig {
         return weightSum;
     }
 
-    public Range getYAxisStartEnd(int yAxisIndex, Rectangle area) {
+    public Range getYStartEnd(int yAxisIndex, Rectangle area) {
         int weightSum = getSumWeight();
 
         int weightSumTillYAxis = 0;
@@ -137,20 +113,6 @@ public class SimpleChartConfig {
         int start = end + axisHeight;
         return new Range(start, end, true);
     }
-
-    public void addStack(int weight) {
-        AxisConfig axisConfig = new AxisConfig(AxisOrientation.LEFT);
-        axisConfig.getMinorGridLineConfig().setWidth(0);
-        axisConfig.getGridLineConfig().setWidth(1);
-        yAxisConfigs.add(axisConfig);
-
-        axisConfig = new AxisConfig(AxisOrientation.RIGHT);
-        axisConfig.getMinorGridLineConfig().setWidth(0);
-        axisConfig.getGridLineConfig().setWidth(0);
-        yAxisConfigs.add(axisConfig);
-        stackWeights.add(weight);
-    }
-
 
     public void addTrace(TraceConfig traceConfig, DataSet traceData, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {
         data.add(traceData);
@@ -183,27 +145,55 @@ public class SimpleChartConfig {
         traces.add(traceInfo);
     }
 
-    public int getTraceAmount() {
+    public int getNumberOfXAxis() {
+        return xAxisConfigs.size();
+    }
+
+    public int getNumberOfYAxis() {
+        return yAxisConfigs.size();
+    }
+
+    public int getNumberOfTraces() {
         return traces.size();
+    }
+
+    public AxisConfig getXConfig(int axisIndex) {
+        return xAxisConfigs.get(axisIndex);
+    }
+
+    public AxisConfig getYConfig(int axisIndex) {
+        return yAxisConfigs.get(axisIndex);
+    }
+
+    public void setXMinMax(int xAxisIndex, Range minMax) {
+        xAxisExtremes.put(xAxisIndex, minMax);
+    }
+
+    public void setYMinMax(int yAxisIndex, Range minMax) {
+        yAxisExtremes.put(yAxisIndex, minMax);
+    }
+
+    public Range getXMinMax(int xAxisIndex) {
+        return xAxisExtremes.get(xAxisIndex);
+    }
+
+    public Range getYMinMax(int xAxisIndex) {
+        return yAxisExtremes.get(xAxisIndex);
     }
 
     public TraceConfig getTraceConfig(int index) {
         return traces.get(index).getTraceConfig();
     }
 
-    public DataSet getTraceData(int traceIndex) {
-        return data.get(traces.get(traceIndex).getDataIndex());
-    }
-
     public String getTraceName(int traceIndex){
         return traces.get(traceIndex).getName();
     }
 
-    public int getTraceXAxisIndex(int traceIndex){
+    public int getTraceXIndex(int traceIndex){
         return traces.get(traceIndex).getXAxisIndex();
     }
 
-    public int getTraceYAxisIndex(int traceIndex){
+    public int getTraceYIndex(int traceIndex){
         return traces.get(traceIndex).getYAxisIndex();
     }
 
@@ -246,7 +236,6 @@ public class SimpleChartConfig {
     public TextStyle getTitleTextStyle() {
         return titleTextStyle;
     }
-
 
     public LegendConfig getLegendConfig() {
         return legendConfig;

@@ -57,16 +57,16 @@ public class SimpleChart  {
         this.chartConfig = chartConfig;
         this.fullArea = area;
         for (int i = 0; i < chartConfig.getNumberOfXAxis(); i++) {
-            xAxisList.add(new Axis(chartConfig.getXAxisConfig(i)));
+            xAxisList.add(new Axis(chartConfig.getXConfig(i)));
         }
         for (int i = 0; i < chartConfig.getNumberOfYAxis(); i++) {
-            yAxisList.add(new Axis(chartConfig.getYAxisConfig(i)));
+            yAxisList.add(new Axis(chartConfig.getYConfig(i)));
         }
-        for (int i = 0; i < chartConfig.getTraceAmount(); i++) {
+        for (int i = 0; i < chartConfig.getNumberOfTraces(); i++) {
             TraceConfig traceConfig = chartConfig.getTraceConfig(i);
-            Trace trace = TraceRegister.getTrace(traceConfig, chartConfig.getTraceData(i));
-            trace.setXAxis(xAxisList.get(chartConfig.getTraceXAxisIndex(i)));
-            trace.setYAxis(yAxisList.get(chartConfig.getTraceYAxisIndex(i)));
+            Trace trace = TraceRegister.getTrace(traceConfig, chartConfig.getData().get(chartConfig.getTraceDataIndex(i)));
+            trace.setXAxis(xAxisList.get(chartConfig.getTraceXIndex(i)));
+            trace.setYAxis(yAxisList.get(chartConfig.getTraceYIndex(i)));
             trace.setDefaultColor(traceColors[traces.size() % traceColors.length]);
             trace.setName(chartConfig.getTraceName(i));
             traces.add(trace);
@@ -78,33 +78,25 @@ public class SimpleChart  {
 
         // set min and max for x axis
         for (int i = 0; i < xAxisList.size(); i++) {
-            Range minMax = chartConfig.getXAxisMinMax(i);
+            Range minMax = chartConfig.getXMinMax(i);
             if(minMax != null) {
                 xAxisList.get(i).setMinMax(minMax);
 
             } else {
-                autoscaleXAxis(i);
+                autoScaleX(i);
             }
         }
         // set min and max for y axis
         for (int i = 0; i < yAxisList.size(); i++) {
-            Range minMax = chartConfig.getYAxisMinMax(i);
+            Range minMax = chartConfig.getYMinMax(i);
             if(minMax != null) {
                 yAxisList.get(i).setMinMax(minMax);
 
             } else {
-                autoscaleYAxis(i);
+                autoScaleY(i);
             }
         }
     }
-
-    public void setData(ArrayList<DataSet> data) {
-        chartConfig.setData(data);
-        for (int i = 0; i < chartConfig.getTraceAmount(); i++) {
-            traces.get(i).setData(chartConfig.getTraceData(i));
-        }
-    }
-
 
     private TooltipInfo getTooltipInfo() {
         TooltipInfo tooltipInfo = null;
@@ -135,31 +127,13 @@ public class SimpleChart  {
         calculateMarginsAndAreas(g2, margin);
     }
 
-    public boolean isYAxisUsed(int yAxisIndex) {
-        for (int i = 0; i < traces.size(); i++) {
-            if(getTraceYAxisIndex(i) == yAxisIndex) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    int getPreferredTraceDataMarkSize(int traceIndex) {
-        return traces.get(traceIndex).getPreferredDataMarkSize();
-    }
-
-    void setXAxisExtremes(int xAxisIndex, Range minMax) {
-        xAxisList.get(xAxisIndex).setMinMax(minMax);
-    }
-
     Scale getXAxisScale(int xAxisIndex) {
         return xAxisList.get(xAxisIndex).getScale();
     }
 
     private List<LegendItem> getTracesInfo() {
-        ArrayList<LegendItem> legendItems = new ArrayList<LegendItem>(chartConfig.getTraceAmount());
-        for (int i = 0; i < chartConfig.getTraceAmount(); i++) {
+        ArrayList<LegendItem> legendItems = new ArrayList<LegendItem>(chartConfig.getNumberOfTraces());
+        for (int i = 0; i < chartConfig.getNumberOfTraces(); i++) {
             LegendItem[] items = traces.get(i).getLegendItems();
             for (LegendItem item : items) {
                 legendItems.add(item);
@@ -199,7 +173,7 @@ public class SimpleChart  {
         // set YAxis ranges
         Rectangle paintingArea = new Rectangle(fullArea.x, fullArea.y + top, fullArea.width, fullArea.height - top - bottom);
         for (int i = 0; i < yAxisList.size(); i++) {
-            yAxisList.get(i).setStartEnd(chartConfig.getYAxisStartEnd(i, paintingArea));
+            yAxisList.get(i).setStartEnd(chartConfig.getYStartEnd(i, paintingArea));
         }
         if (left < 0) {
             for (int i = 0; i < yAxisList.size() / 2; i++) {
@@ -307,6 +281,13 @@ public class SimpleChart  {
 
     /**=======================Base methods to interact==========================**/
 
+    public void setData(ArrayList<DataSet> data) {
+        chartConfig.setData(data);
+        for (int i = 0; i < chartConfig.getNumberOfTraces(); i++) {
+            traces.get(i).setData(chartConfig.getData().get(chartConfig.getTraceDataIndex(i)));
+        }
+    }
+
     public int getNumberOfXAxis() {
         return xAxisList.size();
     }
@@ -315,74 +296,86 @@ public class SimpleChart  {
         return yAxisList.size();
     }
 
+    public void setXMinMax(int xAxisIndex, Range minMax) {
+        xAxisList.get(xAxisIndex).setMinMax(minMax);
+    }
 
-    public Range getXAxisMinMax(int xAxisIndex) {
+    public Range getXMinMax(int xAxisIndex) {
         return new Range(xAxisList.get(xAxisIndex).getMin(), xAxisList.get(xAxisIndex).getMax());
+    }
+
+    public Range getYMinMax(int yAxisIndex) {
+        return new Range(yAxisList.get(yAxisIndex).getMin(), yAxisList.get(yAxisIndex).getMax());
+    }
+
+    public void setYMinMax(int yAxisIndex, Range minMax) {
+        yAxisList.get(yAxisIndex).setMinMax(minMax);
+    }
+
+
+    public Range getYStartEnd(int yAxisIndex) {
+        return new Range(yAxisList.get(yAxisIndex).getStart(), yAxisList.get(yAxisIndex).getEnd(), true);
     }
 
     public int getSelectedTraceIndex() {
         return selectedTraceIndex;
     }
 
-    public Range getYAxisRange(int yAxisIndex) {
-        return new Range(yAxisList.get(yAxisIndex).getStart(), yAxisList.get(yAxisIndex).getEnd(), true);
-    }
 
     /**
      * Find and return X axis used by the traces belonging to the stack containing point (x, y)
      */
-    public List<Integer> getStackXAxisIndexes(int x, int y) {
-        int stackIndex = -1;
-        List<Integer> axisList = new ArrayList<>(2);
-        for (int i = 0; i < yAxisList.size() / 2; i++) {
-            Axis yAxis = yAxisList.get(2 * i);
-            // for yAxis Start > End
-            if (yAxis.getEnd() <= y && yAxis.getStart() >= y) {
-                stackIndex = i;
-                break;
-            }
-        }
-        if(stackIndex >= 0) {
-            for (int i = 0; i < traces.size(); i++) {
-                int traceStackIndex = getTraceYAxisIndex(i) / 2;
-                if(traceStackIndex == stackIndex) {
-                    int xAxisIndex = getTraceXAxisIndex(i);
-                    if(!axisList.contains(xAxisIndex)) {
-                        axisList.add(xAxisIndex);
+    public int getXIndex(int x, int y) {
+        for (int stackIndex = 0; stackIndex < yAxisList.size() / 2; stackIndex++) {
+            Axis stackYAxis = yAxisList.get(2 * stackIndex);
+            if (stackYAxis.getEnd() <= y && (stackYAxis.getEnd() + stackYAxis.getStart()) / 2 >= y) { // top half
+                for (int i = 0; i < traces.size(); i++) {
+                    if(getTraceXIndex(i)== 1 && (getTraceYIndex(i) == 2 * stackIndex || getTraceYIndex(i) == 2 * stackIndex + 1)) {
+                        return 1; // top Axis
                     }
                 }
+                return 0; // bottom Axis
             }
-        }
-        return axisList;
-    }
-
-    public int getYAxisIndex(int x, int y) {
-        int stackIndex = -1;
-        for (int i = 0; i < yAxisList.size() / 2; i++) {
-            Axis yAxis = yAxisList.get(2 * i);
-            // for yAxis Start > End
-            if (yAxis.getEnd() <= y && yAxis.getStart() >= y) {
-                stackIndex = i;
-                break;
-            }
-        }
-        if(stackIndex >= 0) {
-            if(x <= fullArea.x + fullArea.width / 2) {
-                int yAxisIndex = 2 * stackIndex;
-                if(!isYAxisUsed(yAxisIndex)) {
-                    yAxisIndex = 2 * stackIndex + 1;
+            if ((stackYAxis.getEnd() + stackYAxis.getStart()) / 2 <= y && y <= stackYAxis.getStart()) { // bottom half
+                for (int i = 0; i < traces.size(); i++) {
+                    if(getTraceXIndex(i)== 0 && (getTraceYIndex(i) == 2 * stackIndex || getTraceYIndex(i) == 2 * stackIndex + 1)) {
+                        return 0; // bottom Axis
+                    }
                 }
-                return yAxisIndex;
-            } else {
-                int yAxisIndex = 2 * stackIndex + 1;
-                if(!isYAxisUsed(yAxisIndex)) {
-                    yAxisIndex = 2 * stackIndex;
-                }
-                return yAxisIndex;
+                return 1; // top Axis
             }
         }
         return -1;
     }
+    /**
+     * Find and return Y axis used by the traces belonging to the stack containing point (x, y)
+     */
+    public int getYIndex(int x, int y) {
+        for (int stackIndex = 0; stackIndex < yAxisList.size() / 2; stackIndex++) {
+            if (yAxisList.get(2 * stackIndex).getEnd() <= y && yAxisList.get(2 * stackIndex).getStart() >= y) {
+                int stackLeftYAxisIndex = 2 * stackIndex;
+                int stackRightYAxisIndex = 2 * stackIndex + 1;
+                if(fullArea.x <= x && x <= fullArea.x + fullArea.width / 2) { // left half
+                    for (int i = 0; i < traces.size(); i++) {
+                        if(getTraceYIndex(i) == stackLeftYAxisIndex) { // if leftAxis is used by some trace
+                            return stackLeftYAxisIndex;
+                        }
+                    }
+                    return stackRightYAxisIndex;
+                }
+                if(fullArea.x + fullArea.width / 2 <= x && x <= fullArea.x + fullArea.width) { // right half
+                    for (int i = 0; i < traces.size(); i++) {
+                        if(getTraceYIndex(i) == stackRightYAxisIndex) { // if rightAxis is used by some trace
+                            return stackRightYAxisIndex;
+                        }
+                    }
+                    return stackLeftYAxisIndex;
+                }
+            }
+        }
+        return -1;
+    }
+
 
     public void zoomY(int yAxisIndex, double zoomFactor) {
         yAxisList.get(yAxisIndex).zoom(zoomFactor);
@@ -400,42 +393,32 @@ public class SimpleChart  {
         xAxisList.get(xAxisIndex).translate(translation);
     }
 
-    public void autoscaleXAxis(int xAxisIndex) {
+    public void autoScaleX(int xAxisIndex) {
         Range xRange = null;
         for (int i = 0; i < traces.size(); i++) {
-            if(getTraceXAxisIndex(i) == xAxisIndex) {
-                DataSet traceData = traces.get(i).getData();
-                xRange = traceData.getXExtremes();
-                // if trace has a small number of points we prevent it from stretching over the whole graphArea
-                if(!isTracesStretched && xRange != null && xRange.length() > 0) {
-                    int preferredTraceLength = (traceData.size() - 1) * getPreferredTraceDataMarkSize(i);
-                    if(preferredTraceLength < fullArea.width) {
-                        double preferredMax = xRange.start() + xRange.length() * fullArea.width / preferredTraceLength;
-                        xRange = new Range(xRange.start(), preferredMax);
-                    }
-                }
-                xRange = Range.max(xRange, traces.get(i).getData().getXExtremes());
+            if(getTraceXIndex(i) == xAxisIndex) {
+                xRange = Range.max(xRange, traces.get(i).getXExtremes());
             }
         }
         xAxisList.get(xAxisIndex).setMinMax(xRange);
     }
 
-    public void autoscaleYAxis(int yAxisIndex) {
+    public void autoScaleY(int yAxisIndex) {
         Range yRange = null;
         for (int i = 0; i < traces.size(); i++) {
-            if(getTraceYAxisIndex(i) == yAxisIndex) {
+            if(getTraceYIndex(i) == yAxisIndex) {
                 yRange = Range.max(yRange, traces.get(i).getYExtremes());
             }
         }
         yAxisList.get(yAxisIndex).setMinMax(yRange);
     }
 
-    public int getTraceYAxisIndex(int traceIndex) {
-        return chartConfig.getTraceYAxisIndex(traceIndex);
+    public int getTraceYIndex(int traceIndex) {
+        return chartConfig.getTraceYIndex(traceIndex);
     }
 
-    public int getTraceXAxisIndex(int traceIndex) {
-        return chartConfig.getTraceXAxisIndex(traceIndex);
+    public int getTraceXIndex(int traceIndex) {
+        return chartConfig.getTraceXIndex(traceIndex);
     }
 
 

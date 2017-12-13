@@ -58,13 +58,17 @@ public abstract class Trace {
         this.defaultColor = defaultColor;
     }
 
+    public Range getXExtremes() {
+        return data.getXExtremes();
+    }
+
+    public abstract Range getYExtremes();
+
     public abstract Point getDataPosition(int dataIndex);
 
     public abstract int getPreferredDataMarkSize();
 
     public abstract LegendItem[] getLegendItems();
-
-    public abstract Range getYExtremes();
 
     public abstract InfoItem[] getInfo(int dataIndex);
 

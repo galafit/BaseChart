@@ -15,8 +15,8 @@ import java.util.List;
 public class Scroll {
     private Scale scale;
     private ScrollConfig scrollConfig;
-    private double scrollValue;
-    private double scrollExtent;
+    private double value;
+    private double extent;
     private List<ScrollListener> eventListeners = new ArrayList<ScrollListener>();
 
 
@@ -24,7 +24,7 @@ public class Scroll {
         this.scale = scale;
         this.scrollConfig = scrollConfig;
         setExtent(scrollExtent);
-        scrollValue = getMin();
+        value = getMin();
     }
 
     public void addListener(ScrollListener listener) {
@@ -33,7 +33,7 @@ public class Scroll {
 
     private void fireListeners() {
         for (ScrollListener listener : eventListeners) {
-            listener.onScrollChanged(scrollValue, scrollExtent);
+            listener.onScrollChanged(value, extent);
         }
     }
 
@@ -41,8 +41,8 @@ public class Scroll {
         if (scrollExtent > getMax() - getMin() || scrollExtent <= 0) {
             scrollExtent = getMax() - getMin();
         }
-        if(this.scrollExtent != scrollExtent) {
-            this.scrollExtent = scrollExtent;
+        if(this.extent != scrollExtent) {
+            this.extent = scrollExtent;
             checkBounds();
             fireListeners();
         }
@@ -50,8 +50,8 @@ public class Scroll {
 
 
     private Range getScrollRange() {
-        double scrollStart = scale.scale(scrollValue);
-        double scrollEnd = scale.scale(scrollValue + scrollExtent);
+        double scrollStart = scale.scale(value);
+        double scrollEnd = scale.scale(value + extent);
         int scrollWidth = Math.max(scrollConfig.getScrollMinWidth(), (int) (scrollEnd - scrollStart));
         if (scrollStart + scrollConfig.getScrollMinWidth() > getEnd()) { // prevent that actually thin scroll moves outside screen
             scrollStart = getEnd() - scrollConfig.getScrollMinWidth();
@@ -60,33 +60,40 @@ public class Scroll {
     }
 
 
-    public double getRation() {
-        return (getMax() - getMin()) / scrollExtent;
+    public double getExtentRatio() {
+        return  extent / (getMax() - getMin());
+    }
+
+
+    public double getExtent() {
+        return extent;
+    }
+
+    public double getPosition() {
+        return scale.scale(value);
     }
 
     /**
-     * @return true if scrollValue was changed and false if newValue = current scroll value
+     * @return true if value was changed and false if newValue = current scroll value
      */
-    public boolean moveScrollTo(int x, int y) {
+    public boolean setPosition(double x) {
         double value = scale.invert(x);
-        return moveScrollTo(value);
+        return setValue(value);
     }
 
-
-    public boolean translateScroll(double translation) {
-        double scrollPosition = scale.scale(scrollValue);
-        double newScrollPosition = scrollPosition + translation;
-        return moveScrollTo(scale.invert(newScrollPosition));
+    public double getValue() {
+        return value;
     }
+
 
     /**
-     * @return true if scrollValue was changed and false if newValue = current scroll value
+     * @return true if value was changed and false if newValue = current scroll value
      */
-    public boolean moveScrollTo(double newValue) {
-        double oldValue = scrollValue;
-        scrollValue = newValue;
+    public boolean setValue(double newValue) {
+        double oldValue = value;
+        value = newValue;
         checkBounds();
-        if (scrollValue != oldValue) {
+        if (value != oldValue) {
             fireListeners();
             return true;
         }
@@ -127,21 +134,12 @@ public class Scroll {
         return scale.getRange()[scale.getRange().length - 1];
     }
 
-    public double getValue() {
-        return scrollValue;
-    }
-
-    public double getExtent() {
-        return scrollExtent;
-    }
-
-
     private void checkBounds() {
-        if (scrollValue + scrollExtent > getMax()) {
-            scrollValue = getMax() - scrollExtent;
+        if (value + extent > getMax()) {
+            value = getMax() - extent;
         }
-        if (scrollValue < getMin()) {
-            scrollValue = getMin();
+        if (value < getMin()) {
+            value = getMin();
         }
     }
 

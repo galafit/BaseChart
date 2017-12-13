@@ -67,7 +67,7 @@ public class ScrollableChartConfig {
     public void setPreviewMinMax(Range minMax) {
       previewMinMax = minMax;
         for (int i = 0; i < previewConfig.getNumberOfXAxis(); i++) {
-            previewConfig.setXAxisMinMax(i, minMax);
+            previewConfig.setXMinMax(i, minMax);
         }
     }
 
