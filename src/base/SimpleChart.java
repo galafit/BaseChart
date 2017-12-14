@@ -327,11 +327,28 @@ public class SimpleChart  {
     }
 
 
-    /**
-     * Find and return X axis used by the traces belonging to the stack containing point (x, y)
-     */
+
     public int getXIndex(int x, int y) {
-        for (int stackIndex = 0; stackIndex < yAxisList.size() / 2; stackIndex++) {
+        if(fullArea.y + fullArea.height / 2 <= y) {
+            for (int i = 0; i < traces.size(); i++) {
+                if(getTraceXIndex(i)== 0) {
+                    return 0; // bottom Axis
+                }
+            }
+            return 1; // top Axis
+        }
+        if(fullArea.y <= y && y <= fullArea.y + fullArea.height / 2) {
+            for (int i = 0; i < traces.size(); i++) {
+                if(getTraceXIndex(i)== 1) {
+                    return 1; // top Axis
+                }
+            }
+            return 0; // bottom Axis
+        }
+        return - 1;
+
+        // Find and return X axis used by the traces belonging to the stack containing point (x, y)
+      /*  for (int stackIndex = 0; stackIndex < yAxisList.size() / 2; stackIndex++) {
             Axis stackYAxis = yAxisList.get(2 * stackIndex);
             if (stackYAxis.getEnd() <= y && (stackYAxis.getEnd() + stackYAxis.getStart()) / 2 >= y) { // top half
                 for (int i = 0; i < traces.size(); i++) {
@@ -350,8 +367,9 @@ public class SimpleChart  {
                 return 1; // top Axis
             }
         }
-        return -1;
+        return -1;*/
     }
+
     /**
      * Find and return Y axis used by the traces belonging to the stack containing point (x, y)
      */

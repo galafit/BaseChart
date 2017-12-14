@@ -79,6 +79,12 @@ public class Scroll {
         return value;
     }
 
+    public double getWidth() {
+        double scrollStart = scale.scale(value);
+        double scrollEnd = scale.scale(value + extent);
+        return scrollEnd - scrollStart;
+    }
+
 
     /**
      * @return true if value was changed and false if newValue = current scroll value

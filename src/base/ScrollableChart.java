@@ -18,9 +18,6 @@ public class ScrollableChart {
     private Map<Integer, Scroll> scrolls = new Hashtable<Integer, Scroll>(2);
     private ScrollableChartConfig config;
 
-    private boolean isDirty = true;
-
-
     public ScrollableChart(ScrollableChartConfig config, Rectangle area) {
         this.config = config;
         SimpleChartConfig chartConfig = config.getChartConfig();
@@ -58,17 +55,15 @@ public class ScrollableChart {
 
     public void draw(Graphics2D g2d) {
         if(preview != null) {
-            if(isDirty) {
-                Margin chartMargin = chart.getMargin(g2d);
-                Margin previewMargin = preview.getMargin(g2d);
-                if (chartMargin.left() != previewMargin.left() || chartMargin.right() != previewMargin.right()) {
-                    int left = Math.max(chartMargin.left(), previewMargin.left());
-                    int right = Math.max(chartMargin.right(), previewMargin.right());
-                    chartMargin = new Margin(chartMargin.top(), right, chartMargin.bottom(), left);
-                    previewMargin = new Margin(previewMargin.top(), right, previewMargin.bottom(), left);
-                    chart.setMargin(g2d, chartMargin);
-                    preview.setMargin(g2d, previewMargin);
-                }
+            Margin chartMargin = chart.getMargin(g2d);
+            Margin previewMargin = preview.getMargin(g2d);
+            if (chartMargin.left() != previewMargin.left() || chartMargin.right() != previewMargin.right()) {
+                int left = Math.max(chartMargin.left(), previewMargin.left());
+                int right = Math.max(chartMargin.right(), previewMargin.right());
+                chartMargin = new Margin(chartMargin.top(), right, chartMargin.bottom(), left);
+                previewMargin = new Margin(previewMargin.top(), right, previewMargin.bottom(), left);
+                chart.setMargin(g2d, chartMargin);
+                preview.setMargin(g2d, previewMargin);
             }
             preview.draw(g2d);
             for (Integer key : scrolls.keySet()) {
@@ -97,7 +92,6 @@ public class ScrollableChart {
         if(preview != null) {
             preview.setArea(previewArea);
         }
-        isDirty = true;
     }
 
     /**
@@ -169,11 +163,10 @@ public class ScrollableChart {
     }
 
     public void translateChartX(int xAxisIndex, int dx) {
-        chart.translateX(xAxisIndex, dx);
-        if (preview != null) {
-            double scrollValue = chart.getXMinMax(xAxisIndex).start();
-            setScrollsValue(scrollValue);
-            chart.setXMinMax(xAxisIndex, new Range(scrolls.get(xAxisIndex).getValue(), scrolls.get(xAxisIndex).getValue() + scrolls.get(xAxisIndex).getExtent()));
+        if (preview == null) {
+            chart.translateX(xAxisIndex, dx);
+        } else {
+            translateScrolls(dx * scrolls.get(xAxisIndex).getWidth() / chartArea.width);
         }
     }
 
@@ -236,7 +229,7 @@ public class ScrollableChart {
         return scrollsMoved;
     }
 
-    public boolean translateScrolls(int dx) {
+    public boolean translateScrolls(double dx) {
         Double maxScrollsPosition = null;
         for (Integer key : scrolls.keySet()) {
             maxScrollsPosition = (maxScrollsPosition == null) ? scrolls.get(key).getPosition() : Math.max(maxScrollsPosition, scrolls.get(key).getPosition());
