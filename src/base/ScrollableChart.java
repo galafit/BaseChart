@@ -5,6 +5,7 @@ import base.config.SimpleChartConfig;
 import base.config.general.Margin;
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 
 /**
@@ -18,16 +19,16 @@ public class ScrollableChart {
     private Map<Integer, Scroll> scrolls = new Hashtable<Integer, Scroll>(2);
     private ScrollableChartConfig config;
 
-    public ScrollableChart(ScrollableChartConfig config, Rectangle area) {
+    public ScrollableChart(ScrollableChartConfig config, List<DataSet> chartData, List<DataSet> previewData, Rectangle area) {
         this.config = config;
         SimpleChartConfig chartConfig = config.getChartConfig();
         Set<Integer> scrollableAxis = config.getXAxisWithScroll();
         calculateAreas(area);
         if(!isPreviewEnable()) {
-            chart = new SimpleChart(chartConfig, chartArea);
+            chart = new SimpleChart(chartConfig,chartData, chartArea);
         } else {
             SimpleChartConfig previewConfig = config.getPreviewConfig();
-            chart = new SimpleChart(chartConfig, chartArea);
+            chart = new SimpleChart(chartConfig, chartData, chartArea);
             if(config.getPreviewMinMax() == null) {
                 Range previewMinMax = null;
                 for (Integer xAxisIndex : scrollableAxis) {
@@ -36,7 +37,7 @@ public class ScrollableChart {
                 config.setPreviewMinMax(previewMinMax);
             }
 
-            preview = new SimpleChart(previewConfig, previewArea);
+            preview = new SimpleChart(previewConfig, previewData, previewArea);
 
             for (Integer xAxisIndex : scrollableAxis) {
                 Scroll scroll = new Scroll(config.getScrollExtent(xAxisIndex), config.getScrollConfig(), preview.getXAxisScale(0));

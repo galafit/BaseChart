@@ -51,8 +51,11 @@ public class SimpleChart  {
     private int selectedTraceIndex = -1;
     private int hoverIndex = -1;
 
+    private List<DataSet> data;
 
-    public SimpleChart(SimpleChartConfig chartConfig, Rectangle area) {
+
+    public SimpleChart(SimpleChartConfig chartConfig, List<DataSet> data, Rectangle area) {
+        this.data = data;
         this.chartConfig = chartConfig;
         this.fullArea = area;
         for (int i = 0; i < chartConfig.getNumberOfXAxis(); i++) {
@@ -63,7 +66,7 @@ public class SimpleChart  {
         }
         for (int i = 0; i < chartConfig.getNumberOfTraces(); i++) {
             TraceConfig traceConfig = chartConfig.getTraceConfig(i);
-            Trace trace = TraceRegister.getTrace(traceConfig, chartConfig.getData().get(chartConfig.getTraceDataIndex(i)));
+            Trace trace = TraceRegister.getTrace(traceConfig, data.get(chartConfig.getTraceDataIndex(i)));
             trace.setXAxis(xAxisList.get(chartConfig.getTraceXIndex(i)));
             trace.setYAxis(yAxisList.get(chartConfig.getTraceYIndex(i)));
             trace.setDefaultColor(traceColors[traces.size() % traceColors.length]);
@@ -286,10 +289,10 @@ public class SimpleChart  {
         isDirty = true;
     }
 
-    public void setData(ArrayList<DataSet> data) {
-        chartConfig.setData(data);
+    public void setData(List<DataSet> data) {
+        this.data = data;
         for (int i = 0; i < chartConfig.getNumberOfTraces(); i++) {
-            traces.get(i).setData(chartConfig.getData().get(chartConfig.getTraceDataIndex(i)));
+            traces.get(i).setData(data.get(chartConfig.getTraceDataIndex(i)));
         }
     }
 

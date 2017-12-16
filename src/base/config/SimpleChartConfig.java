@@ -40,8 +40,6 @@ public class SimpleChartConfig {
     private Map<Integer,Range>  yAxisExtremes = new HashMap<Integer,Range>();
 
     private ArrayList<TraceInfo> traces = new ArrayList<TraceInfo>();
-    private List<DataSet> data = new ArrayList<DataSet>();
-
 
     public SimpleChartConfig() {
         getTitleTextStyle().setBold(true);
@@ -69,13 +67,6 @@ public class SimpleChartConfig {
         yAxisConfigs.add(axisConfig);
     }
 
-    public void setData(ArrayList<DataSet> data) {
-        this.data = data;
-    }
-
-    public List<DataSet> getData() {
-        return data;
-    }
 
     public void addStack(int weight) {
         AxisConfig axisConfig = new AxisConfig(AxisOrientation.LEFT);
@@ -114,10 +105,6 @@ public class SimpleChartConfig {
         return new Range(start, end, true);
     }
 
-    public void addTrace(TraceConfig traceConfig, DataSet traceData, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {
-        data.add(traceData);
-        addTrace(traceConfig, data.size() - 1, traceName, isXAxisOpposite, isYAxisOpposite);
-    }
 
     // add trace to the last stack
     public void addTrace(TraceConfig traceConfig, int dataIndex, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {

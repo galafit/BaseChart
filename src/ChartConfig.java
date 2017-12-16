@@ -1,6 +1,8 @@
 
+import base.DataSet;
 import base.config.ScrollableChartConfig;
 import base.config.traces.TraceConfig;
+import data.BaseDataSet;
 import data.Data;
 
 import java.util.ArrayList;
@@ -16,16 +18,9 @@ public class ChartConfig extends ScrollableChartConfig {
     private boolean isDataCropEnable = true;
     private boolean isGroupingEnable = true;
     private ArrayList<Double> previewGroupingIntervals = new ArrayList<Double>();
-    // when number of chart visible points will be bigger chart grouping will be activated
-    private int chartMaxVisiblePoints = 1000;
+    private List<BaseDataSet> chartData = new ArrayList<BaseDataSet>();
+    private List<BaseDataSet> previewData = new ArrayList<BaseDataSet>();
 
-    public int getChartMaxVisiblePoints() {
-        return chartMaxVisiblePoints;
-    }
-
-    public void setChartMaxVisiblePoints(int chartMaxVisiblePoints) {
-        this.chartMaxVisiblePoints = chartMaxVisiblePoints;
-    }
 
     public List<Double> getPreviewGroupingIntervals() {
         return previewGroupingIntervals;
@@ -51,6 +46,14 @@ public class ChartConfig extends ScrollableChartConfig {
         this.isGroupingEnable = isGroupingEnable;
     }
 
+    public List<BaseDataSet> getChartData() {
+        return chartData;
+    }
+
+    public List<BaseDataSet> getPreviewData() {
+        return previewData;
+    }
+
     /*********************************************
      *              CHART CONFIG
      *********************************************/
@@ -59,7 +62,8 @@ public class ChartConfig extends ScrollableChartConfig {
      * add trace to the last chart stack
      */
     public void addTrace(TraceConfig traceConfig, Data traceData, String name, boolean isXAxisOpposite, boolean isYAxisOpposite) {
-        getChartConfig().addTrace(traceConfig, traceData.getDataSet(), name,  isXAxisOpposite, isYAxisOpposite);
+        chartData.add(traceData.getDataSet());
+        getChartConfig().addTrace(traceConfig, chartData.size() - 1, name,  isXAxisOpposite, isYAxisOpposite);
     }
 
     /**
@@ -86,7 +90,8 @@ public class ChartConfig extends ScrollableChartConfig {
      * add trace to the last preview stack
      */
     public void addPreviewTrace(TraceConfig traceConfig, Data traceData, String name,  boolean isXAxisOpposite, boolean isYAxisOpposite) {
-        getPreviewConfig().addTrace(traceConfig, traceData.getDataSet(), name,  isXAxisOpposite, isYAxisOpposite);
+        previewData.add(traceData.getDataSet());
+        getPreviewConfig().addTrace(traceConfig, previewData.size() - 1, name,  isXAxisOpposite, isYAxisOpposite);
     }
 
     /**
