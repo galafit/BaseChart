@@ -23,6 +23,6 @@ public interface DataSet {
 
     public int findNearestData(double xValue);
 
-    public double averageDataInterval();
+    public double getAverageDataInterval();
 
 }

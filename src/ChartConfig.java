@@ -15,14 +15,24 @@ public class ChartConfig extends ScrollableChartConfig {
 
     private boolean isDataCropEnable = true;
     private boolean isGroupingEnable = true;
-    private ArrayList<Double> groupingIntervals = new ArrayList<Double>();
+    private ArrayList<Double> previewGroupingIntervals = new ArrayList<Double>();
+    // when number of chart visible points will be bigger chart grouping will be activated
+    private int chartMaxVisiblePoints = 1000;
 
-    public List<Double> getGroupingIntervals() {
-        return groupingIntervals;
+    public int getChartMaxVisiblePoints() {
+        return chartMaxVisiblePoints;
     }
 
-    public void addGroupingInterval(double groupingInterval) {
-        groupingIntervals.add(groupingInterval);
+    public void setChartMaxVisiblePoints(int chartMaxVisiblePoints) {
+        this.chartMaxVisiblePoints = chartMaxVisiblePoints;
+    }
+
+    public List<Double> getPreviewGroupingIntervals() {
+        return previewGroupingIntervals;
+    }
+
+    public void addPreviewGroupingInterval(double groupingInterval) {
+        previewGroupingIntervals.add(groupingInterval);
     }
 
     public boolean isCropEnable() {

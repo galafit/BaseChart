@@ -149,12 +149,11 @@ public class ScrollableChart {
     public void zoomChartX(int xAxisIndex, double zoomFactor) {
         chart.zoomX(xAxisIndex, zoomFactor);
         if (preview != null) {
-            chart.zoomX(xAxisIndex, zoomFactor);
-            Range minMax = Range.max(chart.getXMinMax(0), chart.getXMinMax(1));
-            minMax = Range.max(minMax, preview.getXMinMax(0));
-            preview.setXMinMax(0, minMax);
-            preview.setXMinMax(1, minMax);
+            if(chart.getXMinMax(xAxisIndex).length() > preview.getXMinMax(0).length()) {
+               chart.setXMinMax(xAxisIndex, preview.getXMinMax(0));
+            }
             scrolls.get(xAxisIndex).setExtent(chart.getXMinMax(xAxisIndex).length());
+            setScrollsValue(scrolls.get(xAxisIndex).getValue());
         }
     }
 

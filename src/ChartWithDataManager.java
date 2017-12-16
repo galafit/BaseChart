@@ -13,9 +13,9 @@ public class ChartWithDataManager {
     private ChartConfig config;
 
     private boolean isAutoScaleDuringScroll = true;
-    private int minPixPerDataItem = 5;
-    private double currentGroupingInterval =
-            0;
+    private int minPixelsPerDataItem = 5;
+    private double currentPreviewGroupingInterval = 0;
+    private int chartGroupingStep = 2;
 
     private boolean isAutoScroll = true;
     private ScrollableChart scrollableChart;
@@ -26,6 +26,8 @@ public class ChartWithDataManager {
 
     private ArrayList<DataSet> previewData;
     private ArrayList<DataSet> chartData;
+
+
 
     public ChartWithDataManager(ChartConfig config, Rectangle area) {
         this.area = area;
@@ -92,6 +94,7 @@ public class ChartWithDataManager {
                 @Override
                 public void onScrollChanged(double scrollValue, double scrollExtent) {
                     if (config.isCropEnable()) {
+                        groupChartData(xAxisIndex, scrollExtent);
                         cropChartData(xAxisIndex, new Range(scrollValue, scrollValue + scrollExtent));
                         scrollableChart.setChartData(chartData);
                         autoScaleChartY();
@@ -117,32 +120,61 @@ public class ChartWithDataManager {
         for (int traceIndex = 0; traceIndex < chartConfig.getNumberOfTraces(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
-                BaseDataSet fullDataSet = (BaseDataSet) chartOriginalData.get(traceDataIndex);
-                DataSet subset = fullDataSet.getSubset(scrollExtremes.start(), scrollExtremes.end());
+                BaseDataSet traceDataSet = (BaseDataSet) chartData.get(traceDataIndex);
+                DataSet subset = traceDataSet.getSubset(scrollExtremes.start(), scrollExtremes.end());
                 chartData.set(traceDataIndex, subset);
             }
         }
     }
 
+    private void groupChartData(int xAxisIndex, double scrollExtent) {
+        double bestGroupingInterval = minPixelsPerDataItem * scrollExtent / area.width;
+        boolean isCachingEnable = true;
+        SimpleChartConfig chartConfig = config.getChartConfig();
+        for (int traceIndex = 0; traceIndex < chartConfig.getNumberOfTraces(); traceIndex++) {
+            int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
+            if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
+                BaseDataSet traceData = (BaseDataSet) chartData.get(traceIndex);
+                double dataInterval = traceData.getAverageDataInterval();
+                if(dataInterval > 0) {
+                    double numberOfDataItemsToGroup = (bestGroupingInterval / dataInterval);
+                    if(numberOfDataItemsToGroup >= chartGroupingStep) {
+                        chartData.set(traceIndex, traceData.groupByNumber((int)numberOfDataItemsToGroup, isCachingEnable));
+                    }
+                    if(numberOfDataItemsToGroup <= 1.0/chartGroupingStep) {
+                        BaseDataSet traceOriginalData = (BaseDataSet) chartOriginalData.get(traceDataIndex);
+                        double originalDataInterval = traceOriginalData.getAverageDataInterval();
+                        numberOfDataItemsToGroup = (bestGroupingInterval / originalDataInterval);
+                        chartData.set(traceIndex, traceOriginalData.groupByNumber((int)numberOfDataItemsToGroup, isCachingEnable));
+                    }
+                }
+            }
+        }
+    }
+
     private void groupPreviewData(Range previewMinMax) {
-        double bestGroupingInterval = minPixPerDataItem * previewMinMax.length() / area.width;
+        double bestGroupingInterval = minPixelsPerDataItem * previewMinMax.length() / area.width;
         // choose the first interval in the list >= bestGroupingInterval
-        if (currentGroupingInterval < bestGroupingInterval) {
-            for (Double interval : config.getGroupingIntervals()) {
-                currentGroupingInterval = interval;
+        if (currentPreviewGroupingInterval < bestGroupingInterval) {
+            for (Double interval : config.getPreviewGroupingIntervals()) {
+                currentPreviewGroupingInterval = interval;
                 if (interval >= bestGroupingInterval) {
                     break;
                 }
             }
         }
-        double groupingInterval = currentGroupingInterval;
+        double groupingInterval = currentPreviewGroupingInterval;
         if (groupingInterval <= 0) {
             groupingInterval = bestGroupingInterval;
         }
+        boolean isCachingEnable = true;
         for (int i = 0; i < previewData.size(); i++) {
-            previewData.set(i, ((BaseDataSet) previewData.get(i)).groupByInterval(groupingInterval));
+            double dataInterval = previewData.get(i).getAverageDataInterval();
+            if(dataInterval > 0) {
+                int numberOfDataItemsToGroup = (int)(groupingInterval / dataInterval);
+                previewData.set(i, ((BaseDataSet) previewData.get(i)).groupByNumber(numberOfDataItemsToGroup, isCachingEnable));
+            }
         }
-
     }
 
     private void autoScaleChartY() {
@@ -173,9 +205,9 @@ public class ChartWithDataManager {
             previewExtent = Math.max(previewExtent, scrollExtent);
         }
 
-        if (config.getGroupingIntervals().size() > 0) {
-            double groupingInterval = config.getGroupingIntervals().get(0);
-            previewExtent = Math.max(previewExtent, groupingInterval * area.width / minPixPerDataItem);
+        if (config.getPreviewGroupingIntervals().size() > 0) {
+            double groupingInterval = config.getPreviewGroupingIntervals().get(0);
+            previewExtent = Math.max(previewExtent, groupingInterval * area.width / minPixelsPerDataItem);
         }
 
         double min = chartFullMinMax.start();
@@ -194,14 +226,14 @@ public class ChartWithDataManager {
             if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
                 DataSet traceData = chartConfig.getData().get(traceDataIndex);
                 if (traceData.size() > 1) {
-                    double dataItemInterval = traceData.averageDataInterval();
+                    double dataItemInterval = traceData.getAverageDataInterval();
                     if (dataItemInterval > 0) {
                         dataIntervalMin = (dataIntervalMin == 0) ? dataItemInterval : Math.min(dataIntervalMin, dataItemInterval);
                     }
                 }
             }
         }
-        double extent = dataIntervalMin * area.width / minPixPerDataItem;
+        double extent = dataIntervalMin * area.width / minPixelsPerDataItem;
         return extent;
     }
 

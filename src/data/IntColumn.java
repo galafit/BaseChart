@@ -67,7 +67,7 @@ class IntColumn implements NumberColumn {
 
     @Override
     public double getValue(int index) {
-        if(intToDoubleFunction == null) {
+        if (intToDoubleFunction == null) {
             return series.get(index);
         }
         return intToDoubleFunction.applyAsDouble(series.get(index));
@@ -81,12 +81,12 @@ class IntColumn implements NumberColumn {
 
     @Override
     public int upperBound(double value, int from, int length) {
-        return Processing.upperBound(series,  value, from, length);
+        return Processing.upperBound(series, value, from, length);
     }
 
     @Override
     public int lowerBound(double value, int from, int length) {
-        return Processing.lowerBound(series,  value, from, length);
+        return Processing.lowerBound(series, value, from, length);
     }
 
     @Override
@@ -95,19 +95,23 @@ class IntColumn implements NumberColumn {
     }
 
     @Override
-    public void groupByNumber(int numberOfElementsInGroup) {
+    public void groupByNumber(int numberOfElementsInGroup, boolean isCachingEnable) {
         IntAggregateFunction aggregateFunction = new IntAverage();
-        if(groupingType == GroupingType.FIRST) {
+        if (groupingType == GroupingType.FIRST) {
             aggregateFunction = new IntFirst();
         }
 
-        if(groupingType == GroupingType.MAX) {
+        if (groupingType == GroupingType.MAX) {
             aggregateFunction = new IntMax();
         }
 
         IntSeries originalSeries = series;
-        series = new CachingIntSeries(new GroupedByNumberIntSeries(originalSeries, numberOfElementsInGroup, aggregateFunction));
-        if(originalSeries instanceof CachingIntSeries) {
+        if (isCachingEnable) {
+            series = new CachingIntSeries(new GroupedByNumberIntSeries(originalSeries, numberOfElementsInGroup, aggregateFunction));
+        } else {
+            series = new GroupedByNumberIntSeries(originalSeries, numberOfElementsInGroup, aggregateFunction);
+        }
+        if (originalSeries instanceof CachingIntSeries) {
             // force to group and cache resultant data on the base of previous cached data
             series.size();
             // reset (disable) caching results of previous grouped data

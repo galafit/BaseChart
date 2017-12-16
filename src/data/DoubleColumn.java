@@ -77,7 +77,7 @@ class DoubleColumn implements NumberColumn {
     }
 
     @Override
-    public void groupByNumber(int numberOfElementsInGroup) {
+    public void groupByNumber(int numberOfElementsInGroup, boolean isCachingEnable) {
         DoubleAggregateFunction aggregateFunction = new DoubleAverage();
         if(groupingType == GroupingType.FIRST) {
             aggregateFunction = new DoubleFirst();
@@ -88,7 +88,12 @@ class DoubleColumn implements NumberColumn {
         }
 
         DoubleSeries originalSeries = series;
-        series = new CachingDoubleSeries(new GroupedByNumberDoubleSeries(originalSeries, numberOfElementsInGroup, aggregateFunction));
+        if(isCachingEnable) {
+            series = new CachingDoubleSeries(new GroupedByNumberDoubleSeries(originalSeries, numberOfElementsInGroup, aggregateFunction));
+        } else {
+            series = new GroupedByNumberDoubleSeries(originalSeries, numberOfElementsInGroup, aggregateFunction);
+
+        }
         if(originalSeries instanceof CachingDoubleSeries) {
             // force to group and cache resultant data on the base of previous cached data
             series.size();

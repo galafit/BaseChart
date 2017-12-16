@@ -182,8 +182,8 @@ public class BaseDataSet implements DataSet {
         if (!isOrdered()) {
             return this;
         }
-        int subsetStartIndex;
-        int subsetEndIndex;
+        int subsetStartIndex = 0;
+        int subsetEndIndex = fullSize() - 1;
         subsetStartIndex = xColumn.lowerBound(startXValue, 0, fullSize());
         subsetEndIndex = xColumn.upperBound(endXValue, 0, fullSize());
         subsetStartIndex -= shoulder;
@@ -204,18 +204,18 @@ public class BaseDataSet implements DataSet {
     }
 
     /**
-     * Grouping by equal number of elements in each group
+     * Grouping by equal number of items in each group
      *
-     * @param numberOfElementsInGroups
+     * @param numberOfItemsInGroups
      * @return DataSet with grouped data
      */
-    public BaseDataSet groupByNumber(int numberOfElementsInGroups) {
+    public BaseDataSet groupByNumber(int numberOfItemsInGroups, boolean isCachingEnable) {
         BaseDataSet groupedSet = new BaseDataSet(this);
-        if (numberOfElementsInGroups > 1) {
+        if (numberOfItemsInGroups > 1) {
             for (NumberColumn numberColumn : groupedSet.yColumns) {
-                numberColumn.groupByNumber(numberOfElementsInGroups);
+                numberColumn.groupByNumber(numberOfItemsInGroups, isCachingEnable);
             }
-            groupedSet.xColumn.groupByNumber(numberOfElementsInGroups);
+            groupedSet.xColumn.groupByNumber(numberOfItemsInGroups, isCachingEnable);
         }
         return groupedSet;
 
@@ -230,7 +230,7 @@ public class BaseDataSet implements DataSet {
      * @param groupingInterval
      * @return DataSet with grouped data
      */
-    public BaseDataSet groupByInterval(double groupingInterval) {
+    public BaseDataSet groupByInterval(double groupingInterval, boolean isCachingEnable) {
         // at the moment "grouping by equal interval" is not fully realized.
         // That is draft realisation
         // just for the case we will need it in the future
@@ -243,16 +243,16 @@ public class BaseDataSet implements DataSet {
             return groupedSet;
         }*/
 
-        double avgDataInterval = averageDataInterval();
+        double avgDataInterval = getAverageDataInterval();
         if(avgDataInterval > 0) {
-            int avgNumberOfElementsInGroups = (int) Math.round(groupingInterval / averageDataInterval());
-            return groupByNumber(avgNumberOfElementsInGroups);
+            int avgNumberOfItemsInGroups = (int) Math.round(groupingInterval / getAverageDataInterval());
+            return groupByNumber(avgNumberOfItemsInGroups, isCachingEnable);
         }
         return new BaseDataSet(this);
     }
 
 
-    public double averageDataInterval() {
+    public double getAverageDataInterval() {
         if(xColumn instanceof RegularColumn) {
             return ((RegularColumn)xColumn).getDataInterval();
         }

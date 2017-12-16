@@ -60,7 +60,7 @@ public class RegularColumn implements NumberColumn{
     }
 
     @Override
-    public void groupByNumber(int numberOfElementsInGroup) {
+    public void groupByNumber(int numberOfElementsInGroup, boolean isCachingEnable) {
         dataInterval = dataInterval * numberOfElementsInGroup;
     }
 
