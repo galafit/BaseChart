@@ -277,9 +277,8 @@ public class ChartPanel extends JPanel {
     }
 
     public void update() {
-        if(chartDataManager.update()) {
-            repaint();
-        }
+        chartDataManager.update();
+        repaint();
     }
 
     /**=======================Base methods to interact with chart==========================**/

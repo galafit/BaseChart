@@ -250,16 +250,27 @@ public class ChartWithDataManager {
     }
 
 
-    public boolean update() {
-        Range previewMinMax = Range.max(scrollableChart.getPreviewMinMax(), getChartDataMinMax());
+    public  void update() {
+        boolean isAllScrollsAtTheEnd = isAllScrollsAtTheEnd();
+        Range previewMinMax = Range.max(scrollableChart.getPreviewXMinMax(), getChartDataMinMax());
         groupPreviewData(previewMinMax);
         scrollableChart.setPreviewMinMax(previewMinMax);
         scrollableChart.setPreviewData(previewData);
         autoScalePreviewY();
-        if (isAutoScroll) {
-            return autoScroll();
+        if (isAutoScroll && isAllScrollsAtTheEnd) {
+            autoScroll();
         }
-        return false;
+    }
+
+    private boolean isAllScrollsAtTheEnd() {
+        double previewMax = scrollableChart.getPreviewXMinMax().end();
+        for (Integer xAxisIndex : scrollableChart.getXAxisWithScroll()) {
+            double scrollEnd = scrollableChart.getScrollValue(xAxisIndex) + scrollableChart.getScrollExtent(xAxisIndex);
+            if(previewMax - scrollEnd > 0) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean autoScroll() {

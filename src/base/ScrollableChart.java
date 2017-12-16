@@ -292,7 +292,7 @@ public class ScrollableChart {
         }
     }
 
-    public Range getPreviewMinMax() {
+    public Range getPreviewXMinMax() {
         return preview.getXMinMax(0);
     }
 
