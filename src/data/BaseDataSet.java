@@ -188,8 +188,10 @@ public class BaseDataSet implements DataSet {
         subsetEndIndex = xColumn.upperBound(endXValue, 0, fullSize());
         subsetStartIndex -= shoulder;
         subsetEndIndex += shoulder;
+        BaseDataSet subset = new BaseDataSet(this);
         if (subsetStartIndex >= fullSize() || subsetEndIndex < 0) {
-            return new BaseDataSet();
+            subset.length = 0;
+            return subset;
         }
         if (subsetStartIndex < 0) {
             subsetStartIndex = 0;
@@ -197,7 +199,6 @@ public class BaseDataSet implements DataSet {
         if (subsetEndIndex >= fullSize()) {
             subsetEndIndex = fullSize() - 1;
         }
-        BaseDataSet subset = new BaseDataSet(this);
         subset.startIndex = subsetStartIndex;
         subset.length = subsetEndIndex - subsetStartIndex + 1;
         return subset;

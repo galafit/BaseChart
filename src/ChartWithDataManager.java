@@ -28,7 +28,6 @@ public class ChartWithDataManager {
     private ArrayList<DataSet> chartData;
 
 
-
     public ChartWithDataManager(ChartConfig config, Rectangle area) {
         this.area = area;
         this.config = config;
@@ -93,16 +92,18 @@ public class ChartWithDataManager {
             scrollableChart.addScrollListener(xAxisIndex, new ScrollListener() {
                 @Override
                 public void onScrollChanged(double scrollValue, double scrollExtent) {
-                    if (config.isCropEnable()) {
+                    if (config.isGroupingEnable()) {
                         groupChartData(xAxisIndex, scrollExtent);
-                        cropChartData(xAxisIndex, new Range(scrollValue, scrollValue + scrollExtent));
-                        scrollableChart.setChartData(chartData);
-                        autoScaleChartY();
                     }
+                    if (config.isCropEnable()) {
+                        cropChartData(xAxisIndex, new Range(scrollValue, scrollValue + scrollExtent));
+                    }
+                    scrollableChart.setChartData(chartData);
+                    autoScaleChartY();
                 }
             });
         }
-        if(isAutoScroll) {
+        if (isAutoScroll) {
             autoScroll();
         }
     }
@@ -136,16 +137,16 @@ public class ChartWithDataManager {
             if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
                 BaseDataSet traceData = (BaseDataSet) chartData.get(traceIndex);
                 double dataInterval = traceData.getAverageDataInterval();
-                if(dataInterval > 0) {
+                if (dataInterval > 0) {
                     double numberOfDataItemsToGroup = (bestGroupingInterval / dataInterval);
-                    if(numberOfDataItemsToGroup >= chartGroupingStep) {
-                        chartData.set(traceIndex, traceData.groupByNumber((int)numberOfDataItemsToGroup, isCachingEnable));
+                    if (numberOfDataItemsToGroup >= chartGroupingStep) {
+                        chartData.set(traceIndex, traceData.groupByNumber((int) numberOfDataItemsToGroup, isCachingEnable));
                     }
-                    if(numberOfDataItemsToGroup <= 1.0/chartGroupingStep) {
+                    if (numberOfDataItemsToGroup <= 1.0 / chartGroupingStep) {
                         BaseDataSet traceOriginalData = (BaseDataSet) chartOriginalData.get(traceDataIndex);
                         double originalDataInterval = traceOriginalData.getAverageDataInterval();
                         numberOfDataItemsToGroup = (bestGroupingInterval / originalDataInterval);
-                        chartData.set(traceIndex, traceOriginalData.groupByNumber((int)numberOfDataItemsToGroup, isCachingEnable));
+                        chartData.set(traceIndex, traceOriginalData.groupByNumber((int) numberOfDataItemsToGroup, isCachingEnable));
                     }
                 }
             }
@@ -170,8 +171,8 @@ public class ChartWithDataManager {
         boolean isCachingEnable = true;
         for (int i = 0; i < previewData.size(); i++) {
             double dataInterval = previewData.get(i).getAverageDataInterval();
-            if(dataInterval > 0) {
-                int numberOfDataItemsToGroup = (int)(groupingInterval / dataInterval);
+            if (dataInterval > 0) {
+                int numberOfDataItemsToGroup = (int) (groupingInterval / dataInterval);
                 previewData.set(i, ((BaseDataSet) previewData.get(i)).groupByNumber(numberOfDataItemsToGroup, isCachingEnable));
             }
         }

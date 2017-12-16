@@ -62,7 +62,7 @@ public class MainFrame extends JFrame {
 
        config.addPreviewTrace(new LineTraceConfig(), xyData2);
        config.addPreviewTrace(new LineTraceConfig(), xyData3);
-      // config.addGroupingInterval(400);
+       config.addPreviewGroupingInterval(40);
 
 
         chartPanel = new ChartPanel(config);
@@ -99,7 +99,7 @@ public class MainFrame extends JFrame {
         MainFrame mainFrame = new MainFrame();
 
 
-      /* final Timer timer = new Timer(100, new ActionListener() {
+     /*  final Timer timer = new Timer(100, new ActionListener() {
             int counter = 0;
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -110,7 +110,7 @@ public class MainFrame extends JFrame {
             }
         });
         timer.setInitialDelay(0);
-        timer.start();*/
+        timer.start(); */
 
     }
 
