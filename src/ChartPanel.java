@@ -1,5 +1,4 @@
 
-import base.Range;
 import base.ScrollableChart;
 
 import javax.swing.*;
@@ -31,7 +30,7 @@ public class ChartPanel extends JPanel {
             @Override
             public void mouseDragged(MouseEvent e) {
                 if(SwingUtilities.isRightMouseButton(e)) {
-                    if(hoverOn(e.getX(), e.getY())) {
+                    if(chart.chartHoverOn(e.getX(), e.getY(), chart.getChartSelectedTraceIndex())) {
                         repaint();
                     }
                 } else {
@@ -71,6 +70,9 @@ public class ChartPanel extends JPanel {
                     repaint();
                 }
                 if (e.getClickCount() == 1) {
+                    if(chart.selectChartTrace(e.getX(), e.getY())) {
+                        repaint();
+                    }
                     if(chart.setScrollsPosition(e.getX(), e.getY())) {
                         repaint();
                     }
@@ -80,7 +82,7 @@ public class ChartPanel extends JPanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 if(SwingUtilities.isRightMouseButton(e)) {
-                    if(hoverOn(e.getX(), e.getY())) {
+                    if(chart.chartHoverOn(e.getX(), e.getY(), chart.getChartSelectedTraceIndex())) {
                         repaint();
                     }
                 } else {
@@ -98,7 +100,7 @@ public class ChartPanel extends JPanel {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                if(hoverOff()) {
+                if(chart.chartHoverOff()) {
                     repaint();
                 }
             }
@@ -262,13 +264,6 @@ public class ChartPanel extends JPanel {
         }
     }
 
-    private boolean hoverOff() {
-        return chart.chartHoverOff();
-    }
-
-    private boolean hoverOn(int x, int y) {
-        return chart.chartHoverOn(x, y);
-    }
 
     @Override
     public void paintComponent(Graphics g) {
@@ -280,114 +275,4 @@ public class ChartPanel extends JPanel {
         chartDataManager.update();
         repaint();
     }
-
-    /**=======================Base methods to interact with chart==========================**/
-
-    public int getChartSelectedTraceIndex() {
-        return chart.getChartSelectedTraceIndex();
-    }
-
-    public Range getChartYRange(int yAxisIndex) {
-        return chart.getChartYStartEnd(yAxisIndex);
-    }
-
-    public int getChartTraceYIndex(int traceIndex) {
-        return chart.getChartTraceYIndex(traceIndex);
-    }
-
-    public int getChartTraceXIndex(int traceIndex) {
-        return chart.getChartTraceXIndex(traceIndex);
-    }
-
-    public int getChartYIndex(int x, int y) {
-        return chart.getChartYIndex(x, y);
-    }
-
-    public int getChartXIndex(int x, int y) {
-        return chart.getChartXIndex(x, y);
-    }
-
-    public void zoomChartY(int yAxisIndex, double zoomFactor) {
-        chart.zoomChartY(yAxisIndex, zoomFactor);
-    }
-
-    public void zoomChartX(int xAxisIndex, double zoomFactor) {
-        chart.zoomChartX(xAxisIndex, zoomFactor);
-    }
-
-    public void translateChartY(int yAxisIndex, int dy) {
-        chart.translateChartY(yAxisIndex, dy);
-    }
-
-    public void translateChartX(int xAxisIndex, int dx) {
-        chart.translateChartX(xAxisIndex, dx);
-    }
-
-    public void autoscaleChartX(int xAxisIndex) {
-        chart.autoScaleChartX(xAxisIndex);
-    }
-
-    public void autoscaleChartY(int yAxisIndex) {
-        chart.autoScaleChartY(yAxisIndex);
-    }
-
-    public boolean chartHoverOff() {
-        return chart.chartHoverOff();
-    }
-
-    public boolean chartHoverOn(int x, int y) {
-        return chart.chartHoverOn(x, y);
-    }
-
-    public boolean isPointInsideChart(int x, int y) {
-        return chart.isPointInsideChart(x, y);
-    }
-
-    /**=======================Base methods to interact with preview==========================**/
-    public boolean isPointInsideScroll(int x, int y) {
-        return chart.isPointInsideScroll(x, y);
-    }
-
-
-    public boolean isPointInsidePreview(int x, int y) {
-        return chart.isPointInsidePreview(x, y);
-    }
-
-    public boolean moveScrollTo(int x, int y) {
-       return chart.setScrollsPosition(x, y);
-    }
-
-    public boolean translateScroll(int dx) {
-        return chart.translateScrolls(dx);
-    }
-
-    public int getPreviewSelectedTraceIndex() {
-        return chart.getPreviewSelectedTraceIndex();
-    }
-
-    public Range getPreviewYRange(int yAxisIndex) {
-        return chart.getPreviewYStartEnd(yAxisIndex);
-    }
-
-    public int getPreviewTraceYIndex(int traceIndex) {
-        return chart.getPreviewTraceYIndex(traceIndex);
-    }
-
-    public int getPreviewYIndex(int x, int y) {
-        return chart.getPreviewYIndex(x, y);
-    }
-
-
-    public void zoomPreviewY(int yAxisIndex, double zoomFactor) {
-        chart.zoomPreviewY(yAxisIndex, zoomFactor);
-    }
-
-    public void translatePreviewY(int yAxisIndex, int dy) {
-        chart.translatePreviewY(yAxisIndex, dy);
-    }
-
-    public void autoscalePreviewY(int yAxisIndex) {
-        chart.autoScalePreviewY(yAxisIndex);
-    }
-
 }

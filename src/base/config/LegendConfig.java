@@ -11,18 +11,17 @@ import java.awt.*;
 public class LegendConfig {
     private boolean isVisible = true;
     private TextStyle textStyle = new TextStyle();
-    private Position position = Position.TOP_LEFT;
-    private Color background = Color.WHITE;
+    private LegendPosition position = LegendPosition.TOP_LEFT;
+
     private Color borderColor = Color.LIGHT_GRAY;
     private int borderWidth = 0;
+
+    private Color background = Color.WHITE;
     private Margin margin = new Margin((int)(getTextStyle().getFontSize() * 0),
             (int)(getTextStyle().getFontSize() * 1),
             (int)(getTextStyle().getFontSize() * 0.5),
             (int)(getTextStyle().getFontSize() * 1));
 
-    public boolean isTop() {
-        return getPosition().isTop();
-    }
 
     public boolean isVisible() {
         return isVisible;
@@ -36,11 +35,11 @@ public class LegendConfig {
         return textStyle;
     }
 
-    public Position getPosition() {
+    public LegendPosition getPosition() {
         return position;
     }
 
-    public void setPosition(Position position) {
+    public void setPosition(LegendPosition position) {
         this.position = position;
     }
 

@@ -99,6 +99,10 @@ public class ScrollableChart {
      * =======================Base methods to interact with chart==========================
      **/
 
+    public boolean selectChartTrace(int x, int y) {
+        return chart.selectTrace(x, y);
+    }
+
     public void setChartData(ArrayList<DataSet> data) {
         chart.setData(data);
     }
@@ -184,8 +188,8 @@ public class ScrollableChart {
         return chart.hoverOff();
     }
 
-    public boolean chartHoverOn(int x, int y) {
-        return chart.hoverOn(x, y);
+    public boolean chartHoverOn(int x, int y, int traceIndex) {
+        return chart.hoverOn(x, y, traceIndex);
     }
 
     public boolean isPointInsideChart(int x, int y) {

@@ -8,20 +8,6 @@ import java.util.ArrayList;
 public class TooltipInfo {
     private InfoItem header;
     private ArrayList<InfoItem> items = new ArrayList<InfoItem>();
-    int x,y;
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setXY(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
 
     public InfoItem getHeader() {
         return header;

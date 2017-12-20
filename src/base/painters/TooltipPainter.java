@@ -12,32 +12,43 @@ import java.awt.*;
  */
 public class TooltipPainter {
     private TooltipConfig tooltipConfig;
-    private int x_offset = 10;
-    private int y_offset = 15;
+    private int x, y;
+    private int y_offset = 2;
     private String separator = "  ";
+    private TooltipInfo tooltipInfo;
 
     public TooltipPainter(TooltipConfig tooltipConfig) {
         this.tooltipConfig = tooltipConfig;
     }
 
-    public void draw(Graphics2D g2d, Rectangle area, TooltipInfo tooltipInfo){
-      g2d.setFont(tooltipConfig.getTextStyle().getFont());
+    public void setXY(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public void setTooltipInfo(TooltipInfo tooltipInfo) {
+        this.tooltipInfo = tooltipInfo;
+    }
+
+    public void draw(Graphics2D g2d, Rectangle area) {
+        g2d.setFont(tooltipConfig.getTextStyle().getFont());
         Dimension tooltipDimension  = getTextSize(g2d, tooltipInfo);
-        int tooltipAreaX = tooltipInfo.getX() + x_offset;
-        int tooltipAreaY = tooltipInfo.getY() - tooltipDimension.height - y_offset;
-        if (tooltipAreaX + tooltipDimension.width > area.width + area.x){
-            tooltipAreaX = tooltipInfo.getX() - x_offset - tooltipDimension.width;
+        int tooltipAreaX = x - tooltipDimension.width / 2;
+        int tooltipAreaY = y - tooltipDimension.height - y_offset;
+        if (tooltipAreaX + tooltipDimension.width > area.x + area.width){
+            tooltipAreaX = area.x + area.width - tooltipDimension.width;
         }
         if (tooltipAreaX < area.x){
             tooltipAreaX = area.x;
         }
         if (tooltipAreaY < area.y){
-            tooltipAreaY = tooltipInfo.getY() + y_offset;
+            tooltipAreaY = y + y_offset;
         }
         if (tooltipAreaY + tooltipDimension.height > area.y + area.height ){
             tooltipAreaY = area.y + area.height - tooltipDimension.height;
         }
-        Rectangle tooltipArea = new Rectangle(tooltipAreaX,tooltipAreaY,tooltipDimension.width,tooltipDimension.height);
+
+        Rectangle tooltipArea = new Rectangle(tooltipAreaX, tooltipAreaY, tooltipDimension.width, tooltipDimension.height);
         g2d.setColor(tooltipConfig.getBackground());
         g2d.fillRect(tooltipArea.x, tooltipArea.y, tooltipArea.width, tooltipArea.height);
         g2d.setColor(tooltipConfig.getBorderColor());
@@ -55,9 +66,9 @@ public class TooltipPainter {
         int stringHeght = getStringHeight(g2, tooltipConfig.getTextStyle().getFont());
         int lineSpace = getInterLineSpace();
         int x = area.x + margin.left();
-        int y = area.y  + margin.top();
-        if(tooltipInfo.getHeader() != null) {
-            drawItem(g2, x,y, tooltipInfo.getHeader());
+        int y = area.y + margin.top();
+        if (tooltipInfo.getHeader() != null) {
+            drawItem(g2, x, y, tooltipInfo.getHeader());
             y += (lineSpace + stringHeght);
         }
 
@@ -71,9 +82,10 @@ public class TooltipPainter {
     /*
     * http://pawlan.com/monica/articles/texttutorial/other.html
     */
-    private void drawItem(Graphics2D g2, int x, int y, InfoItem infoItem){
+    private void drawItem(Graphics2D g2, int x, int y, InfoItem infoItem) {
 
-        int string_y = y + getStringAscent(g2, tooltipConfig.getTextStyle().getFont());;
+        int string_y = y + getStringAscent(g2, tooltipConfig.getTextStyle().getFont());
+        ;
         if (infoItem.getMarkColor() != null) {
             g2.setColor(infoItem.getMarkColor());
             int colorMarkerSize = getColorMarkerSize();
@@ -87,7 +99,7 @@ public class TooltipPainter {
             g2.drawString(labelString, x, string_y);
             x = x + getStringWidth(g2, tooltipConfig.getTextStyle().getFont(), labelString);
         }
-        if (infoItem.getValue() != null){
+        if (infoItem.getValue() != null) {
             g2.setColor(tooltipConfig.getTextStyle().getFontColor());
             // font for value is always BOLD!
             g2.setFont(new Font(tooltipConfig.getTextStyle().getFontName(), Font.BOLD, tooltipConfig.getTextStyle().getFontSize()));
@@ -96,24 +108,24 @@ public class TooltipPainter {
     }
 
 
-    private int getColorMarkerSize(){
-        return (int)(tooltipConfig.getTextStyle().getFontSize() * 0.8);
+    private int getColorMarkerSize() {
+        return (int) (tooltipConfig.getTextStyle().getFontSize() * 0.8);
     }
 
-    private int getColorMarkerPadding(){
-        return (int)(tooltipConfig.getTextStyle().getFontSize() * 0.5);
+    private int getColorMarkerPadding() {
+        return (int) (tooltipConfig.getTextStyle().getFontSize() * 0.5);
     }
 
-    private int getItemWidth(Graphics2D g2d, InfoItem infoItem){
+    private int getItemWidth(Graphics2D g2d, InfoItem infoItem) {
         String string = "";
-        if (infoItem.getValue() != null){
+        if (infoItem.getValue() != null) {
             string = infoItem.getValue();
         }
-        if (infoItem.getLabel() != null){
+        if (infoItem.getLabel() != null) {
             string = infoItem.getLabel() + separator + string;
         }
         int itemWidth = getStringWidth(g2d, tooltipConfig.getTextStyle().getFont(), string);
-        if (infoItem.getMarkColor() != null){
+        if (infoItem.getMarkColor() != null) {
             itemWidth = itemWidth + getColorMarkerPadding() + getColorMarkerSize();
         }
 
@@ -127,7 +139,7 @@ public class TooltipPainter {
             textWidth = Math.max(textWidth, getItemWidth(g2, tooltipInfo.getItem(i)));
         }
         if (tooltipInfo.getHeader() != null) {
-            textWidth = Math.max(textWidth,getItemWidth(g2, tooltipInfo.getHeader()));
+            textWidth = Math.max(textWidth, getItemWidth(g2, tooltipInfo.getHeader()));
         }
         Margin margin = tooltipConfig.getMargin();
         textWidth += margin.left() + margin.right();
@@ -138,13 +150,13 @@ public class TooltipPainter {
         }
         return new Dimension(textWidth, textHeight);
     }
-    
-    private  int getInterLineSpace() {
-        return (int)(tooltipConfig.getTextStyle().getFontSize() * 0.2);
+
+    private int getInterLineSpace() {
+        return (int) (tooltipConfig.getTextStyle().getFontSize() * 0.2);
     }
 
     private int getStringWidth(Graphics2D g2, Font font, String string) {
-        return  g2.getFontMetrics(font).stringWidth(string);
+        return g2.getFontMetrics(font).stringWidth(string);
     }
 
     private int getStringHeight(Graphics2D g2, Font font) {

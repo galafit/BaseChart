@@ -5,7 +5,7 @@ import base.DataSet;
 import base.Range;
 import base.XYViewer;
 import base.config.traces.BaseTraceConfig;
-import base.legend.LegendItem;
+import base.button.BtnModel;
 import base.tooltips.InfoItem;
 
 import java.awt.*;
@@ -42,12 +42,6 @@ public abstract class BaseTrace extends Trace {
         return markColor;
     }
 
-
-    @Override
-    public int getPreferredDataMarkSize() {
-        return Math.max(1, traceConfig.getMarkConfig().getSize());
-    }
-
     @Override
     public InfoItem[] getInfo(int dataIndex){
         if (dataIndex == -1){
@@ -59,12 +53,6 @@ public abstract class BaseTrace extends Trace {
         infoItems[2] = new InfoItem("Y: ", String.valueOf(xyData.getY(dataIndex)), null);
 
         return infoItems;
-    }
-
-    @Override
-    public LegendItem[] getLegendItems() {
-        LegendItem[] items = {new LegendItem(getLineColor(), getName())};
-        return items;
     }
 
     @Override

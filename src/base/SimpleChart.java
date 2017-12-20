@@ -1,12 +1,14 @@
 package base;
 
 import base.axis.Axis;
+import base.button.BaseButton;
+import base.button.BtnGroup;
+import base.button.StateListener;
 import base.config.SimpleChartConfig;
 import base.config.general.Margin;
 import base.config.traces.TraceConfig;
-import base.legend.LegendItem;
 import base.painters.CrosshairPainter;
-import base.painters.LegendPainter;
+import base.painters.Legend;
 import base.painters.TitlePainter;
 import base.painters.TooltipPainter;
 import base.scales.Scale;
@@ -22,7 +24,7 @@ import java.util.List;
 /**
  * Created by hdablin on 24.03.17.
  */
-public class SimpleChart  {
+public class SimpleChart {
     private final Color GREY = new Color(150, 150, 150);
     private final Color BROWN = new Color(200, 102, 0);
     private final Color ORANGE = new Color(255, 153, 0);
@@ -33,7 +35,7 @@ public class SimpleChart  {
     private List<Trace> traces = new ArrayList<Trace>();
     private boolean isTicksAlignmentEnable = false;
 
-    private LegendPainter legendPainter;
+    private List<Legend> legends = new ArrayList<Legend>();
     private TitlePainter titlePainter;
     private Rectangle fullArea;
     private Rectangle titleArea;
@@ -49,7 +51,8 @@ public class SimpleChart  {
     private TooltipPainter tooltipPainter;
 
     private int selectedTraceIndex = -1;
-    private int hoverIndex = -1;
+    private int hoverPointIndex = -1;
+    private int hoverTraceIndex = -1;
 
     private List<DataSet> data;
 
@@ -76,12 +79,34 @@ public class SimpleChart  {
         tooltipPainter = new TooltipPainter(chartConfig.getTooltipConfig());
         crosshairPainter = new CrosshairPainter(chartConfig.getCrosshairConfig());
         titlePainter = new TitlePainter(chartConfig.getTitle(), chartConfig.getTitleTextStyle());
-        legendPainter = new LegendPainter(getTracesInfo(), chartConfig.getLegendConfig());
+
+        BtnGroup buttonGroup = new BtnGroup();
+        for (int i = 0; i < yAxisList.size() / 2; i++) {
+            legends.add(new Legend(chartConfig.getLegendConfig(), buttonGroup));
+        }
+
+        for (int i = 0; i < traces.size(); i++) {
+            int stackIndex = getTraceYIndex(i) / 2;
+            BaseButton legendButton = new BaseButton(traces.get(i).getDefaultColor(), traces.get(i).getName());
+            final int traceIndex = i;
+            legendButton.addListener(new StateListener() {
+                @Override
+                public void stateChanged(boolean isSelected) {
+                    if(isSelected) {
+                        selectedTraceIndex = traceIndex;
+                    }
+                    if(!isSelected && selectedTraceIndex == traceIndex) {
+                        selectedTraceIndex = -1;
+                    }
+                }
+            });
+            legends.get(stackIndex).add(legendButton);
+        }
 
         // set min and max for x axis
         for (int i = 0; i < xAxisList.size(); i++) {
             Range minMax = chartConfig.getXMinMax(i);
-            if(minMax != null) {
+            if (minMax != null) {
                 xAxisList.get(i).setMinMax(minMax);
 
             } else {
@@ -91,7 +116,7 @@ public class SimpleChart  {
         // set min and max for y axis
         for (int i = 0; i < yAxisList.size(); i++) {
             Range minMax = chartConfig.getYMinMax(i);
-            if(minMax != null) {
+            if (minMax != null) {
                 yAxisList.get(i).setMinMax(minMax);
 
             } else {
@@ -100,16 +125,7 @@ public class SimpleChart  {
         }
     }
 
-    private TooltipInfo getTooltipInfo() {
-        TooltipInfo tooltipInfo = null;
-        if (selectedTraceIndex >= 0 && hoverIndex >= 0) {
-            tooltipInfo = new TooltipInfo();
-            tooltipInfo.addItems(traces.get(selectedTraceIndex).getInfo(hoverIndex));
-            Point dataPosition = traces.get(selectedTraceIndex).getDataPosition(hoverIndex);
-            tooltipInfo.setXY(dataPosition.x, dataPosition.y);
-        }
-        return tooltipInfo;
-    }
+
 
     Margin getMargin(Graphics2D g2) {
         if (margin == null) {
@@ -119,7 +135,7 @@ public class SimpleChart  {
     }
 
     Rectangle getGraphArea(Graphics2D g2) {
-        if(graphArea == null) {
+        if (graphArea == null) {
             calculateMarginsAndAreas(g2, chartConfig.getMargin());
         }
         return graphArea;
@@ -133,16 +149,6 @@ public class SimpleChart  {
         return xAxisList.get(xAxisIndex).getScale();
     }
 
-    private List<LegendItem> getTracesInfo() {
-        ArrayList<LegendItem> legendItems = new ArrayList<LegendItem>(chartConfig.getNumberOfTraces());
-        for (int i = 0; i < chartConfig.getNumberOfTraces(); i++) {
-            LegendItem[] items = traces.get(i).getLegendItems();
-            for (LegendItem item : items) {
-                legendItems.add(item);
-            }
-        }
-        return legendItems;
-    }
 
     void calculateMarginsAndAreas(Graphics2D g2, Margin margin) {
         int titleHeight = titlePainter.getTitleHeight(g2, fullArea.width);
@@ -191,6 +197,13 @@ public class SimpleChart  {
         this.margin = new Margin(top, right, bottom, left);
         graphArea = new Rectangle(fullArea.x + left, fullArea.y + top,
                 fullArea.width - left - right, fullArea.height - top - bottom);
+
+        for (int stackIndex = 0; stackIndex < legends.size(); stackIndex++) {
+            int legendAreaYStart = yAxisList.get(2 * stackIndex).getEnd();
+            int legendAreaYEnd = yAxisList.get(2 * stackIndex).getStart();
+            Rectangle legendArea = new Rectangle(graphArea.x, legendAreaYStart, graphArea.width, legendAreaYEnd - legendAreaYStart);
+            legends.get(stackIndex).setArea(legendArea);
+        }
 
         // adjust XAxis ranges
         xStart = graphArea.x;
@@ -274,15 +287,19 @@ public class SimpleChart  {
         g2d.setClip(clip);
 
         titlePainter.draw(g2d, titleArea);
-//        legendPainter.draw(g2d, graphArea);
-        TooltipInfo tooltipInfo = getTooltipInfo();
-        if (tooltipInfo != null) {
-            tooltipPainter.draw(g2d, chartArea, tooltipInfo);
-            crosshairPainter.draw(g2d, graphArea, tooltipInfo.getX(), tooltipInfo.getY());
+        for (Legend legend : legends) {
+            legend.draw(g2d);
+        }
+
+        if (hoverTraceIndex >= 0 && hoverPointIndex >= 0) {
+            crosshairPainter.draw(g2d, graphArea);
+            tooltipPainter.draw(g2d, fullArea);
         }
     }
 
-    /**=======================Base methods to interact==========================**/
+    /**
+     * =======================Base methods to interact==========================
+     **/
 
     public void setArea(Rectangle area) {
         fullArea = area;
@@ -294,6 +311,15 @@ public class SimpleChart  {
         for (int i = 0; i < chartConfig.getNumberOfTraces(); i++) {
             traces.get(i).setData(data.get(chartConfig.getTraceDataIndex(i)));
         }
+    }
+
+    public boolean selectTrace(int x, int y) {
+        for (Legend legend : legends) {
+            if(legend.toggle(x, y)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public int getNumberOfXAxis() {
@@ -330,25 +356,24 @@ public class SimpleChart  {
     }
 
 
-
     public int getXIndex(int x, int y) {
-        if(fullArea.y + fullArea.height / 2 <= y) {
+        if (fullArea.y + fullArea.height / 2 <= y) {
             for (int i = 0; i < traces.size(); i++) {
-                if(getTraceXIndex(i)== 0) {
+                if (getTraceXIndex(i) == 0) {
                     return 0; // bottom Axis
                 }
             }
             return 1; // top Axis
         }
-        if(fullArea.y <= y && y <= fullArea.y + fullArea.height / 2) {
+        if (fullArea.y <= y && y <= fullArea.y + fullArea.height / 2) {
             for (int i = 0; i < traces.size(); i++) {
-                if(getTraceXIndex(i)== 1) {
+                if (getTraceXIndex(i) == 1) {
                     return 1; // top Axis
                 }
             }
             return 0; // bottom Axis
         }
-        return - 1;
+        return -1;
 
         // Find and return X axis used by the traces belonging to the stack containing point (x, y)
       /*  for (int stackIndex = 0; stackIndex < yAxisList.size() / 2; stackIndex++) {
@@ -381,17 +406,17 @@ public class SimpleChart  {
             if (yAxisList.get(2 * stackIndex).getEnd() <= y && yAxisList.get(2 * stackIndex).getStart() >= y) {
                 int stackLeftYAxisIndex = 2 * stackIndex;
                 int stackRightYAxisIndex = 2 * stackIndex + 1;
-                if(fullArea.x <= x && x <= fullArea.x + fullArea.width / 2) { // left half
+                if (fullArea.x <= x && x <= fullArea.x + fullArea.width / 2) { // left half
                     for (int i = 0; i < traces.size(); i++) {
-                        if(getTraceYIndex(i) == stackLeftYAxisIndex) { // if leftAxis is used by some trace
+                        if (getTraceYIndex(i) == stackLeftYAxisIndex) { // if leftAxis is used by some trace
                             return stackLeftYAxisIndex;
                         }
                     }
                     return stackRightYAxisIndex;
                 }
-                if(fullArea.x + fullArea.width / 2 <= x && x <= fullArea.x + fullArea.width) { // right half
+                if (fullArea.x + fullArea.width / 2 <= x && x <= fullArea.x + fullArea.width) { // right half
                     for (int i = 0; i < traces.size(); i++) {
-                        if(getTraceYIndex(i) == stackRightYAxisIndex) { // if rightAxis is used by some trace
+                        if (getTraceYIndex(i) == stackRightYAxisIndex) { // if rightAxis is used by some trace
                             return stackRightYAxisIndex;
                         }
                     }
@@ -422,7 +447,7 @@ public class SimpleChart  {
     public void autoScaleX(int xAxisIndex) {
         Range xRange = null;
         for (int i = 0; i < traces.size(); i++) {
-            if(getTraceXIndex(i) == xAxisIndex) {
+            if (getTraceXIndex(i) == xAxisIndex) {
                 xRange = Range.max(xRange, traces.get(i).getXExtremes());
             }
         }
@@ -432,7 +457,7 @@ public class SimpleChart  {
     public void autoScaleY(int yAxisIndex) {
         Range yRange = null;
         for (int i = 0; i < traces.size(); i++) {
-            if(getTraceYIndex(i) == yAxisIndex) {
+            if (getTraceYIndex(i) == yAxisIndex) {
                 yRange = Range.max(yRange, traces.get(i).getYExtremes());
             }
         }
@@ -449,24 +474,48 @@ public class SimpleChart  {
 
 
     public boolean hoverOff() {
-        if (hoverIndex >= 0) {
-            hoverIndex = -1;
+        if (hoverPointIndex >= 0) {
+            hoverPointIndex = -1;
             return true;
         }
         return false;
     }
 
-    public boolean hoverOn(int x, int y) {
-        if (selectedTraceIndex < 0) {
+    public boolean hoverOn(int x, int y, int traceIndex) {
+        if(!graphArea.contains(x, y)) {
             return false;
         }
-        double xValue = traces.get(selectedTraceIndex).getXAxis().invert(x);
-        int nearestIndex = traces.get(selectedTraceIndex).getData().findNearestData(xValue);
-        if (hoverIndex != nearestIndex) {
-            hoverIndex = nearestIndex;
-            return true;
+        if(traceIndex >= 0) {
+            hoverTraceIndex = traceIndex;
+        } else {
+            for (int stackIndex = 0; stackIndex < yAxisList.size() / 2; stackIndex++) {
+                if (yAxisList.get(2 * stackIndex).getEnd() <= y && yAxisList.get(2 * stackIndex).getStart() >= y) {
+                    for (int i = 0; i < traces.size(); i++) {
+                        if (getTraceYIndex(i) == 2 * stackIndex || getTraceYIndex(i) == 2 * stackIndex + 1) {
+                            hoverTraceIndex = i;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (hoverTraceIndex >= 0) {
+            double xValue = traces.get(hoverTraceIndex).getXAxis().invert(x);
+            int nearestIndex = traces.get(hoverTraceIndex).getData().findNearestData(xValue);
+            if (hoverPointIndex != nearestIndex) {
+                hoverPointIndex = nearestIndex;
+                if (hoverPointIndex >= 0) {
+                    TooltipInfo tooltipInfo = new TooltipInfo();
+                    tooltipInfo.addItems(traces.get(hoverTraceIndex).getInfo(hoverPointIndex));
+                    Point dataPosition = traces.get(hoverTraceIndex).getDataPosition(hoverPointIndex);
+                    tooltipPainter.setTooltipInfo(tooltipInfo);
+                    tooltipPainter.setXY(dataPosition.x, yAxisList.get(getTraceYIndex(hoverTraceIndex)).getEnd());
+                    crosshairPainter.setXY(dataPosition.x, dataPosition.y);
+                }
+                return true;
+            }
         }
         return false;
     }
-
 }

@@ -3,7 +3,6 @@ package base.traces;
 import base.DataSet;
 import base.axis.Axis;
 import base.Range;
-import base.legend.LegendItem;
 import base.tooltips.InfoItem;
 
 import java.awt.*;
@@ -65,10 +64,6 @@ public abstract class Trace {
     public abstract Range getYExtremes();
 
     public abstract Point getDataPosition(int dataIndex);
-
-    public abstract int getPreferredDataMarkSize();
-
-    public abstract LegendItem[] getLegendItems();
 
     public abstract InfoItem[] getInfo(int dataIndex);
 

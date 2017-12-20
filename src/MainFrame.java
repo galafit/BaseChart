@@ -99,7 +99,7 @@ public class MainFrame extends JFrame {
         MainFrame mainFrame = new MainFrame();
 
 
-       final Timer timer = new Timer(1000, new ActionListener() {
+      /* final Timer timer = new Timer(1000, new ActionListener() {
             int counter = 0;
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -110,7 +110,7 @@ public class MainFrame extends JFrame {
             }
         });
         timer.setInitialDelay(0);
-        timer.start();
+        timer.start();*/
 
     }
 

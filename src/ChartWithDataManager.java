@@ -222,7 +222,6 @@ public class ChartWithDataManager {
         for (int traceIndex = 0; traceIndex < chartConfig.getNumberOfTraces(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
-                // DataSet traceData = chartConfig.getData().get(traceDataIndex);
                 DataSet traceData = chartData.get(traceDataIndex);
                 if (traceData.size() > 1) {
                     double dataItemInterval = traceData.getAverageDataInterval();
