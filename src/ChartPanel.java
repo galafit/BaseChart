@@ -31,8 +31,15 @@ public class ChartPanel extends JPanel {
             @Override
             public void mouseDragged(MouseEvent e) {
                 if(SwingUtilities.isRightMouseButton(e)) {
-                    if(scrollableChart.chartHoverOn(e.getX(), e.getY(), scrollableChart.getChartSelectedTraceIndex())) {
-                        repaint();
+                    if(scrollableChart.chartContains(e.getX(), e.getY())) {
+                        if(scrollableChart.chartHoverOn(e.getX(), e.getY(), scrollableChart.getChartSelectedTraceIndex())) {
+                            repaint();
+                        }
+                    }
+                    if(scrollableChart.previewContains(e.getX(), e.getY())) {
+                        if(scrollableChart.previewHoverOn(e.getX(), e.getY(), scrollableChart.getPreviewSelectedTraceIndex())) {
+                            repaint();
+                        }
                     }
                 } else {
                     int dy = pastY - e.getY();
@@ -83,8 +90,15 @@ public class ChartPanel extends JPanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 if(SwingUtilities.isRightMouseButton(e)) {
-                    if(scrollableChart.chartHoverOn(e.getX(), e.getY(), scrollableChart.getChartSelectedTraceIndex())) {
-                        repaint();
+                    if(scrollableChart.chartContains(e.getX(), e.getY())) {
+                        if(scrollableChart.chartHoverOn(e.getX(), e.getY(), scrollableChart.getChartSelectedTraceIndex())) {
+                            repaint();
+                        }
+                    }
+                    if(scrollableChart.previewContains(e.getX(), e.getY())) {
+                        if(scrollableChart.previewHoverOn(e.getX(), e.getY(), scrollableChart.getPreviewSelectedTraceIndex())) {
+                            repaint();
+                        }
                     }
                 } else {
                     pastX = e.getX();
@@ -101,8 +115,15 @@ public class ChartPanel extends JPanel {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                if(scrollableChart.chartHoverOff()) {
-                    repaint();
+                if(scrollableChart.chartContains(e.getX(), e.getY())) {
+                    if(scrollableChart.chartHoverOff()) {
+                        repaint();
+                    }
+                }
+                if(scrollableChart.previewContains(e.getX(), e.getY())) {
+                    if(scrollableChart.previewHoverOff()) {
+                        repaint();
+                    }
                 }
             }
         });

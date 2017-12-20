@@ -363,4 +363,13 @@ public class ScrollableChart {
             preview.autoScaleY(yAxisIndex);
         }
     }
+
+    public boolean previewHoverOff() {
+        return preview.hoverOff();
+    }
+
+    public boolean previewHoverOn(int x, int y, int traceIndex) {
+        return preview.hoverOn(x, y, traceIndex);
+    }
+
 }
