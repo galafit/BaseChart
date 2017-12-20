@@ -20,7 +20,7 @@ public class ChartConfig extends ScrollableChartConfig {
     private List<BaseDataSet> chartData = new ArrayList<BaseDataSet>();
     private List<BaseDataSet> previewData = new ArrayList<BaseDataSet>();
     // true for pc and false for phone
-    private boolean isChartGroupedDatCachingEnable = false;
+    private boolean isChartGroupedDatCachingEnable = true;
 
     public boolean isChartGroupedDatCachingEnable() {
         return isChartGroupedDatCachingEnable;

@@ -24,6 +24,7 @@ public class ChartPanel extends JPanel {
     private ChartWithDataManager chartDataManager;
 
     public ChartPanel(ChartConfig config) {
+        setBackground(config.getChartConfig().getBackground());
         chartDataManager = new ChartWithDataManager(config, new Rectangle(0, 0, 500, 500));
         scrollableChart = chartDataManager.getChartWithPreview();
         addMouseMotionListener(new MouseMotionAdapter() {
