@@ -77,7 +77,7 @@ public class BaseDataSet implements DataSet {
 
 
     @Override
-    public int getYDimension() {
+    public int getYColumnsCounter() {
         return yColumns.size();
     }
 

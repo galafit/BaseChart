@@ -103,6 +103,18 @@ public class ScrollableChart {
         return chart.selectTrace(x, y);
     }
 
+    public boolean selectChartTrace(int traceIndex) {
+        return chart.selectTrace(traceIndex);
+    }
+
+    public int getChartTraceCounter() {
+        return chart.getTraceCounter();
+    }
+
+    public boolean chartContains(int x, int y) {
+       return chartArea.contains(x, y);
+    }
+
     public void setChartData(ArrayList<DataSet> data) {
         chart.setData(data);
     }
@@ -139,12 +151,12 @@ public class ScrollableChart {
         return chart.getXIndex(x, y);
     }
 
-    public int getChartNumberOfXAxis() {
-        return chart.getNumberOfXAxis();
+    public int getChartXAxisCounter() {
+        return chart.getXAxisCounter();
     }
 
-    public int getChartNumberOfYAxis() {
-        return chart.getNumberOfYAxis();
+    public int getChartYAxisCounter() {
+        return chart.getYAxisCounter();
     }
 
     public void zoomChartY(int yAxisIndex, double zoomFactor) {
@@ -208,6 +220,18 @@ public class ScrollableChart {
         preview.setData(data);
     }
 
+    public boolean selectPreviewTrace(int x, int y) {
+        return preview.selectTrace(x, y);
+    }
+
+    public boolean selectPreviewTrace(int traceIndex) {
+        return preview.selectTrace(traceIndex);
+    }
+
+    public int getPreviewTraceCounter() {
+        return preview.getTraceCounter();
+    }
+
     /**
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
@@ -258,12 +282,8 @@ public class ScrollableChart {
         return scrolls.get(xAxisIndex).getValue();
     }
 
-    public int getPreviewNumberOfXAxis() {
-        return preview.getNumberOfXAxis();
-    }
-
-    public int getPreviewNumberOfYAxis() {
-        return preview.getNumberOfYAxis();
+    public int getPreviewYAxisCounter() {
+        return preview.getYAxisCounter();
     }
 
 
@@ -277,7 +297,7 @@ public class ScrollableChart {
     }
 
 
-    public boolean isPointInsidePreview(int x, int y) {
+    public boolean previewContains(int x, int y) {
         if (previewArea != null) {
             return previewArea.contains(x, y);
         }
@@ -292,7 +312,7 @@ public class ScrollableChart {
     }
 
     public void setPreviewMinMax(Range minMax) {
-        for (int i = 0; i < preview.getNumberOfXAxis(); i++) {
+        for (int i = 0; i < preview.getXAxisCounter(); i++) {
             preview.setXMinMax(i, minMax);
         }
     }
@@ -343,64 +363,4 @@ public class ScrollableChart {
             preview.autoScaleY(yAxisIndex);
         }
     }
-
-
-
-
-/*    @Override
-    public void onClick(int mouseX, int mouseY) {
-        if(chartArea.contains(mouseX, mouseY)) {
-            chart.onClick(mouseX, mouseY);
-        } else if(preview != null && previewArea.contains(mouseX, mouseY) && !isPointInsideScroll(mouseX, mouseY)) {
-            setScrollsValue(mouseX, mouseY);
-        }
-        for (ScrollListener changeListener : chartEventListeners) {
-           // changeListener.update();
-        }
-    }
-
-    @Override
-    public void onDoubleClick(int mouseX, int mouseY) {
-        chart.onDoubleClick(mouseX, mouseY);
-    }
-
-    @Override
-    public void mouseMoved(int mouseX, int mouseY) {
-        chart.mouseMoved(mouseX, mouseY);
-    }
-
-    @Override
-    public void onScroll(int mouseX, int mouseY, int wheelRotation) {
-        chart.mouseWheelMoved(mouseX, mouseY, wheelRotation);
-    }
-
-
-    class EventListener implements  ScrollListener {
-        @Override
-        public void hoverChanged() {
-            for (ScrollListener changeListener : chartEventListeners) {
-                changeListener.update();
-            }
-        }
-
-        @Override
-        public void xAxisActionPerformed(int xAxisIndex, int actionDirection) {
-            System.out.println(xAxisIndex+" X AxisAction "+ actionDirection);
-        }
-
-        @Override
-        public void yAxisActionPerformed(int yAxisIndex, int actionDirection) {
-            System.out.println(yAxisIndex+" Y AxisAction "+ actionDirection);
-        }
-
-        @Override
-        public void yAxisResetActionPerformed(int yAxisIndex) {
-            System.out.println(yAxisIndex+" Y AxisReset ");
-        }
-
-        @Override
-        public void xAxisResetActionPerformed(int xAxisIndex) {
-            System.out.println(xAxisIndex+" X AxisReset ");
-        }
-    }*/
 }

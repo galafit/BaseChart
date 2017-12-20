@@ -1,5 +1,4 @@
 
-import base.DataSet;
 import base.config.ScrollableChartConfig;
 import base.config.traces.TraceConfig;
 import data.BaseDataSet;
@@ -20,7 +19,16 @@ public class ChartConfig extends ScrollableChartConfig {
     private ArrayList<Double> previewGroupingIntervals = new ArrayList<Double>();
     private List<BaseDataSet> chartData = new ArrayList<BaseDataSet>();
     private List<BaseDataSet> previewData = new ArrayList<BaseDataSet>();
+    // true for pc and false for phone
+    private boolean isChartGroupedDatCachingEnable = false;
 
+    public boolean isChartGroupedDatCachingEnable() {
+        return isChartGroupedDatCachingEnable;
+    }
+
+    public void setChartGroupedDatCachingEnable(boolean isChartGroupedDatCachingEnable) {
+        this.isChartGroupedDatCachingEnable = isChartGroupedDatCachingEnable;
+    }
 
     public List<Double> getPreviewGroupingIntervals() {
         return previewGroupingIntervals;

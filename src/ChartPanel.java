@@ -17,7 +17,7 @@ public class ChartPanel extends JPanel {
     private int pastX;
     private int pastY;
     private boolean isPressedInsideScroll;
-    private ScrollableChart chart;
+    private ScrollableChart scrollableChart;
     private List<Integer> xAxisList = new ArrayList<>();
     private List<Integer> yAxisList = new ArrayList<>();
     private List<Integer> yAxisListPreview = new ArrayList<>();
@@ -25,12 +25,12 @@ public class ChartPanel extends JPanel {
 
     public ChartPanel(ChartConfig config) {
         chartDataManager = new ChartWithDataManager(config, new Rectangle(0, 0, 500, 500));
-        chart = chartDataManager.getChartWithPreview();
+        scrollableChart = chartDataManager.getChartWithPreview();
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 if(SwingUtilities.isRightMouseButton(e)) {
-                    if(chart.chartHoverOn(e.getX(), e.getY(), chart.getChartSelectedTraceIndex())) {
+                    if(scrollableChart.chartHoverOn(e.getX(), e.getY(), scrollableChart.getChartSelectedTraceIndex())) {
                         repaint();
                     }
                 } else {
@@ -39,7 +39,7 @@ public class ChartPanel extends JPanel {
                     pastX = e.getX();
                     pastY = e.getY();
                     if(isPressedInsideScroll) {
-                        if(chart.translateScrolls(dx)) {
+                        if(scrollableChart.translateScrolls(dx)) {
                             repaint();
                         }
                     } else {
@@ -70,10 +70,10 @@ public class ChartPanel extends JPanel {
                     repaint();
                 }
                 if (e.getClickCount() == 1) {
-                    if(chart.selectChartTrace(e.getX(), e.getY())) {
+                    if(scrollableChart.chartContains(e.getX(), e.getY()) && scrollableChart.selectChartTrace(e.getX(), e.getY())) {
                         repaint();
                     }
-                    if(chart.setScrollsPosition(e.getX(), e.getY())) {
+                    if(scrollableChart.previewContains(e.getX(), e.getY()) && (scrollableChart.selectPreviewTrace(e.getX(), e.getY()) || scrollableChart.setScrollsPosition(e.getX(), e.getY()))) {
                         repaint();
                     }
                 }
@@ -82,13 +82,13 @@ public class ChartPanel extends JPanel {
             @Override
             public void mousePressed(MouseEvent e) {
                 if(SwingUtilities.isRightMouseButton(e)) {
-                    if(chart.chartHoverOn(e.getX(), e.getY(), chart.getChartSelectedTraceIndex())) {
+                    if(scrollableChart.chartHoverOn(e.getX(), e.getY(), scrollableChart.getChartSelectedTraceIndex())) {
                         repaint();
                     }
                 } else {
                     pastX = e.getX();
                     pastY = e.getY();
-                    if(chart.isPointInsideScroll(e.getX(), e.getY())) {
+                    if(scrollableChart.isPointInsideScroll(e.getX(), e.getY())) {
                         isPressedInsideScroll = true;
                     } else {
                         isPressedInsideScroll = false;
@@ -100,7 +100,7 @@ public class ChartPanel extends JPanel {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                if(chart.chartHoverOff()) {
+                if(scrollableChart.chartHoverOff()) {
                     repaint();
                 }
             }
@@ -127,7 +127,7 @@ public class ChartPanel extends JPanel {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-               chart.setArea(getBounds());
+               scrollableChart.setArea(getBounds());
                repaint();
             }
         });
@@ -135,39 +135,39 @@ public class ChartPanel extends JPanel {
 
 
     private void updateXAxisList(int x, int y) {
-        int selectedTraceIndex = chart.getChartSelectedTraceIndex();
+        int selectedTraceIndex = scrollableChart.getChartSelectedTraceIndex();
         xAxisList = new ArrayList<>(1);
         if(selectedTraceIndex >= 0) {
-            xAxisList.add(chart.getChartTraceXIndex(selectedTraceIndex));
+            xAxisList.add(scrollableChart.getChartTraceXIndex(selectedTraceIndex));
         } else {
-           int xAxisIndex = chart.getChartXIndex(x, y);
+           int xAxisIndex = scrollableChart.getChartXIndex(x, y);
            if(xAxisIndex >= 0) {
-               xAxisList.add(chart.getChartXIndex(x, y));
+               xAxisList.add(scrollableChart.getChartXIndex(x, y));
            }
         }
     }
 
     private void updateXAxisList() {
-        int selectedTraceIndex = chart.getChartSelectedTraceIndex();
+        int selectedTraceIndex = scrollableChart.getChartSelectedTraceIndex();
         if(selectedTraceIndex >= 0) {
             xAxisList = new ArrayList<>(1);
-            xAxisList.add(chart.getChartTraceXIndex(selectedTraceIndex));
+            xAxisList.add(scrollableChart.getChartTraceXIndex(selectedTraceIndex));
         } else {
-            xAxisList = new ArrayList<>(chart.getChartNumberOfXAxis());
-            for (int i = 0; i < chart.getChartNumberOfXAxis(); i++) {
+            xAxisList = new ArrayList<>(scrollableChart.getChartXAxisCounter());
+            for (int i = 0; i < scrollableChart.getChartXAxisCounter(); i++) {
                 xAxisList.add(i) ;
             }
         }
     }
 
     private void updateYAxisList(int x, int y) {
-        if(chart.isPointInsideChart(x, y)) {
-            int chartSelectedTraceIndex = chart.getChartSelectedTraceIndex();
+        if(scrollableChart.isPointInsideChart(x, y)) {
+            int chartSelectedTraceIndex = scrollableChart.getChartSelectedTraceIndex();
             yAxisList = new ArrayList<>(1);
             if(chartSelectedTraceIndex >= 0) {
-                yAxisList.add(chart.getChartTraceYIndex(chartSelectedTraceIndex));
+                yAxisList.add(scrollableChart.getChartTraceYIndex(chartSelectedTraceIndex));
             } else {
-                int yAxisIndex = chart.getChartYIndex(x, y);
+                int yAxisIndex = scrollableChart.getChartYIndex(x, y);
                 if(yAxisIndex >= 0) {
                     yAxisList.add(yAxisIndex);
                 }
@@ -175,13 +175,13 @@ public class ChartPanel extends JPanel {
             yAxisListPreview = new ArrayList<>(0);
         }
 
-        if(chart.isPointInsidePreview(x, y)) {
-            int previewSelectedTraceIndex = chart.getPreviewSelectedTraceIndex();
+        if(scrollableChart.previewContains(x, y)) {
+            int previewSelectedTraceIndex = scrollableChart.getPreviewSelectedTraceIndex();
             yAxisListPreview = new ArrayList<>(1);
             if(previewSelectedTraceIndex >= 0) {
-                yAxisListPreview.add(chart.getPreviewTraceYIndex(previewSelectedTraceIndex));
+                yAxisListPreview.add(scrollableChart.getPreviewTraceYIndex(previewSelectedTraceIndex));
             } else {
-                int yAxisIndex = chart.getPreviewYIndex(x, y);
+                int yAxisIndex = scrollableChart.getPreviewYIndex(x, y);
                 if(yAxisIndex >= 0)
                     yAxisListPreview.add(yAxisIndex);
             }
@@ -190,24 +190,24 @@ public class ChartPanel extends JPanel {
     }
 
     private void updateYAxisList() {
-        int chartSelectedTraceIndex = chart.getChartSelectedTraceIndex();
+        int chartSelectedTraceIndex = scrollableChart.getChartSelectedTraceIndex();
         if(chartSelectedTraceIndex >= 0) {
             yAxisList = new ArrayList<>(1);
-            yAxisList.add(chart.getChartTraceYIndex(chartSelectedTraceIndex));
+            yAxisList.add(scrollableChart.getChartTraceYIndex(chartSelectedTraceIndex));
         } else {
-            yAxisList = new ArrayList<>(chart.getChartNumberOfYAxis());
-            for (int i = 0; i < chart.getChartNumberOfYAxis(); i++) {
+            yAxisList = new ArrayList<>(scrollableChart.getChartYAxisCounter());
+            for (int i = 0; i < scrollableChart.getChartYAxisCounter(); i++) {
                 yAxisList.add(i) ;
             }
         }
 
-        int previewSelectedTraceIndex = chart.getPreviewSelectedTraceIndex();
+        int previewSelectedTraceIndex = scrollableChart.getPreviewSelectedTraceIndex();
         if(previewSelectedTraceIndex >= 0) {
             yAxisListPreview = new ArrayList<>(1);
-            yAxisListPreview.add(chart.getPreviewTraceYIndex(previewSelectedTraceIndex));
+            yAxisListPreview.add(scrollableChart.getPreviewTraceYIndex(previewSelectedTraceIndex));
         } else {
-            yAxisListPreview = new ArrayList<>(chart.getPreviewNumberOfYAxis());
-            for (int i = 0; i < chart.getPreviewNumberOfYAxis(); i++) {
+            yAxisListPreview = new ArrayList<>(scrollableChart.getPreviewYAxisCounter());
+            for (int i = 0; i < scrollableChart.getPreviewYAxisCounter(); i++) {
                 yAxisListPreview.add(i) ;
             }
         }
@@ -216,51 +216,51 @@ public class ChartPanel extends JPanel {
 
     private void translateY(int dy) {
         for (Integer yAxisIndex : yAxisList) {
-            chart.translateChartY(yAxisIndex, dy);
+            scrollableChart.translateChartY(yAxisIndex, dy);
         }
         for (Integer yAxisIndex : yAxisListPreview) {
-            chart.translatePreviewY(yAxisIndex, dy);
+            scrollableChart.translatePreviewY(yAxisIndex, dy);
         }
     }
 
     private void translateX(int dx) {
         for (Integer xAxisIndex : xAxisList) {
-            chart.translateChartX(xAxisIndex, dx);
+            scrollableChart.translateChartX(xAxisIndex, dx);
         }
     }
 
     private void zoomY(int dy) {
         for (Integer yAxisIndex : yAxisList) {
             // scaling relative to the stack
-            double zoomFactor = 1 + defaultZoom * dy / chart.getChartYStartEnd(yAxisIndex).length();
-            chart.zoomChartY(yAxisIndex, zoomFactor);
+            double zoomFactor = 1 + defaultZoom * dy / scrollableChart.getChartYStartEnd(yAxisIndex).length();
+            scrollableChart.zoomChartY(yAxisIndex, zoomFactor);
         }
         for (Integer yAxisIndex : yAxisListPreview) {
             // scaling relative to the stack
-            double zoomFactor = 1 + defaultZoom * dy / chart.getChartYStartEnd(yAxisIndex).length();
-            chart.zoomPreviewY(yAxisIndex, zoomFactor);
+            double zoomFactor = 1 + defaultZoom * dy / scrollableChart.getChartYStartEnd(yAxisIndex).length();
+            scrollableChart.zoomPreviewY(yAxisIndex, zoomFactor);
         }
     }
 
     private void zoomX(int dx) {
         double zoomFactor = 1 + defaultZoom * dx / 100;
         for (Integer xAxisIndex : xAxisList) {
-            chart.zoomChartX(xAxisIndex, zoomFactor);
+            scrollableChart.zoomChartX(xAxisIndex, zoomFactor);
         }
     }
 
     private void autoscaleX() {
         for (Integer xAxisIndex : xAxisList) {
-            chart.autoScaleChartX(xAxisIndex);
+            scrollableChart.autoScaleChartX(xAxisIndex);
         }
     }
 
     private void autoscaleY() {
         for (Integer yAxisIndex : yAxisList) {
-            chart.autoScaleChartY(yAxisIndex);
+            scrollableChart.autoScaleChartY(yAxisIndex);
         }
         for (Integer yAxisIndex : yAxisListPreview) {
-            chart.autoScalePreviewY(yAxisIndex);
+            scrollableChart.autoScalePreviewY(yAxisIndex);
         }
     }
 
@@ -268,7 +268,7 @@ public class ChartPanel extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        chart.draw((Graphics2D) g);
+        scrollableChart.draw((Graphics2D) g);
     }
 
     public void update() {

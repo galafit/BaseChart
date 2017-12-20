@@ -140,7 +140,7 @@ public class SimpleChartConfig {
         return yAxisConfigs.size();
     }
 
-    public int getNumberOfTraces() {
+    public int getTraceCounter() {
         return traces.size();
     }
 

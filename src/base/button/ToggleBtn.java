@@ -8,7 +8,7 @@ import java.awt.*;
 /**
  * Created by galafit on 18/12/17.
  */
-public class BaseButton {
+public class ToggleBtn {
     private BtnModel model = new BtnModel();
     private Color color = Color.BLACK;
     private String label = "";
@@ -21,7 +21,7 @@ public class BaseButton {
             (int)(textStyle.getFontSize() * 1));
     private Rectangle bounds;
 
-    public BaseButton(Color color, String label) {
+    public ToggleBtn(Color color, String label) {
         this.color = color;
         this.label = label;
     }

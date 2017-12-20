@@ -9,7 +9,7 @@ public interface DataSet {
     /**
      * amount of Y columns
      */
-    public int getYDimension();
+    public int getYColumnsCounter();
 
     public double getXValue(int index);
 

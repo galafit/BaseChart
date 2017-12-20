@@ -1,7 +1,7 @@
 package base;
 
 import base.axis.Axis;
-import base.button.BaseButton;
+import base.button.ToggleBtn;
 import base.button.BtnGroup;
 import base.button.StateListener;
 import base.config.SimpleChartConfig;
@@ -67,7 +67,7 @@ public class SimpleChart {
         for (int i = 0; i < chartConfig.getNumberOfYAxis(); i++) {
             yAxisList.add(new Axis(chartConfig.getYConfig(i)));
         }
-        for (int i = 0; i < chartConfig.getNumberOfTraces(); i++) {
+        for (int i = 0; i < chartConfig.getTraceCounter(); i++) {
             TraceConfig traceConfig = chartConfig.getTraceConfig(i);
             Trace trace = TraceRegister.getTrace(traceConfig, data.get(chartConfig.getTraceDataIndex(i)));
             trace.setXAxis(xAxisList.get(chartConfig.getTraceXIndex(i)));
@@ -87,7 +87,7 @@ public class SimpleChart {
 
         for (int i = 0; i < traces.size(); i++) {
             int stackIndex = getTraceYIndex(i) / 2;
-            BaseButton legendButton = new BaseButton(traces.get(i).getDefaultColor(), traces.get(i).getName());
+            ToggleBtn legendButton = new ToggleBtn(traces.get(i).getDefaultColor(), traces.get(i).getName());
             final int traceIndex = i;
             legendButton.addListener(new StateListener() {
                 @Override
@@ -308,9 +308,13 @@ public class SimpleChart {
 
     public void setData(List<DataSet> data) {
         this.data = data;
-        for (int i = 0; i < chartConfig.getNumberOfTraces(); i++) {
+        for (int i = 0; i < traces.size(); i++) {
             traces.get(i).setData(data.get(chartConfig.getTraceDataIndex(i)));
         }
+    }
+
+    public int getTraceCounter() {
+        return traces.size();
     }
 
     public boolean selectTrace(int x, int y) {
@@ -322,11 +326,24 @@ public class SimpleChart {
         return false;
     }
 
-    public int getNumberOfXAxis() {
+    public boolean selectTrace(int traceIndex) {
+        if(selectedTraceIndex != traceIndex) {
+            selectedTraceIndex = traceIndex;
+            return true;
+        }
+        return false;
+    }
+
+    public int getSelectedTraceIndex() {
+        return selectedTraceIndex;
+    }
+
+
+    public int getXAxisCounter() {
         return xAxisList.size();
     }
 
-    public int getNumberOfYAxis() {
+    public int getYAxisCounter() {
         return yAxisList.size();
     }
 
@@ -350,11 +367,6 @@ public class SimpleChart {
     public Range getYStartEnd(int yAxisIndex) {
         return new Range(yAxisList.get(yAxisIndex).getStart(), yAxisList.get(yAxisIndex).getEnd(), true);
     }
-
-    public int getSelectedTraceIndex() {
-        return selectedTraceIndex;
-    }
-
 
     public int getXIndex(int x, int y) {
         if (fullArea.y + fullArea.height / 2 <= y) {

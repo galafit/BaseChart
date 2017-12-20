@@ -1,6 +1,5 @@
 package data;
 
-import base.DataSet;
 import data.series.DoubleSeries;
 import data.series.IntSeries;
 
@@ -72,7 +71,7 @@ public class XYData implements Data {
     }
 
     private void removeYData() {
-        int yColumnNumber = dataSet.getYDimension();
+        int yColumnNumber = dataSet.getYColumnsCounter();
         if(yColumnNumber > 0) {
             dataSet.removeYData(yColumnNumber - 1);
         }

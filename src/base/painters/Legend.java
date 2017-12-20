@@ -1,11 +1,10 @@
 package base.painters;
 
-import base.button.BaseButton;
+import base.button.ToggleBtn;
 import base.button.BtnGroup;
 import base.config.*;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +14,7 @@ import java.util.List;
  */
 public class Legend {
     private BtnGroup buttonGroup;
-    private List<BaseButton> buttons = new ArrayList<BaseButton>();
+    private List<ToggleBtn> buttons = new ArrayList<ToggleBtn>();
     private LegendConfig legendConfig;
     private Rectangle area;
     private boolean isDirty = true;
@@ -26,7 +25,7 @@ public class Legend {
     }
 
     public boolean toggle(int x, int y) {
-        for (BaseButton button : buttons) {
+        for (ToggleBtn button : buttons) {
            if(button.contains(x, y)) {
                button.toggle();
                return true;
@@ -37,9 +36,10 @@ public class Legend {
 
     public  void setArea(Rectangle area) {
         this.area = area;
+        isDirty = true;
     }
 
-    public void add(BaseButton legendButton) {
+    public void add(ToggleBtn legendButton) {
         buttons.add(legendButton);
         buttonGroup.add(legendButton.getModel());
         legendButton.setBackground(legendConfig.getBackground());
@@ -82,7 +82,7 @@ public class Legend {
     }
 
     private int getInterItemSpace() {
-        return (int) (legendConfig.getTextStyle().getFontSize() * 0);
+        return 2;
     }
 }
 

@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by hdablin on 11.08.17.
+ * Implemented similar to swing ToggleButtonModel (and swing ButtonGroup).
+ * Permit to select only one or none
+ * button in the button group.
  */
 public class BtnModel {
     private List<StateListener> selectionListeners = new ArrayList<StateListener>();
