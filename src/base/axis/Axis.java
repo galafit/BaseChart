@@ -275,6 +275,13 @@ public class Axis {
         // if config.isRight()
         int y = (int)scale(tick.getValue());
         int x = axisWidth / 2 + config.getTicksConfig().getTickMarkInsideSize() + labelPadding;
+        int labelHeight = fm.getHeight();
+        if(y + labelHeight/2 + 1 > getStart()) {
+            return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.START, fm);
+        }
+        if(y - labelHeight/2 - 1 < getEnd()) {
+            return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.END, fm);
+        }
         return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.MIDDLE, fm);
     }
 
