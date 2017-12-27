@@ -59,11 +59,13 @@ public class SimpleChartConfig {
         axisConfig = new AxisConfig(AxisOrientation.LEFT);
         axisConfig.getMinorGridLineConfig().setWidth(0);
         axisConfig.getGridLineConfig().setWidth(1);
+        axisConfig.setMinMaxRoundingEnable(true);
         yAxisConfigs.add(axisConfig);
 
         axisConfig = new AxisConfig(AxisOrientation.RIGHT);
         axisConfig.getMinorGridLineConfig().setWidth(0);
         axisConfig.getGridLineConfig().setWidth(0);
+        axisConfig.setMinMaxRoundingEnable(true);
         yAxisConfigs.add(axisConfig);
     }
 
@@ -72,11 +74,13 @@ public class SimpleChartConfig {
         AxisConfig axisConfig = new AxisConfig(AxisOrientation.LEFT);
         axisConfig.getMinorGridLineConfig().setWidth(0);
         axisConfig.getGridLineConfig().setWidth(1);
+        axisConfig.setMinMaxRoundingEnable(true);
         yAxisConfigs.add(axisConfig);
 
         axisConfig = new AxisConfig(AxisOrientation.RIGHT);
         axisConfig.getMinorGridLineConfig().setWidth(0);
         axisConfig.getGridLineConfig().setWidth(0);
+        axisConfig.setMinMaxRoundingEnable(true);
         yAxisConfigs.add(axisConfig);
         stackWeights.add(weight);
     }

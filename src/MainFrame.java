@@ -98,7 +98,6 @@ public class MainFrame extends JFrame {
     public static void main(String[] args) {
         MainFrame mainFrame = new MainFrame();
 
-
       /* final Timer timer = new Timer(1000, new ActionListener() {
             int counter = 0;
             @Override

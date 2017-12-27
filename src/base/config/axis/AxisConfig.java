@@ -20,6 +20,7 @@ public class AxisConfig {
     private TicksConfig ticksConfig = new TicksConfig();
     private LabelsConfig labelsConfig = new LabelsConfig();
     private String title;
+    private boolean isMinMaxRoundingEnable = false;
 
     public AxisConfig(AxisOrientation orientation) {
         this.orientation = orientation;
@@ -29,6 +30,14 @@ public class AxisConfig {
         getMinorGridLineConfig().setColor(new Color(80, 80, 80));
         getTitleConfig().getTextStyle().setFontSize(14);
         getLabelsConfig().getTextStyle().setFontSize(12);
+    }
+
+    public boolean isMinMaxRoundingEnable() {
+        return isMinMaxRoundingEnable;
+    }
+
+    public void setMinMaxRoundingEnable(boolean isMinMaxRoundingEvalable) {
+        this.isMinMaxRoundingEnable = isMinMaxRoundingEvalable;
     }
 
     public String getTitle() {

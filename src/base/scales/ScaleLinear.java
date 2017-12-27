@@ -3,6 +3,7 @@ package base.scales;
 import base.config.axis.LabelFormatInfo;
 
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,154 +23,116 @@ public class ScaleLinear extends Scale {
     }
 
     @Override
-    public TickProvider getTickProvider() {
-        return new LinearTickProvider();
+    public TickProvider getTickProvider(int tickCount, LabelFormatInfo labelFormatInfo) {
+        return new LinearTickProvider(tickCount, labelFormatInfo);
+    }
+
+    @Override
+    public  TickProvider getTickProvider(double tickStep, Unit tickUnit, LabelFormatInfo labelFormatInfo) {
+        return new LinearTickProvider(tickStep, tickUnit, labelFormatInfo);
     }
 
     class LinearTickProvider implements TickProvider {
-        private LabelFormatInfo labelFormatInfo;
         private double tickStep;
-        private DecimalFormat tickFormat = new DecimalFormat();
+        private DecimalFormat labelFormat = new DecimalFormat();
+        private Tick lastTick;
 
+        public LinearTickProvider(int tickCount, LabelFormatInfo labelFormatInfo) {
+            NormalizedNumber normalizedStep = getTickStep(tickCount);
+            tickStep = normalizedStep.getValue();
+            labelFormat = getNumberFormat(normalizedStep.getPower(), labelFormatInfo);
+        }
 
-        @Override
-        public void setLabelFormatInfo(LabelFormatInfo labelFormatInfo) {
-            this.labelFormatInfo = labelFormatInfo;
-         }
-
-        @Override
-        public void setTickAmount(int amount) {
-            double max = domain[domain.length - 1];
-            double min = domain[0];
-            if (max != min) {
-                double step = (max - min) / amount;
-
-                // Round Tick Step
-                // The default ticks for quantitative base.scales are multiples of 2, 5 and 10
-                // firstDigit is in {1,2,5,10};
-                NormalizedNumber normalizedStep = new NormalizedNumber(step);
-
-                int power = normalizedStep.getPower();
-                int firstDigit = (int)Math.round(normalizedStep.getMantissa());
-                switch (firstDigit) {
-                    case 3:
-                        firstDigit = 2;
-                        break;
-                    case 4:
-                        firstDigit = 5;
-                        break;
-                    case 6:
-                        firstDigit = 5;
-                        break;
-                    case 7:
-                        firstDigit = 5;
-                        break;
-                    case 8:
-                        firstDigit = 1;
-                        power++;
-                        break;
-                    case 9:
-                        firstDigit = 1;
-                        power++;
-                        break;
-                }
-                tickStep = firstDigit * Math.pow(10, power);
-                tickFormat = getNumberFormat(power);
-            }
+        public LinearTickProvider(double tickStep, Unit tickUnit, LabelFormatInfo labelFormatInfo) {
+            this.tickStep = tickStep;
+            NormalizedNumber normalizedStep = new NormalizedNumber(tickStep);
+            labelFormat = getNumberFormat(normalizedStep.getPowerOfLastSignificantDigit(), labelFormatInfo);
         }
 
         @Override
-        public void setTickStep(double step) {
-            double max = domain[domain.length - 1];
-            double min = domain[0];
-            if (max != min) {
-                tickStep = step;
-                NormalizedNumber normalizedNumber = new NormalizedNumber(step);
-                tickFormat = getNumberFormat(normalizedNumber.getPowerOfLastSignificantDigit());
+        public Tick getNextTick() {
+            if(lastTick == null) {
+                double min = domain[0];
+                lastTick = getLowerTick(min);
+            } else {
+                double tickValue = lastTick.getValue() + tickStep;
+                lastTick = new Tick(tickValue, labelFormat.format(tickValue));
             }
+            return lastTick;
         }
 
         @Override
-        public List<Tick> getTicks(int ticksDivider) {
-            if(tickStep == 0) {
-                setTickAmount(DEFAULT_TICKS_AMOUNT);
+        public Tick getPreviousTick() {
+            if(lastTick == null) {
+                double min = domain[0];
+                lastTick = getLowerTick(min);
+            } else {
+                double tickValue = lastTick.getValue() - tickStep;
+                lastTick = new Tick(tickValue, labelFormat.format(tickValue));
+            }
+            return lastTick;
+        }
+
+        @Override
+        public Tick getUpperTick(double value) {
+            double tickValue = Math.ceil(value / tickStep) * tickStep;
+            lastTick = new Tick(tickValue, labelFormat.format(tickValue));
+            return lastTick;
+        }
+
+        @Override
+        public Tick getLowerTick(double value) {
+            double tickValue = Math.floor(value / tickStep) * tickStep;
+            lastTick = new Tick(tickValue, labelFormat.format(tickValue));
+            return lastTick;
+        }
+
+
+        /**
+         * On the base of ticks amount calculate round Tick Step
+         * that is  multiples of 2, 5 or 10.
+         * FirstDigit is in {1,2,5,10};
+         */
+        private NormalizedNumber getTickStep(int tickCount)  {
+            if(tickCount <= 1) {
+                String errMsg = MessageFormat.format("Invalid ticks tickCount: {0}. Expected >= 2", tickCount);
+                throw new IllegalArgumentException(errMsg);
             }
             double max = domain[domain.length - 1];
             double min = domain[0];
-            if(max == min) {
-                ArrayList<Tick> ticks = new ArrayList<Tick>(1);
-                ticks.add(new Tick(min, String.valueOf(min)));
-                return ticks;
-            }
-            ArrayList<Tick> ticks = new ArrayList<Tick>();
-            int maxTicksAmount = 500; // if bigger it means that there is some error
-            double tickValue = getTickRight(min);
-            double resultantTickStep = tickStep * ticksDivider;
-            for (int i = 0; i < maxTicksAmount; i++) {
-                if(tickValue <= max) {
-                    ticks.add(new Tick(tickValue, tickFormat.format(tickValue)));
-                } else {
+            double step = (max - min) / (tickCount - 1);
+            NormalizedNumber normalizedStep = new NormalizedNumber(step);
+
+            int power = normalizedStep.getPower();
+            int firstDigit = (int)Math.round(normalizedStep.getMantissa());
+            switch (firstDigit) {
+                case 3:
+                    firstDigit = 2;
                     break;
-                }
-                tickValue += resultantTickStep;
-            }
-            double maxTickValue = getTickLeft(max);
-            if(maxTickValue > tickValue) {
-                ticks.add(new Tick(maxTickValue, tickFormat.format(maxTickValue)));
-            }
-
-            return ticks;
-        }
-
-        @Override
-        public List<Double> getMinorTicks(int ticksDivider, int minorTickCount) {
-            if(tickStep == 0) {
-                setTickAmount(DEFAULT_TICKS_AMOUNT);
-            }
-            double max = domain[domain.length - 1];
-            double min = domain[0];
-            if(max == min) {
-                ArrayList<Double> minorTicks = new ArrayList<Double>(0);
-                return minorTicks;
-            }
-            ArrayList<Double> minorTicks = new ArrayList<Double>(0);
-            int maxTicksAmount = 500; // if bigger it means that there is some error
-            double tickValue = getTickRight(min);
-            double minorTickStep = tickStep * ticksDivider / minorTickCount;
-            for (int i = 0; i < maxTicksAmount; i++) {
-                if(tickValue <= max) {
-                    minorTicks.add(new Double(tickValue));
-                    tickValue += minorTickStep;
-                } else {
+                case 4:
+                    firstDigit = 5;
                     break;
-                }
+                case 6:
+                    firstDigit = 5;
+                    break;
+                case 7:
+                    firstDigit = 5;
+                    break;
+                case 8:
+                    firstDigit = 1;
+                    power++;
+                    break;
+                case 9:
+                    firstDigit = 1;
+                    power++;
+                    break;
             }
-            return minorTicks;
-        }
-
-        @Override
-        public double getRoundMin() {
-            double min = domain[0];
-            return getTickLeft(min) ;
-        }
-
-        @Override
-        public double getRoundMax() {
-            double max = domain[domain.length - 1];
-            return getTickRight(max) ;
-        }
-
-        private double getTickRight(double value) {
-            return Math.ceil(value / tickStep) * tickStep;
-        }
-
-        private double getTickLeft(double value) {
-            return Math.floor(value / tickStep) * tickStep;
+            return new NormalizedNumber(firstDigit, power);
         }
 
 
         // TODO: use metric shortcuts - k, M, G... from formatInfo
-        private DecimalFormat getNumberFormat(int power) {
+        private DecimalFormat getNumberFormat(int power, LabelFormatInfo labelFormatInfo) {
             DecimalFormat dfNeg4 = new DecimalFormat("0.0000");
             DecimalFormat dfNeg3 = new DecimalFormat("0.000");
             DecimalFormat dfNeg2 = new DecimalFormat("0.00");
@@ -206,5 +169,34 @@ public class ScaleLinear extends Scale {
             return df;
         }
 
+
+        /**
+         * Find closest roundStep >= given step
+         * @param step given step
+         * @return closest roundInterval >= given step
+         */
+        private NormalizedNumber roundStepUp(double step)  {
+            // int[] roundValues = {1, 2, 3, 4, 5, 6, 8, 10};
+            int[] roundSteps = {1, 2, 4, 5, 8, 10};
+            NormalizedNumber normalizedStep = new NormalizedNumber(step);
+            int power = normalizedStep.getPower();
+            int firstDigit = (int) normalizedStep.getMantissa();
+            if(firstDigit < normalizedStep.getMantissa()) {
+                firstDigit++;
+            }
+
+            // find the closest roundStep that is >= firstDigits
+            for (int roundStep : roundSteps) {
+                if(roundStep >= firstDigit) {
+                    firstDigit = roundStep;
+                    break;
+                }
+            }
+            if(firstDigit == 10) {
+                firstDigit = 1;
+                power++;
+            }
+            return new NormalizedNumber(firstDigit, power);
+        }
     }
 }

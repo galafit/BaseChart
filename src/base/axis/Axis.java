@@ -5,10 +5,7 @@ import base.config.general.TextAnchor;
 import base.Range;
 import base.painters.Line;
 import base.painters.Text;
-import base.scales.Scale;
-import base.scales.ScaleLinear;
-import base.scales.Tick;
-import base.scales.TickProvider;
+import base.scales.*;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -26,6 +23,9 @@ public class Axis {
     **/
     // if the axis elements (ticks, labels, lines...) are not created or should be updated
     private boolean isDirty = true;
+
+    protected final int DEFAULT_TICK_COUNT = 10;
+
     private boolean isTicksOverlappingFixed = false;
     private Scale scale;
     private AxisConfig config;
@@ -36,10 +36,12 @@ public class Axis {
     private Line axisLine;
     private Text axisName;
     private TickProvider tickProvider;
+    private Tick lastMinTick; // need it for continuous axis translate/scroll
 
     public Axis(AxisConfig config) {
         this.config = config;
         scale = new ScaleLinear();
+        tickProvider = getTickProvider();
     }
 
 
@@ -90,14 +92,14 @@ public class Axis {
         }
         scale.setDomain(min, max);
         ticks = null;
-        isTicksOverlappingFixed = false;
-        tickProvider = null;
+        tickProvider = getTickProvider();
         isDirty = true;
     }
 
     public void setStartEnd(double start, double end) {
         scale.setRange(start, end);
-        isTicksOverlappingFixed = false;
+        tickProvider = getTickProvider();
+        ticks = null;
         isDirty = true;
     }
 
@@ -146,18 +148,21 @@ public class Axis {
         if (config.getTicksConfig().isTickMarksVisible()) {
             size += config.getTicksConfig().getTickMarkOutsideSize();
         }
-
-        if(ticks == null) {
-            ticks = getTickProvider().getTicks(1);
-        }
-
         if(config.getLabelsConfig().isVisible()) {
             int labelsSize = 0;
             FontMetrics fm = g2.getFontMetrics(config.getLabelsConfig().getTextStyle().getFont());
-            if(config.isHorizontal()) {
+            if(config.isHorizontal()) { // horizontal axis
                 labelsSize = fm.getHeight();
-            } else {
-                labelsSize = getMaxTickLabelsWidth(fm, ticks);
+            } else { // vertical axis
+                Tick minTick, maxTick;
+                if(config.isMinMaxRoundingEnable()) {
+                   minTick = tickProvider.getLowerTick(getMin());
+                   maxTick = tickProvider.getUpperTick(getMax());
+                } else {
+                    minTick = tickProvider.getUpperTick(getMin());
+                    maxTick = tickProvider.getLowerTick(getMax());
+                }
+                labelsSize = Math.max(fm.stringWidth(minTick.getLabel()), fm.stringWidth(maxTick.getLabel()));
             }
             size += config.getLabelsConfig().getPadding() + labelsSize;
         }
@@ -168,23 +173,24 @@ public class Axis {
         return size;
     }
 
+    private boolean isHorizontal() {
+        return config.isHorizontal();
+    }
+
+
     private TickProvider getTickProvider() {
-        if(tickProvider != null) {
-            return tickProvider;
-        }
-        TickProvider tickProvider =  scale.getTickProvider();
-        tickProvider.setLabelFormatInfo(config.getLabelsConfig().getFormatInfo());
         if(config.getTicksConfig().getTickStep() > 0) {
-            tickProvider.setTickStep(config.getTicksConfig().getTickStep());
-        } else if(config.getTicksConfig().getTickPixelInterval() > 0) {
-            int tickAmount = Math.abs(getEnd() - getStart())/ config.getTicksConfig().getTickPixelInterval();
-            if(tickAmount < 3) {
-                tickAmount = 3;
-            }
-            tickProvider.setTickAmount(tickAmount);
+            return  scale.getTickProvider(config.getTicksConfig().getTickStep(), null, config.getLabelsConfig().getFormatInfo());
         }
-        this.tickProvider = tickProvider;
-        return tickProvider;
+
+        int fontFactor = 3;
+        if(isHorizontal()) {
+            fontFactor = 4;
+        }
+        double tickPixelInterval = fontFactor * config.getLabelsConfig().getTextStyle().getFontSize();
+        int tickCount = (int) (Math.abs(getStart() - getEnd()) / tickPixelInterval);
+        tickCount = Math.max(tickCount, DEFAULT_TICK_COUNT);
+        return scale.getTickProvider(tickCount, config.getLabelsConfig().getFormatInfo());
     }
 
 
@@ -266,48 +272,112 @@ public class Axis {
         return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.MIDDLE, fm);
     }
 
-    private void fixTicksOverlapping(FontMetrics fm) {
+    private int getTicksDivider(Graphics2D g2, List<Tick> ticks) {
         if(ticks.size() < 2) {
-            return;
+            return 1;
         }
-        if(!config.getLabelsConfig().isVisible()) {
-            isTicksOverlappingFixed = true;
-            return;
-        }
-        int labelsSize;
-        if(config.isHorizontal()) {
-            labelsSize = getMaxTickLabelsWidth(fm, ticks);
+        FontMetrics fm = g2.getFontMetrics();
+        double labelsSize;
+        if(isHorizontal()) {
+            labelsSize = Math.max(fm.stringWidth(ticks.get(0).getLabel()), fm.stringWidth(ticks.get(ticks.size() - 1).getLabel()));
         } else {
             labelsSize = fm.getHeight();
         }
-        double tickPixelInterval = Math.abs(scale(ticks.get(1).getValue()) - scale(ticks.get(0).getValue()));
+
+        double tickPixelInterval = Math.abs(scale(ticks.get(0).getValue()) - scale(ticks.get(1).getValue()));
         // min space between labels = 1 symbols size (roughly)
         double labelSpace = 1 * config.getLabelsConfig().getTextStyle().getFontSize();
         double requiredSpace = labelsSize + labelSpace;
         int ticksDivider = (int) (requiredSpace / tickPixelInterval) + 1;
-        ticks = getTickProvider().getTicks(ticksDivider);
-        minorTicks = getTickProvider().getMinorTicks(ticksDivider, config.getMinorGridCounter());
-        isTicksOverlappingFixed = true;
+        return ticksDivider;
     }
 
-    private void normalizeTicks(Graphics2D g) {
-        if(ticks == null) {
-            ticks = getTickProvider().getTicks(1);
-        }
-        FontMetrics fm = g.getFontMetrics(config.getLabelsConfig().getTextStyle().getFont());
-        if(!isTicksOverlappingFixed) {
-            fixTicksOverlapping(fm);
-        }
-    }
+    private List<Tick> getTicks(Graphics2D g2) {
+        ArrayList<Tick> allTicks = new ArrayList<Tick>();
+        int maxTicksAmount = 500; // if bigger it means that there is some error
 
+        Tick tick = tickProvider.getLowerTick(getMin());
+        for (int i = 0; i < maxTicksAmount; i++) {
+            if(tick.getValue() < getMax()) {
+                allTicks.add(tick);
+                tick = tickProvider.getNextTick();
+            } else {
+                break;
+            }
+        }
+        allTicks.add(tick);
+
+        int tickDivider = getTicksDivider(g2, allTicks);
+
+
+        int MIN_TICK_NUMBER = 3;
+        // если есть округление и тиков мало то оставляем только первый и последний
+        if(config.isMinMaxRoundingEnable() && (allTicks.size() - 1) / tickDivider < MIN_TICK_NUMBER) {
+            ArrayList<Tick> resultantTicks = new ArrayList<Tick>(2);
+            resultantTicks.add(allTicks.get(0));
+            resultantTicks.add(allTicks.get(allTicks.size() - 1));
+            scale.setDomain(resultantTicks.get(0).getValue(), resultantTicks.get(resultantTicks.size() - 1).getValue());
+            return resultantTicks;
+        }
+
+        // если нет округления то добавляем вначале тики для их непрерывности при translate/scroll
+        if(!config.isMinMaxRoundingEnable()) {
+            int shift = 0;
+            if(lastMinTick != null) {
+                if(lastMinTick.getValue() < getMin()) {
+                    tick = tickProvider.getLowerTick(lastMinTick.getValue());
+                    while (tick.getValue() <= getMin()) {
+                        shift++;
+                        tick = tickProvider.getNextTick();
+                    }
+                }
+                if(lastMinTick.getValue() > getMin()) {
+                    tick = tickProvider.getLowerTick(getMin());
+                    while (tick.getValue() <= lastMinTick.getValue()) {
+                        shift++;
+                        tick = tickProvider.getNextTick();
+                    }
+                }
+                shift = ((shift - 1) % tickDivider);
+            }
+            tickProvider.getLowerTick(getMin());
+            for (int i = 0; i < shift; i++) {
+                allTicks.add(0, tickProvider.getPreviousTick());
+            }
+            lastMinTick = allTicks.get(0);
+        }
+        // оставляем только тики через tickDivider
+        ArrayList<Tick> resultantTicks = new ArrayList<Tick>();
+        for (int i = 0; i < allTicks.size(); i++) {
+            if(i % tickDivider == 0) {
+                resultantTicks.add(allTicks.get(i));
+            }
+        }
+
+        tickProvider.getLowerTick(getMax());
+        if((allTicks.size() - 1) % tickDivider > 0) {
+            for (int i = 0; i <= tickDivider - (allTicks.size() -1) % tickDivider; i++) {
+                tick = tickProvider.getNextTick();
+            }
+            resultantTicks.add(tick);
+        }
+        if(config.isMinMaxRoundingEnable()) {
+            scale.setDomain(resultantTicks.get(0).getValue(), resultantTicks.get(resultantTicks.size() - 1).getValue());
+        }
+         return resultantTicks;
+    }
 
     private void createAxisElements(Graphics2D g) {
-        normalizeTicks(g);
+        if(ticks == null) {
+            ticks = getTicks(g);
+        }
         // tick lines
         tickLines = new ArrayList<Line>();
         if(config.getTicksConfig().isTickMarksVisible()) {
             for (Tick tick : ticks) {
-                tickLines.add(tickToMarkLine(tick));
+                if(tick.getValue() <= getMax() && tick.getValue() >= getMin()) {
+                    tickLines.add(tickToMarkLine(tick));
+                }
             }
         }
 
@@ -316,7 +386,9 @@ public class Axis {
         tickLabels = new ArrayList<Text>();
         if(config.getLabelsConfig().isVisible()) {
             for (Tick tick : ticks) {
-                tickLabels.add(tickToLabel(tick, fm));
+                if(tick.getValue() <= getMax() && tick.getValue() >= getMin()) {
+                    tickLabels.add(tickToLabel(tick, fm));
+                }
             }
         }
 
@@ -387,7 +459,9 @@ public class Axis {
         } else {
             g.translate(axisOriginPoint, 0);
         }
-        normalizeTicks(g);
+        if(ticks == null) {
+            ticks = getTicks(g);
+        }
         g.setColor(config.getMinorGridColor());
         g.setStroke(config.getMinorGridLineConfig().getStroke());
         if(config.getMinorGridLineConfig().isVisible()) {
@@ -400,7 +474,9 @@ public class Axis {
         g.setStroke(config.getGridLineConfig().getStroke());
         if(config.getGridLineConfig().isVisible()) {
             for (Tick tick : ticks) {
-                tickToGridLine(tick.getValue(), length).draw(g);
+                if(tick.getValue() <= getMax() && tick.getValue() >= getMin()) {
+                    tickToGridLine(tick.getValue(), length).draw(g);
+                }
             }
         }
         g.setTransform(initialTransform);

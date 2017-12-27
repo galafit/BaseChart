@@ -42,6 +42,10 @@ public class NormalizedNumber {
         return power;
     }
 
+    public double getValue() {
+        return mantissa * Math.pow(10, power);
+    }
+
   
     public int getNumberOfSignificantDigits() { 
         if(mantissa == 0) {
@@ -69,8 +73,6 @@ public class NormalizedNumber {
      * Unit tests {@code NormalizedNumber}.
      *
      * String.format: https://www.dotnetperls.com/format-java
-     *
-     * @param args the command-line arguments
      */
     public static void main(String[] args) {
         String format = "%1$10s :  mantissa = %2$9s  power = %3$3s  PowerOfLastSignificantDigit = %4$2s";

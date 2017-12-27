@@ -1,8 +1,10 @@
 package base.scales;
 
 import base.config.axis.LabelFormatInfo;
+import java.util.List;
 
-public abstract class Scale {
+public abstract class Scale2 {
+    protected final int DEFAULT_TICKS_AMOUNT = 10;
     protected double domain[] = {0, 1};
     protected double range[] = {0, 1};
 
@@ -27,9 +29,8 @@ public abstract class Scale {
 
     public abstract double invert(double value);
 
-    public abstract TickProvider getTickProvider(int tickCount, LabelFormatInfo labelFormatInfo);
+    public abstract double getTickStep(int tickCount);
 
-    public abstract TickProvider getTickProvider(double tickStep, Unit tickUnit, LabelFormatInfo labelFormatInfo);
+    public abstract List<Tick> getTicks(double tickStep, int tickDivider, boolean isRoundingEnable,  LabelFormatInfo labelFormatInfo);
 
 }
-

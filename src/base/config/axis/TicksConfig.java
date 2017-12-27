@@ -8,10 +8,7 @@ public class TicksConfig {
     private int tickMarkInsideSize = 0; // px
     private int tickMarkOutsideSize = 3; // px
 
-    private int tickPixelInterval = 60;
-    private double tickStep; // in data_old unit
-    private int ticksAmount = 0;
-
+    private double tickStep; // in data unit
 
     public boolean isTickMarksVisible() {
         return (getTickMarkWidth() > 0) ? true : false;
@@ -41,27 +38,11 @@ public class TicksConfig {
         this.tickMarkOutsideSize = tickMarkOutsideSize;
     }
 
-    public int getTickPixelInterval() {
-        return tickPixelInterval;
-    }
-
-    public void setTickPixelInterval(int tickPixelInterval) {
-        this.tickPixelInterval = tickPixelInterval;
-    }
-
     public double getTickStep() {
         return tickStep;
     }
 
     public void setTickStep(double tickStep) {
         this.tickStep = tickStep;
-    }
-
-    public int getTicksAmount() {
-        return ticksAmount;
-    }
-
-    public void setTicksAmount(int ticksAmount) {
-        this.ticksAmount = ticksAmount;
     }
 }
