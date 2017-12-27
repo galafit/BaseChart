@@ -303,6 +303,7 @@ public class SimpleChart {
 
     public void setArea(Rectangle area) {
         fullArea = area;
+        margin = null;
         isDirty = true;
     }
 

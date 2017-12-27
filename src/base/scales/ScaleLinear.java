@@ -198,5 +198,38 @@ public class ScaleLinear extends Scale {
             }
             return new NormalizedNumber(firstDigit, power);
         }
+
+        /**
+         * Find and set round ticksStep such that:
+         * resultantTicksAmount <= maxCount
+         *
+         * @param maxCount - desirable amount of ticks
+         */
+        private NormalizedNumber getStepForMaxTickCount(int maxCount)  {
+            if(maxCount <= 1) {
+                String errMsg = MessageFormat.format("Invalid ticks amount: {0}. Expected >= 2", maxCount);
+                throw new IllegalArgumentException(errMsg);
+            }
+            double max = domain[domain.length - 1];
+            double min = domain[0];
+            Double step = (max - min)  / (maxCount - 1);
+            NormalizedNumber roundStep = roundStepUp(step);
+            tickStep = roundStep.getValue();
+            int ticksCount = (int) ((getLowerTick(min).getValue() - getUpperTick(max).getValue()) / tickStep) + 1;
+
+        /*
+         * Due to rounding (roundMin < min < max < roundMax)
+         * sometimes it is possible that the resultant ticksCount may be
+         * greater than the maxCount:
+         * resultantAmount = maxCount + 1.
+         * In this case we repeat the same procedure with (maxCount -1)
+         */
+            if(ticksCount > maxCount && maxCount > 2) {
+                maxCount--;
+                step = (max - min)  / (maxCount - 1);
+                roundStep = roundStepUp(step);
+            }
+            return roundStep;
+        }
     }
 }
