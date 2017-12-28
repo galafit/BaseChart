@@ -13,7 +13,8 @@ public class Text {
     private String text;
     private int x;
     private int y;
-    private AffineTransform transform;
+    private int rotationAngle = 0;
+    private int translationX, translationY;
 
     public Text(String text, int x, int y) {
         this.text = text;
@@ -22,55 +23,59 @@ public class Text {
     }
 
     public Text(String string, int x, int y, TextAnchor hTextAnchor, TextAnchor vTextAnchor, FontMetrics fm) {
-        text = string;
-        if(text != null && !text.isEmpty()) {
-            if(hTextAnchor == TextAnchor.MIDDLE) {
-                x -= fm.stringWidth(string) / 2;
-            }
-            if(hTextAnchor == TextAnchor.END) {
-                x -= fm.stringWidth(string);
-            }
-            if(vTextAnchor == TextAnchor.MIDDLE) {
-                y = y + fm.getHeight()/2 - fm.getDescent();
-            }
-            if(vTextAnchor == TextAnchor.END) {
-                y = y + fm.getAscent();
-            }
+        if(string != null && !string.isEmpty()) {
+            text = string;
             this.x = x;
             this.y = y;
+            if(hTextAnchor == TextAnchor.MIDDLE) {
+                this.x -= fm.stringWidth(string) / 2;
+            }
+            if(hTextAnchor == TextAnchor.END) {
+                this.x -= fm.stringWidth(string);
+            }
+            if(vTextAnchor == TextAnchor.MIDDLE) {
+                this.y +=  fm.getHeight()/2 - fm.getDescent();
+            }
+            if(vTextAnchor == TextAnchor.END) {
+                this.y +=  fm.getAscent();
+            }
         }
     }
 
     public Text(String string, int x, int y, TextAnchor hTextAnchor, TextAnchor vTextAnchor, int rotationAngle, FontMetrics fm) {
-        text = string;
-        if(text != null && !text.isEmpty()) {
-            transform = new AffineTransform();
-            transform.translate(x, y);
-            transform.rotate(Math.toRadians(rotationAngle));
+        if(string != null && !string.isEmpty()) {
+            text = string;
+            this.rotationAngle = rotationAngle;
+            this.x = x;
+            this.y = y;
 
             if(vTextAnchor == TextAnchor.MIDDLE) {
-                transform.translate(-fm.stringWidth(text)/2, 0);
+                translationX =  - fm.stringWidth(text)/2;
             }
             if(vTextAnchor == TextAnchor.END) {
-                transform.translate(-fm.stringWidth(text), 0);
-            }
-            if(hTextAnchor == TextAnchor.END) {
-                transform.translate(0, + fm.getAscent());
+                translationX = - fm.stringWidth(text);
             }
             if(hTextAnchor == TextAnchor.MIDDLE) {
-                transform.translate(0, +  (fm.getHeight()/2 - fm.getDescent()));
+                translationY = + (fm.getHeight()/2 - fm.getDescent());
+            }
+            if(hTextAnchor == TextAnchor.END) {
+                translationY = + fm.getAscent();
             }
         }
     }
 
     public void draw(Graphics2D g2) {
         if(text != null && !text.isEmpty()) {
-            AffineTransform initialTransform = g2.getTransform();
-            if(transform != null) {
-                g2.transform(transform);
+            if(rotationAngle != 0) {
+                AffineTransform initialTransform = g2.getTransform();
+                g2.rotate(Math.toRadians(rotationAngle), x, y);
+                g2.translate(translationX, translationY);
+                g2.drawString(text, x, y);
+                g2.setTransform(initialTransform);
+            } else {
+                g2.drawString(text, x, y);
             }
-            g2.drawString(text, x, y);
-            g2.setTransform(initialTransform);
+
         }
     }
 
@@ -100,7 +105,7 @@ public class Text {
                 super.paintComponent(g);
                 Point p = new Point(400, 200);
                 Point p1 = new Point(400, 600);
-                String str = "-083TesSBÑ";
+                String str = "Hello-068";
 
                 g.setFont(new Font("San-Serif", Font.PLAIN, 20));
                 FontMetrics fm = g.getFontMetrics();
