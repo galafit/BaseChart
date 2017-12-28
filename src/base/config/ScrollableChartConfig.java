@@ -103,7 +103,6 @@ public class ScrollableChartConfig {
 
     public void addPreviewStack(int weight) {
         previewConfig.addStack(weight);
-
     }
 
     public void addPreviewStack() {

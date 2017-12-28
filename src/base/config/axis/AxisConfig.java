@@ -15,7 +15,7 @@ public class AxisConfig {
     private LineConfig axisLineConfig = new LineConfig();
     private LineConfig gridLineConfig = new LineConfig();
     private LineConfig minorGridLineConfig = new LineConfig();
-    private int minorGridCounter = 5; // minor grid divider
+    private int minorGridCounter = 3; // minor grid divider
 
     private TicksConfig ticksConfig = new TicksConfig();
     private LabelsConfig labelsConfig = new LabelsConfig();
@@ -26,7 +26,7 @@ public class AxisConfig {
         this.orientation = orientation;
         getGridLineConfig().setWidth(1);
         getGridLineConfig().setColor(new Color(100, 100, 100));
-        getMinorGridLineConfig().setWidth(0);
+        getMinorGridLineConfig().setWidth(1);
         getMinorGridLineConfig().setColor(new Color(80, 80, 80));
         getTitleConfig().getTextStyle().setFontSize(14);
         getLabelsConfig().getTextStyle().setFontSize(12);

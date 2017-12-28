@@ -305,7 +305,37 @@ public class Axis {
         return ticksDivider;
     }
 
-    private List<Tick> createTicks(Graphics2D g2) {
+    /**
+     * Create ticks and minor ticks
+     */
+    private void createTicks(Graphics2D g2) {
+        ticks = getTicks(g2);
+        if(config.isMinMaxRoundingEnable()) {
+            getScale().setDomain(ticks.get(0).getValue(), ticks.get(ticks.size() - 1).getValue());
+        }
+        if(config.getMinorGridLineConfig().isVisible()) {
+            minorTicks = new ArrayList<Double>();
+            for (int i = 0; i < ticks.size() - 1; i++) {
+                double minorTickStep = (ticks.get(i+1).getValue() - ticks.get(i).getValue()) / config.getMinorGridCounter();
+                double minorTickValue =  ticks.get(i).getValue();
+                for (int j = 1; j < config.getMinorGridCounter(); j++) {
+                    minorTickValue += minorTickStep;
+                    if(minorTickValue >= getMin() && minorTickValue <=getMax()) {
+                        minorTicks.add(minorTickValue);
+                    }
+                }
+            }
+        }
+
+        if(ticks.get(0).getValue() < getMin()) {
+            ticks.remove(0);
+        }
+        if(ticks.get(ticks.size() - 1).getValue() > getMax()) {
+            ticks.remove(ticks.size() - 1);
+        }
+    }
+
+    private List<Tick> getTicks(Graphics2D g2) {
         if(tickProvider == null) {
             tickProvider = getTickProvider();
         }
@@ -383,10 +413,7 @@ public class Axis {
             }
             resultantTicks.add(tick);
         }
-        if(config.isMinMaxRoundingEnable()) {
-            scale.setDomain(resultantTicks.get(0).getValue(), resultantTicks.get(resultantTicks.size() - 1).getValue());
-        }
-         return resultantTicks;
+        return resultantTicks;
     }
 
     private void createAxisElements(Graphics2D g) {
@@ -394,12 +421,10 @@ public class Axis {
         tickLines = new ArrayList<Line>();
         if(config.getTicksConfig().isTickMarksVisible()) {
             if(ticks == null) {
-                ticks = createTicks(g);
+                createTicks(g);
             }
             for (Tick tick : ticks) {
-                if(tick.getValue() <= getMax() && tick.getValue() >= getMin()) {
-                    tickLines.add(tickToMarkLine(tick));
-                }
+                tickLines.add(tickToMarkLine(tick));
             }
         }
 
@@ -408,12 +433,10 @@ public class Axis {
         tickLabels = new ArrayList<Text>();
         if(config.getLabelsConfig().isVisible()) {
             if(ticks == null) {
-                ticks = createTicks(g);
+                createTicks(g);
             }
             for (Tick tick : ticks) {
-                if(tick.getValue() <= getMax() && tick.getValue() >= getMin()) {
-                    tickLabels.add(tickToLabel(tick, fm));
-                }
+                tickLabels.add(tickToLabel(tick, fm));
             }
         }
 
@@ -478,7 +501,7 @@ public class Axis {
         if(!config.isVisible()) {
             return;
         }
-        if(isDirty) {
+        if(ticks == null) {
             createAxisElements(g);
         }
         AffineTransform initialTransform = g.getTransform();
@@ -500,9 +523,7 @@ public class Axis {
         g.setStroke(config.getGridLineConfig().getStroke());
         if(config.getGridLineConfig().isVisible()) {
             for (Tick tick : ticks) {
-                if(tick.getValue() <= getMax() && tick.getValue() >= getMin()) {
-                    tickToGridLine(tick.getValue(), length).draw(g);
-                }
+                tickToGridLine(tick.getValue(), length).draw(g);
             }
         }
         g.setTransform(initialTransform);

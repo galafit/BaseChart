@@ -47,7 +47,7 @@ public class SimpleChartConfig {
         stackWeights.add(DEFAULT_WEIGHT);
 
         AxisConfig axisConfig = new AxisConfig(AxisOrientation.BOTTOM);
-        axisConfig.getMinorGridLineConfig().setWidth(0);
+        axisConfig.getMinorGridLineConfig().setWidth(1);
         axisConfig.getGridLineConfig().setWidth(1);
         xAxisConfigs.add(axisConfig);
 
