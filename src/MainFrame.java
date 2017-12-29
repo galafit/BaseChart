@@ -14,8 +14,8 @@ import java.util.Random;
  * Created by hdablin on 24.03.17.
  */
 public class MainFrame extends JFrame {
-    IntArrayList yData1;
-    DoubleArrayList yData2;
+    DoubleArrayList yData1;
+    IntArrayList yData2;
     DoubleArrayList xData;
     ChartPanel chartPanel;
 
@@ -25,13 +25,13 @@ public class MainFrame extends JFrame {
 
         setTitle("Test chart");
 
-        yData1 = new IntArrayList();
+        yData1 = new DoubleArrayList();
         Random rand = new Random();
         for (int i = 0; i < 800 ; i++) {
-            yData1.add(rand.nextInt(500));
+            yData1.add(Math.sin(i));
         }
 
-        yData2 = new DoubleArrayList();
+        yData2 = new IntArrayList();
         for (int i = 0; i < 1600 ; i++) {
             yData2.add(i/2);
         }

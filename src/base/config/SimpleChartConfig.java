@@ -1,8 +1,5 @@
 package base.config;
 
-import base.DataSet;
-import base.config.axis.AxisConfig;
-import base.config.axis.AxisOrientation;
 import base.config.general.Margin;
 import base.config.general.TextStyle;
 import base.config.traces.TraceConfig;
@@ -10,7 +7,6 @@ import base.Range;
 
 import java.awt.*;
 import java.util.*;
-import java.util.List;
 
 /**
  * Created by galafit on 18/8/17.

@@ -1,6 +1,6 @@
 package base.scales;
 
-import base.config.axis.LabelFormatInfo;
+import base.config.LabelFormatInfo;
 
 public abstract class Scale {
     protected double domain[] = {0, 1};

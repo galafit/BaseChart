@@ -1,6 +1,6 @@
 package base.axis;
 
-import base.config.axis.AxisConfig;
+import base.config.AxisConfig;
 import base.config.general.TextAnchor;
 import base.Range;
 import base.painters.Line;
@@ -144,13 +144,13 @@ public class Axis {
             size += config.getAxisLineConfig().getWidth() / 2;
         }
 
-        if (config.getTicksConfig().isTickMarksVisible()) {
-            size += config.getTicksConfig().getTickMarkOutsideSize();
+        if (config.isTicksVisible()) {
+            size += config.getTickMarkOutsideSize();
         }
-        if(config.getLabelsConfig().isVisible()) {
+        if(config.isLabelsVisible()) {
             int labelsSize = 0;
-            FontMetrics fm = g2.getFontMetrics(config.getLabelsConfig().getTextStyle().getFont());
-            if(config.isHorizontal()) { // horizontal axis
+            FontMetrics fm = g2.getFontMetrics(config.getLabelTextStyle().getFont());
+            if(isHorizontal()) { // horizontal axis
                 labelsSize = fm.getHeight();
             } else { // vertical axis
                 Tick minTick, maxTick;
@@ -166,30 +166,33 @@ public class Axis {
                 }
                 labelsSize = Math.max(fm.stringWidth(minTick.getLabel()), fm.stringWidth(maxTick.getLabel()));
             }
-            size += config.getLabelsConfig().getPadding() + labelsSize;
+            size += config.getLabelPadding() + labelsSize;
         }
-        if (config.getTitleConfig().isVisible()) {
-            FontMetrics fm = g2.getFontMetrics(config.getTitleConfig().getTextStyle().getFont());
-            size = size + config.getTitleConfig().getPadding() + fm.getHeight();
+        if (config.getTitle() != null) {
+            FontMetrics fm = g2.getFontMetrics(config.getTitleTextStyle().getFont());
+            size = size + config.getTitlePadding() + fm.getHeight();
         }
         return size;
     }
 
     private boolean isHorizontal() {
-        return config.isHorizontal();
+        if(config.isTop() || config.isBottom()) {
+            return true;
+        }
+        return false;
     }
 
 
     private TickProvider getTickProvider() {
-        if(config.getTicksConfig().getTickStep() > 0) {
-            return  scale.getTickProvider(config.getTicksConfig().getTickStep(), null, config.getLabelsConfig().getFormatInfo());
+        if(config.getTickStep() > 0) {
+            return  scale.getTickProvider(config.getTickStep(), null, config.getLabelFormatInfo());
         }
 
         int fontFactor = 4;
-        double tickPixelInterval = fontFactor * config.getLabelsConfig().getTextStyle().getFontSize();
+        double tickPixelInterval = fontFactor * config.getLabelTextStyle().getFontSize();
         int tickCount = (int) (Math.abs(getStart() - getEnd()) / tickPixelInterval);
         tickCount = Math.max(tickCount, DEFAULT_TICK_COUNT);
-        return scale.getTickProvider(tickCount, config.getLabelsConfig().getFormatInfo());
+        return scale.getTickProvider(tickCount, config.getLabelFormatInfo());
     }
 
 
@@ -223,46 +226,46 @@ public class Axis {
         int axisWidth = config.getAxisLineConfig().getWidth();
         if(config.isTop()) {
             int x = (int)scale(tick.getValue());
-            int y1 = -axisWidth / 2 - config.getTicksConfig().getTickMarkOutsideSize();
-            int y2 = axisWidth / 2 + config.getTicksConfig().getTickMarkInsideSize();
+            int y1 = -axisWidth / 2 - config.getTickMarkOutsideSize();
+            int y2 = axisWidth / 2 + config.getTickMarkInsideSize();
             return new Line(x, y1, x, y2);
         }
         if(config.isBottom()) {
             int x = (int)scale(tick.getValue());
-            int y1 = axisWidth / 2 + config.getTicksConfig().getTickMarkOutsideSize();
-            int y2 = -axisWidth / 2 - config.getTicksConfig().getTickMarkInsideSize();
+            int y1 = axisWidth / 2 + config.getTickMarkOutsideSize();
+            int y2 = -axisWidth / 2 - config.getTickMarkInsideSize();
             return new Line(x, y1, x, y2);
         }
         if(config.isLeft()) {
             int y = (int)scale(tick.getValue());
-            int x1 = -axisWidth / 2 - config.getTicksConfig().getTickMarkOutsideSize();
-            int x2 = axisWidth / 2 + config.getTicksConfig().getTickMarkInsideSize();
+            int x1 = -axisWidth / 2 - config.getTickMarkOutsideSize();
+            int x2 = axisWidth / 2 + config.getTickMarkInsideSize();
             return new Line(x1, y, x2, y);
         }
         // if config.isRight()
         int y = (int)scale(tick.getValue());
-        int x1 = axisWidth / 2 + config.getTicksConfig().getTickMarkOutsideSize();
-        int x2 = -axisWidth / 2 - config.getTicksConfig().getTickMarkInsideSize();
+        int x1 = axisWidth / 2 + config.getTickMarkOutsideSize();
+        int x2 = -axisWidth / 2 - config.getTickMarkInsideSize();
         return new Line(x1, y, x2, y);
     }
 
     private Text tickToLabel(Tick tick, FontMetrics fm) {
         int axisWidth = config.getAxisLineConfig().getWidth();
-        int labelPadding = config.getLabelsConfig().getPadding();
+        int labelPadding = config.getLabelPadding();
         if(config.isTop()) {
             int x = (int)scale(tick.getValue());
-            int y = -axisWidth / 2 - config.getTicksConfig().getTickMarkOutsideSize() - labelPadding;
+            int y = -axisWidth / 2 - config.getTickMarkOutsideSize() - labelPadding;
             return new Text(tick.getLabel(), x, y, TextAnchor.MIDDLE, TextAnchor.START, fm);
         }
         if(config.isBottom()) {
             int x = (int)scale(tick.getValue());
-            int y = axisWidth / 2 + config.getTicksConfig().getTickMarkOutsideSize() + labelPadding;
+            int y = axisWidth / 2 + config.getTickMarkOutsideSize() + labelPadding;
             return new Text(tick.getLabel(), x, y, TextAnchor.MIDDLE, TextAnchor.END, fm);
 
         }
         if(config.isLeft()) {
             int y = (int)scale(tick.getValue());
-            int x = -axisWidth / 2 - config.getTicksConfig().getTickMarkInsideSize() - labelPadding;
+            int x = -axisWidth / 2 - config.getTickMarkInsideSize() - labelPadding;
             int labelHeight = fm.getHeight();
             if(y + labelHeight/2 + 1 > getStart()) {
                 return new Text(tick.getLabel(), x, y, TextAnchor.END, TextAnchor.START, fm);
@@ -274,7 +277,7 @@ public class Axis {
         }
         // if config.isRight()
         int y = (int)scale(tick.getValue());
-        int x = axisWidth / 2 + config.getTicksConfig().getTickMarkInsideSize() + labelPadding;
+        int x = axisWidth / 2 + config.getTickMarkInsideSize() + labelPadding;
         int labelHeight = fm.getHeight();
         if(y + labelHeight/2 + 1 > getStart()) {
             return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.START, fm);
@@ -289,7 +292,7 @@ public class Axis {
         if(ticks.size() < 2) {
             return 1;
         }
-        FontMetrics fm = g2.getFontMetrics(config.getLabelsConfig().getTextStyle().getFont());
+        FontMetrics fm = g2.getFontMetrics(config.getLabelTextStyle().getFont());
         double labelsSize;
         if(isHorizontal()) {
             labelsSize = Math.max(fm.stringWidth(ticks.get(0).getLabel()), fm.stringWidth(ticks.get(ticks.size() - 1).getLabel()));
@@ -299,7 +302,7 @@ public class Axis {
 
         double tickPixelInterval = Math.abs(scale(ticks.get(0).getValue()) - scale(ticks.get(1).getValue()));
         // min space between labels = 1 symbols size (roughly)
-        double labelSpace = 2 * config.getLabelsConfig().getTextStyle().getFontSize();
+        double labelSpace = 2 * config.getLabelTextStyle().getFontSize();
         double requiredSpace = labelsSize + labelSpace;
         int ticksDivider = (int) (requiredSpace / tickPixelInterval) + 1;
         return ticksDivider;
@@ -419,7 +422,7 @@ public class Axis {
     private void createAxisElements(Graphics2D g) {
         // tick lines
         tickLines = new ArrayList<Line>();
-        if(config.getTicksConfig().isTickMarksVisible()) {
+        if(config.isTicksVisible()) {
             if(ticks == null) {
                 createTicks(g);
             }
@@ -429,9 +432,9 @@ public class Axis {
         }
 
         // tick labels
-        FontMetrics fm = g.getFontMetrics(config.getLabelsConfig().getTextStyle().getFont());
+        FontMetrics fm = g.getFontMetrics(config.getLabelTextStyle().getFont());
         tickLabels = new ArrayList<Text>();
-        if(config.getLabelsConfig().isVisible()) {
+        if(config.isLabelsVisible()) {
             if(ticks == null) {
                 createTicks(g);
             }
@@ -441,7 +444,7 @@ public class Axis {
         }
 
         // axis line
-        if (config.isHorizontal()) {
+        if (isHorizontal()) {
             axisLine = new Line(getStart(), 0, getEnd(), 0);
         } else {
             axisLine = new Line(0, getStart(), 0, getEnd());
@@ -452,20 +455,20 @@ public class Axis {
         if(config.getAxisLineConfig().isVisible()) {
             axisNameDistance += config.getAxisLineConfig().getWidth() / 2;
         }
-        if (config.getTicksConfig().isTickMarksVisible()) {
-            axisNameDistance += config.getTicksConfig().getTickMarkOutsideSize();
+        if (config.isTicksVisible()) {
+            axisNameDistance += config.getTickMarkOutsideSize();
         }
-        if(config.getLabelsConfig().isVisible()) {
+        if(config.isLabelsVisible()) {
             int labelsSize = 0;
-            if(config.isHorizontal()) {
+            if(isHorizontal()) {
                 labelsSize = fm.getAscent();
             } else {
                 labelsSize = getMaxTickLabelsWidth(fm, ticks);
             }
-            axisNameDistance += (labelsSize + config.getLabelsConfig().getPadding());
+            axisNameDistance += (labelsSize + config.getLabelPadding());
         }
-        axisNameDistance += config.getTitleConfig().getPadding();
-        fm = g.getFontMetrics(config.getTitleConfig().getTextStyle().getFont());
+        axisNameDistance += config.getTitlePadding();
+        fm = g.getFontMetrics(config.getTitleTextStyle().getFont());
         if(config.isTop()) {
             int y = -axisNameDistance;
             int x = (getEnd() + getStart()) / 2;
@@ -505,7 +508,7 @@ public class Axis {
             createAxisElements(g);
         }
         AffineTransform initialTransform = g.getTransform();
-        if(config.isHorizontal()) {
+        if(isHorizontal()) {
             g.translate(0, axisOriginPoint);
         } else {
             g.translate(axisOriginPoint, 0);
@@ -537,19 +540,19 @@ public class Axis {
             createAxisElements(g);
         }
         AffineTransform initialTransform = g.getTransform();
-        if(config.isHorizontal()) {
+        if(isHorizontal()) {
             g.translate(0, axisOriginPoint);
         } else {
             g.translate(axisOriginPoint, 0);
         }
         g.setColor(config.getTicksColor());
-        g.setStroke(new BasicStroke(config.getTicksConfig().getTickMarkWidth()));
+        g.setStroke(new BasicStroke(config.getTickMarkWidth()));
         for (Line tickLine : tickLines) {
             tickLine.draw(g);
         }
 
         g.setColor(config.getLabelsColor());
-        g.setFont(config.getLabelsConfig().getTextStyle().getFont());
+        g.setFont(config.getLabelTextStyle().getFont());
         g.setStroke(new BasicStroke());
         for (Text tickLabel : tickLabels) {
             tickLabel.draw(g);
@@ -561,10 +564,10 @@ public class Axis {
             axisLine.draw(g);
         }
 
-        if(config.getTitleConfig().isVisible()) {
+        if(config.getTitle() != null) {
             g.setStroke(new BasicStroke());
             g.setColor(config.getTitleColor());
-            g.setFont(config.getTitleConfig().getTextStyle().getFont());
+            g.setFont(config.getTitleTextStyle().getFont());
             axisName.draw(g);
         }
         g.setTransform(initialTransform);

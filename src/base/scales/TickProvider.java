@@ -1,9 +1,5 @@
 package base.scales;
 
-import base.config.axis.LabelFormatInfo;
-
-import java.util.List;
-
 /**
  * Created by galafit on 5/9/17.
  */

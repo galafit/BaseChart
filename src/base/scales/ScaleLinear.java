@@ -1,11 +1,9 @@
 package base.scales;
 
-import base.config.axis.LabelFormatInfo;
+import base.config.LabelFormatInfo;
 
 import java.text.DecimalFormat;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by galafit on 6/9/17.
@@ -123,6 +121,10 @@ public class ScaleLinear extends Scale {
                     power++;
                     break;
                 case 9:
+                    firstDigit = 1;
+                    power++;
+                    break;
+                case 10:
                     firstDigit = 1;
                     power++;
                     break;

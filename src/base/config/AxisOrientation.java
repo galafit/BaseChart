@@ -1,4 +1,4 @@
-package base.config.axis;
+package base.config;
 
 /**
  * Created by galafit on 5/9/17.
