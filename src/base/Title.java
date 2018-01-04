@@ -1,20 +1,20 @@
-package base.painters;
+package base;
 
 import base.*;
-import base.config.general.Margin;
+import base.Margin;
 
 import java.util.ArrayList;
 
 /**
  * Created by hdablin on 17.08.17.
  */
-public class TitlePainter {
+public class Title {
     private TextStyle textStyle;
     private BColor color;
     private String[] words = new String[0];
     private ArrayList<String> strings;
 
-    public TitlePainter(String chartTitle, TextStyle textStyle, BColor color) {
+    public Title(String chartTitle, TextStyle textStyle, BColor color) {
         if(chartTitle != null) {
             words = chartTitle.split(" ");
             this.textStyle = textStyle;

@@ -3,7 +3,7 @@ package base.traces;
 
 import base.*;
 import base.config.traces.BaseTraceConfig;
-import base.tooltips.InfoItem;
+import base.tooltip.InfoItem;
 
 /**
  * Created by galafit on 11/10/17.

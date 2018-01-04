@@ -1,4 +1,4 @@
-package base.config.general;
+package base.config;
 
 import base.BColor;
 

@@ -1,4 +1,4 @@
-package base.painters;
+package base;
 
 import base.BCanvas;
 import base.BRectangle;

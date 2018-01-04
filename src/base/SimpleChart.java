@@ -5,14 +5,10 @@ import base.button.ToggleBtn;
 import base.button.BtnGroup;
 import base.button.StateListener;
 import base.config.SimpleChartConfig;
-import base.config.general.Margin;
 import base.config.traces.TraceConfig;
-import base.painters.CrosshairPainter;
-import base.painters.Legend;
-import base.painters.TitlePainter;
-import base.painters.TooltipPainter;
 import base.scales.Scale;
-import base.tooltips.TooltipInfo;
+import base.tooltip.Tooltip;
+import base.tooltip.TooltipInfo;
 import base.traces.Trace;
 import base.traces.TraceRegister;
 
@@ -31,7 +27,7 @@ public class SimpleChart {
     private boolean isTicksAlignmentEnable = false;
 
     private List<Legend> legends = new ArrayList<Legend>();
-    private TitlePainter titlePainter;
+    private Title title;
     private BRectangle fullArea;
     private BRectangle titleArea;
     private BRectangle chartArea;
@@ -42,8 +38,8 @@ public class SimpleChart {
     private boolean isDirty = true;
 
 
-    private CrosshairPainter crosshairPainter;
-    private TooltipPainter tooltipPainter;
+    private Crosshair crosshair;
+    private Tooltip tooltip;
 
     private int selectedTraceIndex = -1;
     private int hoverPointIndex = -1;
@@ -71,9 +67,9 @@ public class SimpleChart {
             trace.setName(chartConfig.getTraceName(i));
             traces.add(trace);
         }
-        tooltipPainter = new TooltipPainter(chartConfig.getTooltipConfig());
-        crosshairPainter = new CrosshairPainter(chartConfig.getCrosshairConfig());
-        titlePainter = new TitlePainter(chartConfig.getTitle(), chartConfig.getTitleTextStyle(), chartConfig.getTitleColor());
+        tooltip = new Tooltip(chartConfig.getTooltipConfig());
+        crosshair = new Crosshair(chartConfig.getCrosshairConfig());
+        title = new Title(chartConfig.getTitle(), chartConfig.getTitleTextStyle(), chartConfig.getTitleColor());
 
         BtnGroup buttonGroup = new BtnGroup();
         for (int i = 0; i < yAxisList.size() / 2; i++) {
@@ -146,7 +142,7 @@ public class SimpleChart {
 
 
     void calculateMarginsAndAreas(BCanvas canvas, Margin margin) {
-        int titleHeight = titlePainter.getTitleHeight(canvas, fullArea.width);
+        int titleHeight = title.getTitleHeight(canvas, fullArea.width);
         titleArea = new BRectangle(fullArea.x, fullArea.y, fullArea.width, titleHeight);
         chartArea = new BRectangle(fullArea.x, fullArea.y + titleHeight, fullArea.width, fullArea.height - titleHeight);
         int left = -1;
@@ -255,14 +251,14 @@ public class SimpleChart {
         }
         canvas.restore();
 
-        titlePainter.draw(canvas, titleArea);
+        title.draw(canvas, titleArea);
         for (Legend legend : legends) {
             legend.draw(canvas);
         }
 
         if (hoverTraceIndex >= 0 && hoverPointIndex >= 0) {
-            crosshairPainter.draw(canvas, graphArea);
-            tooltipPainter.draw(canvas, fullArea);
+            crosshair.draw(canvas, graphArea);
+            tooltip.draw(canvas, fullArea);
         }
     }
 
@@ -331,6 +327,8 @@ public class SimpleChart {
 
     public void setYMinMax(int yAxisIndex, Range minMax) {
         yAxisList.get(yAxisIndex).setMinMax(minMax);
+        margin = null;
+        isDirty = true;
     }
 
 
@@ -412,6 +410,8 @@ public class SimpleChart {
 
     public void zoomY(int yAxisIndex, float zoomFactor) {
         yAxisList.get(yAxisIndex).zoom(zoomFactor);
+        margin = null;
+        isDirty = true;
     }
 
     public void zoomX(int xAxisIndex, float zoomFactor) {
@@ -420,6 +420,8 @@ public class SimpleChart {
 
     public void translateY(int yAxisIndex, int translation) {
         yAxisList.get(yAxisIndex).translate(translation);
+        margin = null;
+        isDirty = true;
     }
 
     public void translateX(int xAxisIndex, int translation) {
@@ -491,9 +493,9 @@ public class SimpleChart {
                     TooltipInfo tooltipInfo = new TooltipInfo();
                     tooltipInfo.addItems(traces.get(hoverTraceIndex).getInfo(hoverPointIndex));
                     BPoint dataPosition = traces.get(hoverTraceIndex).getDataPosition(hoverPointIndex);
-                    tooltipPainter.setTooltipInfo(tooltipInfo);
-                    tooltipPainter.setXY(dataPosition.getX(), yAxisList.get(getTraceYIndex(hoverTraceIndex)).getEnd());
-                    crosshairPainter.setXY(dataPosition.getX(), dataPosition.getY());
+                    tooltip.setTooltipInfo(tooltipInfo);
+                    tooltip.setXY(dataPosition.getX(), yAxisList.get(getTraceYIndex(hoverTraceIndex)).getEnd());
+                    crosshair.setXY(dataPosition.getX(), dataPosition.getY());
                 }
                 return true;
             }

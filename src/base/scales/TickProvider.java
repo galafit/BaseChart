@@ -8,4 +8,5 @@ public interface TickProvider {
     public Tick getLowerTick(float value);
     public Tick getNextTick();
     public Tick getPreviousTick();
+    public void increaseTickStep(int increaseFactor);
 }

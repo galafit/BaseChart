@@ -32,19 +32,39 @@ public class ScaleLinear extends Scale {
 
     class LinearTickProvider implements TickProvider {
         private float tickStep;
+        int tickDigits;
+        int tickPower;
+        private LabelFormatInfo labelFormatInfo;
         private DecimalFormat labelFormat = new DecimalFormat();
         private Tick lastTick;
 
         public LinearTickProvider(int tickCount, LabelFormatInfo labelFormatInfo) {
+            this.labelFormatInfo = labelFormatInfo;
             NormalizedNumber normalizedStep = getTickStep(tickCount);
             tickStep = (float) normalizedStep.getValue();
-            labelFormat = getNumberFormat(normalizedStep.getPower(), labelFormatInfo);
+            tickDigits = (int)normalizedStep.getMantissa();
+            tickPower = normalizedStep.getPower();
+            labelFormat = getNumberFormat(tickPower, labelFormatInfo);
         }
 
         public LinearTickProvider(float tickStep, Unit tickUnit, LabelFormatInfo labelFormatInfo) {
             this.tickStep = tickStep;
+            this.labelFormatInfo = labelFormatInfo;
             NormalizedNumber normalizedStep = new NormalizedNumber(tickStep);
-            labelFormat = getNumberFormat(normalizedStep.getPowerOfLastSignificantDigit(), labelFormatInfo);
+            tickPower = normalizedStep.getPowerOfLastSignificantDigit();
+            tickDigits = (int) (normalizedStep.getMantissa() * Math.pow(10, tickPower));
+            labelFormat = getNumberFormat(tickPower, labelFormatInfo);
+        }
+
+        @Override
+        public void increaseTickStep(int increaseFactor) {
+            tickStep *= increaseFactor;
+            tickDigits *= increaseFactor;
+            while (tickDigits % 10 == 0) {
+                tickDigits /= 10;
+                tickPower++;
+            }
+            labelFormat = getNumberFormat(tickPower, labelFormatInfo);
         }
 
         @Override

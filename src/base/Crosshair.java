@@ -1,4 +1,4 @@
-package base.painters;
+package base;
 
 import base.BCanvas;
 import base.BRectangle;
@@ -8,11 +8,11 @@ import base.config.CrosshairConfig;
 /**
  * Created by galafit on 19/8/17.
  */
-public class CrosshairPainter {
+public class Crosshair {
     private CrosshairConfig crosshairConfig;
     private int x, y;
 
-    public CrosshairPainter(CrosshairConfig crosshairConfig) {
+    public Crosshair(CrosshairConfig crosshairConfig) {
         this.crosshairConfig = crosshairConfig;
     }
 

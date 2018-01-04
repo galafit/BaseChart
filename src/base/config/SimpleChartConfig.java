@@ -1,7 +1,6 @@
 package base.config;
 
 import base.*;
-import base.config.general.Margin;
 import base.config.traces.TraceConfig;
 
 import java.util.*;

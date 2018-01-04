@@ -2,7 +2,7 @@ package base;
 
 import base.config.ScrollableChartConfig;
 import base.config.SimpleChartConfig;
-import base.config.general.Margin;
+
 import java.util.*;
 import java.util.List;
 

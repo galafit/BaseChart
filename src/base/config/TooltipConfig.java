@@ -1,7 +1,7 @@
 package base.config;
 
 import base.BColor;
-import base.config.general.Margin;
+import base.Margin;
 import base.TextStyle;
 
 

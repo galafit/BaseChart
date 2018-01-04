@@ -1,8 +1,8 @@
-package base.painters;
+package base;
 
 import base.BCanvas;
 import base.TextMetric;
-import base.config.general.TextAnchor;
+import base.TextAnchor;
 
 
 /**

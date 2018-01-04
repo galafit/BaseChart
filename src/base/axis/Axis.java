@@ -4,10 +4,10 @@ import base.BCanvas;
 import base.BStroke;
 import base.TextMetric;
 import base.config.AxisConfig;
-import base.config.general.TextAnchor;
+import base.TextAnchor;
 import base.Range;
-import base.painters.Line;
-import base.painters.Text;
+import base.Line;
+import base.Text;
 import base.scales.*;
 
 import java.text.MessageFormat;
@@ -29,6 +29,7 @@ public class Axis {
 
     private boolean isTicksOverlappingFixed = false;
     private Scale scale;
+    private Range rowMinMax; // without rounding
     private AxisConfig config;
     private List<Tick> ticks;
     private List<Float> minorTicks;
@@ -42,14 +43,15 @@ public class Axis {
     public Axis(AxisConfig config) {
         this.config = config;
         scale = new ScaleLinear();
+        rowMinMax = new Range(getMin(), getMax());
     }
-
 
     /**
      * Zoom affects only max value. Min value does not changed!!!
      * @param zoomFactor
      */
     public void zoom(float zoomFactor) {
+        setMinMax(rowMinMax);
         int start = getStart();
         int end = getEnd();
         float min = getMin();
@@ -65,6 +67,7 @@ public class Axis {
     }
 
     public void translate(int translation) {
+        setMinMax(rowMinMax);
         int start = getStart();
         int end = getEnd();
         float minNew = invert(start + translation);
@@ -91,6 +94,7 @@ public class Axis {
             max = min + 1;
         }
         scale.setDomain(min, max);
+        rowMinMax = new Range(getMin(), getMax());
         ticks = null;
         tickProvider = null;
         isDirty = true;
@@ -182,7 +186,6 @@ public class Axis {
         }
         return false;
     }
-
 
     private TickProvider getTickProvider() {
         if(config.getTickStep() > 0) {
@@ -308,6 +311,7 @@ public class Axis {
         int ticksDivider = (int) (requiredSpace / tickPixelInterval) + 1;
         return ticksDivider;
     }
+
 
     /**
      * Create ticks and minor ticks

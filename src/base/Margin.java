@@ -1,4 +1,4 @@
-package base.config.general;
+package base;
 
 /**
  * Created by galafit on 18/8/17.

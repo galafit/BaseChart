@@ -1,22 +1,19 @@
-package base.painters;
+package base.tooltip;
 
 import base.*;
-import base.config.general.Margin;
 import base.config.TooltipConfig;
-import base.tooltips.TooltipInfo;
-import base.tooltips.InfoItem;
 
 /**
  * Created by hdablin on 02.08.17.
  */
-public class TooltipPainter {
+public class Tooltip {
     private TooltipConfig tooltipConfig;
     private int x, y;
     private int y_offset = 2;
     private String separator = "  ";
     private TooltipInfo tooltipInfo;
 
-    public TooltipPainter(TooltipConfig tooltipConfig) {
+    public Tooltip(TooltipConfig tooltipConfig) {
         this.tooltipConfig = tooltipConfig;
     }
 
@@ -41,7 +38,7 @@ public class TooltipPainter {
             tooltipAreaX = area.x;
         }
         if (tooltipAreaY < area.y){
-            tooltipAreaY = y + y_offset;
+            tooltipAreaY = area.y;
         }
         if (tooltipAreaY + tooltipDimension.height > area.y + area.height ){
             tooltipAreaY = area.y + area.height - tooltipDimension.height;

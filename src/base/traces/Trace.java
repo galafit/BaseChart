@@ -2,7 +2,7 @@ package base.traces;
 
 import base.*;
 import base.axis.Axis;
-import base.tooltips.InfoItem;
+import base.tooltip.InfoItem;
 
 
 /**

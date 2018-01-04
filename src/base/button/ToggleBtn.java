@@ -1,7 +1,7 @@
 package base.button;
 
 import base.*;
-import base.config.general.Margin;
+import base.Margin;
 
 /**
  * Created by galafit on 18/12/17.

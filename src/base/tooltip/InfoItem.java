@@ -1,4 +1,4 @@
-package base.tooltips;
+package base.tooltip;
 
 
 import base.BColor;
