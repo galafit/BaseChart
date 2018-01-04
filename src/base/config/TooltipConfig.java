@@ -1,40 +1,49 @@
 package base.config;
 
+import base.BColor;
 import base.config.general.Margin;
-import base.config.general.TextStyle;
+import base.TextStyle;
 
-import java.awt.*;
 
 /**
  * Created by galafit on 19/8/17.
  */
 public class TooltipConfig {
-    private TextStyle textStyle = new TextStyle(Color.BLACK);
-    private Color background = new Color(220, 220, 220);
-    private Color borderColor = new Color(100, 100, 100);
+    private TextStyle textStyle = new TextStyle(TextStyle.DEFAULT, TextStyle.NORMAL, 12);
+    private BColor color = BColor.BLACK;
+    private BColor backgroundColor = new BColor(220, 220, 220);
+    private BColor borderColor = new BColor(100, 100, 100);
     private int borderWidth = 1;
-    private Margin margin = new Margin((int)(getTextStyle().getFontSize() * 0.4),
-            (int)(getTextStyle().getFontSize() * 0.8),
-            (int)(getTextStyle().getFontSize() * 0.4),
-            (int)(getTextStyle().getFontSize() * 0.8));
+    private Margin margin = new Margin((int)(getTextStyle().getSize() * 0.4),
+            (int)(getTextStyle().getSize() * 0.8),
+            (int)(getTextStyle().getSize() * 0.4),
+            (int)(getTextStyle().getSize() * 0.8));
+
+    public BColor getColor() {
+        return color;
+    }
+
+    public void setColor(BColor color) {
+        this.color = color;
+    }
 
     public TextStyle getTextStyle() {
         return textStyle;
     }
 
-    public Color getBackground() {
-        return background;
+    public BColor getBackgroundColor() {
+        return backgroundColor;
     }
 
-    public void setBackground(Color background) {
-        this.background = background;
+    public void setBackgroundColor(BColor backgroundColor) {
+        this.backgroundColor = backgroundColor;
     }
 
-    public Color getBorderColor() {
+    public BColor getBorderColor() {
         return borderColor;
     }
 
-    public void setBorderColor(Color borderColor) {
+    public void setBorderColor(BColor borderColor) {
         this.borderColor = borderColor;
     }
 

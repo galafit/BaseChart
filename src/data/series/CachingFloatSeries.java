@@ -3,15 +3,15 @@ package data.series;
 /**
  * Created by galafit on 25/11/17.
  */
-public class CachingDoubleSeries implements DoubleSeries {
-    private DoubleSeries inputData;
-    private DoubleArrayList cachedData;
+public class CachingFloatSeries implements FloatSeries {
+    private FloatSeries inputData;
+    private FloatArrayList cachedData;
     private boolean isCashingEnabled = true;
 
 
-    public CachingDoubleSeries(DoubleSeries inputData) {
+    public CachingFloatSeries(FloatSeries inputData) {
         this.inputData = inputData;
-        cachedData = new DoubleArrayList(inputData.size());
+        cachedData = new FloatArrayList(inputData.size());
         cacheData();
     }
 
@@ -29,7 +29,7 @@ public class CachingDoubleSeries implements DoubleSeries {
     }
 
     @Override
-    public double get(int index) {
+    public float get(int index) {
         if(isCashingEnabled) {
             return cachedData.get(index);
         }

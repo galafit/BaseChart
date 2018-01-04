@@ -1,11 +1,10 @@
 package base.traces;
 
+import base.BCanvas;
+import base.BColor;
+import base.BPath;
 import base.DataSet;
 import base.config.traces.AreaTraceConfig;
-
-import java.awt.*;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.GeneralPath;
 
 /**
  * Created by galafit on 20/9/17.
@@ -17,42 +16,42 @@ public class AreaTrace extends BaseTrace {
         setData(dataSet);
     }
 
-    public Color getFillColor() {
-        return new Color(getLineColor().getRed(), getLineColor().getGreen(), getLineColor().getBlue(), 90);
+    public BColor getFillColor() {
+        return new BColor(getLineColor().getRed(), getLineColor().getGreen(), getLineColor().getBlue(), 90);
     }
 
     @Override
-    public void draw(Graphics2D g) {
+    public void draw(BCanvas canvas) {
         if (xyData == null || xyData.size() == 0) {
             return;
         }
 
-        GeneralPath path = new GeneralPath();
+        BPath path = new BPath();
 
-        double x_0 = getXAxis().scale(xyData.getX(0));
-        double y_0 = getYAxis().scale(xyData.getY(0));
-        double x = x_0;
-        double y = y_0;
+        int x_0 = (int) getXAxis().scale(xyData.getX(0));
+        int y_0 = (int) getYAxis().scale(xyData.getY(0));
+        int x = x_0;
+        int y = y_0;
 
         path.moveTo(x, y);
-        g.setColor(getMarkColor());
+        canvas.setColor(getMarkColor());
         int pointRadius = traceConfig.getMarkConfig().getSize() / 2;
-        g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
+        canvas.drawOval(x - pointRadius, y - pointRadius, 2 * pointRadius,2 * pointRadius);
         for (int i = 1; i < xyData.size(); i++) {
-            x = getXAxis().scale(xyData.getX(i));
-            y = getYAxis().scale(xyData.getY(i));
+            x = (int) getXAxis().scale(xyData.getX(i));
+            y = (int) getYAxis().scale(xyData.getY(i));
             path.lineTo(x, y);
-            g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
+            canvas.drawOval(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius);
         }
-        g.setColor(getLineColor());
-        g.setStroke(traceConfig.getLineConfig().getStroke());
-        g.draw(path);
+        canvas.setColor(getLineColor());
+        canvas.setStroke(traceConfig.getLineStroke());
+        canvas.drawPath(path);
 
         path.lineTo(x, getYAxis().getStart());
         path.lineTo(x_0, getYAxis().getStart());
         path.lineTo(x_0, y_0);
-        g.setColor(getFillColor());
-        g.fill(path);
+        canvas.setColor(getFillColor());
+        canvas.fillPath(path);
     }
 
 }

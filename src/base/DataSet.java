@@ -4,14 +4,14 @@ package base;
  * Created by galafit on 10/10/17.
  */
 public interface DataSet {
-    public double getYValue(int index, int yColumnNumber);
+    public float getYValue(int index, int yColumnNumber);
 
     /**
      * amount of Y columns
      */
     public int getYColumnsCounter();
 
-    public double getXValue(int index);
+    public float getXValue(int index);
 
     public String getAnnotation(int index);
 
@@ -21,8 +21,8 @@ public interface DataSet {
 
     public Range getYExtremes(int yColumnNumber);
 
-    public int findNearestData(double xValue);
+    public int findNearestData(float xValue);
 
-    public double getAverageDataInterval();
+    public float getAverageDataInterval();
 
 }

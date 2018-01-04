@@ -1,10 +1,9 @@
 package base.painters;
 
+import base.BCanvas;
+import base.TextMetric;
 import base.config.general.TextAnchor;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.geom.AffineTransform;
 
 /**
  * Created by galafit on 10/9/17.
@@ -22,27 +21,27 @@ public class Text {
         this.y = y;
     }
 
-    public Text(String string, int x, int y, TextAnchor hTextAnchor, TextAnchor vTextAnchor, FontMetrics fm) {
+    public Text(String string, int x, int y, TextAnchor hTextAnchor, TextAnchor vTextAnchor, TextMetric tm) {
         if(string != null && !string.isEmpty()) {
             text = string;
             this.x = x;
             this.y = y;
             if(hTextAnchor == TextAnchor.MIDDLE) {
-                this.x -= fm.stringWidth(string) / 2;
+                this.x -= tm.stringWidth(string) / 2;
             }
             if(hTextAnchor == TextAnchor.END) {
-                this.x -= fm.stringWidth(string);
+                this.x -= tm.stringWidth(string);
             }
             if(vTextAnchor == TextAnchor.MIDDLE) {
-                this.y +=  fm.getHeight()/2 - fm.getDescent();
+                this.y +=  tm.height()/2 - tm.descent();
             }
             if(vTextAnchor == TextAnchor.END) {
-                this.y +=  fm.getAscent();
+                this.y +=  tm.ascent();
             }
         }
     }
 
-    public Text(String string, int x, int y, TextAnchor hTextAnchor, TextAnchor vTextAnchor, int rotationAngle, FontMetrics fm) {
+    public Text(String string, int x, int y, TextAnchor hTextAnchor, TextAnchor vTextAnchor, int rotationAngle, TextMetric tm) {
         if(string != null && !string.isEmpty()) {
             text = string;
             this.rotationAngle = rotationAngle;
@@ -50,30 +49,30 @@ public class Text {
             this.y = y;
 
             if(vTextAnchor == TextAnchor.MIDDLE) {
-                translationX =  - fm.stringWidth(text)/2;
+                translationX =  - tm.stringWidth(text)/2;
             }
             if(vTextAnchor == TextAnchor.END) {
-                translationX = - fm.stringWidth(text);
+                translationX = - tm.stringWidth(text);
             }
             if(hTextAnchor == TextAnchor.MIDDLE) {
-                translationY = + (fm.getHeight()/2 - fm.getDescent());
+                translationY = + (tm.height()/2 - tm.descent());
             }
             if(hTextAnchor == TextAnchor.END) {
-                translationY = + fm.getAscent();
+                translationY = + tm.ascent();
             }
         }
     }
 
-    public void draw(Graphics2D g2) {
+    public void draw(BCanvas canvas) {
         if(text != null && !text.isEmpty()) {
             if(rotationAngle != 0) {
-                AffineTransform initialTransform = g2.getTransform();
-                g2.rotate(Math.toRadians(rotationAngle), x, y);
-                g2.translate(translationX, translationY);
-                g2.drawString(text, x, y);
-                g2.setTransform(initialTransform);
+                canvas.save();
+                canvas.rotate(rotationAngle, x, y);
+                canvas.translate(translationX, translationY);
+                canvas.drawString(text, x, y);
+                canvas.restore();
             } else {
-                g2.drawString(text, x, y);
+                canvas.drawString(text, x, y);
             }
 
         }
@@ -95,7 +94,7 @@ public class Text {
      *
      * Test method to see how text positioning works
      */
-    public static void main(String[] args) {
+  /*  public static void main(String[] args) {
         JFrame frame = new JFrame();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(new Dimension(800, 800));
@@ -143,5 +142,5 @@ public class Text {
             }
         });
         frame.setVisible(true);
-    }
+    }*/
 }

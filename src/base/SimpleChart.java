@@ -16,8 +16,6 @@ import base.tooltips.TooltipInfo;
 import base.traces.Trace;
 import base.traces.TraceRegister;
 
-
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
@@ -25,10 +23,7 @@ import java.util.List;
  * Created by hdablin on 24.03.17.
  */
 public class SimpleChart {
-    private final Color GREY = new Color(150, 150, 150);
-    private final Color BROWN = new Color(200, 102, 0);
-    private final Color ORANGE = new Color(255, 153, 0);
-    private Color[] traceColors = {Color.CYAN, Color.MAGENTA, Color.PINK, Color.RED, ORANGE};
+    private BColor[] traceColors = {BColor.CYAN, BColor.MAGENTA, BColor.PINK, BColor.RED, BColor.ORANGE};
 
     private List<Axis> xAxisList = new ArrayList<Axis>(2);
     private List<Axis> yAxisList = new ArrayList<Axis>();
@@ -37,10 +32,10 @@ public class SimpleChart {
 
     private List<Legend> legends = new ArrayList<Legend>();
     private TitlePainter titlePainter;
-    private Rectangle fullArea;
-    private Rectangle titleArea;
-    private Rectangle chartArea;
-    private Rectangle graphArea;
+    private BRectangle fullArea;
+    private BRectangle titleArea;
+    private BRectangle chartArea;
+    private BRectangle graphArea;
     private SimpleChartConfig chartConfig;
     private Margin margin;
 
@@ -57,7 +52,7 @@ public class SimpleChart {
     private List<DataSet> data;
 
 
-    public SimpleChart(SimpleChartConfig chartConfig, List<DataSet> data, Rectangle area) {
+    public SimpleChart(SimpleChartConfig chartConfig, List<DataSet> data, BRectangle area) {
         this.data = data;
         this.chartConfig = chartConfig;
         this.fullArea = area;
@@ -78,7 +73,7 @@ public class SimpleChart {
         }
         tooltipPainter = new TooltipPainter(chartConfig.getTooltipConfig());
         crosshairPainter = new CrosshairPainter(chartConfig.getCrosshairConfig());
-        titlePainter = new TitlePainter(chartConfig.getTitle(), chartConfig.getTitleTextStyle());
+        titlePainter = new TitlePainter(chartConfig.getTitle(), chartConfig.getTitleTextStyle(), chartConfig.getTitleColor());
 
         BtnGroup buttonGroup = new BtnGroup();
         for (int i = 0; i < yAxisList.size() / 2; i++) {
@@ -127,22 +122,22 @@ public class SimpleChart {
 
 
 
-    Margin getMargin(Graphics2D g2) {
+    Margin getMargin(BCanvas canvas) {
         if (margin == null) {
-            calculateMarginsAndAreas(g2, chartConfig.getMargin());
+            calculateMarginsAndAreas(canvas, chartConfig.getMargin());
         }
         return margin;
     }
 
-    Rectangle getGraphArea(Graphics2D g2) {
+    BRectangle getGraphArea(BCanvas canvas) {
         if (graphArea == null) {
-            calculateMarginsAndAreas(g2, chartConfig.getMargin());
+            calculateMarginsAndAreas(canvas, chartConfig.getMargin());
         }
         return graphArea;
     }
 
-    void setMargin(Graphics2D g2, Margin margin) {
-        calculateMarginsAndAreas(g2, margin);
+    void setMargin(BCanvas canvas, Margin margin) {
+        calculateMarginsAndAreas(canvas, margin);
     }
 
     Scale getXAxisScale(int xAxisIndex) {
@@ -150,10 +145,10 @@ public class SimpleChart {
     }
 
 
-    void calculateMarginsAndAreas(Graphics2D g2, Margin margin) {
-        int titleHeight = titlePainter.getTitleHeight(g2, fullArea.width);
-        titleArea = new Rectangle(fullArea.x, fullArea.y, fullArea.width, titleHeight);
-        chartArea = new Rectangle(fullArea.x, fullArea.y + titleHeight, fullArea.width, fullArea.height - titleHeight);
+    void calculateMarginsAndAreas(BCanvas canvas, Margin margin) {
+        int titleHeight = titlePainter.getTitleHeight(canvas, fullArea.width);
+        titleArea = new BRectangle(fullArea.x, fullArea.y, fullArea.width, titleHeight);
+        chartArea = new BRectangle(fullArea.x, fullArea.y + titleHeight, fullArea.width, fullArea.height - titleHeight);
         int left = -1;
         int right = -1;
         int bottom = -1;
@@ -171,37 +166,37 @@ public class SimpleChart {
         xAxisList.get(0).setStartEnd(xStart, xEnd);
         xAxisList.get(1).setStartEnd(xStart, xEnd);
         if (top < 0) {
-            top = titleHeight + xAxisList.get(1).getThickness(g2);
+            top = titleHeight + xAxisList.get(1).getThickness(canvas);
 
         }
         if (bottom < 0) {
-            bottom = xAxisList.get(0).getThickness(g2);
+            bottom = xAxisList.get(0).getThickness(canvas);
         }
 
         // set YAxis ranges
-        Rectangle paintingArea = new Rectangle(fullArea.x, fullArea.y + top, fullArea.width, fullArea.height - top - bottom);
+        BRectangle paintingArea = new BRectangle(fullArea.x, fullArea.y + top, fullArea.width, fullArea.height - top - bottom);
         for (int i = 0; i < yAxisList.size(); i++) {
             yAxisList.get(i).setStartEnd(chartConfig.getYStartEnd(i, paintingArea));
         }
         if (left < 0) {
             for (int i = 0; i < yAxisList.size() / 2; i++) {
-                left = Math.max(left, yAxisList.get(i * 2).getThickness(g2));
+                left = Math.max(left, yAxisList.get(i * 2).getThickness(canvas));
             }
         }
         if (right < 0) {
             for (int i = 0; i < yAxisList.size() / 2; i++) {
-                right = Math.max(right, yAxisList.get(i * 2 + 1).getThickness(g2));
+                right = Math.max(right, yAxisList.get(i * 2 + 1).getThickness(canvas));
             }
         }
 
         this.margin = new Margin(top, right, bottom, left);
-        graphArea = new Rectangle(fullArea.x + left, fullArea.y + top,
+        graphArea = new BRectangle(fullArea.x + left, fullArea.y + top,
                 fullArea.width - left - right, fullArea.height - top - bottom);
 
         for (int stackIndex = 0; stackIndex < legends.size(); stackIndex++) {
             int legendAreaYStart = yAxisList.get(2 * stackIndex).getEnd();
             int legendAreaYEnd = yAxisList.get(2 * stackIndex).getStart();
-            Rectangle legendArea = new Rectangle(graphArea.x, legendAreaYStart, graphArea.width, legendAreaYEnd - legendAreaYStart);
+            BRectangle legendArea = new BRectangle(graphArea.x, legendAreaYStart, graphArea.width, legendAreaYEnd - legendAreaYStart);
             legends.get(stackIndex).setArea(legendArea);
         }
 
@@ -214,44 +209,18 @@ public class SimpleChart {
     }
 
 
-    public void draw(Graphics2D g2d) {
+    public void draw(BCanvas canvas) {
         if (isDirty) {
-            calculateMarginsAndAreas(g2d, chartConfig.getMargin());
+            calculateMarginsAndAreas(canvas, chartConfig.getMargin());
         }
 
-        g2d.setColor(chartConfig.getMarginColor());
-        g2d.fill(fullArea);
+        canvas.setColor(chartConfig.getMarginColor());
+        canvas.fillRect(fullArea.x, fullArea.y, fullArea.width, fullArea.height);
 
-        g2d.setColor(chartConfig.getBackground());
-        g2d.fill(graphArea);
+        canvas.setColor(chartConfig.getBackground());
+        canvas.fillRect(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
 
-        /*
-        * https://stackoverflow.com/questions/31536952/how-to-fix-text-quality-in-java-graphics
-        */
-        Map<?, ?> desktopHints =
-                (Map<?, ?>) Toolkit.getDefaultToolkit().getDesktopProperty("awt.font.desktophints");
-        if (desktopHints != null) {
-            g2d.setRenderingHints(desktopHints);
-        }
-
-
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        //g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        g2d.setRenderingHint(RenderingHints.KEY_ALPHA_INTERPOLATION, RenderingHints.VALUE_ALPHA_INTERPOLATION_QUALITY);
-        g2d.setRenderingHint(RenderingHints.KEY_COLOR_RENDERING, RenderingHints.VALUE_COLOR_RENDER_QUALITY);
-        g2d.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-
-
-      /*  g2d.setRenderingHint(RenderingHints.KEY_FRACTIONALMETRICS,
-                RenderingHints.VALUE_FRACTIONALMETRICS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
-        g2d.setRenderingHint(
-                RenderingHints.KEY_TEXT_ANTIALIASING,
-                RenderingHints.VALUE_TEXT_ANTIALIAS_ON);  */
+        canvas.enableAntiAliasAndHinting();
 
         int topPosition = graphArea.y;
         int bottomPosition = graphArea.y + graphArea.height;
@@ -259,41 +228,41 @@ public class SimpleChart {
         int rightPosition = graphArea.x + graphArea.width;
 
         for (int i = 0; i < xAxisList.size() / 2; i++) {
-            xAxisList.get(i * 2).drawGrid(g2d, bottomPosition, graphArea.height);
-            xAxisList.get(i * 2 + 1).drawGrid(g2d, topPosition, graphArea.height);
+            xAxisList.get(i * 2).drawGrid(canvas, bottomPosition, graphArea.height);
+            xAxisList.get(i * 2 + 1).drawGrid(canvas, topPosition, graphArea.height);
         }
 
         for (int i = 0; i < yAxisList.size() / 2; i++) {
-            yAxisList.get(i * 2).drawGrid(g2d, leftPosition, graphArea.width);
-            yAxisList.get(i * 2 + 1).drawGrid(g2d, rightPosition, graphArea.width);
+            yAxisList.get(i * 2).drawGrid(canvas, leftPosition, graphArea.width);
+            yAxisList.get(i * 2 + 1).drawGrid(canvas, rightPosition, graphArea.width);
         }
 
         for (int i = 0; i < xAxisList.size() / 2; i++) {
-            xAxisList.get(i * 2).drawAxis(g2d, bottomPosition);
-            xAxisList.get(i * 2 + 1).drawAxis(g2d, topPosition);
+            xAxisList.get(i * 2).drawAxis(canvas, bottomPosition);
+            xAxisList.get(i * 2 + 1).drawAxis(canvas, topPosition);
         }
 
         for (int i = 0; i < yAxisList.size() / 2; i++) {
-            yAxisList.get(i * 2).drawAxis(g2d, leftPosition);
-            yAxisList.get(i * 2 + 1).drawAxis(g2d, rightPosition);
+            yAxisList.get(i * 2).drawAxis(canvas, leftPosition);
+            yAxisList.get(i * 2 + 1).drawAxis(canvas, rightPosition);
         }
 
-        Rectangle clip = g2d.getClipBounds();
-        g2d.setClip(graphArea);
+        canvas.save();
+        canvas.setClip(graphArea.x, graphArea.y, graphArea.width, graphArea.height);
 
         for (Trace trace : traces) {
-            trace.draw(g2d);
+            trace.draw(canvas);
         }
-        g2d.setClip(clip);
+        canvas.restore();
 
-        titlePainter.draw(g2d, titleArea);
+        titlePainter.draw(canvas, titleArea);
         for (Legend legend : legends) {
-            legend.draw(g2d);
+            legend.draw(canvas);
         }
 
         if (hoverTraceIndex >= 0 && hoverPointIndex >= 0) {
-            crosshairPainter.draw(g2d, graphArea);
-            tooltipPainter.draw(g2d, fullArea);
+            crosshairPainter.draw(canvas, graphArea);
+            tooltipPainter.draw(canvas, fullArea);
         }
     }
 
@@ -301,7 +270,7 @@ public class SimpleChart {
      * =======================Base methods to interact==========================
      **/
 
-    public void setArea(Rectangle area) {
+    public void setArea(BRectangle area) {
         fullArea = area;
         margin = null;
         isDirty = true;
@@ -441,11 +410,11 @@ public class SimpleChart {
     }
 
 
-    public void zoomY(int yAxisIndex, double zoomFactor) {
+    public void zoomY(int yAxisIndex, float zoomFactor) {
         yAxisList.get(yAxisIndex).zoom(zoomFactor);
     }
 
-    public void zoomX(int xAxisIndex, double zoomFactor) {
+    public void zoomX(int xAxisIndex, float zoomFactor) {
         xAxisList.get(xAxisIndex).zoom(zoomFactor);
     }
 
@@ -514,17 +483,17 @@ public class SimpleChart {
         }
 
         if (hoverTraceIndex >= 0) {
-            double xValue = traces.get(hoverTraceIndex).getXAxis().invert(x);
+            float xValue = traces.get(hoverTraceIndex).getXAxis().invert(x);
             int nearestIndex = traces.get(hoverTraceIndex).getData().findNearestData(xValue);
             if (hoverPointIndex != nearestIndex) {
                 hoverPointIndex = nearestIndex;
                 if (hoverPointIndex >= 0) {
                     TooltipInfo tooltipInfo = new TooltipInfo();
                     tooltipInfo.addItems(traces.get(hoverTraceIndex).getInfo(hoverPointIndex));
-                    Point dataPosition = traces.get(hoverTraceIndex).getDataPosition(hoverPointIndex);
+                    BPoint dataPosition = traces.get(hoverTraceIndex).getDataPosition(hoverPointIndex);
                     tooltipPainter.setTooltipInfo(tooltipInfo);
-                    tooltipPainter.setXY(dataPosition.x, yAxisList.get(getTraceYIndex(hoverTraceIndex)).getEnd());
-                    crosshairPainter.setXY(dataPosition.x, dataPosition.y);
+                    tooltipPainter.setXY(dataPosition.getX(), yAxisList.get(getTraceYIndex(hoverTraceIndex)).getEnd());
+                    crosshairPainter.setXY(dataPosition.getX(), dataPosition.getY());
                 }
                 return true;
             }

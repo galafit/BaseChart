@@ -3,7 +3,6 @@ package base;
 import base.config.ScrollConfig;
 import base.scales.Scale;
 
-import java.awt.*;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.List;
@@ -15,12 +14,12 @@ import java.util.List;
 public class Scroll {
     private Scale scale;
     private ScrollConfig scrollConfig;
-    private double value;
-    private double extent;
+    private float value;
+    private float extent;
     private List<ScrollListener> eventListeners = new ArrayList<ScrollListener>();
 
 
-    public Scroll(double scrollExtent, ScrollConfig scrollConfig, Scale scale) {
+    public Scroll(float scrollExtent, ScrollConfig scrollConfig, Scale scale) {
         this.scale = scale;
         this.scrollConfig = scrollConfig;
         setExtent(scrollExtent);
@@ -37,7 +36,7 @@ public class Scroll {
         }
     }
 
-    public void setExtent(double scrollExtent) {
+    public void setExtent(float scrollExtent) {
         if (scrollExtent > getMax() - getMin() || scrollExtent <= 0) {
             scrollExtent = getMax() - getMin();
         }
@@ -50,8 +49,8 @@ public class Scroll {
 
 
     private Range getScrollRange() {
-        double scrollStart = scale.scale(value);
-        double scrollEnd = scale.scale(value + extent);
+        float scrollStart = scale.scale(value);
+        float scrollEnd = scale.scale(value + extent);
         int scrollWidth = Math.max(scrollConfig.getScrollMinWidth(), (int) (scrollEnd - scrollStart));
         if (scrollStart + scrollConfig.getScrollMinWidth() > getEnd()) { // prevent that actually thin scroll moves outside screen
             scrollStart = getEnd() - scrollConfig.getScrollMinWidth();
@@ -59,29 +58,29 @@ public class Scroll {
         return new Range(scrollStart, scrollStart + scrollWidth);
     }
 
-    public double getExtent() {
+    public float getExtent() {
         return extent;
     }
 
-    public double getPosition() {
+    public float getPosition() {
         return scale.scale(value);
     }
 
     /**
      * @return true if value was changed and false if newValue = current scroll value
      */
-    public boolean setPosition(double x) {
-        double value = scale.invert(x);
+    public boolean setPosition(float x) {
+        float value = scale.invert(x);
         return setValue(value);
     }
 
-    public double getValue() {
+    public float getValue() {
         return value;
     }
 
-    public double getWidth() {
-        double scrollStart = scale.scale(value);
-        double scrollEnd = scale.scale(value + extent);
+    public float getWidth() {
+        float scrollStart = scale.scale(value);
+        float scrollEnd = scale.scale(value + extent);
         return scrollEnd - scrollStart;
     }
 
@@ -89,8 +88,8 @@ public class Scroll {
     /**
      * @return true if value was changed and false if newValue = current scroll value
      */
-    public boolean setValue(double newValue) {
-        double oldValue = value;
+    public boolean setValue(float newValue) {
+        float oldValue = value;
         value = newValue;
         checkBounds();
         if (value != oldValue) {
@@ -104,8 +103,8 @@ public class Scroll {
         if (minMaxRange == null) {
             return;
         }
-        double min = minMaxRange.start();
-        double max = minMaxRange.end();
+        float min = minMaxRange.start();
+        float max = minMaxRange.end();
         if (min > max) {
             String errorMessage = "Error during setMinMax(). Expected Min < Max. Min = {0}, Max = {1}.";
             String formattedError = MessageFormat.format(errorMessage, min, max);
@@ -118,19 +117,19 @@ public class Scroll {
         scale.setRange(startEnd.start(), startEnd.end());
     }
 
-    private double getMin() {
+    private float getMin() {
         return scale.getDomain()[0];
     }
 
-    private double getMax() {
+    private float getMax() {
         return scale.getDomain()[scale.getDomain().length - 1];
     }
 
-    private double getStart() {
+    private float getStart() {
         return scale.getRange()[0];
     }
 
-    private double getEnd() {
+    private float getEnd() {
         return scale.getRange()[scale.getRange().length - 1];
     }
 
@@ -148,10 +147,10 @@ public class Scroll {
         return getScrollRange().contains(x);
     }
 
-    public void draw(Graphics2D g2, Rectangle area) {
-        g2.setColor(scrollConfig.getScrollColor());
-        g2.setStroke(new BasicStroke(1));
+    public void draw(BCanvas canvas, BRectangle area) {
+        canvas.setColor(scrollConfig.getScrollColor());
+        canvas.setStroke(new BStroke(1));
         Range scrollRange = getScrollRange();
-        g2.draw(new Rectangle((int) scrollRange.start(), area.y, (int) scrollRange.length(), area.height));
+        canvas.drawRect((int)scrollRange.start(), area.y, (int) scrollRange.length(), area.height);
     }
 }

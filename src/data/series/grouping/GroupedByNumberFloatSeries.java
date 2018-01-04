@@ -1,20 +1,20 @@
 package data.series.grouping;
 
-import data.series.DoubleSeries;
+import data.series.FloatSeries;
 import data.series.IntSeries;
-import data.series.grouping.aggregation.DoubleAggregateFunction;
+import data.series.grouping.aggregation.FloatAggregateFunction;
 
 /**
  * This class groups data in such a way that each group
  * has equal number of elements or data points.
  * Equal frequencies [equal height binning, quantiles] grouping.
  */
-public class GroupedByNumberDoubleSeries implements DoubleSeries {
-    private DoubleSeries inputSeries;
+public class GroupedByNumberFloatSeries implements FloatSeries {
+    private FloatSeries inputSeries;
     private IntSeries groupsStartIndexes;
-    private DoubleAggregateFunction aggregateFunction;
+    private FloatAggregateFunction aggregateFunction;
 
-    public GroupedByNumberDoubleSeries(DoubleSeries inputSeries, int numberOfPointsInEachGroup, DoubleAggregateFunction aggregateFunction) {
+    public GroupedByNumberFloatSeries(FloatSeries inputSeries, int numberOfPointsInEachGroup, FloatAggregateFunction aggregateFunction) {
         this.inputSeries = inputSeries;
         this.aggregateFunction = aggregateFunction;
 
@@ -41,11 +41,11 @@ public class GroupedByNumberDoubleSeries implements DoubleSeries {
     }
 
     @Override
-    public double get(int groupIndex) {
+    public float get(int groupIndex) {
         return getGroupedValue(groupIndex);
     }
 
-    protected double getGroupedValue(int groupIndex) {
+    protected float getGroupedValue(int groupIndex) {
         return aggregateFunction.group(inputSeries, groupsStartIndexes.get(groupIndex), groupsStartIndexes.get(groupIndex + 1) - groupsStartIndexes.get(groupIndex));
     }
 

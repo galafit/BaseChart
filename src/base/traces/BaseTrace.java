@@ -1,16 +1,9 @@
 package base.traces;
 
 
-import base.DataSet;
-import base.Range;
-import base.XYViewer;
+import base.*;
 import base.config.traces.BaseTraceConfig;
-import base.button.BtnModel;
 import base.tooltips.InfoItem;
-
-import java.awt.*;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.GeneralPath;
 
 /**
  * Created by galafit on 11/10/17.
@@ -26,16 +19,16 @@ public abstract class BaseTrace extends Trace {
         xyData.setData(dataSet);
     }
 
-    Color getLineColor() {
-        Color lineColor = traceConfig.getLineConfig().getColor();
+    BColor getLineColor() {
+        BColor lineColor = traceConfig.getColor();
         if(lineColor == null) {
             lineColor = getDefaultColor();
         }
         return lineColor;
     }
 
-    Color getMarkColor() {
-        Color markColor = traceConfig.getMarkConfig().getColor();
+    BColor getMarkColor() {
+        BColor markColor = traceConfig.getMarkConfig().getColor();
         if(markColor == null) {
             markColor = getLineColor();
         }
@@ -62,32 +55,32 @@ public abstract class BaseTrace extends Trace {
 
 
     @Override
-    public Point getDataPosition(int dataIndex) {
-        return new Point((int)getXAxis().scale(xyData.getX(dataIndex)), (int)getYAxis().scale(xyData.getY(dataIndex)));
+    public BPoint getDataPosition(int dataIndex) {
+        return new BPoint((int)getXAxis().scale(xyData.getX(dataIndex)), (int)getYAxis().scale(xyData.getY(dataIndex)));
     }
 
     @Override
-    public void draw(Graphics2D g) {
+    public void draw(BCanvas canvas) {
         if (xyData == null || xyData.size() == 0) {
             return;
         }
 
-        GeneralPath path = new GeneralPath();
-        double x = getXAxis().scale(xyData.getX(0));
-        double y = getYAxis().scale(xyData.getY(0));
+        BPath path = new BPath(xyData.size());
+        int x =  (int) getXAxis().scale(xyData.getX(0));
+        int y = (int) getYAxis().scale(xyData.getY(0));
 
         path.moveTo(x, y);
-        g.setColor(getMarkColor());
+        canvas.setColor(getMarkColor());
         int pointRadius = traceConfig.getMarkConfig().getSize() / 2;
-        g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
+        canvas.drawOval(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius);
         for (int i = 1; i < xyData.size(); i++) {
-            x = getXAxis().scale(xyData.getX(i));
-            y = getYAxis().scale(xyData.getY(i));
+            x = (int) getXAxis().scale(xyData.getX(i));
+            y = (int) getYAxis().scale(xyData.getY(i));
             path.lineTo(x, y);
-            g.draw(new Ellipse2D.Double(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius));
+            canvas.drawOval(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius);
         }
-        g.setColor(getLineColor());
-        g.draw(path);
+        canvas.setColor(getLineColor());
+        canvas.drawPath(path);
     }
 
 }

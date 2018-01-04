@@ -1,14 +1,14 @@
 package data.series.grouping.aggregation;
 
-import data.series.DoubleSeries;
+import data.series.FloatSeries;
 
 /**
  * Created by galafit on 25/11/17.
  */
-public class DoubleMax implements DoubleAggregateFunction {
+public class FloatMax implements FloatAggregateFunction {
     @Override
-    public double group(DoubleSeries series, int from, int length) {
-        double max = series.get(from);
+    public float group(FloatSeries series, int from, int length) {
+        float max = series.get(from);
         for (int i = from + 1; i < from + length; i++) {
             max = Math.max(max, series.get(i));
         }

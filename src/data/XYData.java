@@ -1,6 +1,6 @@
 package data;
 
-import data.series.DoubleSeries;
+import data.series.FloatSeries;
 import data.series.IntSeries;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class XYData implements Data {
         dataSet.setXData(data);
     }
 
-    public void setXData(DoubleSeries data) {
+    public void setXData(FloatSeries data) {
         dataSet.setXData(data);
     }
 
@@ -33,7 +33,7 @@ public class XYData implements Data {
         dataSet.setXData(data);
     }
 
-    public void setXData(double[] data) {
+    public void setXData(float[] data) {
         dataSet.setXData(data);
     }
 
@@ -41,7 +41,7 @@ public class XYData implements Data {
         dataSet.setXData(data);
     }
 
-    public void setXData(double startXValue, double dataInterval) {
+    public void setXData(float startXValue, float dataInterval) {
         dataSet.setXData(startXValue, dataInterval);
     }
 
@@ -50,7 +50,7 @@ public class XYData implements Data {
         dataSet.addYData(data);
     }
 
-    public void setYData(DoubleSeries data) {
+    public void setYData(FloatSeries data) {
         removeYData();
         dataSet.addYData(data);
     }
@@ -60,7 +60,7 @@ public class XYData implements Data {
         dataSet.addYData(data);
     }
 
-    public void setYData(double[] data) {
+    public void setYData(float[] data) {
         removeYData();
         dataSet.addYData(data);
     }

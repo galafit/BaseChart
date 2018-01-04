@@ -1,12 +1,10 @@
 import base.config.traces.LineTraceConfig;
 import data.XYData;
-import data.series.DoubleArrayList;
+import data.series.FloatArrayList;
 import data.series.IntArrayList;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Random;
 
 
@@ -14,9 +12,9 @@ import java.util.Random;
  * Created by hdablin on 24.03.17.
  */
 public class MainFrame extends JFrame {
-    DoubleArrayList yData1;
+    FloatArrayList yData1;
     IntArrayList yData2;
-    DoubleArrayList xData;
+    FloatArrayList xData;
     ChartPanel chartPanel;
 
     public MainFrame() throws HeadlessException {
@@ -25,10 +23,10 @@ public class MainFrame extends JFrame {
 
         setTitle("Test chart");
 
-        yData1 = new DoubleArrayList();
+        yData1 = new FloatArrayList();
         Random rand = new Random();
         for (int i = 0; i < 800 ; i++) {
-            yData1.add(Math.sin(i));
+            yData1.add((float) Math.sin(i));
         }
 
         yData2 = new IntArrayList();
@@ -36,7 +34,7 @@ public class MainFrame extends JFrame {
             yData2.add(i/2);
         }
 
-        xData = new DoubleArrayList();
+        xData = new FloatArrayList();
         for (int i = 0; i < 1600 ; i++) {
             xData.add(i/2);
         }
@@ -82,12 +80,12 @@ public class MainFrame extends JFrame {
         }
 
         for (int i = 1; i <=800 ; i++) {
-            double lastValue = xData.get(xData.size() - 1);
+            float lastValue = xData.get(xData.size() - 1);
             xData.add(lastValue + 1);
         }
         for (int i = 1; i <=800 ; i++) {
             yData2.add(i);
-            double lastValue = yData2.get(yData2.size() - 1);
+            float lastValue = yData2.get(yData2.size() - 1);
             //yData2.add(lastValue + 1);
         }
         chartPanel.update();

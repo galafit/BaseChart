@@ -16,7 +16,7 @@ public class ChartConfig extends ScrollableChartConfig {
 
     private boolean isDataCropEnable = true;
     private boolean isGroupingEnable = true;
-    private ArrayList<Double> previewGroupingIntervals = new ArrayList<Double>();
+    private ArrayList<Float> previewGroupingIntervals = new ArrayList<Float>();
     private List<BaseDataSet> chartData = new ArrayList<BaseDataSet>();
     private List<BaseDataSet> previewData = new ArrayList<BaseDataSet>();
     // true for pc and false for phone
@@ -30,11 +30,11 @@ public class ChartConfig extends ScrollableChartConfig {
         this.isChartGroupedDatCachingEnable = isChartGroupedDatCachingEnable;
     }
 
-    public List<Double> getPreviewGroupingIntervals() {
+    public List<Float> getPreviewGroupingIntervals() {
         return previewGroupingIntervals;
     }
 
-    public void addPreviewGroupingInterval(double groupingInterval) {
+    public void addPreviewGroupingInterval(float groupingInterval) {
         previewGroupingIntervals.add(groupingInterval);
     }
 

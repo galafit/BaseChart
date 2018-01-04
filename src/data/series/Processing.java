@@ -23,12 +23,12 @@ public class Processing {
         return new Range(min, max);
     }
 
-    public static Range minMaxRange(DoubleSeries data, int from, int length) {
+    public static Range minMaxRange(FloatSeries data, int from, int length) {
         if(data.size() == 0){
             return null;
         }
-        double min = data.get(from);
-        double max = data.get(from);
+        float min = data.get(from);
+        float max = data.get(from);
         for (int i = from + 1; i < from + length ; i++) {
             min = Math.min(min, data.get(i));
             max = Math.max(max, data.get(i));
@@ -113,7 +113,7 @@ public class Processing {
 
     }
 
-    public static int lowerBound(DoubleSeries data, double value, int fromIndex, int length) {
+    public static int lowerBound(FloatSeries data, float value, int fromIndex, int length) {
         int low = fromIndex;
         int high = fromIndex + length -1;
         int index = -1;
@@ -143,7 +143,7 @@ public class Processing {
         return index;
     }
 
-    public static int upperBound(DoubleSeries data, double value, int fromIndex, int length) {
+    public static int upperBound(FloatSeries data, float value, int fromIndex, int length) {
         int low = fromIndex;
         int high = fromIndex + length -1;
         int index = -1;
@@ -230,37 +230,37 @@ public class Processing {
         /************************************
          *   BINARY SEARCH DOUBLE TEST
          ************************************/
-        System.out.print("DOUBLE ARRAY: [");
-        double[] b = {-2.5, -1.1, 4.5,  5, 5, 5, 6,  8};
+        System.out.print("FLOAT ARRAY: [");
+        float[] b = {-2.5f, -1.1f, 4.5f,  5, 5, 5, 6,  8};
         for (int i = 0; i < b.length -1; i++) {
             System.out.print(b[i] + ", ");
         }
         System.out.println(b[b.length - 1] + "]   size = "+b.length);
 
-        DoubleSeries data1 = new DoubleSeries() {
+        FloatSeries data1 = new FloatSeries() {
             @Override
             public int size() {
                 return b.length;
             }
 
             @Override
-            public double get(int index) {
+            public float get(int index) {
                 return b[index];
             }
         };
 
-        lower = Processing.lowerBound(data1, 5.3, 0, data1.size());
-        upper = Processing.upperBound(data1, 5.3, 0, data1.size());
+        lower = Processing.lowerBound(data1, 5.3f, 0, data1.size());
+        upper = Processing.upperBound(data1, 5.3f, 0, data1.size());
 
         System.out.println("lower(5.3)= "+lower + ",  upper(5.3) = "+ upper);
 
-        lower = Processing.lowerBound(data1, 5.0, 0, data1.size());
-        upper = Processing.upperBound(data1, 5.0, 0, data1.size());
+        lower = Processing.lowerBound(data1, 5.0f, 0, data1.size());
+        upper = Processing.upperBound(data1, 5.0f, 0, data1.size());
 
         System.out.println("lower(5.0)= "+lower + ",  upper(5.0) = "+ upper);
 
-        lower = Processing.lowerBound(data1, -1.2, 0, data1.size());
-        upper = Processing.upperBound(data1, -1.2, 0, data1.size());
+        lower = Processing.lowerBound(data1, -1.2f, 0, data1.size());
+        upper = Processing.upperBound(data1, -1.2f, 0, data1.size());
 
         System.out.println("lower(-1.2) = "+lower + ",  upper(-1.2) = "+ upper);
 

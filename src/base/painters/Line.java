@@ -6,29 +6,31 @@ import java.awt.*;
  * Created by galafit on 10/9/17.
  */
 public class Line {
-    private int xStart;
-    private int yStart;
-    private int xEnd;
-    private int yEnd;
+    private int x1;
+    private int y1;
+    private int x2;
+    private int y2;
 
-    public Line(int xStart, int yStart, int xEnd, int yEnd) {
-        this.xStart = xStart;
-        this.yStart = yStart;
-        this.xEnd = xEnd;
-        this.yEnd = yEnd;
+    public Line(int x1, int y1, int x2, int y2) {
+        this.x1 = x1;
+        this.y1 = y1;
+        this.x2 = x2;
+        this.y2 = y2;
     }
 
-    public void draw(Graphics g) {
-       g.drawLine(xStart, yStart, xEnd, yEnd);
+    public int getX1() {
+        return x1;
     }
 
-    @Override
-    public String toString() {
-        return "Line{" +
-                "xStart=" + xStart +
-                ", yStart=" + yStart +
-                ", xEnd=" + xEnd +
-                ", yEnd=" + yEnd +
-                '}';
+    public int getY1() {
+        return y1;
+    }
+
+    public int getX2() {
+        return x2;
+    }
+
+    public int getY2() {
+        return y2;
     }
 }

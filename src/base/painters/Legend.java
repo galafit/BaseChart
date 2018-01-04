@@ -1,10 +1,11 @@
 package base.painters;
 
+import base.BCanvas;
+import base.BRectangle;
 import base.button.ToggleBtn;
 import base.button.BtnGroup;
 import base.config.*;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,7 @@ public class Legend {
     private BtnGroup buttonGroup;
     private List<ToggleBtn> buttons = new ArrayList<ToggleBtn>();
     private LegendConfig legendConfig;
-    private Rectangle area;
+    private BRectangle area;
     private boolean isDirty = true;
 
     public Legend(LegendConfig legendConfig, BtnGroup buttonGroup) {
@@ -34,7 +35,7 @@ public class Legend {
         return false;
     }
 
-    public  void setArea(Rectangle area) {
+    public  void setArea(BRectangle area) {
         this.area = area;
         isDirty = true;
     }
@@ -42,25 +43,25 @@ public class Legend {
     public void add(ToggleBtn legendButton) {
         buttons.add(legendButton);
         buttonGroup.add(legendButton.getModel());
-        legendButton.setBackground(legendConfig.getBackground());
+        legendButton.setBackground(legendConfig.getBackgroundColor());
         legendButton.setTextStyle(legendConfig.getTextStyle());
     }
 
-    private void createAreas(Graphics2D g2) {
-        Rectangle[] itemAreas = new Rectangle[buttons.size()];
+    private void createAreas(BCanvas canvas) {
+        BRectangle[] itemAreas = new BRectangle[buttons.size()];
         for (int i = 0; i < buttons.size(); i++) {
-           itemAreas[i] = buttons.get(i).getBounds(g2);
+           itemAreas[i] = buttons.get(i).getBounds(canvas);
         }
         int x = area.x;
         int y = area.y;
         for (int i = 0; i < buttons.size(); i++) {
-            Rectangle itemArea = itemAreas[i];
+            BRectangle itemArea = itemAreas[i];
             if(x + itemArea.width >= area.x + area.width) {
                 x = area.x;
                 y += itemArea.height;
-                buttons.get(i).setLocation(x, y, g2);
+                buttons.get(i).setLocation(x, y, canvas);
             } else {
-                buttons.get(i).setLocation(x, y, g2);
+                buttons.get(i).setLocation(x, y, canvas);
                 x += itemArea.width + getInterItemSpace();
             }
         }
@@ -68,16 +69,16 @@ public class Legend {
     }
 
 
-    public void draw(Graphics2D g2) {
+    public void draw(BCanvas canvas) {
         if (!legendConfig.isVisible() || buttons.size() == 0) {
             return;
         }
         if(isDirty) {
-            createAreas(g2);
+            createAreas(canvas);
         }
-        g2.setFont(legendConfig.getTextStyle().getFont());
+        canvas.setTextStyle(legendConfig.getTextStyle());
         for (int i = 0; i < buttons.size(); i++) {
-           buttons.get(i).draw(g2);
+           buttons.get(i).draw(canvas);
         }
     }
 

@@ -1,7 +1,5 @@
 package base.config.traces;
 
-import java.awt.*;
-
 /**
  * Created by galafit on 13/9/17.
  */

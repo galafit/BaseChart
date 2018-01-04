@@ -1,16 +1,17 @@
 package base.config;
 
-import java.awt.*;
+
+import base.BColor;
 
 /**
  * Created by galafit on 1/10/17.
  */
 public class ScrollConfig {
-    private Color scrollColor = Color.RED;
+    private BColor scrollColor = BColor.RED;
     private int scrollMinWidth = 10; //px
 
 
-    public Color getScrollColor() {
+    public BColor getScrollColor() {
         return scrollColor;
     }
 

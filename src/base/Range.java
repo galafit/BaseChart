@@ -6,11 +6,11 @@ import java.text.MessageFormat;
  * Created by galafit on 11/7/17.
  */
 public class Range {
-    private double start;
-    private double end;
+    private float start;
+    private float end;
     private boolean isReversed = false;
 
-    public Range(double start, double end, boolean isReversed) {
+    public Range(float start, float end, boolean isReversed) {
         this.start = start;
         this.end = end;
         this.isReversed = isReversed;
@@ -29,11 +29,11 @@ public class Range {
         }
     }
 
-    public Range(double start, double end) {
+    public Range(float start, float end) {
        this(start, end, false);
     }
 
-    public boolean contains(double value) {
+    public boolean contains(float value) {
         if(isReversed && value >= end && value <= start) {
             return true;
         }
@@ -43,15 +43,15 @@ public class Range {
         return false;
     }
 
-    public  double start() {
+    public  float start() {
         return start;
     }
 
-    public double end() {
+    public float end() {
         return end;
     }
 
-    public double length() {
+    public float length() {
         return Math.abs(end - start);
     }
 

@@ -1,8 +1,9 @@
 package base.painters;
 
+import base.BCanvas;
+import base.BRectangle;
+import base.BStroke;
 import base.config.CrosshairConfig;
-
-import java.awt.*;
 
 /**
  * Created by galafit on 19/8/17.
@@ -20,10 +21,10 @@ public class CrosshairPainter {
         this.y = y;
     }
 
-    public void draw(Graphics2D g2, Rectangle area){
-        g2.setStroke(new BasicStroke(crosshairConfig.getLineWidth()));
-        g2.setColor(crosshairConfig.getLineColor());
-        g2.drawLine(x,area.y, x,area.y + area.height);
-        g2.drawLine(area.x, y, area.x + area.width,y);
+    public void draw(BCanvas canvas, BRectangle area){
+        canvas.setStroke(new BStroke(crosshairConfig.getLineWidth()));
+        canvas.setColor(crosshairConfig.getLineColor());
+        canvas.drawLine(x,area.y, x,area.y + area.height);
+        canvas.drawLine(area.x, y, area.x + area.width,y);
     }
 }

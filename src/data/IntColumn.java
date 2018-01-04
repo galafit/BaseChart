@@ -11,7 +11,6 @@ import data.series.grouping.aggregation.IntFirst;
 import data.series.grouping.aggregation.IntMax;
 
 import java.util.List;
-import java.util.function.IntToDoubleFunction;
 
 /**
  * Created by galafit on 27/9/17.
@@ -19,15 +18,9 @@ import java.util.function.IntToDoubleFunction;
 class IntColumn implements NumberColumn {
     private GroupingType groupingType = GroupingType.AVG;
     private IntSeries series;
-    private IntToDoubleFunction intToDoubleFunction;
-
-    public IntColumn(IntSeries series, IntToDoubleFunction intToDoubleFunction) {
-        this.series = series;
-        this.intToDoubleFunction = intToDoubleFunction;
-    }
 
     public IntColumn(IntSeries series) {
-        this(series, null);
+        this.series = series;
     }
 
 
@@ -66,11 +59,8 @@ class IntColumn implements NumberColumn {
     }
 
     @Override
-    public double getValue(int index) {
-        if (intToDoubleFunction == null) {
-            return series.get(index);
-        }
-        return intToDoubleFunction.applyAsDouble(series.get(index));
+    public float getValue(int index) {
+        return series.get(index);
     }
 
     @Override
@@ -80,12 +70,12 @@ class IntColumn implements NumberColumn {
 
 
     @Override
-    public int upperBound(double value, int from, int length) {
+    public int upperBound(float value, int from, int length) {
         return Processing.upperBound(series, value, from, length);
     }
 
     @Override
-    public int lowerBound(double value, int from, int length) {
+    public int lowerBound(float value, int from, int length) {
         return Processing.lowerBound(series, value, from, length);
     }
 
@@ -120,7 +110,7 @@ class IntColumn implements NumberColumn {
     }
 
 /*    @Override
-    public IntSeries groupByInterval(double groupsInterval) {
+    public IntSeries groupByInterval(float groupsInterval) {
         GroupedIntSeries groupedSeries = new GroupedByIntervalIntSeries(series, groupsInterval);
         series = new CachingIntSeries(groupedSeries);
         return groupedSeries.getGroupsStartIndexes();

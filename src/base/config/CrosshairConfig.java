@@ -1,19 +1,19 @@
 package base.config;
 
-import java.awt.*;
+import base.BColor;
 
 /**
  * Created by galafit on 19/8/17.
  */
 public class CrosshairConfig {
-    private Color lineColor = new Color(250, 250, 250);
+    private BColor lineColor = new BColor(250, 250, 250);
     private int lineWidth = 1;
 
-    public Color getLineColor() {
+    public BColor getLineColor() {
         return lineColor;
     }
 
-    public void setLineColor(Color lineColor) {
+    public void setLineColor(BColor lineColor) {
         this.lineColor = lineColor;
     }
 

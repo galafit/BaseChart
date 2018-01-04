@@ -14,11 +14,11 @@ public class XYViewer {
         return dataSet.size();
     }
 
-    public double getX(int index) {
+    public float getX(int index) {
         return dataSet.getXValue(index);
     }
 
-    public double getY(int index) {
+    public float getY(int index) {
         return dataSet.getYValue(index, 0);
     }
 
@@ -30,7 +30,7 @@ public class XYViewer {
         return dataSet.getXExtremes();
     }
 
-    public int findNearest(double xValue) {
+    public int findNearest(float xValue) {
         return dataSet.findNearestData(xValue);
     }
 

@@ -1,27 +1,25 @@
 package base.button;
 
+import base.*;
 import base.config.general.Margin;
-import base.config.general.TextStyle;
-
-import java.awt.*;
 
 /**
  * Created by galafit on 18/12/17.
  */
 public class ToggleBtn {
     private BtnModel model = new BtnModel();
-    private Color color = Color.BLACK;
+    private BColor color = BColor.BLACK;
     private String label = "";
-    private Color background = Color.LIGHT_GRAY;
+    private BColor background = BColor.LIGHT_GRAY;
     private boolean isVisible = true;
-    private TextStyle textStyle = new TextStyle();
-    private Margin margin = new Margin((int)(textStyle.getFontSize() * 0),
-            (int)(textStyle.getFontSize() * 1),
-            (int)(textStyle.getFontSize() * 0.5),
-            (int)(textStyle.getFontSize() * 1));
-    private Rectangle bounds;
+    private TextStyle textStyle = new TextStyle(TextStyle.DEFAULT, TextStyle.NORMAL, 12);
+    private Margin margin = new Margin((int)(textStyle.getSize() * 0),
+            (int)(textStyle.getSize() * 1),
+            (int)(textStyle.getSize() * 0.5),
+            (int)(textStyle.getSize() * 1));
+    private BRectangle bounds;
 
-    public ToggleBtn(Color color, String label) {
+    public ToggleBtn(BColor color, String label) {
         this.color = color;
         this.label = label;
     }
@@ -49,37 +47,38 @@ public class ToggleBtn {
         return model;
     }
 
-    public void setLocation(int x, int y, Graphics2D g2) {
+    public void setLocation(int x, int y, BCanvas canvas) {
         if(bounds == null) {
-            createBounds(g2);
+            createBounds(canvas);
         }
         bounds.x = x;
         bounds.y = y;
     }
 
-    public Rectangle getBounds(Graphics2D g2) {
+    public BRectangle getBounds(BCanvas canvas) {
         if(bounds == null) {
-            createBounds(g2);
+            createBounds(canvas);
         }
         return bounds;
     }
 
-    private void createBounds(Graphics2D g2) {
-        bounds = new Rectangle(0, 0, getItemWidth(g2), getItemHeight(g2));
+    private void createBounds(BCanvas canvas) {
+        TextMetric tm = canvas.getTextMetric(textStyle);
+        bounds = new BRectangle(0, 0, getItemWidth(tm), getItemHeight(tm));
     }
 
 
-    public void draw(Graphics2D g2) {
+    public void draw(BCanvas canvas) {
         if(bounds == null) {
-            createBounds(g2);
+            createBounds(canvas);
         }
         // draw background
-        g2.setColor(background);
-        g2.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
-        g2.setColor(color);
+        canvas.setColor(background);
+        canvas.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        canvas.setColor(color);
         if(model.isSelected()) {
             // draw border
-            g2.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+            canvas.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
             // draw selection marker
             int x = bounds.x + getPadding();
             int y = bounds.y + bounds.height/2;
@@ -90,55 +89,42 @@ public class ToggleBtn {
             int x2 = bounds.x + getPadding() + getColorMarkerSize();
             int y2 = bounds.y + getPadding();
 
-            g2.drawLine(x, y, x1, y1);
-            g2.drawLine(x1, y1, x2, y2);
+            canvas.drawLine(x, y, x1, y1);
+            canvas.drawLine(x1, y1, x2, y2);
         }
 
         // draw item
+        TextMetric tm = canvas.getTextMetric(textStyle);
         int x = bounds.x + getPadding() + getColorMarkerSize() + getColorMarkerPadding();
-        int y = bounds.y + getPadding() + getStringAscent(g2, textStyle.getFont());
+        int y = bounds.y + getPadding() + tm.ascent();
 
-        g2.drawString(label, x, y);
+        canvas.drawString(label, x, y);
     }
 
-    private int getItemWidth(Graphics2D g2) {
-        return getStringWidth(g2, textStyle.getFont(), label)
-                + getColorMarkerSize() + getColorMarkerPadding()
+    private int getItemWidth(TextMetric tm) {
+        return tm.stringWidth(label) + getColorMarkerSize() + getColorMarkerPadding()
                 + 2 * getPadding();
 
     }
 
-    private int getItemHeight(Graphics2D g2) {
-        return getStringHeight(g2, textStyle.getFont())
-                + 2 * getPadding();
+    private int getItemHeight(TextMetric tm) {
+        return tm.height() + 2 * getPadding();
 
     }
 
     private int getPadding() {
-        return (int) (textStyle.getFontSize() * 0.2);
+        return (int) (textStyle.getSize() * 0.2);
     }
 
     private int getColorMarkerSize() {
-        return (int) (textStyle.getFontSize() * 0.8);
+        return (int) (textStyle.getSize() * 0.8);
     }
 
     private int getColorMarkerPadding() {
-        return (int) (textStyle.getFontSize() * 0.5);
+        return (int) (textStyle.getSize() * 0.5);
     }
 
-    private int getStringWidth(Graphics2D g2, Font font, String string) {
-        return  g2.getFontMetrics(font).stringWidth(string);
-    }
-
-    private int getStringHeight(Graphics2D g2, Font font) {
-        return g2.getFontMetrics(font).getHeight();
-    }
-
-    private int getStringAscent(Graphics2D g2, Font font) {
-        return g2.getFontMetrics(font).getAscent();
-    }
-
-    public void setBackground(Color background) {
+    public void setBackground(BColor background) {
         this.background = background;
     }
 

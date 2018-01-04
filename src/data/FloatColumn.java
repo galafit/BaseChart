@@ -2,7 +2,7 @@ package data;
 
 import base.Range;
 import data.series.*;
-import data.series.grouping.GroupedByNumberDoubleSeries;
+import data.series.grouping.GroupedByNumberFloatSeries;
 import data.series.grouping.aggregation.*;
 
 import java.util.List;
@@ -10,37 +10,37 @@ import java.util.List;
 /**
  * Created by galafit on 27/9/17.
  */
-class DoubleColumn implements NumberColumn {
-    DoubleSeries series;
+class FloatColumn implements NumberColumn {
+    FloatSeries series;
     private GroupingType groupingType = GroupingType.AVG;
 
-    public DoubleColumn(DoubleSeries series) {
+    public FloatColumn(FloatSeries series) {
         this.series = series;
     }
 
-    public DoubleColumn(double[] data) {
-        this(new DoubleSeries() {
+    public FloatColumn(float[] data) {
+        this(new FloatSeries() {
             @Override
             public int size() {
                 return data.length;
             }
 
             @Override
-            public double get(int index) {
+            public float get(int index) {
                 return data[index];
             }
         });
     }
 
-    public DoubleColumn(List<Double> data) {
-        this(new DoubleSeries() {
+    public FloatColumn(List<Float> data) {
+        this(new FloatSeries() {
             @Override
             public int size() {
                 return data.size();
             }
 
             @Override
-            public double get(int index) {
+            public float get(int index) {
                 return data.get(index);
             }
         });
@@ -52,7 +52,7 @@ class DoubleColumn implements NumberColumn {
     }
 
     @Override
-    public double getValue(int index) {
+    public float getValue(int index) {
         return series.get(index);
     }
 
@@ -62,12 +62,12 @@ class DoubleColumn implements NumberColumn {
     }
 
     @Override
-    public int upperBound(double value, int from, int length) {
+    public int upperBound(float value, int from, int length) {
         return Processing.upperBound(series,  value, from, length);
     }
 
     @Override
-    public int lowerBound(double value, int from, int length) {
+    public int lowerBound(float value, int from, int length) {
         return Processing.lowerBound(series,  value, from, length);
     }
 
@@ -78,32 +78,32 @@ class DoubleColumn implements NumberColumn {
 
     @Override
     public void groupByNumber(int numberOfElementsInGroup, boolean isCachingEnable) {
-        DoubleAggregateFunction aggregateFunction = new DoubleAverage();
+        FloatAggregateFunction aggregateFunction = new FloatAverage();
         if(groupingType == GroupingType.FIRST) {
-            aggregateFunction = new DoubleFirst();
+            aggregateFunction = new FloatFirst();
         }
 
         if(groupingType == GroupingType.MAX) {
-            aggregateFunction = new DoubleMax();
+            aggregateFunction = new FloatMax();
         }
 
-        DoubleSeries originalSeries = series;
+        FloatSeries originalSeries = series;
         if(isCachingEnable) {
-            series = new CachingDoubleSeries(new GroupedByNumberDoubleSeries(originalSeries, numberOfElementsInGroup, aggregateFunction));
+            series = new CachingFloatSeries(new GroupedByNumberFloatSeries(originalSeries, numberOfElementsInGroup, aggregateFunction));
         } else {
-            series = new GroupedByNumberDoubleSeries(originalSeries, numberOfElementsInGroup, aggregateFunction);
+            series = new GroupedByNumberFloatSeries(originalSeries, numberOfElementsInGroup, aggregateFunction);
 
         }
-        if(originalSeries instanceof CachingDoubleSeries) {
+        if(originalSeries instanceof CachingFloatSeries) {
             // force to group and cache resultant data on the base of previous cached data
             series.size();
             // reset (disable) caching results of previous grouped data
-            ((CachingDoubleSeries) originalSeries).disableCashing();
+            ((CachingFloatSeries) originalSeries).disableCashing();
         }
     }
 
     @Override
     public NumberColumn copy() {
-        return new DoubleColumn(series);
+        return new FloatColumn(series);
     }
 }

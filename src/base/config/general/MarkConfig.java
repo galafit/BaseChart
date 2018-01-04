@@ -1,23 +1,23 @@
 package base.config.general;
 
-import java.awt.*;
+import base.BColor;
 
 /**
  * Created by galafit on 14/9/17.
  */
 public class MarkConfig {
-    private Color color;
+    private BColor color;
     private int size = 4;
 
     public boolean isMarksVisible() {
         return (getSize() > 0) ? true: false;
     }
 
-    public Color getColor() {
+    public BColor getColor() {
         return color;
     }
 
-    public void setColor(Color color) {
+    public void setColor(BColor color) {
         this.color = color;
     }
 

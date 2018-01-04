@@ -1,18 +1,19 @@
 package base.config;
 
-import base.config.general.LineConfig;
-import base.config.general.TextStyle;
-
-import java.awt.*;
+import base.BColor;
+import base.BStroke;
+import base.TextStyle;
 
 /**
  * Created by galafit on 5/9/17.
  */
 public class AxisConfig {
     private AxisOrientation orientation;
-    private Color color =  Color.GRAY;
+    private BColor color =  BColor.GRAY;
+    private BColor gridColor = new BColor(100, 100, 100);
+    private BColor minorGridColor = new BColor(80, 80, 80);
 
-    private TextStyle labelTextStyle = new TextStyle();
+    private TextStyle labelTextStyle = new TextStyle(TextStyle.DEFAULT, TextStyle.NORMAL, 12);
     private int labelPadding; // px
     private LabelFormatInfo labelFormatInfo = new LabelFormatInfo();
     private boolean isLabelsVisible = true;
@@ -21,32 +22,26 @@ public class AxisConfig {
     private int tickMarkInsideSize = 0; // px
     private int tickMarkOutsideSize = 3; // px
     private boolean isTicksVisible = true;
-    private double tickStep = 0; // in domain units
+    private float tickStep = 0; // in domain units
 
     private String title;
-    private TextStyle titleTextStyle = new TextStyle();
+    private TextStyle titleTextStyle = new TextStyle(TextStyle.DEFAULT, TextStyle.NORMAL, 14);
     private int titlePadding; // px
 
     private boolean isVisible = false;
-    private LineConfig axisLineConfig = new LineConfig();
-    private LineConfig gridLineConfig = new LineConfig();
-    private LineConfig minorGridLineConfig = new LineConfig();
+    private BStroke axisLineStroke = new BStroke(1);
+    private BStroke gridLineStroke = new BStroke(1);
+    private BStroke minorGridLineStroke = new BStroke(0);
     private int minorGridCounter = 3; // minor grid divider
-
-
 
     private boolean isMinMaxRoundingEnable = false;
 
     public AxisConfig(AxisOrientation orientation) {
         this.orientation = orientation;
-        getGridLineConfig().setWidth(1);
-        getGridLineConfig().setColor(new Color(100, 100, 100));
-        getMinorGridLineConfig().setWidth(1);
-        getMinorGridLineConfig().setColor(new Color(80, 80, 80));
-        titleTextStyle.setFontSize(14);
-        titlePadding = (int)(0.4 * titleTextStyle.getFontSize());
-        labelTextStyle.setFontSize(12);
-        labelPadding = (int)(0.5 * labelTextStyle.getFontSize());
+        titlePadding = (int)(0.4 * titleTextStyle.getSize());
+        labelPadding = (int)(0.5 * labelTextStyle.getSize());
+        gridColor = new BColor(100, 100, 100);
+        minorGridColor = new BColor(80, 80, 80);
     }
 
     public boolean isMinMaxRoundingEnable() {
@@ -57,12 +52,28 @@ public class AxisConfig {
         this.isMinMaxRoundingEnable = isMinMaxRoundingEvalable;
     }
 
-    public Color getColor() {
+    public BColor getColor() {
         return color;
     }
 
-    public void setColor(Color color) {
+    public void setColor(BColor color) {
         this.color = color;
+    }
+
+    public void setGridColor(BColor gridColor) {
+        this.gridColor = gridColor;
+    }
+
+    public void setMinorGridColor(BColor minorGridColor) {
+        this.minorGridColor = minorGridColor;
+    }
+
+    public BColor getGridColor() {
+        return (gridColor != null) ? gridColor : color;
+    }
+
+    public BColor getMinorGridColor() {
+        return (minorGridColor != null) ? minorGridColor : color;
     }
 
     public boolean isVisible() {
@@ -142,11 +153,11 @@ public class AxisConfig {
         isTicksVisible = ticksVisible;
     }
 
-    public double getTickStep() {
+    public float getTickStep() {
         return tickStep;
     }
 
-    public void setTickStep(double tickStep) {
+    public void setTickStep(float tickStep) {
         this.tickStep = tickStep;
     }
 
@@ -178,28 +189,28 @@ public class AxisConfig {
 
     /** ======================= Axis and Grid lines ========================== **/
 
-    public LineConfig getAxisLineConfig() {
-        return axisLineConfig;
+    public BStroke getAxisLineStroke() {
+        return axisLineStroke;
     }
 
-    public LineConfig getGridLineConfig() {
-        return gridLineConfig;
+    public BStroke getGridLineStroke() {
+        return gridLineStroke;
     }
 
-    public LineConfig getMinorGridLineConfig() {
-        return minorGridLineConfig;
+    public BStroke getMinorGridLineStroke() {
+        return minorGridLineStroke;
     }
 
-    public void setAxisLineConfig(LineConfig axisLineConfig) {
-        this.axisLineConfig = axisLineConfig;
+    public void setAxisLineStroke(BStroke axisLineStyle) {
+        this.axisLineStroke = axisLineStyle;
     }
 
-    public void setGridLineConfig(LineConfig gridLineConfig) {
-        this.gridLineConfig = gridLineConfig;
+    public void setGridLineStroke(BStroke gridLineStyle) {
+        this.gridLineStroke = gridLineStyle;
     }
 
-    public void setMinorGridLineConfig(LineConfig minorGridLineConfig) {
-        this.minorGridLineConfig = minorGridLineConfig;
+    public void setMinorGridLineStroke(BStroke minorGridLineStyle) {
+        this.minorGridLineStroke = minorGridLineStyle;
     }
 
     public void setMinorGridCounter(int minorGridCounter) {
@@ -240,27 +251,36 @@ public class AxisConfig {
         return false;
     }
 
-    public Color getAxisLineColor() {
-        return (getAxisLineConfig().getColor() != null) ? getAxisLineConfig().getColor() : color;
-    }
-
-    public Color getGridColor() {
-        return (getGridLineConfig().getColor() != null) ? getGridLineConfig().getColor() : color;
-    }
-
-    public Color getMinorGridColor() {
-        return (getMinorGridLineConfig().getColor() != null) ? getMinorGridLineConfig().getColor() : color;
-    }
-
-    public Color getLabelsColor() {
-        return (labelTextStyle.getFontColor() != null) ? labelTextStyle.getFontColor() : color;
-    }
-
-    public Color getTitleColor() {
-        return (titleTextStyle.getFontColor() != null) ? titleTextStyle.getFontColor() : color;
-    }
-
-    public Color getTicksColor() {
+    public BColor getLabelsColor() {
         return color;
+    }
+
+    public BColor getTitleColor() {
+        return color;
+    }
+
+    public BColor getTicksColor() {
+        return color;
+    }
+
+    public boolean isAxisLineVisible() {
+        if(axisLineStroke.getWidth() > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isGridVisible() {
+        if(gridLineStroke.getWidth() > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isMinorGridVisible() {
+        if(minorGridLineStroke.getWidth() > 0) {
+            return true;
+        }
+        return false;
     }
 }

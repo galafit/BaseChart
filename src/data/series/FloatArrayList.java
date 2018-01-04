@@ -3,26 +3,26 @@ package data.series;
 import java.util.Arrays;
 
 /**
- * Created by galafit on 12/10/17.
+ * Created by galafit on 1/1/18.
  */
-public class DoubleArrayList implements DoubleSeries {
-    private double[] data;
+public class FloatArrayList implements FloatSeries {
+    private float[] data;
     private int size;
 
-    public DoubleArrayList(int initialCapacity) {
+    public FloatArrayList(int initialCapacity) {
         if (initialCapacity < 0) {
             throw new IllegalArgumentException("Illegal Capacity: "+ initialCapacity);
         }
-        data = new double[initialCapacity];
+        data = new float[initialCapacity];
     }
 
-    public DoubleArrayList() {
+    public FloatArrayList() {
         this(10);
     }
 
-    public DoubleArrayList(int[] source) {
+    public FloatArrayList(float[] source) {
         size = source.length;
-        data = new double[size];
+        data = new float[size];
         System.arraycopy(source, 0, data, 0, size);
     }
 
@@ -32,7 +32,7 @@ public class DoubleArrayList implements DoubleSeries {
     }
 
     @Override
-    public double get(int index) {
+    public float get(int index) {
         if (index >= size) {
             throw new ArrayIndexOutOfBoundsException(index);
         }
@@ -64,14 +64,14 @@ public class DoubleArrayList implements DoubleSeries {
     /**
      * Add a new element to the list.
      */
-    public void add(double value) {
+    public void add(float value) {
         ensureCapacity(size + 1);  // Increments modCount!!
         data[size] = value;
         size++;
     }
 
 
-    public void add(double[] values) {
+    public void add(float[] values) {
         int numNew = values.length;
         ensureCapacity(size + numNew);  // Increments modCount
         System.arraycopy(values, 0, data, size, numNew);
@@ -81,7 +81,6 @@ public class DoubleArrayList implements DoubleSeries {
     public void ensureCapacity(int minCapacity) {
         int oldCapacity = data.length;
         if (minCapacity > oldCapacity) {
-            double[] oldData = data;
             int newCapacity = (oldCapacity * 3)/2 + 1;
             if (newCapacity < minCapacity) {
                 newCapacity = minCapacity;
@@ -90,4 +89,5 @@ public class DoubleArrayList implements DoubleSeries {
             data = Arrays.copyOf(data, newCapacity);
         }
     }
+
 }

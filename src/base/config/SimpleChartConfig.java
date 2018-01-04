@@ -1,11 +1,9 @@
 package base.config;
 
+import base.*;
 import base.config.general.Margin;
-import base.config.general.TextStyle;
 import base.config.traces.TraceConfig;
-import base.Range;
 
-import java.awt.*;
 import java.util.*;
 
 /**
@@ -15,10 +13,11 @@ public class SimpleChartConfig {
     public static final int DEFAULT_WEIGHT = 10;
 
     private String title = "Chart title";
-    private Color background;
-    private Color marginColor;
+    private BColor background;
+    private BColor marginColor;
     private Margin margin;
-    private TextStyle titleTextStyle = new TextStyle();
+    private TextStyle titleTextStyle = new TextStyle(TextStyle.DEFAULT, TextStyle.BOLD, 14);
+    private BColor titleColor = BColor.BLACK;
     private LegendConfig legendConfig = new LegendConfig();
     private TooltipConfig tooltipConfig = new TooltipConfig();
     private CrosshairConfig crosshairConfig = new CrosshairConfig();
@@ -38,29 +37,27 @@ public class SimpleChartConfig {
     private ArrayList<TraceInfo> traces = new ArrayList<TraceInfo>();
 
     public SimpleChartConfig() {
-        getTitleTextStyle().setBold(true);
-        getTitleTextStyle().setFontSize(14);
         stackWeights.add(DEFAULT_WEIGHT);
 
         AxisConfig axisConfig = new AxisConfig(AxisOrientation.BOTTOM);
-        axisConfig.getMinorGridLineConfig().setWidth(1);
-        axisConfig.getGridLineConfig().setWidth(1);
+        axisConfig.setMinorGridLineStroke(new BStroke(1));
+        axisConfig.setGridLineStroke(new BStroke(1));
         xAxisConfigs.add(axisConfig);
 
         axisConfig = new AxisConfig(AxisOrientation.TOP);
-        axisConfig.getMinorGridLineConfig().setWidth(0);
-        axisConfig.getGridLineConfig().setWidth(0);
+        axisConfig.setMinorGridLineStroke(new BStroke(0));
+        axisConfig.setGridLineStroke(new BStroke(0));
         xAxisConfigs.add(axisConfig);
 
         axisConfig = new AxisConfig(AxisOrientation.LEFT);
-        axisConfig.getMinorGridLineConfig().setWidth(0);
-        axisConfig.getGridLineConfig().setWidth(1);
+        axisConfig.setMinorGridLineStroke(new BStroke(0));
+        axisConfig.setGridLineStroke(new BStroke(1));
         axisConfig.setMinMaxRoundingEnable(true);
         yAxisConfigs.add(axisConfig);
 
         axisConfig = new AxisConfig(AxisOrientation.RIGHT);
-        axisConfig.getMinorGridLineConfig().setWidth(0);
-        axisConfig.getGridLineConfig().setWidth(0);
+        axisConfig.setMinorGridLineStroke(new BStroke(0));
+        axisConfig.setGridLineStroke(new BStroke(0));
         axisConfig.setMinMaxRoundingEnable(true);
         yAxisConfigs.add(axisConfig);
     }
@@ -68,14 +65,14 @@ public class SimpleChartConfig {
 
     public void addStack(int weight) {
         AxisConfig axisConfig = new AxisConfig(AxisOrientation.LEFT);
-        axisConfig.getMinorGridLineConfig().setWidth(0);
-        axisConfig.getGridLineConfig().setWidth(1);
+        axisConfig.setMinorGridLineStroke(new BStroke(0));
+        axisConfig.setGridLineStroke(new BStroke(1));
         axisConfig.setMinMaxRoundingEnable(true);
         yAxisConfigs.add(axisConfig);
 
         axisConfig = new AxisConfig(AxisOrientation.RIGHT);
-        axisConfig.getMinorGridLineConfig().setWidth(0);
-        axisConfig.getGridLineConfig().setWidth(0);
+        axisConfig.setMinorGridLineStroke(new BStroke(0));
+        axisConfig.setGridLineStroke(new BStroke(0));
         axisConfig.setMinMaxRoundingEnable(true);
         yAxisConfigs.add(axisConfig);
         stackWeights.add(weight);
@@ -89,7 +86,7 @@ public class SimpleChartConfig {
         return weightSum;
     }
 
-    public Range getYStartEnd(int yAxisIndex, Rectangle area) {
+    public Range getYStartEnd(int yAxisIndex, BRectangle area) {
         int weightSum = getSumWeight();
 
         int weightSumTillYAxis = 0;
@@ -130,6 +127,14 @@ public class SimpleChartConfig {
         traceInfo.setDataIndex(dataIndex);
         traceInfo.setTraceConfig(traceConfig);
         traces.add(traceInfo);
+    }
+
+    public BColor getTitleColor() {
+        return titleColor;
+    }
+
+    public void setTitleColor(BColor titleColor) {
+        this.titleColor = titleColor;
     }
 
     public int getNumberOfXAxis() {
@@ -196,19 +201,19 @@ public class SimpleChartConfig {
         this.title = title;
     }
 
-    public Color getBackground() {
+    public BColor getBackground() {
         return background;
     }
 
-    public void setBackground(Color background) {
+    public void setBackground(BColor background) {
         this.background = background;
     }
 
-    public Color getMarginColor() {
+    public BColor getMarginColor() {
         return marginColor;
     }
 
-    public void setMarginColor(Color marginColor) {
+    public void setMarginColor(BColor marginColor) {
         this.marginColor = marginColor;
     }
 

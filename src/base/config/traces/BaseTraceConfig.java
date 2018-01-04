@@ -1,33 +1,38 @@
 package base.config.traces;
 
-import base.config.general.LineConfig;
+import base.BColor;
+import base.BStroke;
 import base.config.general.MarkConfig;
-
-import java.awt.*;
 
 /**
  * Created by galafit on 11/10/17.
  */
 public abstract class BaseTraceConfig implements TraceConfig {
-    private int hoverExtraSize = 3; //px
-    private Color hoverColor;
     private MarkConfig markConfig = new MarkConfig();
-    private LineConfig lineConfig = new LineConfig();
-
-    public Color getHoverColor() {
-        return hoverColor;
-    }
-
-    public int getHoverSize() {
-        return Math.max(lineConfig.getWidth(), markConfig.getSize()) + hoverExtraSize;
-    }
-
-    public LineConfig getLineConfig() {
-        return lineConfig;
-    }
+    private BStroke lineStroke = new BStroke();
+    private BColor color;
 
     public MarkConfig getMarkConfig() {
         return markConfig;
     }
 
+    public void setMarkConfig(MarkConfig markConfig) {
+        this.markConfig = markConfig;
+    }
+
+    public BStroke getLineStroke() {
+        return lineStroke;
+    }
+
+    public void setLineStroke(BStroke lineStroke) {
+        this.lineStroke = lineStroke;
+    }
+
+    public BColor getColor() {
+        return color;
+    }
+
+    public void setColor(BColor color) {
+        this.color = color;
+    }
 }

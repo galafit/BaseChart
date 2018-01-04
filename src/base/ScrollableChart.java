@@ -3,7 +3,6 @@ package base;
 import base.config.ScrollableChartConfig;
 import base.config.SimpleChartConfig;
 import base.config.general.Margin;
-import java.awt.*;
 import java.util.*;
 import java.util.List;
 
@@ -14,12 +13,12 @@ import java.util.List;
 public class ScrollableChart {
     private SimpleChart chart;
     private SimpleChart preview;
-    private Rectangle chartArea;
-    private Rectangle previewArea;
+    private BRectangle chartArea;
+    private BRectangle previewArea;
     private Map<Integer, Scroll> scrolls = new Hashtable<Integer, Scroll>(2);
     private ScrollableChartConfig config;
 
-    public ScrollableChart(ScrollableChartConfig config, List<DataSet> chartData, List<DataSet> previewData, Rectangle area) {
+    public ScrollableChart(ScrollableChartConfig config, List<DataSet> chartData, List<DataSet> previewData, BRectangle area) {
         this.config = config;
         SimpleChartConfig chartConfig = config.getChartConfig();
         Set<Integer> scrollableAxis = config.getXAxisWithScroll();
@@ -46,7 +45,7 @@ public class ScrollableChart {
                 chart.setXMinMax(xAxisIndex,  scrollRange);
                 scroll.addListener(new ScrollListener() {
                     @Override
-                    public void onScrollChanged(double scrollValue, double scrollExtent) {
+                    public void onScrollChanged(float scrollValue, float scrollExtent) {
                         chart.setXMinMax(xAxisIndex, new Range(scrollValue, scrollValue + scrollExtent));
                     }
                 });
@@ -54,27 +53,27 @@ public class ScrollableChart {
         }
     }
 
-    public void draw(Graphics2D g2d) {
+    public void draw(BCanvas canvas) {
         if(preview != null) {
-            Margin chartMargin = chart.getMargin(g2d);
-            Margin previewMargin = preview.getMargin(g2d);
+            Margin chartMargin = chart.getMargin(canvas);
+            Margin previewMargin = preview.getMargin(canvas);
             if (chartMargin.left() != previewMargin.left() || chartMargin.right() != previewMargin.right()) {
                 int left = Math.max(chartMargin.left(), previewMargin.left());
                 int right = Math.max(chartMargin.right(), previewMargin.right());
                 chartMargin = new Margin(chartMargin.top(), right, chartMargin.bottom(), left);
                 previewMargin = new Margin(previewMargin.top(), right, previewMargin.bottom(), left);
-                chart.setMargin(g2d, chartMargin);
-                preview.setMargin(g2d, previewMargin);
+                chart.setMargin(canvas, chartMargin);
+                preview.setMargin(canvas, previewMargin);
             }
-            preview.draw(g2d);
+            preview.draw(canvas);
             for (Integer key : scrolls.keySet()) {
-                scrolls.get(key).draw(g2d, preview.getGraphArea(g2d));
+                scrolls.get(key).draw(canvas, preview.getGraphArea(canvas));
             }
         }
-        chart.draw(g2d);
+        chart.draw(canvas);
     }
 
-    private void calculateAreas(Rectangle area) {
+    private void calculateAreas(BRectangle area) {
         if (!isPreviewEnable()) {
             chartArea = area;
         } else {
@@ -82,12 +81,12 @@ public class ScrollableChart {
             int previewWeight = config.getPreviewConfig().getSumWeight();
             int chartHeight = area.height * chartWeight / (chartWeight + previewWeight);
             int previewHeight = area.height * previewWeight / (chartWeight + previewWeight);
-            chartArea = new Rectangle(area.x, area.y, area.width, chartHeight);
-            previewArea = new Rectangle(area.x, area.y + chartHeight, area.width, previewHeight);
+            chartArea = new BRectangle(area.x, area.y, area.width, chartHeight);
+            previewArea = new BRectangle(area.x, area.y + chartHeight, area.width, previewHeight);
         }
     }
 
-    public void setArea(Rectangle area) {
+    public void setArea(BRectangle area) {
         calculateAreas(area);
         chart.setArea(chartArea);
         if(preview != null) {
@@ -159,11 +158,11 @@ public class ScrollableChart {
         return chart.getYAxisCounter();
     }
 
-    public void zoomChartY(int yAxisIndex, double zoomFactor) {
+    public void zoomChartY(int yAxisIndex, float zoomFactor) {
         chart.zoomY(yAxisIndex, zoomFactor);
     }
 
-    public void zoomChartX(int xAxisIndex, double zoomFactor) {
+    public void zoomChartX(int xAxisIndex, float zoomFactor) {
         chart.zoomX(xAxisIndex, zoomFactor);
         if (preview != null) {
             if(chart.getXMinMax(xAxisIndex).length() > preview.getXMinMax(0).length()) {
@@ -235,7 +234,7 @@ public class ScrollableChart {
     /**
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
-    public boolean setScrollsValue(double newValue) {
+    public boolean setScrollsValue(float newValue) {
         boolean scrollsMoved = false;
         for (Integer xAxisIndex : scrolls.keySet()) {
             scrollsMoved = scrolls.get(xAxisIndex).setValue(newValue) || scrollsMoved;
@@ -246,7 +245,7 @@ public class ScrollableChart {
     /**
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
-    public boolean setScrollsPosition(double x, double y) {
+    public boolean setScrollsPosition(float x, float y) {
         if (previewArea == null || !previewArea.contains(x, y)) {
             return false;
         }
@@ -257,8 +256,8 @@ public class ScrollableChart {
         return scrollsMoved;
     }
 
-    public boolean translateScrolls(double dx) {
-        Double maxScrollsPosition = null;
+    public boolean translateScrolls(float dx) {
+        Float maxScrollsPosition = null;
         for (Integer key : scrolls.keySet()) {
             maxScrollsPosition = (maxScrollsPosition == null) ? scrolls.get(key).getPosition() : Math.max(maxScrollsPosition, scrolls.get(key).getPosition());
         }
@@ -274,11 +273,11 @@ public class ScrollableChart {
         scrolls.get(xAxisIndex).addListener(listener);
     }
 
-    public double getScrollExtent(int xAxisIndex) {
+    public float getScrollExtent(int xAxisIndex) {
         return scrolls.get(xAxisIndex).getExtent();
     }
 
-    public double getScrollValue(int xAxisIndex) {
+    public float getScrollValue(int xAxisIndex) {
         return scrolls.get(xAxisIndex).getValue();
     }
 
@@ -345,7 +344,7 @@ public class ScrollableChart {
     }
 
 
-    public void zoomPreviewY(int yAxisIndex, double zoomFactor) {
+    public void zoomPreviewY(int yAxisIndex, float zoomFactor) {
         if(preview != null) {
             preview.zoomY(yAxisIndex, zoomFactor);
         }

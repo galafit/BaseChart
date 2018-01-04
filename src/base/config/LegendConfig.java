@@ -1,27 +1,34 @@
 package base.config;
 
+import base.BColor;
 import base.config.general.Margin;
-import base.config.general.TextStyle;
+import base.TextStyle;
 
-import java.awt.*;
 
 /**
  * Created by galafit on 18/8/17.
  */
 public class LegendConfig {
     private boolean isVisible = true;
-    private TextStyle textStyle = new TextStyle();
+    private TextStyle textStyle = new TextStyle(TextStyle.DEFAULT, TextStyle.NORMAL, 12);
     private LegendPosition position = LegendPosition.TOP_LEFT;
 
-    private Color borderColor = Color.LIGHT_GRAY;
     private int borderWidth = 0;
+    private BColor borderColor = BColor.LIGHT_GRAY;
+    private BColor backgroundColor = BColor.WHITE;
+    private BColor textColor = BColor.BLACK;
+    private Margin margin = new Margin((int)(getTextStyle().getSize() * 0),
+            (int)(getTextStyle().getSize() * 1),
+            (int)(getTextStyle().getSize() * 0.5),
+            (int)(getTextStyle().getSize() * 1));
 
-    private Color background = Color.WHITE;
-    private Margin margin = new Margin((int)(getTextStyle().getFontSize() * 0),
-            (int)(getTextStyle().getFontSize() * 1),
-            (int)(getTextStyle().getFontSize() * 0.5),
-            (int)(getTextStyle().getFontSize() * 1));
+    public BColor getTextColor() {
+        return textColor;
+    }
 
+    public void setTextColor(BColor textColor) {
+        this.textColor = textColor;
+    }
 
     public boolean isVisible() {
         return isVisible;
@@ -43,19 +50,19 @@ public class LegendConfig {
         this.position = position;
     }
 
-    public Color getBackground() {
-        return background;
+    public BColor getBackgroundColor() {
+        return backgroundColor;
     }
 
-    public void setBackground(Color background) {
-        this.background = background;
+    public void setBackgroundColor(BColor backgroundColor) {
+        this.backgroundColor = backgroundColor;
     }
 
-    public Color getBorderColor() {
+    public BColor getBorderColor() {
         return borderColor;
     }
 
-    public void setBorderColor(Color borderColor) {
+    public void setBorderColor(BColor borderColor) {
         this.borderColor = borderColor;
     }
 

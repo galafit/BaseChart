@@ -1,6 +1,7 @@
 package base.tooltips;
 
-import java.awt.*;
+
+import base.BColor;
 
 /**
  * Created by galafit on 6/8/17.
@@ -8,9 +9,9 @@ import java.awt.*;
 public class InfoItem {
     private String label;
     private String value;
-    private Color  markColor;
+    private BColor markColor;
 
-    public InfoItem(String label, String value, Color markColor) {
+    public InfoItem(String label, String value, BColor markColor) {
         this.label = label;
         this.value = value;
         this.markColor = markColor;
@@ -32,11 +33,11 @@ public class InfoItem {
         this.value = value;
     }
 
-    public Color getMarkColor() {
+    public BColor getMarkColor() {
         return markColor;
     }
 
-    public void setMarkColor(Color markColor) {
+    public void setMarkColor(BColor markColor) {
         this.markColor = markColor;
     }
 }

@@ -2,7 +2,7 @@ package data;
 
 import base.DataSet;
 import base.Range;
-import data.series.DoubleSeries;
+import data.series.FloatSeries;
 import data.series.IntSeries;
 import data.series.StringSeries;
 
@@ -47,7 +47,7 @@ public class BaseDataSet implements DataSet {
     }
 
 
-    public void setXData(double startXValue, double dataInterval) {
+    public void setXData(float startXValue, float dataInterval) {
         xColumn = new RegularColumn(startXValue, dataInterval);
     }
 
@@ -55,16 +55,16 @@ public class BaseDataSet implements DataSet {
         xColumn = new IntColumn(series);
     }
 
-    public void setXData(DoubleSeries series) {
-        xColumn = new DoubleColumn(series);
+    public void setXData(FloatSeries series) {
+        xColumn = new FloatColumn(series);
     }
 
     public void addYData(IntSeries series) {
         yColumns.add(new IntColumn(series));
     }
 
-    public void addYData(DoubleSeries series) {
-        yColumns.add(new DoubleColumn(series));
+    public void addYData(FloatSeries series) {
+        yColumns.add(new FloatColumn(series));
     }
 
     public void setAnnotations(StringSeries series) {
@@ -83,12 +83,12 @@ public class BaseDataSet implements DataSet {
 
 
     @Override
-    public double getYValue(int index, int columnNumber) {
+    public float getYValue(int index, int columnNumber) {
         return yColumns.get(columnNumber).getValue(index + startIndex);
     }
 
     @Override
-    public double getXValue(int index) {
+    public float getXValue(int index) {
         return xColumn.getValue(index + startIndex);
     }
 
@@ -106,8 +106,8 @@ public class BaseDataSet implements DataSet {
             return null;
         }
         if (isOrdered()) {
-            double min = xColumn.getValue(startIndex);
-            double max = xColumn.getValue(startIndex + size() - 1);
+            float min = xColumn.getValue(startIndex);
+            float max = xColumn.getValue(startIndex + size() - 1);
             return new Range(min, max);
         } else {
             return xColumn.getExtremes(startIndex, size());
@@ -153,7 +153,7 @@ public class BaseDataSet implements DataSet {
      * @return index of nearest data item
      */
     @Override
-    public int findNearestData(double xValue) {
+    public int findNearestData(float xValue) {
         int lowerBoundIndex = xColumn.lowerBound(xValue, startIndex, size());
         lowerBoundIndex -= startIndex;
         if (lowerBoundIndex < 0) {
@@ -162,18 +162,18 @@ public class BaseDataSet implements DataSet {
         if (lowerBoundIndex >= size() - 1) {
             return size() - 1;
         }
-        double distance1 = xValue - getXValue(lowerBoundIndex);
-        double distance2 = getXValue(lowerBoundIndex + 1) - xValue;
+        float distance1 = xValue - getXValue(lowerBoundIndex);
+        float distance2 = getXValue(lowerBoundIndex + 1) - xValue;
         int nearestIndex = (distance1 <= distance2) ? lowerBoundIndex : lowerBoundIndex + 1;
         return nearestIndex;
     }
 
-    public BaseDataSet getSubset(double startXValue, double endXValue) {
+    public BaseDataSet getSubset(float startXValue, float endXValue) {
         return getSubset(startXValue, endXValue, 1);
     }
 
 
-    public BaseDataSet getSubset(double startXValue, double endXValue, int shoulder) {
+    public BaseDataSet getSubset(float startXValue, float endXValue, int shoulder) {
         if (endXValue < startXValue) {
             String errorMessage = "Error during creating Data subset.Expected StartValue <= EndValue. StartValue = {0}, EndValue = {1}.";
             String formattedError = MessageFormat.format(errorMessage, startXValue, endXValue);
@@ -231,7 +231,7 @@ public class BaseDataSet implements DataSet {
      * @param groupingInterval
      * @return DataSet with grouped data
      */
-    public BaseDataSet groupByInterval(double groupingInterval, boolean isCachingEnable) {
+    public BaseDataSet groupByInterval(float groupingInterval, boolean isCachingEnable) {
         // at the moment "grouping by equal interval" is not fully realized.
         // That is draft realisation
         // just for the case we will need it in the future
@@ -244,7 +244,7 @@ public class BaseDataSet implements DataSet {
             return groupedSet;
         }*/
 
-        double avgDataInterval = getAverageDataInterval();
+        float avgDataInterval = getAverageDataInterval();
         if(avgDataInterval > 0) {
             int avgNumberOfItemsInGroups = (int) Math.round(groupingInterval / getAverageDataInterval());
             return groupByNumber(avgNumberOfItemsInGroups, isCachingEnable);
@@ -253,7 +253,7 @@ public class BaseDataSet implements DataSet {
     }
 
 
-    public double getAverageDataInterval() {
+    public float getAverageDataInterval() {
         if(xColumn instanceof RegularColumn) {
             return ((RegularColumn)xColumn).getDataInterval();
         }
@@ -272,15 +272,15 @@ public class BaseDataSet implements DataSet {
         xColumn = new IntColumn(data);
     }
 
-    public void setXData(double[] data) {
-        xColumn = new DoubleColumn(data);
+    public void setXData(float[] data) {
+        xColumn = new FloatColumn(data);
     }
 
     public void setXData(List<? extends Number> data) {
         if (data.size() > 0 && data.get(0) instanceof Integer) {
             xColumn = new IntColumn((List<Integer>) data);
         } else {
-            xColumn = new DoubleColumn((List<Double>) data);
+            xColumn = new FloatColumn((List<Float>) data);
         }
     }
 
@@ -289,15 +289,15 @@ public class BaseDataSet implements DataSet {
         yColumns.add(new IntColumn(data));
     }
 
-    public void addYData(double[] data) {
-        yColumns.add(new DoubleColumn(data));
+    public void addYData(float[] data) {
+        yColumns.add(new FloatColumn(data));
     }
 
     public void addYData(List<? extends Number> data) {
         if (data.size() > 0 && data.get(0) instanceof Integer) {
             yColumns.add(new IntColumn((List<Integer>) data));
         } else {
-            yColumns.add(new DoubleColumn((List<Double>) data));
+            yColumns.add(new FloatColumn((List<Float>) data));
         }
     }
 }

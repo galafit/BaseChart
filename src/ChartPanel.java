@@ -1,5 +1,8 @@
 
+import base.BColor;
+import base.BRectangle;
 import base.ScrollableChart;
+import base.SwingCanvas;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +16,7 @@ import java.util.List;
 public class ChartPanel extends JPanel {
     int scrollPointsPerRotation = 10;
     // во сколько раз растягивается или сжимается ось при автозуме
-    private double defaultZoom = 2;
+    private float defaultZoom = 2;
     private int pastX;
     private int pastY;
     private boolean isPressedInsideScroll;
@@ -24,8 +27,9 @@ public class ChartPanel extends JPanel {
     private ChartWithDataManager chartDataManager;
 
     public ChartPanel(ChartConfig config) {
-        setBackground(config.getChartConfig().getBackground());
-        chartDataManager = new ChartWithDataManager(config, new Rectangle(0, 0, 500, 500));
+        BColor bg = config.getChartConfig().getBackground();
+        setBackground(new Color(bg.getRed(), bg.getGreen(), bg.getBlue()));
+        chartDataManager = new ChartWithDataManager(config, new BRectangle(0, 0, 500, 500));
         scrollableChart = chartDataManager.getChartWithPreview();
         addMouseMotionListener(new MouseMotionAdapter() {
             @Override
@@ -149,7 +153,9 @@ public class ChartPanel extends JPanel {
         addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-               scrollableChart.setArea(getBounds());
+                Rectangle bounds = getBounds();
+                BRectangle area = new BRectangle(bounds.x, bounds.y, bounds.width, bounds.height);
+               scrollableChart.setArea(area);
                repaint();
             }
         });
@@ -254,18 +260,18 @@ public class ChartPanel extends JPanel {
     private void zoomY(int dy) {
         for (Integer yAxisIndex : yAxisList) {
             // scaling relative to the stack
-            double zoomFactor = 1 + defaultZoom * dy / scrollableChart.getChartYStartEnd(yAxisIndex).length();
+            float zoomFactor = 1 + defaultZoom * dy / scrollableChart.getChartYStartEnd(yAxisIndex).length();
             scrollableChart.zoomChartY(yAxisIndex, zoomFactor);
         }
         for (Integer yAxisIndex : yAxisListPreview) {
             // scaling relative to the stack
-            double zoomFactor = 1 + defaultZoom * dy / scrollableChart.getChartYStartEnd(yAxisIndex).length();
+            float zoomFactor = 1 + defaultZoom * dy / scrollableChart.getChartYStartEnd(yAxisIndex).length();
             scrollableChart.zoomPreviewY(yAxisIndex, zoomFactor);
         }
     }
 
     private void zoomX(int dx) {
-        double zoomFactor = 1 + defaultZoom * dx / 100;
+        float zoomFactor = 1 + defaultZoom * dx / 100;
         for (Integer xAxisIndex : xAxisList) {
             scrollableChart.zoomChartX(xAxisIndex, zoomFactor);
         }
@@ -290,7 +296,7 @@ public class ChartPanel extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        scrollableChart.draw((Graphics2D) g);
+        scrollableChart.draw(new SwingCanvas((Graphics2D) g));
     }
 
     public void update() {
