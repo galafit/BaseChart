@@ -1,6 +1,7 @@
 package base.config;
 
 import base.BColor;
+import base.BStroke;
 import base.Range;
 
 import java.util.Hashtable;
@@ -36,11 +37,9 @@ public class ScrollableChartConfig {
         rightAxisConfig.setTickMarkInsideSize(3);
         rightAxisConfig.setTickMarkOutsideSize(0);
         rightAxisConfig.setMinMaxRoundingEnable(true);
-        chartConfig = new SimpleChartConfig(leftAxisConfig, rightAxisConfig);
-        previewConfig = new SimpleChartConfig(leftAxisConfig, rightAxisConfig);
-        chartConfig.setLeftAxisPrimary(false);
-        previewConfig.setLeftAxisPrimary(false);
-        chartConfig.setBottomAxisPrimary(false);
+        rightAxisConfig.setGridLineStroke(new BStroke(1));
+        chartConfig = new SimpleChartConfig(false, false, leftAxisConfig, rightAxisConfig);
+        previewConfig = new SimpleChartConfig(true, false, leftAxisConfig, rightAxisConfig);
 
         if(theme == DARK_THEME) {
             BColor bgColor = new BColor(20, 20, 30);

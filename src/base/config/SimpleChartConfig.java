@@ -37,17 +37,24 @@ public class SimpleChartConfig {
     private boolean isLeftAxisPrimary = true;
     private boolean isBottomAxisPrimary = true;
 
-
     private ArrayList<TraceInfo> traces = new ArrayList<TraceInfo>();
 
-    public SimpleChartConfig(AxisConfig leftAxisConfig, AxisConfig rightAxisConfig) {
+    public SimpleChartConfig(boolean isBottomAxisPrimary, boolean isLeftAxisPrimary, AxisConfig leftAxisConfig, AxisConfig rightAxisConfig) {
+        this.isLeftAxisPrimary = isLeftAxisPrimary;
+        this.isBottomAxisPrimary = isBottomAxisPrimary;
         this.leftAxisConfig = leftAxisConfig;
         this.rightAxisConfig = rightAxisConfig;
         if (leftAxisConfig == null) {
             this.leftAxisConfig = new AxisConfig(AxisOrientation.LEFT);
+            if (isLeftAxisPrimary) {
+                this.leftAxisConfig.setGridLineStroke(new BStroke(1));
+            }
         }
         if (rightAxisConfig == null) {
             this.rightAxisConfig = new AxisConfig(AxisOrientation.RIGHT);
+            if (!isLeftAxisPrimary) {
+                this.rightAxisConfig.setGridLineStroke(new BStroke(1));
+            }
         }
 
         AxisConfig bottomConfig = new AxisConfig(AxisOrientation.BOTTOM);
@@ -63,18 +70,18 @@ public class SimpleChartConfig {
         addStack(DEFAULT_WEIGHT);
     }
 
+    public SimpleChartConfig(boolean isBottomAxisPrimary, boolean isLeftAxisPrimary) {
+        this(isBottomAxisPrimary, isLeftAxisPrimary, null, null);
+    }
+
+
     public SimpleChartConfig() {
-        this(null, null);
+        this( true, true, null, null);
     }
 
     public void addStack(int weight) {
         AxisConfig leftConfig = new AxisConfig(leftAxisConfig);
         AxisConfig rightConfig = new AxisConfig(rightAxisConfig);
-        if (isLeftAxisPrimary) {
-            leftConfig.setGridLineStroke(new BStroke(1));
-        } else {
-            rightConfig.setGridLineStroke(new BStroke(1));
-        }
         yAxisConfigs.add(leftConfig);
         yAxisConfigs.add(rightConfig);
         stackWeights.add(weight);
@@ -134,22 +141,6 @@ public class SimpleChartConfig {
         traceInfo.setDataIndex(dataIndex);
         traceInfo.setTraceConfig(traceConfig);
         traces.add(traceInfo);
-    }
-
-    public boolean isLeftAxisPrimary() {
-        return isLeftAxisPrimary;
-    }
-
-    public void setLeftAxisPrimary(boolean leftAxisPrimary) {
-        isLeftAxisPrimary = leftAxisPrimary;
-    }
-
-    public boolean isBottomAxisPrimary() {
-        return isBottomAxisPrimary;
-    }
-
-    public void setBottomAxisPrimary(boolean bottomAxisPrimary) {
-        isBottomAxisPrimary = bottomAxisPrimary;
     }
 
     public BColor getTitleColor() {

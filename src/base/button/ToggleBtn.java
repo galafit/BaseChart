@@ -76,29 +76,30 @@ public class ToggleBtn {
         canvas.setColor(background);
         canvas.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
         canvas.setColor(color);
+
+        // draw item
+        TextMetric tm = canvas.getTextMetric(textStyle);
+        int x = bounds.x + getPadding();
+        int y = bounds.y + getPadding() + tm.ascent();
+        canvas.drawString(label, x, y);
+
         if(model.isSelected()) {
             // draw border
             canvas.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
             // draw selection marker
-            int x = bounds.x + getPadding();
-            int y = bounds.y + bounds.height/2;
+            x = bounds.x + getPadding() + tm.stringWidth(label) + getColorMarkerPadding();
+            y = bounds.y + bounds.height/2;
 
-            int x1 = bounds.x + getPadding() + getColorMarkerSize()/2;
+            int x1 = x + getColorMarkerSize()/2;
             int y1 = bounds.y + bounds.height - getPadding();
 
-            int x2 = bounds.x + getPadding() + getColorMarkerSize();
+            int x2 = x + getColorMarkerSize();
             int y2 = bounds.y + getPadding();
 
             canvas.drawLine(x, y, x1, y1);
             canvas.drawLine(x1, y1, x2, y2);
         }
 
-        // draw item
-        TextMetric tm = canvas.getTextMetric(textStyle);
-        int x = bounds.x + getPadding() + getColorMarkerSize() + getColorMarkerPadding();
-        int y = bounds.y + getPadding() + tm.ascent();
-
-        canvas.drawString(label, x, y);
     }
 
     private int getItemWidth(TextMetric tm) {
