@@ -17,6 +17,7 @@ public class AxisConfig {
     private int labelPadding; // px
     private LabelFormatInfo labelFormatInfo = new LabelFormatInfo();
     private boolean isLabelsVisible = true;
+    private boolean isLabelInside = false;
 
     private int tickMarkWidth = 1; // px
     private int tickMarkInsideSize = 0; // px
@@ -24,13 +25,13 @@ public class AxisConfig {
     private boolean isTicksVisible = true;
     private float tickStep = 0; // in domain units
 
-    private String title;
+    private String title = "title";
     private TextStyle titleTextStyle = new TextStyle(TextStyle.DEFAULT, TextStyle.NORMAL, 14);
     private int titlePadding; // px
 
     private boolean isVisible = false;
     private BStroke axisLineStroke = new BStroke(1);
-    private BStroke gridLineStroke = new BStroke(1);
+    private BStroke gridLineStroke = new BStroke(0);
     private BStroke minorGridLineStroke = new BStroke(0);
     private int minorGridCounter = 3; // minor grid divider
 
@@ -39,9 +40,48 @@ public class AxisConfig {
     public AxisConfig(AxisOrientation orientation) {
         this.orientation = orientation;
         titlePadding = (int)(0.4 * titleTextStyle.getSize());
-        labelPadding = (int)(0.5 * labelTextStyle.getSize());
+        labelPadding = (int)(0.3 * labelTextStyle.getSize());
         gridColor = new BColor(100, 100, 100);
         minorGridColor = new BColor(80, 80, 80);
+    }
+
+    public AxisConfig(AxisConfig axisConfig) {
+        orientation = axisConfig.orientation;
+        color = axisConfig.color;
+        gridColor = axisConfig.gridColor;
+        minorGridColor = axisConfig.minorGridColor;
+
+        labelTextStyle = new TextStyle(axisConfig.labelTextStyle);
+        labelPadding = axisConfig.labelPadding;
+        labelFormatInfo = new LabelFormatInfo(axisConfig.labelFormatInfo);
+        isLabelsVisible = axisConfig.isLabelsVisible;
+        isLabelInside = axisConfig.isLabelInside;
+
+        tickMarkWidth = axisConfig.tickMarkWidth;
+        tickMarkInsideSize = axisConfig.tickMarkInsideSize;
+        tickMarkOutsideSize = axisConfig.tickMarkOutsideSize;
+        isTicksVisible = axisConfig.isTicksVisible();
+        tickStep = axisConfig.tickStep;
+
+        title = axisConfig.title;
+        titleTextStyle = new TextStyle(axisConfig.titleTextStyle);
+        titlePadding = axisConfig.titlePadding;
+
+        isVisible = axisConfig.isVisible;
+        axisLineStroke = new BStroke(axisConfig.axisLineStroke);
+        gridLineStroke = new BStroke(axisConfig.gridLineStroke);
+        minorGridLineStroke = new BStroke(axisConfig.minorGridLineStroke);
+        minorGridCounter = axisConfig.minorGridCounter;
+
+        isMinMaxRoundingEnable = axisConfig.isMinMaxRoundingEnable;
+    }
+
+    public boolean isLabelInside() {
+        return isLabelInside;
+    }
+
+    public void setLabelInside(boolean labelInside) {
+        isLabelInside = labelInside;
     }
 
     public boolean isMinMaxRoundingEnable() {

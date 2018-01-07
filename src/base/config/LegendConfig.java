@@ -9,12 +9,15 @@ import base.TextStyle;
  * Created by galafit on 18/8/17.
  */
 public class LegendConfig {
+    public static final int TOP_LEFT = 0;
+    public static final int TOP_RIGHT = 1;
+
     private boolean isVisible = true;
     private TextStyle textStyle = new TextStyle(TextStyle.DEFAULT, TextStyle.NORMAL, 12);
-    private LegendPosition position = LegendPosition.TOP_LEFT;
+    private int position = TOP_LEFT;
 
-    private int borderWidth = 0;
-    private BColor borderColor = BColor.LIGHT_GRAY;
+  //  private int borderWidth = 1;
+ //   private BColor borderColor = BColor.LIGHT_GRAY;
     private BColor backgroundColor = BColor.WHITE;
     private BColor textColor = BColor.BLACK;
     private Margin margin = new Margin((int)(getTextStyle().getSize() * 0),
@@ -42,11 +45,11 @@ public class LegendConfig {
         return textStyle;
     }
 
-    public LegendPosition getPosition() {
+    public int getPosition() {
         return position;
     }
 
-    public void setPosition(LegendPosition position) {
+    public void setPosition(int position) {
         this.position = position;
     }
 
@@ -56,22 +59,6 @@ public class LegendConfig {
 
     public void setBackgroundColor(BColor backgroundColor) {
         this.backgroundColor = backgroundColor;
-    }
-
-    public BColor getBorderColor() {
-        return borderColor;
-    }
-
-    public void setBorderColor(BColor borderColor) {
-        this.borderColor = borderColor;
-    }
-
-    public int getBorderWidth() {
-        return borderWidth;
-    }
-
-    public void setBorderWidth(int borderWidth) {
-        this.borderWidth = borderWidth;
     }
 
     public Margin getMargin() {

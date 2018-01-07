@@ -31,4 +31,13 @@ public class Margin {
     public int left() {
         return left;
     }
+
+    @Override
+    public String toString() {
+        String str = super.toString() + ", top: " + top
+                + ", right: " + right
+                + ", bottom: " + bottom
+                + ", left: " + left;
+        return str;
+    }
 }

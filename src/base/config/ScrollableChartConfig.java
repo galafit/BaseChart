@@ -14,8 +14,8 @@ public class ScrollableChartConfig {
     public static final int DARK_THEME = 1;
     public static final int LIGHT_THEME = 2;
 
-    private SimpleChartConfig chartConfig = new SimpleChartConfig();
-    private SimpleChartConfig previewConfig = new SimpleChartConfig();
+    private SimpleChartConfig chartConfig;
+    private SimpleChartConfig previewConfig;
     private ScrollConfig scrollConfig = new ScrollConfig();
     private Map<Integer, Float> scrollExtents = new Hashtable<Integer, Float>(2);
     private Range previewMinMax;
@@ -25,26 +25,36 @@ public class ScrollableChartConfig {
     }
 
     public ScrollableChartConfig(int theme) {
+        AxisConfig leftAxisConfig = new AxisConfig(AxisOrientation.LEFT);
+        AxisConfig rightAxisConfig = new AxisConfig(AxisOrientation.RIGHT);
+        leftAxisConfig.setMinMaxRoundingEnable(true);
+        leftAxisConfig.setLabelInside(true);
+        leftAxisConfig.setTickMarkInsideSize(3);
+        leftAxisConfig.setTickMarkOutsideSize(0);
+
+        rightAxisConfig.setLabelInside(true);
+        rightAxisConfig.setTickMarkInsideSize(3);
+        rightAxisConfig.setTickMarkOutsideSize(0);
+        rightAxisConfig.setMinMaxRoundingEnable(true);
+        chartConfig = new SimpleChartConfig(leftAxisConfig, rightAxisConfig);
+        previewConfig = new SimpleChartConfig(leftAxisConfig, rightAxisConfig);
+        chartConfig.setLeftAxisPrimary(false);
+        previewConfig.setLeftAxisPrimary(false);
+        chartConfig.setBottomAxisPrimary(false);
+
         if(theme == DARK_THEME) {
             BColor bgColor = new BColor(20, 20, 30);
             BColor marginColor = new BColor(20, 20, 20);
             BColor textColor = new BColor(200, 200, 200);
-            BColor legendBorderColor = new BColor(50, 50, 50);
-            BColor legendBgColor = new BColor(30, 30, 30);
-            legendBgColor = bgColor;
             chartConfig.setBackground(bgColor);
             chartConfig.setMarginColor(marginColor);
-            chartConfig.getLegendConfig().setBackgroundColor(legendBgColor);
-            chartConfig.getLegendConfig().setBorderWidth(1);
-            chartConfig.getLegendConfig().setBorderColor(legendBorderColor);
+            chartConfig.getLegendConfig().setBackgroundColor(bgColor);
             chartConfig.getLegendConfig().setTextColor(textColor);
             chartConfig.setTitleColor(textColor);
 
             previewConfig.setBackground(bgColor);
             previewConfig.setMarginColor(marginColor);
-            previewConfig.getLegendConfig().setBackgroundColor(legendBgColor);
-            previewConfig.getLegendConfig().setBorderWidth(1);
-            previewConfig.getLegendConfig().setBorderColor(legendBorderColor);
+            previewConfig.getLegendConfig().setBackgroundColor(bgColor);
             previewConfig.getLegendConfig().setTextColor(textColor);
             previewConfig.setTitleColor(textColor);
         }
@@ -79,7 +89,7 @@ public class ScrollableChartConfig {
         return scrollConfig;
     }
 
-    public float getScrollExtent(int xAxisIndex) {
+    public Float getScrollExtent(int xAxisIndex) {
         return scrollExtents.get(xAxisIndex);
     }
 

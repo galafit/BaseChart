@@ -51,7 +51,7 @@ public class MainFrame extends JFrame {
         xyData3.setYData(yData2);
 
         ChartConfig config = new ChartConfig();
-        config.addTrace(new LineTraceConfig(), xyData1, null, true, false);
+        config.addTrace(new LineTraceConfig(), xyData1);
         config.addChartStack(5);
         config.addTrace(new LineTraceConfig(), xyData2);
 

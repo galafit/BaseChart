@@ -24,6 +24,11 @@ public class BStroke {
         this.width = width;
     }
 
+    public BStroke(BStroke stroke) {
+        width = stroke.width;
+        style = stroke.style;
+    }
+
     public BStroke() {
     }
 

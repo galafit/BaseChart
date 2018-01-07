@@ -152,7 +152,7 @@ public class Axis {
         if (config.isTicksVisible()) {
             size += config.getTickMarkOutsideSize();
         }
-        if(config.isLabelsVisible()) {
+        if(config.isLabelsVisible() && !config.isLabelInside()) {
             int labelsSize = 0;
             TextMetric tm = canvas.getTextMetric(config.getLabelTextStyle());
             if(isHorizontal()) { // horizontal axis
@@ -257,39 +257,82 @@ public class Axis {
         int axisWidth = config.getAxisLineStroke().getWidth();
         int labelPadding = config.getLabelPadding();
         if(config.isTop()) {
-            int x = (int)scale(tick.getValue());
-            int y = -axisWidth / 2 - config.getTickMarkOutsideSize() - labelPadding;
-            return new Text(tick.getLabel(), x, y, TextAnchor.MIDDLE, TextAnchor.START, tm);
-        }
-        if(config.isBottom()) {
-            int x = (int)scale(tick.getValue());
-            int y = axisWidth / 2 + config.getTickMarkOutsideSize() + labelPadding;
-            return new Text(tick.getLabel(), x, y, TextAnchor.MIDDLE, TextAnchor.END, tm);
+            if(config.isLabelInside()) {
+                int x = (int)scale(tick.getValue()) + labelPadding;
+                int y = axisWidth / 2 + labelPadding;
+                return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.END, tm);
 
+            } else {
+                int x = (int)scale(tick.getValue());
+                int y = -axisWidth / 2 - config.getTickMarkOutsideSize() - labelPadding;
+                return new Text(tick.getLabel(), x, y, TextAnchor.MIDDLE, TextAnchor.START, tm);
+            }
+         }
+        if(config.isBottom()) {
+            if(config.isLabelInside()) {
+                int x = (int)scale(tick.getValue()) + labelPadding;
+                int y = -axisWidth / 2 - labelPadding;
+                return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.START, tm);
+
+            } else {
+                int x = (int)scale(tick.getValue());
+                int y = axisWidth / 2 + config.getTickMarkOutsideSize() + labelPadding;
+                return new Text(tick.getLabel(), x, y, TextAnchor.MIDDLE, TextAnchor.END, tm);
+            }
         }
         if(config.isLeft()) {
-            int y = (int)scale(tick.getValue());
-            int x = -axisWidth / 2 - config.getTickMarkInsideSize() - labelPadding;
-            int labelHeight = tm.height();
-            if(y + labelHeight/2 + 1 > getStart()) {
-                return new Text(tick.getLabel(), x, y, TextAnchor.END, TextAnchor.START, tm);
+            if(config.isLabelInside()) {
+                int y = (int)scale(tick.getValue()) - labelPadding;
+                int x = axisWidth / 2 + labelPadding;
+                int labelHeight = tm.height();
+
+                if(y - labelHeight/2 - 1 < getEnd()) {
+                    y += labelPadding;
+                    return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.END, tm);
+                }
+                return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.START, tm);
+
+            } else {
+                int y = (int)scale(tick.getValue());
+                int x = -axisWidth / 2 - config.getTickMarkInsideSize() - labelPadding;
+                int labelHeight = tm.height();
+                if(y + labelHeight/2 + 1 > getStart()) {
+                    y -= labelPadding;
+                    return new Text(tick.getLabel(), x, y, TextAnchor.END, TextAnchor.START, tm);
+                }
+                if(y - labelHeight/2 - 1 < getEnd()) {
+                    return new Text(tick.getLabel(), x, y, TextAnchor.END, TextAnchor.END, tm);
+                }
+                return new Text(tick.getLabel(), x, y, TextAnchor.END, TextAnchor.MIDDLE, tm);
+
             }
-            if(y - labelHeight/2 - 1 < getEnd()) {
-                return new Text(tick.getLabel(), x, y, TextAnchor.END, TextAnchor.END, tm);
-            }
-            return new Text(tick.getLabel(), x, y, TextAnchor.END, TextAnchor.MIDDLE, tm);
         }
         // if config.isRight()
-        int y = (int)scale(tick.getValue());
-        int x = axisWidth / 2 + config.getTickMarkInsideSize() + labelPadding;
-        int labelHeight = tm.height();
-        if(y + labelHeight/2 + 1 > getStart()) {
-            return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.START, tm);
+        if(config.isLabelInside()) {
+            int y = (int)scale(tick.getValue()) - labelPadding;
+            int x = - axisWidth / 2 - labelPadding;
+            int labelHeight = tm.height();
+
+            if(y - labelHeight/2 - 1 < getEnd()) {
+                y += labelPadding;
+                return new Text(tick.getLabel(), x, y, TextAnchor.END, TextAnchor.END, tm);
+            }
+            return new Text(tick.getLabel(), x, y, TextAnchor.END, TextAnchor.START, tm);
+
+        } else {
+            int y = (int)scale(tick.getValue());
+            int x = axisWidth / 2 + config.getTickMarkInsideSize() + labelPadding;
+            int labelHeight = tm.height();
+            if(y + labelHeight/2 + 1 > getStart()) {
+                y -= labelPadding;
+                return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.START, tm);
+            }
+            if(y - labelHeight/2 - 1 < getEnd()) {
+                return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.END, tm);
+            }
+            return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.MIDDLE, tm);
+
         }
-        if(y - labelHeight/2 - 1 < getEnd()) {
-            return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.END, tm);
-        }
-        return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.MIDDLE, tm);
     }
 
     private int getTicksDivider(BCanvas canvas, List<Tick> ticks) {
@@ -506,13 +549,13 @@ public class Axis {
     }
 
     public void drawGrid(BCanvas canvas, int axisOriginPoint, int length) {
+        canvas.save();
         if(!config.isVisible()) {
             return;
         }
         if(ticks == null) {
             createAxisElements(canvas);
         }
-        canvas.save();
         if(isHorizontal()) {
             canvas.translate(0, axisOriginPoint);
         } else {
@@ -540,13 +583,13 @@ public class Axis {
     }
 
     public void drawAxis(BCanvas canvas,  int axisOriginPoint) {
+        canvas.save();
          if(!config.isVisible()) {
             return;
         }
         if(isDirty) {
             createAxisElements(canvas);
         }
-        canvas.save();
         if(isHorizontal()) {
             canvas.translate(0, axisOriginPoint);
         } else {

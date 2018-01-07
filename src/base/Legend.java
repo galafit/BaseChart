@@ -1,7 +1,5 @@
 package base;
 
-import base.BCanvas;
-import base.BRectangle;
 import base.button.ToggleBtn;
 import base.button.BtnGroup;
 import base.config.*;
@@ -47,22 +45,34 @@ public class Legend {
         legendButton.setTextStyle(legendConfig.getTextStyle());
     }
 
-    private void createAreas(BCanvas canvas) {
-        BRectangle[] itemAreas = new BRectangle[buttons.size()];
-        for (int i = 0; i < buttons.size(); i++) {
-           itemAreas[i] = buttons.get(i).getBounds(canvas);
-        }
-        int x = area.x;
-        int y = area.y;
-        for (int i = 0; i < buttons.size(); i++) {
-            BRectangle itemArea = itemAreas[i];
-            if(x + itemArea.width >= area.x + area.width) {
-                x = area.x;
-                y += itemArea.height;
-                buttons.get(i).setLocation(x, y, canvas);
-            } else {
-                buttons.get(i).setLocation(x, y, canvas);
-                x += itemArea.width + getInterItemSpace();
+    private void createButtons(BCanvas canvas) {
+        if(legendConfig.getPosition() == LegendConfig.TOP_RIGHT) {
+            int x = area.x + area.width;
+            int y = area.y;
+            for (int i = 0; i < buttons.size(); i++) {
+                BRectangle btnArea = buttons.get(i).getBounds(canvas);
+                if(x - btnArea.width <= area.x) {
+                    x = area.x + area.width;
+                    y += btnArea.height;
+                    buttons.get(i).setLocation(x - btnArea.width, y, canvas);
+                } else {
+                    buttons.get(i).setLocation(x - btnArea.width, y, canvas);
+                    x -= btnArea.width - getInterItemSpace();
+                }
+            }
+        } else {
+            int x = area.x;
+            int y = area.y;
+            for (int i = 0; i < buttons.size(); i++) {
+                BRectangle btnArea = buttons.get(i).getBounds(canvas);
+                if(x + btnArea.width >= area.x + area.width) {
+                    x = area.x;
+                    y += btnArea.height;
+                    buttons.get(i).setLocation(x, y, canvas);
+                } else {
+                    buttons.get(i).setLocation(x, y, canvas);
+                    x += btnArea.width + getInterItemSpace();
+                }
             }
         }
         isDirty = false;
@@ -74,7 +84,7 @@ public class Legend {
             return;
         }
         if(isDirty) {
-            createAreas(canvas);
+            createButtons(canvas);
         }
         canvas.setTextStyle(legendConfig.getTextStyle());
         for (int i = 0; i < buttons.size(); i++) {

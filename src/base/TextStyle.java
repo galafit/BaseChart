@@ -25,6 +25,12 @@ public class TextStyle {
         this.fontName = fontName;
     }
 
+    public TextStyle(TextStyle textStyle) {
+        size = textStyle.size;
+        style = textStyle.style;
+        fontName = textStyle.fontName;
+    }
+
     public int getSize() {
         return size;
     }

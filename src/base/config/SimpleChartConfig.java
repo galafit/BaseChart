@@ -30,50 +30,53 @@ public class SimpleChartConfig {
      **/
     private ArrayList<AxisConfig> xAxisConfigs = new ArrayList<AxisConfig>();
     private ArrayList<AxisConfig> yAxisConfigs = new ArrayList<AxisConfig>();
-    private Map<Integer,Range>  xAxisExtremes = new HashMap<Integer,Range>();
-    private Map<Integer,Range>  yAxisExtremes = new HashMap<Integer,Range>();
+    private Map<Integer, Range> xAxisExtremes = new HashMap<Integer, Range>();
+    private Map<Integer, Range> yAxisExtremes = new HashMap<Integer, Range>();
+    private AxisConfig leftAxisConfig = new AxisConfig(AxisOrientation.LEFT);
+    private AxisConfig rightAxisConfig = new AxisConfig(AxisOrientation.RIGHT);
+    private boolean isLeftAxisPrimary = true;
+    private boolean isBottomAxisPrimary = true;
+
 
     private ArrayList<TraceInfo> traces = new ArrayList<TraceInfo>();
 
-    public SimpleChartConfig() {
-        stackWeights.add(DEFAULT_WEIGHT);
+    public SimpleChartConfig(AxisConfig leftAxisConfig, AxisConfig rightAxisConfig) {
+        this.leftAxisConfig = leftAxisConfig;
+        this.rightAxisConfig = rightAxisConfig;
+        if (leftAxisConfig == null) {
+            this.leftAxisConfig = new AxisConfig(AxisOrientation.LEFT);
+        }
+        if (rightAxisConfig == null) {
+            this.rightAxisConfig = new AxisConfig(AxisOrientation.RIGHT);
+        }
 
-        AxisConfig axisConfig = new AxisConfig(AxisOrientation.BOTTOM);
-        axisConfig.setMinorGridLineStroke(new BStroke(1));
-        axisConfig.setGridLineStroke(new BStroke(1));
-        xAxisConfigs.add(axisConfig);
+        AxisConfig bottomConfig = new AxisConfig(AxisOrientation.BOTTOM);
+        AxisConfig topConfig = new AxisConfig(AxisOrientation.TOP);
+        if (isBottomAxisPrimary) {
+            bottomConfig.setGridLineStroke(new BStroke(1));
+        } else {
+            topConfig.setGridLineStroke(new BStroke(1));
+        }
+        xAxisConfigs.add(bottomConfig);
+        xAxisConfigs.add(topConfig);
 
-        axisConfig = new AxisConfig(AxisOrientation.TOP);
-        axisConfig.setMinorGridLineStroke(new BStroke(0));
-        axisConfig.setGridLineStroke(new BStroke(0));
-        xAxisConfigs.add(axisConfig);
-
-        axisConfig = new AxisConfig(AxisOrientation.LEFT);
-        axisConfig.setMinorGridLineStroke(new BStroke(0));
-        axisConfig.setGridLineStroke(new BStroke(1));
-        axisConfig.setMinMaxRoundingEnable(true);
-        yAxisConfigs.add(axisConfig);
-
-        axisConfig = new AxisConfig(AxisOrientation.RIGHT);
-        axisConfig.setMinorGridLineStroke(new BStroke(0));
-        axisConfig.setGridLineStroke(new BStroke(0));
-        axisConfig.setMinMaxRoundingEnable(true);
-        yAxisConfigs.add(axisConfig);
+        addStack(DEFAULT_WEIGHT);
     }
 
+    public SimpleChartConfig() {
+        this(null, null);
+    }
 
     public void addStack(int weight) {
-        AxisConfig axisConfig = new AxisConfig(AxisOrientation.LEFT);
-        axisConfig.setMinorGridLineStroke(new BStroke(0));
-        axisConfig.setGridLineStroke(new BStroke(1));
-        axisConfig.setMinMaxRoundingEnable(true);
-        yAxisConfigs.add(axisConfig);
-
-        axisConfig = new AxisConfig(AxisOrientation.RIGHT);
-        axisConfig.setMinorGridLineStroke(new BStroke(0));
-        axisConfig.setGridLineStroke(new BStroke(0));
-        axisConfig.setMinMaxRoundingEnable(true);
-        yAxisConfigs.add(axisConfig);
+        AxisConfig leftConfig = new AxisConfig(leftAxisConfig);
+        AxisConfig rightConfig = new AxisConfig(rightAxisConfig);
+        if (isLeftAxisPrimary) {
+            leftConfig.setGridLineStroke(new BStroke(1));
+        } else {
+            rightConfig.setGridLineStroke(new BStroke(1));
+        }
+        yAxisConfigs.add(leftConfig);
+        yAxisConfigs.add(rightConfig);
         stackWeights.add(weight);
     }
 
@@ -89,12 +92,12 @@ public class SimpleChartConfig {
         int weightSum = getSumWeight();
 
         int weightSumTillYAxis = 0;
-        for (int i = 0; i < yAxisIndex / 2 ; i++) {
+        for (int i = 0; i < yAxisIndex / 2; i++) {
             weightSumTillYAxis += stackWeights.get(i);
         }
 
         int yAxisWeight = stackWeights.get(yAxisIndex / 2);
-        int axisHeight = area.height *  yAxisWeight / weightSum;
+        int axisHeight = area.height * yAxisWeight / weightSum;
 
         int end = area.y + area.height * weightSumTillYAxis / weightSum;
         int start = end + axisHeight;
@@ -106,26 +109,47 @@ public class SimpleChartConfig {
     public void addTrace(TraceConfig traceConfig, int dataIndex, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {
         boolean isBottomXAxis = true;
         boolean isLeftYAxis = true;
-        if(isXAxisOpposite) {
+        if (isXAxisOpposite && isBottomAxisPrimary) {
             isBottomXAxis = false;
         }
-        if(isYAxisOpposite) {
+        if (!isXAxisOpposite && !isBottomAxisPrimary) {
+            isBottomXAxis = false;
+        }
+        if (isYAxisOpposite && isLeftAxisPrimary) {
+            isLeftYAxis = false;
+        }
+        if (!isYAxisOpposite && !isLeftAxisPrimary) {
             isLeftYAxis = false;
         }
         int xAxisIndex = isBottomXAxis ? 0 : 1;
         int yAxisIndex = isLeftYAxis ? yAxisConfigs.size() - 2 : yAxisConfigs.size() - 1;
 
-
         xAxisConfigs.get(xAxisIndex).setVisible(true);
         yAxisConfigs.get(yAxisIndex).setVisible(true);
         TraceInfo traceInfo = new TraceInfo();
-        String name = (traceName != null) ? traceName : "Trace "+ traces.size();
+        String name = (traceName != null) ? traceName : "Trace " + traces.size();
         traceInfo.setName(name);
         traceInfo.setXAxisIndex(xAxisIndex);
         traceInfo.setYAxisIndex(yAxisIndex);
         traceInfo.setDataIndex(dataIndex);
         traceInfo.setTraceConfig(traceConfig);
         traces.add(traceInfo);
+    }
+
+    public boolean isLeftAxisPrimary() {
+        return isLeftAxisPrimary;
+    }
+
+    public void setLeftAxisPrimary(boolean leftAxisPrimary) {
+        isLeftAxisPrimary = leftAxisPrimary;
+    }
+
+    public boolean isBottomAxisPrimary() {
+        return isBottomAxisPrimary;
+    }
+
+    public void setBottomAxisPrimary(boolean bottomAxisPrimary) {
+        isBottomAxisPrimary = bottomAxisPrimary;
     }
 
     public BColor getTitleColor() {
@@ -176,15 +200,15 @@ public class SimpleChartConfig {
         return traces.get(index).getTraceConfig();
     }
 
-    public String getTraceName(int traceIndex){
+    public String getTraceName(int traceIndex) {
         return traces.get(traceIndex).getName();
     }
 
-    public int getTraceXIndex(int traceIndex){
+    public int getTraceXIndex(int traceIndex) {
         return traces.get(traceIndex).getXAxisIndex();
     }
 
-    public int getTraceYIndex(int traceIndex){
+    public int getTraceYIndex(int traceIndex) {
         return traces.get(traceIndex).getYAxisIndex();
     }
 

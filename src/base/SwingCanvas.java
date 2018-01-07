@@ -5,6 +5,8 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -12,13 +14,13 @@ import java.util.Map;
  */
 public class SwingCanvas implements BCanvas {
     private Graphics2D g2;
-    private AffineTransform lastAffineTransform;
-    private Shape bounds;
+    private List<AffineTransform> affineTransforms = new ArrayList<AffineTransform>();
+    private List<Shape> boundsList = new ArrayList<Shape>();
 
     public SwingCanvas(Graphics2D g2) {
         this.g2 = g2;
-        lastAffineTransform = g2.getTransform();
-        bounds = g2.getClip();
+        affineTransforms.add(g2.getTransform());
+        boundsList.add(g2.getClip());
     }
 
     @Override
@@ -43,14 +45,19 @@ public class SwingCanvas implements BCanvas {
 
     @Override
     public void save() {
-        lastAffineTransform = g2.getTransform();
-        bounds = g2.getClip();
+        affineTransforms.add(g2.getTransform());
+        boundsList.add(g2.getClip());
     }
 
     @Override
     public void restore() {
-        g2.setTransform(lastAffineTransform);
-        g2.setClip(bounds);
+        int lastTransform = affineTransforms.size() - 1;
+        if(lastTransform >= 0) {
+            g2.setTransform(affineTransforms.get(lastTransform));
+            g2.setClip(boundsList.get(lastTransform));
+            boundsList.remove(lastTransform);
+            affineTransforms.remove(lastTransform);
+        }
     }
 
     @Override

@@ -180,11 +180,11 @@ public class ScaleLinear extends Scale {
             }
 
             String formatPattern = df.toPattern();
-            if (labelFormatInfo != null && labelFormatInfo.prefix != null) {
-                formatPattern = labelFormatInfo.prefix + " " + formatPattern;
+            if (labelFormatInfo != null && labelFormatInfo.getPrefix() != null) {
+                formatPattern = labelFormatInfo.getPrefix() + " " + formatPattern;
             }
-            if (labelFormatInfo != null && labelFormatInfo.suffix != null) {
-                formatPattern = formatPattern + " " + labelFormatInfo.suffix;
+            if (labelFormatInfo != null && labelFormatInfo.getSuffix() != null) {
+                formatPattern = formatPattern + " " + labelFormatInfo.getSuffix();
 
             }
             df = new DecimalFormat(formatPattern);
