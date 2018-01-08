@@ -3,10 +3,10 @@ package base.scales;
 import base.config.LabelFormatInfo;
 
 public abstract class Scale {
-    protected float domain[] = {0, 1};
+    protected double domain[] = {0, 1};
     protected float range[] = {0, 1};
 
-    public void setDomain(float... domain) {
+    public void setDomain(double... domain) {
         this.domain = domain;
     }
 
@@ -15,7 +15,7 @@ public abstract class Scale {
     }
 
 
-    public float[] getDomain() {
+    public double[] getDomain() {
         return domain;
     }
 
@@ -23,13 +23,13 @@ public abstract class Scale {
         return range;
     }
 
-    public abstract float scale(float value);
+    public abstract float scale(double value);
 
-    public abstract float invert(float value);
+    public abstract double invert(float value);
 
     public abstract TickProvider getTickProvider(int tickCount, LabelFormatInfo labelFormatInfo);
 
-    public abstract TickProvider getTickProvider(float tickStep, Unit tickUnit, LabelFormatInfo labelFormatInfo);
+    public abstract TickProvider getTickProvider(double tickStep, Unit tickUnit, LabelFormatInfo labelFormatInfo);
 
 }
 

@@ -7,11 +7,11 @@ import base.Range;
  */
 public interface NumberColumn {
     public int size();
-    public float getValue(int index);
+    public double getValue(int index);
 
     public Range getExtremes(int from, int length);
-    public int upperBound(float value, int from, int length);
-    public int lowerBound(float value, int from, int length);
+    public int upperBound(double value, int from, int length);
+    public int lowerBound(double value, int from, int length);
     public NumberColumn copy();
     public void setGroupingType(GroupingType groupingType);
     public void groupByNumber(int numberOfElementsInGroups, boolean isCachingEnable);

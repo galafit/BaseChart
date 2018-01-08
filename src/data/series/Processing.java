@@ -113,7 +113,7 @@ public class Processing {
 
     }
 
-    public static int lowerBound(FloatSeries data, float value, int fromIndex, int length) {
+    public static int lowerBound(FloatSeries data, double value, int fromIndex, int length) {
         int low = fromIndex;
         int high = fromIndex + length -1;
         int index = -1;
@@ -143,7 +143,7 @@ public class Processing {
         return index;
     }
 
-    public static int upperBound(FloatSeries data, float value, int fromIndex, int length) {
+    public static int upperBound(FloatSeries data, double value, int fromIndex, int length) {
         int low = fromIndex;
         int high = fromIndex + length -1;
         int index = -1;

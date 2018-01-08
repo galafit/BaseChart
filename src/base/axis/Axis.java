@@ -32,7 +32,7 @@ public class Axis {
     private Range rowMinMax; // without rounding
     private AxisConfig config;
     private List<Tick> ticks;
-    private List<Float> minorTicks;
+    private List<Double> minorTicks;
     private List<Line> tickLines;
     private List<Text> tickLabels;
     private Line axisLine;
@@ -42,7 +42,7 @@ public class Axis {
 
     public Axis(AxisConfig config) {
         this.config = config;
-        scale = new ScaleLinear();
+        scale = new LinearScale();
         rowMinMax = new Range(getMin(), getMax());
     }
 
@@ -50,18 +50,18 @@ public class Axis {
      * Zoom affects only max value. Min value does not changed!!!
      * @param zoomFactor
      */
-    public void zoom(float zoomFactor) {
+    public void zoom(double zoomFactor) {
         setMinMax(rowMinMax);
         int start = getStart();
         int end = getEnd();
-        float min = getMin();
+        double min = getMin();
         int shift = (int)((end - start) * (zoomFactor - 1) / 2);
         //int newStart = start - shift;
         int newEnd = end + 2 * shift;
         //setStartEnd(newStart, newEnd);
         setStartEnd(start, newEnd);
-       // float minNew = invert(start);
-        float maxNew = invert(end);
+       // double minNew = invert(start);
+        double maxNew = invert(end);
         setMinMax(min, maxNew);
         setStartEnd(start, end);
     }
@@ -70,12 +70,12 @@ public class Axis {
         setMinMax(rowMinMax);
         int start = getStart();
         int end = getEnd();
-        float minNew = invert(start + translation);
-        float maxNew = invert(end + translation);
+        double minNew = invert(start + translation);
+        double maxNew = invert(end + translation);
         setMinMax(minNew, maxNew);
     }
 
-    public void setMinMax(float min, float max) {
+    public void setMinMax(double min, double max) {
         setMinMax(new Range(min, max));
     }
 
@@ -83,8 +83,8 @@ public class Axis {
         if(minMaxRange == null) {
             return;
         }
-        float min = minMaxRange.start();
-        float max = minMaxRange.end();
+        double min = minMaxRange.start();
+        double max = minMaxRange.end();
         if (min > max){
             String errorMessage = "Error during setMinMax(). Expected Min < Max. Min = {0}, Max = {1}.";
             String formattedError = MessageFormat.format(errorMessage,min,max);
@@ -111,15 +111,12 @@ public class Axis {
         return scale;
     }
 
-    public void setStartEnd(Range startEndRange) {
-        setStartEnd(startEndRange.start(), startEndRange.end());
-    }
 
-    public float getMin() {
+    public double getMin() {
         return scale.getDomain()[0];
     }
 
-    public float getMax() {
+    public double getMax() {
         return scale.getDomain()[scale.getDomain().length -1];
     }
 
@@ -131,11 +128,11 @@ public class Axis {
         return (int)scale.getRange()[scale.getRange().length -1];
     }
 
-    public float scale(float value) {
+    public double scale(double value) {
         return scale.scale(value);
     }
 
-    public float invert(float value) {
+    public double invert(float value) {
         return scale.invert(value);
     }
 
@@ -193,14 +190,14 @@ public class Axis {
         }
 
         int fontFactor = 4;
-        float tickPixelInterval = fontFactor * config.getLabelTextStyle().getSize();
+        double tickPixelInterval = fontFactor * config.getLabelTextStyle().getSize();
         int tickCount = (int) (Math.abs(getStart() - getEnd()) / tickPixelInterval);
         tickCount = Math.max(tickCount, DEFAULT_TICK_COUNT);
         return scale.getTickProvider(tickCount, config.getLabelFormatInfo());
     }
 
 
-    private Line tickToGridLine(float tickValue, int length) {
+    private Line tickToGridLine(double tickValue, int length) {
         if(config.isTop()) {
             int x = (int)scale(tickValue);
             int y1 = 0;
@@ -340,17 +337,17 @@ public class Axis {
             return 1;
         }
         TextMetric tm = canvas.getTextMetric(config.getLabelTextStyle());
-        float labelsSize;
+        double labelsSize;
         if(isHorizontal()) {
             labelsSize = Math.max(tm.stringWidth(ticks.get(0).getLabel()), tm.stringWidth(ticks.get(ticks.size() - 1).getLabel()));
         } else {
             labelsSize = tm.height();
         }
 
-        float tickPixelInterval = Math.abs(scale(ticks.get(0).getValue()) - scale(ticks.get(1).getValue()));
+        double tickPixelInterval = Math.abs(scale(ticks.get(0).getValue()) - scale(ticks.get(1).getValue()));
         // min space between labels = 1 symbols size (roughly)
-        float labelSpace = 2 * config.getLabelTextStyle().getSize();
-        float requiredSpace = labelsSize + labelSpace;
+        double labelSpace = 2 * config.getLabelTextStyle().getSize();
+        double requiredSpace = labelsSize + labelSpace;
         int ticksDivider = (int) (requiredSpace / tickPixelInterval) + 1;
         return ticksDivider;
     }
@@ -365,10 +362,10 @@ public class Axis {
             getScale().setDomain(ticks.get(0).getValue(), ticks.get(ticks.size() - 1).getValue());
         }
         if(config.isMinorGridVisible()) {
-            minorTicks = new ArrayList<Float>();
+            minorTicks = new ArrayList<Double>();
             for (int i = 0; i < ticks.size() - 1; i++) {
-                float minorTickStep = (ticks.get(i+1).getValue() - ticks.get(i).getValue()) / config.getMinorGridCounter();
-                float minorTickValue =  ticks.get(i).getValue();
+                double minorTickStep = (ticks.get(i+1).getValue() - ticks.get(i).getValue()) / config.getMinorGridCounter();
+                double minorTickValue =  ticks.get(i).getValue();
                 for (int j = 1; j < config.getMinorGridCounter(); j++) {
                     minorTickValue += minorTickStep;
                     if(minorTickValue >= getMin() && minorTickValue <=getMax()) {
@@ -409,7 +406,7 @@ public class Axis {
         int MIN_TICK_NUMBER1 = 2;
         int MIN_TICK_NUMBER2 = 4;
         // если есть округление и тиков мало то оставляем только первый и последний
-        float tickSpaceCount = (allTicks.size() - 1) / tickDivider;
+        double tickSpaceCount = (allTicks.size() - 1) / tickDivider;
         if(config.isMinMaxRoundingEnable()) {
             if(tickSpaceCount < MIN_TICK_NUMBER1) {
                 ArrayList<Tick> resultantTicks = new ArrayList<Tick>(2);
@@ -437,9 +434,9 @@ public class Axis {
         if(!config.isMinMaxRoundingEnable()) {
             int ticksBefore = 0;
             if(lastMinTick != null) {
-                float tickPixelInterval = Math.abs(scale(allTicks.get(0).getValue()) - scale(allTicks.get(1).getValue()));
+                double tickPixelInterval = Math.abs(scale(allTicks.get(0).getValue()) - scale(allTicks.get(1).getValue()));
                 Tick minTick = allTicks.get(0);
-                float minTranslation = Math.abs(scale(lastMinTick.getValue()) - scale(minTick.getValue()));
+                double minTranslation = Math.abs(scale(lastMinTick.getValue()) - scale(minTick.getValue()));
                 long ticksBetween = Math.round(minTranslation / tickPixelInterval);
                 ticksBefore = (int)(ticksBetween % tickDivider);
             }
@@ -565,7 +562,7 @@ public class Axis {
         canvas.setColor(config.getMinorGridColor());
         canvas.setStroke(config.getMinorGridLineStroke());
         if(config.isMinorGridVisible()) {
-            for (float minorTick : minorTicks) {
+            for (double minorTick : minorTicks) {
                 Line mGridLine = tickToGridLine(minorTick, length);
                 canvas.drawLine(mGridLine.getX1(), mGridLine.getY1(), mGridLine.getX2(), mGridLine.getY2());
             }

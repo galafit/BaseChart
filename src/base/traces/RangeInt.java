@@ -1,16 +1,16 @@
-package base;
+package base.traces;
 
 import java.text.MessageFormat;
 
 /**
- * Created by galafit on 11/7/17.
+ * Created by galafit on 8/1/18.
  */
-public class Range {
-    private double start;
-    private double end;
+public class RangeInt {
+    private int start;
+    private int end;
     private boolean isReversed = false;
 
-    public Range(double start, double end, boolean isReversed) {
+    public RangeInt(int start, int end, boolean isReversed) {
         this.start = start;
         this.end = end;
         this.isReversed = isReversed;
@@ -29,11 +29,11 @@ public class Range {
         }
     }
 
-    public Range(double start, double end) {
-       this(start, end, false);
+    public RangeInt(int start, int end) {
+        this(start, end, false);
     }
 
-    public boolean contains(double value) {
+    public boolean contains(int value) {
         if(isReversed && value >= end && value <= start) {
             return true;
         }
@@ -43,23 +43,23 @@ public class Range {
         return false;
     }
 
-    public  double start() {
+    public  int start() {
         return start;
     }
 
-    public double end() {
+    public int end() {
         return end;
     }
 
-    public double length() {
+    public int length() {
         return Math.abs(end - start);
     }
 
-    public static Range max(Range range1, Range range2) {
+    public static RangeInt max(RangeInt range1, RangeInt range2) {
         return max(range1, range2, false);
     }
 
-    public static Range max(Range range1, Range range2, boolean isReversed) {
+    public static RangeInt max(RangeInt range1, RangeInt range2, boolean isReversed) {
         if(range1 == null) {
             return range2;
         }
@@ -67,17 +67,9 @@ public class Range {
             return range1;
         }
         if(isReversed) {
-            return new Range(Math.max(range1.start(), range2.start()), Math.min(range1.end(), range2.end()), true);
+            return new RangeInt(Math.max(range1.start(), range2.start()), Math.min(range1.end(), range2.end()), true);
 
         }
-        return new Range(Math.min(range1.start(), range2.start()), Math.max(range1.end(), range2.end()));
-    }
-
-    @Override
-    public String toString() {
-        return "Range{" +
-                "start=" + start +
-                ", end=" + end +
-                '}';
+        return new RangeInt(Math.min(range1.start(), range2.start()), Math.max(range1.end(), range2.end()));
     }
 }

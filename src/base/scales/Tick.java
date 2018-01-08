@@ -4,15 +4,15 @@ package base.scales;
  * Created by galafit on 5/9/17.
  */
 public class Tick {
-    private float value;
+    private double value;
     private String label;
 
-    public Tick(float value, String label) {
+    public Tick(double value, String label) {
         this.value = value;
         this.label = label;
     }
 
-    public float getValue() {
+    public double getValue() {
         return value;
     }
 

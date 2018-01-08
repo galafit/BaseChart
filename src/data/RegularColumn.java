@@ -7,15 +7,15 @@ import data.series.IntSeries;
  * Created by galafit on 1/11/17.
  */
 public class RegularColumn implements NumberColumn{
-    private float startValue;
-    private float dataInterval;
+    private double startValue;
+    private double dataInterval;
 
-    public RegularColumn(float startValue, float dataInterval) {
+    public RegularColumn(double startValue, double dataInterval) {
         this.startValue = startValue;
         this.dataInterval = dataInterval;
     }
 
-    public float getDataInterval() {
+    public double getDataInterval() {
         return dataInterval;
     }
 
@@ -29,19 +29,19 @@ public class RegularColumn implements NumberColumn{
     }
 
     @Override
-    public float getValue(int index) {
+    public double getValue(int index) {
         return startValue + dataInterval * index;
     }
 
     @Override
     public Range getExtremes(int from, int length) {
-        float min = startValue;
-        float max = startValue + (size() - 1) * dataInterval;
+        double min = startValue;
+        double max = startValue + (size() - 1) * dataInterval;
         return new Range(min, max);
     }
 
     @Override
-    public int upperBound(float value, int from, int length) {
+    public int upperBound(double value, int from, int length) {
         int lowerBound = lowerBound(value, from, length);
         if(value == getValue(lowerBound)) {
             return lowerBound;
@@ -55,7 +55,7 @@ public class RegularColumn implements NumberColumn{
     }
 
     @Override
-    public int lowerBound(float value, int from, int length) {
+    public int lowerBound(double value, int from, int length) {
         return (int) ((value - startValue) / dataInterval);
     }
 

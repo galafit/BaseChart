@@ -52,7 +52,7 @@ class FloatColumn implements NumberColumn {
     }
 
     @Override
-    public float getValue(int index) {
+    public double getValue(int index) {
         return series.get(index);
     }
 
@@ -62,12 +62,12 @@ class FloatColumn implements NumberColumn {
     }
 
     @Override
-    public int upperBound(float value, int from, int length) {
+    public int upperBound(double value, int from, int length) {
         return Processing.upperBound(series,  value, from, length);
     }
 
     @Override
-    public int lowerBound(float value, int from, int length) {
+    public int lowerBound(double value, int from, int length) {
         return Processing.lowerBound(series,  value, from, length);
     }
 

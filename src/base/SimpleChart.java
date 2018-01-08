@@ -9,6 +9,7 @@ import base.config.traces.TraceConfig;
 import base.scales.Scale;
 import base.tooltip.Tooltip;
 import base.tooltip.TooltipInfo;
+import base.traces.RangeInt;
 import base.traces.Trace;
 import base.traces.TraceRegister;
 
@@ -172,7 +173,8 @@ public class SimpleChart {
         // set YAxis ranges
         BRectangle paintingArea = new BRectangle(fullArea.x, fullArea.y + top, fullArea.width, fullArea.height - top - bottom);
         for (int i = 0; i < yAxisList.size(); i++) {
-            yAxisList.get(i).setStartEnd(chartConfig.getYStartEnd(i, paintingArea));
+            RangeInt yRange = chartConfig.getYStartEnd(i, paintingArea);
+            yAxisList.get(i).setStartEnd(yRange.start(), yRange.end());
         }
         if (left < 0) {
             for (int i = 0; i < yAxisList.size() / 2; i++) {
@@ -332,8 +334,8 @@ public class SimpleChart {
     }
 
 
-    public Range getYStartEnd(int yAxisIndex) {
-        return new Range(yAxisList.get(yAxisIndex).getStart(), yAxisList.get(yAxisIndex).getEnd(), true);
+    public RangeInt getYStartEnd(int yAxisIndex) {
+        return new RangeInt(yAxisList.get(yAxisIndex).getStart(), yAxisList.get(yAxisIndex).getEnd(), true);
     }
 
     public int getXIndex(int x, int y) {
@@ -485,7 +487,7 @@ public class SimpleChart {
         }
 
         if (hoverTraceIndex >= 0) {
-            float xValue = traces.get(hoverTraceIndex).getXAxis().invert(x);
+            double xValue = traces.get(hoverTraceIndex).getXAxis().invert(x);
             int nearestIndex = traces.get(hoverTraceIndex).getData().findNearestData(xValue);
             if (hoverPointIndex != nearestIndex) {
                 hoverPointIndex = nearestIndex;

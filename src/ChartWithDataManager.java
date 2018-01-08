@@ -77,7 +77,7 @@ public class ChartWithDataManager {
 
             if (config.isCropEnable()) { // cropData
                 for (int i = 0; i < config.getChartConfig().getNumberOfXAxis(); i++) {
-                    Float scrollExtent = config.getScrollExtent(i);
+                    Double scrollExtent = config.getScrollExtent(i);
                     if (scrollExtent != null) {
                         cropChartData(i, new Range(previewMinMax.start(), scrollExtent));
                     }
@@ -93,7 +93,7 @@ public class ChartWithDataManager {
         for (Integer xAxisIndex : scrollableChart.getXAxisWithScroll()) {
             scrollableChart.addScrollListener(xAxisIndex, new ScrollListener() {
                 @Override
-                public void onScrollChanged(float scrollValue, float scrollExtent) {
+                public void onScrollChanged(double scrollValue, double scrollExtent) {
                     if (config.isGroupingEnable()) {
                         groupChartData(xAxisIndex, scrollExtent);
                     }
@@ -130,24 +130,24 @@ public class ChartWithDataManager {
         }
     }
 
-    private void groupChartData(int xAxisIndex, float scrollExtent) {
-        float bestGroupingInterval = minPixelsPerDataItem * scrollExtent / area.width;
+    private void groupChartData(int xAxisIndex, double scrollExtent) {
+        double bestGroupingInterval = minPixelsPerDataItem * scrollExtent / area.width;
         boolean isCachingEnable = config.isChartGroupedDatCachingEnable();
         SimpleChartConfig chartConfig = config.getChartConfig();
         for (int traceIndex = 0; traceIndex < chartConfig.getTraceCounter(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
                 BaseDataSet traceData = (BaseDataSet) chartData.get(traceIndex);
-                float dataInterval = traceData.getAverageDataInterval();
+                double dataInterval = traceData.getAverageDataInterval();
                 if (dataInterval > 0) {
-                    float numberOfDataItemsToGroup = (bestGroupingInterval / dataInterval);
+                    int numberOfDataItemsToGroup = (int)(bestGroupingInterval / dataInterval);
                     if (numberOfDataItemsToGroup >= chartGroupingStep) {
                         chartData.set(traceIndex, traceData.groupByNumber((int) numberOfDataItemsToGroup, isCachingEnable));
                     }
                     if (numberOfDataItemsToGroup <= 1.0 / chartGroupingStep) {
                         BaseDataSet traceOriginalData = (BaseDataSet) chartOriginalData.get(traceDataIndex);
-                        float originalDataInterval = traceOriginalData.getAverageDataInterval();
-                        numberOfDataItemsToGroup = (bestGroupingInterval / originalDataInterval);
+                        double originalDataInterval = traceOriginalData.getAverageDataInterval();
+                        numberOfDataItemsToGroup = (int)(bestGroupingInterval / originalDataInterval);
                         chartData.set(traceIndex, traceOriginalData.groupByNumber((int) numberOfDataItemsToGroup, isCachingEnable));
                     }
                 }
@@ -156,7 +156,7 @@ public class ChartWithDataManager {
     }
 
     private void groupPreviewData(Range previewMinMax) {
-        float bestGroupingInterval = minPixelsPerDataItem * previewMinMax.length() / area.width;
+        double bestGroupingInterval = minPixelsPerDataItem * previewMinMax.length() / area.width;
         // choose the first interval in the list >= bestGroupingInterval
         if (currentPreviewGroupingInterval < bestGroupingInterval) {
             for (float interval : config.getPreviewGroupingIntervals()) {
@@ -166,13 +166,13 @@ public class ChartWithDataManager {
                 }
             }
         }
-        float groupingInterval = currentPreviewGroupingInterval;
+        double groupingInterval = currentPreviewGroupingInterval;
         if (groupingInterval <= 0) {
             groupingInterval = bestGroupingInterval;
         }
         boolean isCachingEnable = true;
         for (int i = 0; i < previewData.size(); i++) {
-            float dataInterval = previewData.get(i).getAverageDataInterval();
+            double dataInterval = previewData.get(i).getAverageDataInterval();
             if (dataInterval > 0) {
                 int numberOfDataItemsToGroup = (int) (groupingInterval / dataInterval);
                 previewData.set(i, ((BaseDataSet) previewData.get(i)).groupByNumber(numberOfDataItemsToGroup, isCachingEnable));
@@ -195,7 +195,7 @@ public class ChartWithDataManager {
 
     }
 
-    private Range calculateInitialPreviewMinMax(float[] scrollsExtents) {
+    private Range calculateInitialPreviewMinMax(double[] scrollsExtents) {
         Range chartFullMinMax = null;
         for (DataSet chartData : chartOriginalData) {
             chartFullMinMax = Range.max(chartFullMinMax, chartData.getXExtremes());
@@ -203,8 +203,8 @@ public class ChartWithDataManager {
 
         // in the case if chart has a small number of data points
         // (number of data points < area.width)
-        float previewExtent = 0;
-        for (float scrollExtent : scrollsExtents) {
+        double previewExtent = 0;
+        for (double scrollExtent : scrollsExtents) {
             previewExtent = Math.max(previewExtent, scrollExtent);
         }
 
@@ -213,30 +213,30 @@ public class ChartWithDataManager {
             previewExtent = Math.max(previewExtent, groupingInterval * area.width / minPixelsPerDataItem);
         }
 
-        float min = chartFullMinMax.start();
-        float maxLength = Math.max(previewExtent, chartFullMinMax.length());
+        double min = chartFullMinMax.start();
+        double maxLength = Math.max(previewExtent, chartFullMinMax.length());
         chartFullMinMax = new Range(min, min + maxLength);
 
         return chartFullMinMax;
     }
 
 
-    private float calculateChartExtent(int xAxisIndex) {
+    private double calculateChartExtent(int xAxisIndex) {
         SimpleChartConfig chartConfig = config.getChartConfig();
-        float dataIntervalMin = 0;
+        double dataIntervalMin = 0;
         for (int traceIndex = 0; traceIndex < chartConfig.getTraceCounter(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
                 DataSet traceData = chartData.get(traceDataIndex);
                 if (traceData.size() > 1) {
-                    float dataItemInterval = traceData.getAverageDataInterval();
+                    double dataItemInterval = traceData.getAverageDataInterval();
                     if (dataItemInterval > 0) {
                         dataIntervalMin = (dataIntervalMin == 0) ? dataItemInterval : Math.min(dataIntervalMin, dataItemInterval);
                     }
                 }
             }
         }
-        float extent = dataIntervalMin * area.width / minPixelsPerDataItem;
+        double extent = dataIntervalMin * area.width / minPixelsPerDataItem;
         return extent;
     }
 
@@ -265,9 +265,9 @@ public class ChartWithDataManager {
     }
 
     private boolean isAllScrollsAtTheEnd() {
-        float previewMax = scrollableChart.getPreviewXMinMax().end();
+        double previewMax = scrollableChart.getPreviewXMinMax().end();
         for (Integer xAxisIndex : scrollableChart.getXAxisWithScroll()) {
-            float scrollEnd = scrollableChart.getScrollValue(xAxisIndex) + scrollableChart.getScrollExtent(xAxisIndex);
+            double scrollEnd = scrollableChart.getScrollValue(xAxisIndex) + scrollableChart.getScrollExtent(xAxisIndex);
             if(previewMax - scrollEnd > 0) {
                 return false;
             }
@@ -277,7 +277,7 @@ public class ChartWithDataManager {
 
     private boolean autoScroll() {
         Range dataMinMax = getChartDataMinMax();
-        float minExtent = 0;
+        double minExtent = 0;
         for (Integer xAxisIndex : scrollableChart.getXAxisWithScroll()) {
             minExtent = (minExtent == 0) ? scrollableChart.getScrollExtent(xAxisIndex) : Math.min(minExtent, scrollableChart.getScrollExtent(xAxisIndex));
         }

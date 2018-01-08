@@ -2,6 +2,7 @@ package base.config;
 
 import base.*;
 import base.config.traces.TraceConfig;
+import base.traces.RangeInt;
 
 import java.util.*;
 
@@ -95,7 +96,7 @@ public class SimpleChartConfig {
         return weightSum;
     }
 
-    public Range getYStartEnd(int yAxisIndex, BRectangle area) {
+    public RangeInt getYStartEnd(int yAxisIndex, BRectangle area) {
         int weightSum = getSumWeight();
 
         int weightSumTillYAxis = 0;
@@ -108,7 +109,7 @@ public class SimpleChartConfig {
 
         int end = area.y + area.height * weightSumTillYAxis / weightSum;
         int start = end + axisHeight;
-        return new Range(start, end, true);
+        return new RangeInt(start, end, true);
     }
 
 

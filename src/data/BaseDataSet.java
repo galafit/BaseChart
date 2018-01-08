@@ -47,7 +47,7 @@ public class BaseDataSet implements DataSet {
     }
 
 
-    public void setXData(float startXValue, float dataInterval) {
+    public void setXData(double startXValue, double dataInterval) {
         xColumn = new RegularColumn(startXValue, dataInterval);
     }
 
@@ -83,12 +83,12 @@ public class BaseDataSet implements DataSet {
 
 
     @Override
-    public float getYValue(int index, int columnNumber) {
+    public double getYValue(int index, int columnNumber) {
         return yColumns.get(columnNumber).getValue(index + startIndex);
     }
 
     @Override
-    public float getXValue(int index) {
+    public double getXValue(int index) {
         return xColumn.getValue(index + startIndex);
     }
 
@@ -106,8 +106,8 @@ public class BaseDataSet implements DataSet {
             return null;
         }
         if (isOrdered()) {
-            float min = xColumn.getValue(startIndex);
-            float max = xColumn.getValue(startIndex + size() - 1);
+            double min = xColumn.getValue(startIndex);
+            double max = xColumn.getValue(startIndex + size() - 1);
             return new Range(min, max);
         } else {
             return xColumn.getExtremes(startIndex, size());
@@ -153,7 +153,7 @@ public class BaseDataSet implements DataSet {
      * @return index of nearest data item
      */
     @Override
-    public int findNearestData(float xValue) {
+    public int findNearestData(double xValue) {
         int lowerBoundIndex = xColumn.lowerBound(xValue, startIndex, size());
         lowerBoundIndex -= startIndex;
         if (lowerBoundIndex < 0) {
@@ -162,18 +162,18 @@ public class BaseDataSet implements DataSet {
         if (lowerBoundIndex >= size() - 1) {
             return size() - 1;
         }
-        float distance1 = xValue - getXValue(lowerBoundIndex);
-        float distance2 = getXValue(lowerBoundIndex + 1) - xValue;
+        double distance1 = xValue - getXValue(lowerBoundIndex);
+        double distance2 = getXValue(lowerBoundIndex + 1) - xValue;
         int nearestIndex = (distance1 <= distance2) ? lowerBoundIndex : lowerBoundIndex + 1;
         return nearestIndex;
     }
 
-    public BaseDataSet getSubset(float startXValue, float endXValue) {
+    public BaseDataSet getSubset(double startXValue, double endXValue) {
         return getSubset(startXValue, endXValue, 1);
     }
 
 
-    public BaseDataSet getSubset(float startXValue, float endXValue, int shoulder) {
+    public BaseDataSet getSubset(double startXValue, double endXValue, int shoulder) {
         if (endXValue < startXValue) {
             String errorMessage = "Error during creating Data subset.Expected StartValue <= EndValue. StartValue = {0}, EndValue = {1}.";
             String formattedError = MessageFormat.format(errorMessage, startXValue, endXValue);
@@ -231,7 +231,7 @@ public class BaseDataSet implements DataSet {
      * @param groupingInterval
      * @return DataSet with grouped data
      */
-    public BaseDataSet groupByInterval(float groupingInterval, boolean isCachingEnable) {
+    public BaseDataSet groupByInterval(double groupingInterval, boolean isCachingEnable) {
         // at the moment "grouping by equal interval" is not fully realized.
         // That is draft realisation
         // just for the case we will need it in the future
@@ -244,7 +244,7 @@ public class BaseDataSet implements DataSet {
             return groupedSet;
         }*/
 
-        float avgDataInterval = getAverageDataInterval();
+        double avgDataInterval = getAverageDataInterval();
         if(avgDataInterval > 0) {
             int avgNumberOfItemsInGroups = (int) Math.round(groupingInterval / getAverageDataInterval());
             return groupByNumber(avgNumberOfItemsInGroups, isCachingEnable);
@@ -253,7 +253,7 @@ public class BaseDataSet implements DataSet {
     }
 
 
-    public float getAverageDataInterval() {
+    public double getAverageDataInterval() {
         if(xColumn instanceof RegularColumn) {
             return ((RegularColumn)xColumn).getDataInterval();
         }

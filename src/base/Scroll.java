@@ -14,12 +14,12 @@ import java.util.List;
 public class Scroll {
     private Scale scale;
     private ScrollConfig scrollConfig;
-    private float value;
-    private float extent;
+    private double value;
+    private double extent;
     private List<ScrollListener> eventListeners = new ArrayList<ScrollListener>();
 
 
-    public Scroll(float scrollExtent, ScrollConfig scrollConfig, Scale scale) {
+    public Scroll(double scrollExtent, ScrollConfig scrollConfig, Scale scale) {
         this.scale = scale;
         this.scrollConfig = scrollConfig;
         setExtent(scrollExtent);
@@ -36,7 +36,7 @@ public class Scroll {
         }
     }
 
-    public void setExtent(float scrollExtent) {
+    public void setExtent(double scrollExtent) {
         if (scrollExtent > getMax() - getMin() || scrollExtent <= 0) {
             scrollExtent = getMax() - getMin();
         }
@@ -49,8 +49,8 @@ public class Scroll {
 
 
     private Range getScrollRange() {
-        float scrollStart = scale.scale(value);
-        float scrollEnd = scale.scale(value + extent);
+        double scrollStart = scale.scale(value);
+        double scrollEnd = scale.scale(value + extent);
         int scrollWidth = Math.max(scrollConfig.getScrollMinWidth(), (int) (scrollEnd - scrollStart));
         if (scrollStart + scrollConfig.getScrollMinWidth() > getEnd()) { // prevent that actually thin scroll moves outside screen
             scrollStart = getEnd() - scrollConfig.getScrollMinWidth();
@@ -58,7 +58,7 @@ public class Scroll {
         return new Range(scrollStart, scrollStart + scrollWidth);
     }
 
-    public float getExtent() {
+    public double getExtent() {
         return extent;
     }
 
@@ -70,11 +70,11 @@ public class Scroll {
      * @return true if value was changed and false if newValue = current scroll value
      */
     public boolean setPosition(float x) {
-        float value = scale.invert(x);
+        double value = scale.invert(x);
         return setValue(value);
     }
 
-    public float getValue() {
+    public double getValue() {
         return value;
     }
 
@@ -88,8 +88,8 @@ public class Scroll {
     /**
      * @return true if value was changed and false if newValue = current scroll value
      */
-    public boolean setValue(float newValue) {
-        float oldValue = value;
+    public boolean setValue(double newValue) {
+        double oldValue = value;
         value = newValue;
         checkBounds();
         if (value != oldValue) {
@@ -99,29 +99,11 @@ public class Scroll {
         return false;
     }
 
-    public void setMinMax(Range minMaxRange) {
-        if (minMaxRange == null) {
-            return;
-        }
-        float min = minMaxRange.start();
-        float max = minMaxRange.end();
-        if (min > max) {
-            String errorMessage = "Error during setMinMax(). Expected Min < Max. Min = {0}, Max = {1}.";
-            String formattedError = MessageFormat.format(errorMessage, min, max);
-            throw new IllegalArgumentException(formattedError);
-        }
-        scale.setDomain(min, max);
-    }
-
-    public void setStartEnd(Range startEnd) {
-        scale.setRange(startEnd.start(), startEnd.end());
-    }
-
-    private float getMin() {
+    private double getMin() {
         return scale.getDomain()[0];
     }
 
-    private float getMax() {
+    private double getMax() {
         return scale.getDomain()[scale.getDomain().length - 1];
     }
 

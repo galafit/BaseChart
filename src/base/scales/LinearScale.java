@@ -8,15 +8,14 @@ import java.text.MessageFormat;
 /**
  * Created by galafit on 6/9/17.
  */
-public class ScaleLinear extends Scale {
-
+public class LinearScale extends Scale {
     @Override
-    public float scale(float value) {
-        return range[0] + (value - domain[0]) * (range[range.length - 1] - range[0]) / (domain[domain.length - 1] - domain[0]);
+    public float scale(double value) {
+        return (float) (range[0] + (value - domain[0]) * (range[range.length - 1] - range[0]) / (domain[domain.length - 1] - domain[0]));
     }
 
     @Override
-    public float invert(float value) {
+    public double invert(float value) {
         return domain[0] + (value - range[0]) * (domain[domain.length - 1] - domain[0]) / (range[range.length - 1] - range[0]);
     }
 
@@ -26,12 +25,12 @@ public class ScaleLinear extends Scale {
     }
 
     @Override
-    public  TickProvider getTickProvider(float tickStep, Unit tickUnit, LabelFormatInfo labelFormatInfo) {
+    public  TickProvider getTickProvider(double tickStep, Unit tickUnit, LabelFormatInfo labelFormatInfo) {
         return new LinearTickProvider(tickStep, tickUnit, labelFormatInfo);
     }
 
     class LinearTickProvider implements TickProvider {
-        private float tickStep;
+        private double tickStep;
         int tickDigits;
         int tickPower;
         private LabelFormatInfo labelFormatInfo;
@@ -40,14 +39,14 @@ public class ScaleLinear extends Scale {
 
         public LinearTickProvider(int tickCount, LabelFormatInfo labelFormatInfo) {
             this.labelFormatInfo = labelFormatInfo;
-            NormalizedNumber normalizedStep = getTickStep(tickCount);
-            tickStep = (float) normalizedStep.getValue();
+            NormalizedNumber normalizedStep = getRoundTickStep(tickCount);
+            tickStep = normalizedStep.getValue();
             tickDigits = (int)normalizedStep.getMantissa();
             tickPower = normalizedStep.getPower();
             labelFormat = getNumberFormat(tickPower, labelFormatInfo);
         }
 
-        public LinearTickProvider(float tickStep, Unit tickUnit, LabelFormatInfo labelFormatInfo) {
+        public LinearTickProvider(double tickStep, Unit tickUnit, LabelFormatInfo labelFormatInfo) {
             this.tickStep = tickStep;
             this.labelFormatInfo = labelFormatInfo;
             NormalizedNumber normalizedStep = new NormalizedNumber(tickStep);
@@ -70,10 +69,10 @@ public class ScaleLinear extends Scale {
         @Override
         public Tick getNextTick() {
             if(lastTick == null) {
-                float min = domain[0];
+                double min = domain[0];
                 lastTick = getLowerTick(min);
             } else {
-                float tickValue = lastTick.getValue() + tickStep;
+                double tickValue = lastTick.getValue() + tickStep;
                 lastTick = new Tick(tickValue, labelFormat.format(tickValue));
             }
             return lastTick;
@@ -82,25 +81,25 @@ public class ScaleLinear extends Scale {
         @Override
         public Tick getPreviousTick() {
             if(lastTick == null) {
-                float min = domain[0];
+                double min = domain[0];
                 lastTick = getLowerTick(min);
             } else {
-                float tickValue = lastTick.getValue() - tickStep;
+                double tickValue = lastTick.getValue() - tickStep;
                 lastTick = new Tick(tickValue, labelFormat.format(tickValue));
             }
             return lastTick;
         }
 
         @Override
-        public Tick getUpperTick(float value) {
-            float tickValue = (float) (Math.ceil(value / tickStep) * tickStep);
+        public Tick getUpperTick(double value) {
+            double tickValue = Math.ceil(value / tickStep) * tickStep;
             lastTick = new Tick(tickValue, labelFormat.format(tickValue));
             return lastTick;
         }
 
         @Override
-        public Tick getLowerTick(float value) {
-            float tickValue = (float) (Math.floor(value / tickStep) * tickStep);
+        public Tick getLowerTick(double value) {
+            double tickValue = Math.floor(value / tickStep) * tickStep;
             lastTick = new Tick(tickValue, labelFormat.format(tickValue));
             return lastTick;
         }
@@ -111,14 +110,14 @@ public class ScaleLinear extends Scale {
          * that is  multiples of 2, 5 or 10.
          * FirstDigit is in {1,2,5,10};
          */
-        private NormalizedNumber getTickStep(int tickCount)  {
+        private NormalizedNumber getRoundTickStep(int tickCount)  {
             if(tickCount <= 1) {
                 String errMsg = MessageFormat.format("Invalid ticks tickCount: {0}. Expected >= 2", tickCount);
                 throw new IllegalArgumentException(errMsg);
             }
-            float max = domain[domain.length - 1];
-            float min = domain[0];
-            float step = (max - min) / (tickCount - 1);
+            double max = domain[domain.length - 1];
+            double min = domain[0];
+            double step = (max - min) / (tickCount - 1);
             NormalizedNumber normalizedStep = new NormalizedNumber(step);
 
             int power = normalizedStep.getPower();
@@ -197,7 +196,7 @@ public class ScaleLinear extends Scale {
          * @param step given step
          * @return closest roundInterval >= given step
          */
-        private NormalizedNumber roundStepUp(float step)  {
+        private NormalizedNumber roundStepUp(double step)  {
             // int[] roundValues = {1, 2, 3, 4, 5, 6, 8, 10};
             int[] roundSteps = {1, 2, 4, 5, 8, 10};
             NormalizedNumber normalizedStep = new NormalizedNumber(step);
@@ -232,11 +231,11 @@ public class ScaleLinear extends Scale {
                 String errMsg = MessageFormat.format("Invalid ticks amount: {0}. Expected >= 2", maxCount);
                 throw new IllegalArgumentException(errMsg);
             }
-            float max = domain[domain.length - 1];
-            float min = domain[0];
-            float step = (max - min)  / (maxCount - 1);
+            double max = domain[domain.length - 1];
+            double min = domain[0];
+            double step = (max - min)  / (maxCount - 1);
             NormalizedNumber roundStep = roundStepUp(step);
-            tickStep = (float) roundStep.getValue();
+            tickStep =  roundStep.getValue();
             int ticksCount = (int) ((getLowerTick(min).getValue() - getUpperTick(max).getValue()) / tickStep) + 1;
 
         /*

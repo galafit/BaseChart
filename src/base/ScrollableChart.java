@@ -2,6 +2,7 @@ package base;
 
 import base.config.ScrollableChartConfig;
 import base.config.SimpleChartConfig;
+import base.traces.RangeInt;
 
 import java.util.*;
 import java.util.List;
@@ -45,7 +46,7 @@ public class ScrollableChart {
                 chart.setXMinMax(xAxisIndex,  scrollRange);
                 scroll.addListener(new ScrollListener() {
                     @Override
-                    public void onScrollChanged(float scrollValue, float scrollExtent) {
+                    public void onScrollChanged(double scrollValue, double scrollExtent) {
                         chart.setXMinMax(xAxisIndex, new Range(scrollValue, scrollValue + scrollExtent));
                     }
                 });
@@ -122,7 +123,7 @@ public class ScrollableChart {
         return chart.getSelectedTraceIndex();
     }
 
-    public Range getChartYStartEnd(int yAxisIndex) {
+    public RangeInt getChartYStartEnd(int yAxisIndex) {
         return chart.getYStartEnd(yAxisIndex);
     }
 
@@ -234,7 +235,7 @@ public class ScrollableChart {
     /**
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
-    public boolean setScrollsValue(float newValue) {
+    public boolean setScrollsValue(double newValue) {
         boolean scrollsMoved = false;
         for (Integer xAxisIndex : scrolls.keySet()) {
             scrollsMoved = scrolls.get(xAxisIndex).setValue(newValue) || scrollsMoved;
@@ -273,11 +274,11 @@ public class ScrollableChart {
         scrolls.get(xAxisIndex).addListener(listener);
     }
 
-    public float getScrollExtent(int xAxisIndex) {
+    public double getScrollExtent(int xAxisIndex) {
         return scrolls.get(xAxisIndex).getExtent();
     }
 
-    public float getScrollValue(int xAxisIndex) {
+    public double getScrollValue(int xAxisIndex) {
         return scrolls.get(xAxisIndex).getValue();
     }
 
@@ -320,7 +321,7 @@ public class ScrollableChart {
         return preview.getXMinMax(0);
     }
 
-    public Range getPreviewYStartEnd(int yAxisIndex) {
+    public RangeInt getPreviewYStartEnd(int yAxisIndex) {
         return preview.getYStartEnd(yAxisIndex);
     }
 

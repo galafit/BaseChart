@@ -18,7 +18,7 @@ public class ScrollableChartConfig {
     private SimpleChartConfig chartConfig;
     private SimpleChartConfig previewConfig;
     private ScrollConfig scrollConfig = new ScrollConfig();
-    private Map<Integer, Float> scrollExtents = new Hashtable<Integer, Float>(2);
+    private Map<Integer, Double> scrollExtents = new Hashtable<Integer, Double>(2);
     private Range previewMinMax;
 
     public ScrollableChartConfig() {
@@ -88,12 +88,12 @@ public class ScrollableChartConfig {
         return scrollConfig;
     }
 
-    public Float getScrollExtent(int xAxisIndex) {
+    public Double getScrollExtent(int xAxisIndex) {
         return scrollExtents.get(xAxisIndex);
     }
 
-    public float[] getScrollsExtents() {
-        float[] extents = new float[scrollExtents.keySet().size()];
+    public double[] getScrollsExtents() {
+        double[] extents = new double[scrollExtents.keySet().size()];
         int i = 0;
         for (Integer xAxisIndex : scrollExtents.keySet()) {
             extents[i] = scrollExtents.get(xAxisIndex);
@@ -102,7 +102,7 @@ public class ScrollableChartConfig {
         return extents;
     }
 
-    public void addScroll(int xAxisIndex, float extent) {
+    public void addScroll(int xAxisIndex, double extent) {
         scrollExtents.put(xAxisIndex, extent);
     }
 
