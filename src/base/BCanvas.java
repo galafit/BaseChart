@@ -18,6 +18,7 @@ public interface BCanvas {
     public void setStroke(BStroke stroke);
     public void setTextStyle(TextStyle textStyle);
     public void setClip(int x, int y, int width, int height);
+    public BRectangle getBounds();
 
     public void drawString(String str, int x, int y);
     public void drawLine(int x1, int y1, int x2, int y2);

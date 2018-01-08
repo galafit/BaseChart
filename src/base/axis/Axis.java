@@ -13,13 +13,6 @@ import java.util.List;
  * Created by galafit on 5/9/17.
  */
 public class Axis {
-    /** Dirty data in js - the data, that have been changed recently and
-    ** DOM haven't been re-rendered according to this changes yet.
-    ** So dirty checking is diff between next state and current state.
-    **/
-    // if the axis elements (ticks, labels, lines...) are not created or should be updated
-    private boolean isDirty = true;
-
     protected final int DEFAULT_TICK_COUNT = 10;
 
     private boolean isTicksOverlappingFixed = false;
@@ -96,14 +89,14 @@ public class Axis {
         rowMinMax = new Range(getMin(), getMax());
         ticks = null;
         tickProvider = null;
-        isDirty = true;
+        axisName = null;
     }
 
     public void setStartEnd(float start, float end) {
         scale.setRange(start, end);
         tickProvider = null;
         ticks = null;
-        isDirty = true;
+        axisName = null;
     }
 
     public Scale getScale() {
@@ -493,47 +486,30 @@ public class Axis {
         } else {
             axisLine = new Line(0, getStart(), 0, getEnd());
         }
+    }
 
-        // axis title
-        int axisNameDistance = 0;
-        if(config.isAxisLineVisible()) {
-            axisNameDistance += config.getAxisLineStroke().getWidth() / 2;
-        }
-        if (config.isTicksVisible()) {
-            axisNameDistance += config.getTickMarkOutsideSize();
-        }
-        if(config.isLabelsVisible()) {
-            int labelsSize = 0;
-            if(isHorizontal()) {
-                labelsSize = tm.ascent();
-            } else {
-                labelsSize = getMaxTickLabelsWidth(tm, ticks);
-            }
-            axisNameDistance += (labelsSize + config.getLabelPadding());
-        }
-        axisNameDistance += config.getTitlePadding();
-        tm = canvas.getTextMetric(config.getTitleTextStyle());
+    private void createTitle(BCanvas canvas, int AxisThickness) {
+        TextMetric tm = canvas.getTextMetric(config.getTitleTextStyle());
         if(config.isTop()) {
-            int y = - axisNameDistance;
+            int y = - AxisThickness + tm.height();
             int x = (getEnd() + getStart()) / 2;
             axisName = new Text(config.getTitle(), x, y, TextAnchor.MIDDLE, TextAnchor.START, tm);
         }
         if(config.isBottom()) {
-            int y = axisNameDistance;
+            int y = AxisThickness - tm.height() / 2;
             int x = (getEnd() + getStart()) / 2;
-            axisName = new Text(config.getTitle(), x, y, TextAnchor.MIDDLE, TextAnchor.END, tm);
+            axisName = new Text(config.getTitle(), x, y, TextAnchor.MIDDLE, TextAnchor.MIDDLE, tm);
         }
         if(config.isLeft()) {
-            int x = -axisNameDistance;
+            int x = -AxisThickness;
             int y = (getEnd() + getStart()) / 2;
-            axisName = new Text(config.getTitle(), x, y, TextAnchor.START, TextAnchor.MIDDLE, -90, tm);
+            axisName = new Text(config.getTitle(), x, y, TextAnchor.END, TextAnchor.MIDDLE, -90, tm);
         }
         if(config.isRight()) {
-            int x = axisNameDistance;
+            int x = AxisThickness;
             int y = (getEnd() + getStart()) / 2;
-            axisName = new Text(config.getTitle(), x, y, TextAnchor.START, TextAnchor.MIDDLE, +90, tm);
+            axisName = new Text(config.getTitle(), x, y, TextAnchor.END, TextAnchor.MIDDLE, +90, tm);
         }
-        isDirty = false;
     }
 
     private int getMaxTickLabelsWidth(TextMetric tm, List<Tick> ticks) {
@@ -578,13 +554,16 @@ public class Axis {
         canvas.restore();
     }
 
-    public void drawAxis(BCanvas canvas,  int axisOriginPoint) {
+    public void drawAxis(BCanvas canvas,  int axisOriginPoint, int AxisThickness) {
         canvas.save();
          if(!config.isVisible()) {
             return;
         }
-        if(isDirty) {
+        if(ticks == null) {
             createAxisElements(canvas);
+        }
+        if(axisName == null) {
+             createTitle(canvas, AxisThickness);
         }
         if(isHorizontal()) {
             canvas.translate(0, axisOriginPoint);

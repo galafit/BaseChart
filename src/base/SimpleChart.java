@@ -35,7 +35,10 @@ public class SimpleChart {
     private BRectangle graphArea;
     private SimpleChartConfig chartConfig;
     private Margin margin;
-
+    /** Dirty data in js - the data, that have been changed recently and
+     ** DOM haven't been re-rendered according to this changes yet.
+     ** So dirty checking is diff between next state and current state.
+     **/
     private boolean isDirty = true;
 
 
@@ -194,7 +197,7 @@ public class SimpleChart {
         for (int stackIndex = 0; stackIndex < legends.size(); stackIndex++) {
             int legendAreaYStart = yAxisList.get(2 * stackIndex).getEnd();
             int legendAreaYEnd = yAxisList.get(2 * stackIndex).getStart();
-            BRectangle legendArea = new BRectangle(graphArea.x, legendAreaYStart, graphArea.width, legendAreaYEnd - legendAreaYStart);
+            BRectangle legendArea = new BRectangle(graphArea.x + 1, legendAreaYStart + 1, graphArea.width, legendAreaYEnd - legendAreaYStart);
             legends.get(stackIndex).setArea(legendArea);
         }
 
@@ -236,13 +239,13 @@ public class SimpleChart {
         }
 
         for (int i = 0; i < xAxisList.size() / 2; i++) {
-            xAxisList.get(i * 2).drawAxis(canvas, bottomPosition);
-            xAxisList.get(i * 2 + 1).drawAxis(canvas, topPosition);
+            xAxisList.get(i * 2).drawAxis(canvas, bottomPosition, margin.bottom());
+            xAxisList.get(i * 2 + 1).drawAxis(canvas, topPosition, margin.top() - titleArea.height);
         }
 
         for (int i = 0; i < yAxisList.size() / 2; i++) {
-            yAxisList.get(i * 2).drawAxis(canvas, leftPosition);
-            yAxisList.get(i * 2 + 1).drawAxis(canvas, rightPosition);
+            yAxisList.get(i * 2).drawAxis(canvas, leftPosition, margin.left());
+            yAxisList.get(i * 2 + 1).drawAxis(canvas, rightPosition, margin.right());
         }
 
         canvas.save();

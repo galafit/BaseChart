@@ -44,6 +44,12 @@ public class SwingCanvas implements BCanvas {
     }
 
     @Override
+    public BRectangle getBounds() {
+        Rectangle bounds = g2.getClipBounds();
+        return new BRectangle(bounds.x, bounds.y, bounds.width, bounds.height);
+    }
+
+    @Override
     public void save() {
         affineTransforms.add(g2.getTransform());
         boundsList.add(g2.getClip());
