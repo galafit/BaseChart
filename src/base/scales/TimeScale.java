@@ -158,7 +158,7 @@ public class TimeScale extends Scale{
 
 
         private DateFormat getDateFormat(long step) {
-            String DATE_FORMAT_MSEC = "HH:mm:ss-SSS";
+            String DATE_FORMAT_MSEC = "HH:mm:ss.SSS";
             String DATE_FORMAT_SEC = "HH:mm:ss";
             String DATE_FORMAT_MIN = "HH:mm";
             String DATE_FORMAT_HOUR = "HH";

@@ -1,4 +1,4 @@
-package base.axis;
+package base.config;
 
 /**
  * Created by hdablin on 24.06.17.

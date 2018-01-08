@@ -1,13 +1,8 @@
 package base.axis;
 
-import base.BCanvas;
-import base.BStroke;
-import base.TextMetric;
+import base.*;
 import base.config.AxisConfig;
-import base.TextAnchor;
-import base.Range;
-import base.Line;
-import base.Text;
+import base.config.AxisType;
 import base.scales.*;
 
 import java.text.MessageFormat;
@@ -42,7 +37,11 @@ public class Axis {
 
     public Axis(AxisConfig config) {
         this.config = config;
-        scale = new LinearScale();
+        if(config.getAxisType() == AxisType.TIME) {
+            scale = new TimeScale();
+        } else {
+            scale = new LinearScale();
+        }
         rowMinMax = new Range(getMin(), getMax());
     }
 
@@ -515,7 +514,7 @@ public class Axis {
         axisNameDistance += config.getTitlePadding();
         tm = canvas.getTextMetric(config.getTitleTextStyle());
         if(config.isTop()) {
-            int y = -axisNameDistance;
+            int y = - axisNameDistance;
             int x = (getEnd() + getStart()) / 2;
             axisName = new Text(config.getTitle(), x, y, TextAnchor.MIDDLE, TextAnchor.START, tm);
         }

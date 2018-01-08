@@ -9,6 +9,7 @@ import base.TextStyle;
  */
 public class AxisConfig {
     private AxisOrientation orientation;
+    private AxisType axisType = AxisType.LINEAR;
     private BColor color =  BColor.GRAY;
     private BColor gridColor = new BColor(100, 100, 100);
     private BColor minorGridColor = new BColor(80, 80, 80);
@@ -74,6 +75,14 @@ public class AxisConfig {
         minorGridCounter = axisConfig.minorGridCounter;
 
         isMinMaxRoundingEnable = axisConfig.isMinMaxRoundingEnable;
+    }
+
+    public AxisType getAxisType() {
+        return axisType;
+    }
+
+    public void setAxisType(AxisType axisType) {
+        this.axisType = axisType;
     }
 
     public boolean isLabelInside() {

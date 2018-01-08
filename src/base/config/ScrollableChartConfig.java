@@ -22,10 +22,14 @@ public class ScrollableChartConfig {
     private Range previewMinMax;
 
     public ScrollableChartConfig() {
-        this(1);
+        this(1, true);
     }
 
-    public ScrollableChartConfig(int theme) {
+    public ScrollableChartConfig(boolean isDateTime) {
+        this(1, isDateTime);
+    }
+
+    public ScrollableChartConfig(int theme, boolean isDateTime) {
         AxisConfig leftAxisConfig = new AxisConfig(AxisOrientation.LEFT);
         AxisConfig rightAxisConfig = new AxisConfig(AxisOrientation.RIGHT);
         leftAxisConfig.setMinMaxRoundingEnable(true);
@@ -40,6 +44,13 @@ public class ScrollableChartConfig {
         rightAxisConfig.setGridLineStroke(new BStroke(1));
         chartConfig = new SimpleChartConfig(false, false, leftAxisConfig, rightAxisConfig);
         previewConfig = new SimpleChartConfig(true, false, leftAxisConfig, rightAxisConfig);
+
+        if(isDateTime) {
+            chartConfig.getXConfig(0).setAxisType(AxisType.TIME);
+            chartConfig.getXConfig(1).setAxisType(AxisType.TIME);
+            previewConfig.getXConfig(0).setAxisType(AxisType.TIME);
+            previewConfig.getXConfig(1).setAxisType(AxisType.TIME);
+        }
 
         if(theme == DARK_THEME) {
             BColor bgColor = new BColor(20, 20, 30);
