@@ -42,8 +42,6 @@ public class AxisConfig {
         this.orientation = orientation;
         titlePadding = (int)(0.4 * titleTextStyle.getSize());
         labelPadding = (int)(0.3 * labelTextStyle.getSize());
-        gridColor = new BColor(100, 100, 100);
-        minorGridColor = new BColor(80, 80, 80);
     }
 
     public AxisConfig(AxisConfig axisConfig) {

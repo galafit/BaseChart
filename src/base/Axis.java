@@ -1,4 +1,4 @@
-package base.axis;
+package base;
 
 import base.*;
 import base.config.AxisConfig;
@@ -15,7 +15,6 @@ import java.util.List;
 public class Axis {
     protected final int DEFAULT_TICK_COUNT = 10;
 
-    private boolean isTicksOverlappingFixed = false;
     private Scale scale;
     private Range rowMinMax; // without rounding
     private AxisConfig config;
@@ -43,7 +42,7 @@ public class Axis {
      * @param zoomFactor
      */
     public void zoom(double zoomFactor) {
-        setMinMax(rowMinMax);
+        scale.setDomain(rowMinMax.start(), rowMinMax.end());
         int start = getStart();
         int end = getEnd();
         double min = getMin();
@@ -55,7 +54,7 @@ public class Axis {
        // double minNew = invert(start);
         double maxNew = invert(end);
         setMinMax(min, maxNew);
-        setStartEnd(start, end);
+        scale.setRange(start, end);
     }
 
     public void translate(int translation) {
@@ -93,6 +92,7 @@ public class Axis {
     }
 
     public void setStartEnd(float start, float end) {
+        setMinMax(rowMinMax);
         scale.setRange(start, end);
         tickProvider = null;
         ticks = null;
@@ -245,33 +245,34 @@ public class Axis {
     private Text tickToLabel(Tick tick, TextMetric tm) {
         int axisWidth = config.getAxisLineStroke().getWidth();
         int labelPadding = config.getLabelPadding();
+        int space = 2;// px
         if(config.isTop()) {
             if(config.isLabelInside()) {
-                int x = (int)scale(tick.getValue()) + labelPadding;
+                int x = (int)scale(tick.getValue()) + space;
                 int y = axisWidth / 2 + labelPadding;
                 return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.END, tm);
 
             } else {
-                int x = (int)scale(tick.getValue());
+                int x = (int)scale(tick.getValue()) + space;
                 int y = -axisWidth / 2 - config.getTickMarkOutsideSize() - labelPadding;
-                return new Text(tick.getLabel(), x, y, TextAnchor.MIDDLE, TextAnchor.START, tm);
+                return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.START, tm);
             }
          }
         if(config.isBottom()) {
             if(config.isLabelInside()) {
-                int x = (int)scale(tick.getValue()) + labelPadding;
+                int x = (int)scale(tick.getValue()) + space;
                 int y = -axisWidth / 2 - labelPadding;
                 return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.START, tm);
 
             } else {
-                int x = (int)scale(tick.getValue());
+                int x = (int)scale(tick.getValue()) + space;
                 int y = axisWidth / 2 + config.getTickMarkOutsideSize() + labelPadding;
-                return new Text(tick.getLabel(), x, y, TextAnchor.MIDDLE, TextAnchor.END, tm);
+                return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.END, tm);
             }
         }
         if(config.isLeft()) {
             if(config.isLabelInside()) {
-                int y = (int)scale(tick.getValue()) - labelPadding;
+                int y = (int)scale(tick.getValue()) - space;
                 int x = axisWidth / 2 + labelPadding;
                 int labelHeight = tm.height();
 
@@ -286,7 +287,7 @@ public class Axis {
                 int x = -axisWidth / 2 - config.getTickMarkInsideSize() - labelPadding;
                 int labelHeight = tm.height();
                 if(y + labelHeight/2 + 1 > getStart()) {
-                    y -= labelPadding;
+                    y -= space;
                     return new Text(tick.getLabel(), x, y, TextAnchor.END, TextAnchor.START, tm);
                 }
                 if(y - labelHeight/2 - 1 < getEnd()) {
@@ -298,12 +299,12 @@ public class Axis {
         }
         // if config.isRight()
         if(config.isLabelInside()) {
-            int y = (int)scale(tick.getValue()) - labelPadding;
+            int y = (int)scale(tick.getValue()) - space;
             int x = - axisWidth / 2 - labelPadding;
             int labelHeight = tm.height();
 
             if(y - labelHeight/2 - 1 < getEnd()) {
-                y += labelPadding;
+                y += space;
                 return new Text(tick.getLabel(), x, y, TextAnchor.END, TextAnchor.END, tm);
             }
             return new Text(tick.getLabel(), x, y, TextAnchor.END, TextAnchor.START, tm);

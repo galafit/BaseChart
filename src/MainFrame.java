@@ -50,7 +50,7 @@ public class MainFrame extends JFrame {
         XYData xyData3 = new XYData();
         xyData3.setYData(yData2);
 
-        ChartConfig config = new ChartConfig();
+        ChartConfig config = new ChartConfig(true);
         config.addTrace(new LineTraceConfig(), xyData1);
         config.addChartStack(5);
         config.addTrace(new LineTraceConfig(), xyData2);

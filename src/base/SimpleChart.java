@@ -1,6 +1,5 @@
 package base;
 
-import base.axis.Axis;
 import base.button.ToggleBtn;
 import base.button.BtnGroup;
 import base.button.StateListener;
@@ -50,6 +49,7 @@ public class SimpleChart {
     private int hoverTraceIndex = -1;
 
     private List<DataSet> data;
+    int counter;
 
 
     public SimpleChart(SimpleChartConfig chartConfig, List<DataSet> data, BRectangle area) {
