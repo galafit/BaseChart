@@ -75,15 +75,29 @@ public class ScrollableChart {
     }
 
     private void calculateAreas(BRectangle area) {
+        int top = 0;
+        int bottom = 0;
+        int left = 0;
+        int right = 0;
+        Margin margin = config.getMargin();
+        if(margin != null) {
+           top = margin.top();
+           bottom = margin.bottom();
+           left = margin.left();
+           right = margin.right();
+        }
+        int width = area.width - left - right;
+        int height = area.height -  top - bottom;
         if (!isPreviewEnable()) {
-            chartArea = area;
+            chartArea = new BRectangle(area.x + left, area.y + top, width, height);
         } else {
+            int gap = config.getGapBetweenChartPreview();
             int chartWeight = config.getChartConfig().getSumWeight();
             int previewWeight = config.getPreviewConfig().getSumWeight();
-            int chartHeight = area.height * chartWeight / (chartWeight + previewWeight);
-            int previewHeight = area.height * previewWeight / (chartWeight + previewWeight);
-            chartArea = new BRectangle(area.x, area.y, area.width, chartHeight);
-            previewArea = new BRectangle(area.x, area.y + chartHeight, area.width, previewHeight);
+            int chartHeight = (height - gap) * chartWeight / (chartWeight + previewWeight);
+            int previewHeight = (height - gap) * previewWeight / (chartWeight + previewWeight);
+            chartArea = new BRectangle(area.x + left, area.y + top, width, chartHeight);
+            previewArea = new BRectangle(area.x + left, area.y + chartHeight + top + gap, width, previewHeight);
         }
     }
 

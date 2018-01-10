@@ -12,7 +12,7 @@ import java.util.*;
 public class SimpleChartConfig {
     public static final int DEFAULT_WEIGHT = 10;
 
-    private String title = "Chart title";
+    private String title;
     private BColor background;
     private BColor marginColor;
     private Margin margin;

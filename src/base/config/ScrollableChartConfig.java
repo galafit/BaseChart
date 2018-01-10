@@ -2,6 +2,7 @@ package base.config;
 
 import base.BColor;
 import base.BStroke;
+import base.Margin;
 import base.Range;
 
 import java.util.Hashtable;
@@ -17,6 +18,8 @@ public class ScrollableChartConfig {
 
     private SimpleChartConfig chartConfig;
     private SimpleChartConfig previewConfig;
+    private int gapBetweenChartPreview; //px
+    private Margin margin;
     private ScrollConfig scrollConfig = new ScrollConfig();
     private Map<Integer, Double> scrollExtents = new Hashtable<Integer, Double>(2);
     private Range previewMinMax;
@@ -62,15 +65,14 @@ public class ScrollableChartConfig {
             chartConfig.getLegendConfig().setTextColor(textColor);
             chartConfig.setTitleColor(textColor);
 
-            previewConfig.setBackground(bgColor);
+            BColor previewBgColor = new BColor(25, 25, 25);
+            previewConfig.setBackground(previewBgColor);
             previewConfig.setMarginColor(marginColor);
             previewConfig.getLegendConfig().setBackgroundColor(bgColor);
             previewConfig.getLegendConfig().setTextColor(textColor);
             previewConfig.setTitleColor(textColor);
         }
     }
-
-
 
     public SimpleChartConfig getChartConfig() {
         return chartConfig;
@@ -82,6 +84,22 @@ public class ScrollableChartConfig {
 
     public boolean isPreviewEnable() {
         return ! scrollExtents.isEmpty();
+    }
+
+    public int getGapBetweenChartPreview() {
+        return gapBetweenChartPreview;
+    }
+
+    public void setGapBetweenChartPreview(int gapBetweenChartPreview) {
+        this.gapBetweenChartPreview = gapBetweenChartPreview;
+    }
+
+    public Margin getMargin() {
+        return margin;
+    }
+
+    public void setMargin(Margin margin) {
+        this.margin = margin;
     }
 
     public void setPreviewMinMax(Range minMax) {

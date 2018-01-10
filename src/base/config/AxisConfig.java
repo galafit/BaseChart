@@ -26,7 +26,7 @@ public class AxisConfig {
     private boolean isTicksVisible = true;
     private float tickStep = 0; // in domain units
 
-    private String title = "title";
+    private String title;
     private TextStyle titleTextStyle = new TextStyle(TextStyle.DEFAULT, TextStyle.NORMAL, 14);
     private int titlePadding; // px
 

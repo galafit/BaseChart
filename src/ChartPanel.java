@@ -27,7 +27,7 @@ public class ChartPanel extends JPanel {
     private ChartWithDataManager chartDataManager;
 
     public ChartPanel(ChartConfig config) {
-        BColor bg = config.getChartConfig().getBackground();
+        BColor bg = config.getChartConfig().getMarginColor();
         setBackground(new Color(bg.getRed(), bg.getGreen(), bg.getBlue()));
         chartDataManager = new ChartWithDataManager(config, new BRectangle(0, 0, 500, 500));
         scrollableChart = chartDataManager.getChartWithPreview();
