@@ -13,7 +13,7 @@ public class ChartWithDataManager {
     private ChartConfig config;
 
     private boolean isAutoScaleDuringScroll = true;
-    private int minPixelsPerDataItem = 5;
+    private int minPixelsPerDataItem = 1;
     private float currentPreviewGroupingInterval = 0;
     private int chartGroupingStep = 2;
 

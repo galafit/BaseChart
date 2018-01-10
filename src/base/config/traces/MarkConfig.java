@@ -1,4 +1,4 @@
-package base.config;
+package base.config.traces;
 
 import base.BColor;
 
@@ -7,7 +7,7 @@ import base.BColor;
  */
 public class MarkConfig {
     private BColor color;
-    private int size = 4;
+    private int size = 1;
 
     public boolean isMarksVisible() {
         return (getSize() > 0) ? true: false;

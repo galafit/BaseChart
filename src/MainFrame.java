@@ -50,7 +50,7 @@ public class MainFrame extends JFrame {
         XYData xyData3 = new XYData();
         xyData3.setYData(yData2);
 
-        ChartConfig config = new ChartConfig(true);
+        ChartConfig config = new ChartConfig(false);
         config.addTrace(new LineTraceConfig(), xyData1);
         config.addChartStack(5);
         config.addTrace(new LineTraceConfig(), xyData2);
@@ -69,6 +69,7 @@ public class MainFrame extends JFrame {
         add(chartPanel,BorderLayout.CENTER);
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        addKeyListener(chartPanel);
         setLocationRelativeTo(null);
         setVisible(true);
     }

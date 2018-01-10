@@ -196,8 +196,11 @@ public class ScrollableChart {
         if (preview == null) {
             chart.translateX(xAxisIndex, dx);
         } else {
-            translateScrolls(dx * scrolls.get(xAxisIndex).getWidth() / chartArea.width);
-        }
+            if(scrolls.get(xAxisIndex) != null) {
+                float chartTranslation = dx * scrolls.get(xAxisIndex).getWidth() / chartArea.width;
+                translateScrolls(chartTranslation);
+            }
+         }
     }
 
     public void autoScaleChartX(int xAxisIndex) {

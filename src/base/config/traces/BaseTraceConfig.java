@@ -2,7 +2,6 @@ package base.config.traces;
 
 import base.BColor;
 import base.BStroke;
-import base.config.MarkConfig;
 
 /**
  * Created by galafit on 11/10/17.

@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by hdablin on 23.06.17.
  */
-public class ChartPanel extends JPanel {
+public class ChartPanel extends JPanel implements KeyListener {
     int scrollPointsPerRotation = 10;
     // во сколько раз растягивается или сжимается ось при автозуме
     private float defaultZoom = 2;
@@ -161,6 +161,28 @@ public class ChartPanel extends JPanel {
         });
     }
 
+    @Override
+    public void keyTyped(KeyEvent e) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        updateXAxisList();
+        if(e.getKeyCode() == KeyEvent.VK_RIGHT) {
+            translateX(scrollPointsPerRotation);
+            repaint();
+        }
+        if(e.getKeyCode() == KeyEvent.VK_LEFT) {
+            translateX(-scrollPointsPerRotation);
+            repaint();
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+
+    }
 
     private void updateXAxisList(int x, int y) {
         int selectedTraceIndex = scrollableChart.getChartSelectedTraceIndex();
