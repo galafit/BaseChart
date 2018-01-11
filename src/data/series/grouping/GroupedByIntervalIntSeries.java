@@ -2,6 +2,8 @@ package data.series.grouping;
 
 import data.series.IntArrayList;
 import data.series.IntSeries;
+import data.series.LongArrayList;
+import data.series.LongSeries;
 
 /**
  * This class groups data dividing the hole data range on equal intervals.
@@ -19,7 +21,7 @@ public class GroupedByIntervalIntSeries extends GroupedIntSeries {
     public GroupedByIntervalIntSeries(IntSeries inputSeries, double groupInterval) {
         super(inputSeries);
         this.groupInterval = (int)Math.round(groupInterval);
-        groupsStartIndexes = new IntArrayList();
+        groupsStartIndexes = new LongArrayList();
     }
 
     private void group() {
@@ -28,41 +30,41 @@ public class GroupedByIntervalIntSeries extends GroupedIntSeries {
             ((IntArrayList)groupsStartIndexes).add(0);
         }
 
-        int lastGroupStartIndex = groupsStartIndexes.get(groupsStartIndexes.size() - 1);
+        long lastGroupStartIndex = groupsStartIndexes.get(groupsStartIndexes.size() - 1);
         int groupLastStartValue = (inputSeries.get(lastGroupStartIndex) / groupInterval) * groupInterval;
-        for (int i = lastGroupStartIndex; i < inputSeries.size(); i++) {
+        for (long i = lastGroupStartIndex; i < inputSeries.size(); i++) {
             if (inputSeries.get(i) >= groupLastStartValue + groupInterval) {
-                ((IntArrayList)groupsStartIndexes).add(i);
+                ((LongArrayList)groupsStartIndexes).add(i);
                 groupLastStartValue = (inputSeries.get(i) / groupInterval) * groupInterval;
             }
         }
     }
 
     @Override
-    public int size() {
+    public long size() {
         group();
         return super.size();
     }
 
   //  @Override
-    public int getStartBoundary(int groupIndex) {
+    public int getStartBoundary(long groupIndex) {
         return (inputSeries.get(groupsStartIndexes.get(groupIndex)) / groupInterval) * groupInterval;
     }
 
   //  @Override
-    public int getStopBoundary(int groupIndex) {
+    public int getStopBoundary(long groupIndex) {
         return getStartBoundary(groupIndex) + groupInterval;
     }
 
     @Override
-    protected int getGroupedValue(int groupIndex) {
+    protected int getGroupedValue(long groupIndex) {
         return getStartBoundary(groupIndex);
         // if we want middle point instead start point it will be:
         // return getStartBoundary(groupIndex) + groupInterval / 2;
     }
 
     // delete this method if the same method in base class will be activated!!!
-    public IntSeries getGroupsStartIndexes() {
+    public LongSeries getGroupsStartIndexes() {
         return groupsStartIndexes;
     }
 
@@ -74,7 +76,7 @@ public class GroupedByIntervalIntSeries extends GroupedIntSeries {
         IntArrayList series = new IntArrayList();
         series.add(1, 2, 3, 6, 7, 10, 14, 16, 20, 100);
         GroupedByIntervalIntSeries groupedSeries = new GroupedByIntervalIntSeries(series, 3);
-        IntSeries groupIndexes = groupedSeries.getGroupsStartIndexes();
+        LongSeries groupIndexes = groupedSeries.getGroupsStartIndexes();
 
         System.out.println(groupedSeries.size() + " size :"+ groupIndexes.size());
         for (int i = 0; i < groupedSeries.size() ; i++) {

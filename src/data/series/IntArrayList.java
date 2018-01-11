@@ -1,5 +1,6 @@
 package data.series;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 
 /**
@@ -27,16 +28,21 @@ public class IntArrayList implements IntSeries {
     }
 
     @Override
-    public int size() {
+    public long size() {
         return size;
     }
 
     @Override
-    public int get(int index) {
-        if (index >= size) {
-            throw new ArrayIndexOutOfBoundsException(index);
+    public int get(long index) {
+        if(index > Integer.MAX_VALUE) {
+            String errorMessage = "Error. Expected: index is integer. Index = {0}, Integer.MAX_VALUE = {1}.";
+            String formattedError = MessageFormat.format(errorMessage, index, Integer.MAX_VALUE);
+            throw new IllegalArgumentException(formattedError);
         }
-        return data[index];
+        if (index >= size) {
+            throw new ArrayIndexOutOfBoundsException((int)index);
+        }
+        return data[(int)index];
     }
 
     /**
@@ -90,5 +96,4 @@ public class IntArrayList implements IntSeries {
             data = Arrays.copyOf(data, newCapacity);
         }
     }
-
 }

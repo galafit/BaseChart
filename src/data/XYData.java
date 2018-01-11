@@ -71,7 +71,7 @@ public class XYData implements Data {
     }
 
     private void removeYData() {
-        int yColumnNumber = dataSet.getYColumnsCounter();
+        int yColumnNumber = dataSet.getYColumnsCount();
         if(yColumnNumber > 0) {
             dataSet.removeYData(yColumnNumber - 1);
         }

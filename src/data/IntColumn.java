@@ -10,6 +10,7 @@ import data.series.grouping.aggregation.IntAverage;
 import data.series.grouping.aggregation.IntFirst;
 import data.series.grouping.aggregation.IntMax;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 /**
@@ -27,13 +28,19 @@ class IntColumn implements NumberColumn {
     public IntColumn(int[] data) {
         this(new IntSeries() {
             @Override
-            public int size() {
+            public long size() {
                 return data.length;
             }
 
             @Override
-            public int get(int index) {
-                return data[index];
+            public int get(long index) {
+                if(index > Integer.MAX_VALUE) {
+                    String errorMessage = "Error. Expected index <= {0}, index = {1}.";
+                    String formattedError = MessageFormat.format(errorMessage,Integer.MAX_VALUE,index);
+                    throw new IllegalArgumentException(formattedError);
+
+                }
+                return data[(int)index];
             }
         });
     }
@@ -41,41 +48,46 @@ class IntColumn implements NumberColumn {
     public IntColumn(List<Integer> data) {
         this(new IntSeries() {
             @Override
-            public int size() {
+            public long size() {
                 return data.size();
             }
 
             @Override
-            public int get(int index) {
-                return data.get(index);
+            public int get(long index) {
+                if(index > Integer.MAX_VALUE) {
+                    String errorMessage = "Error. Expected: index is integer. Index = {0}, Integer.MAX_VALUE = {1}.";
+                    String formattedError = MessageFormat.format(errorMessage, index, Integer.MAX_VALUE);
+                    throw new IllegalArgumentException(formattedError);
+                }
+                return data.get((int)index);
             }
         });
     }
 
 
     @Override
-    public int size() {
+    public long size() {
         return series.size();
     }
 
     @Override
-    public double getValue(int index) {
+    public double getValue(long index) {
         return series.get(index);
     }
 
     @Override
-    public Range getExtremes(int from, int length) {
+    public Range getExtremes(long from, int length) {
         return Processing.minMaxRange(series, from, length);
     }
 
 
     @Override
-    public int upperBound(double value, int from, int length) {
+    public long upperBound(double value, long from, int length) {
         return Processing.upperBound(series, value, from, length);
     }
 
     @Override
-    public int lowerBound(double value, int from, int length) {
+    public long lowerBound(double value, long from, int length) {
         return Processing.lowerBound(series, value, from, length);
     }
 

@@ -7,7 +7,7 @@ import data.series.FloatSeries;
  */
 public class FloatFirst implements FloatAggregateFunction {
     @Override
-    public float group(FloatSeries series, int from, int length) {
+    public float group(FloatSeries series, long from, int length) {
         return series.get(from);
     }
 }

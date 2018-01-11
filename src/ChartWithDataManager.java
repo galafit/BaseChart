@@ -41,7 +41,7 @@ public class ChartWithDataManager {
         chartData = new ArrayList<DataSet>();
         for (BaseDataSet data : chartOriginalData) {
             if(!config.isChartGroupedDatCachingEnable()) {
-                for (int i = 0; i < data.getYColumnsCounter() ; i++) {
+                for (int i = 0; i < data.getYColumnsCount() ; i++) {
                    data.setYGroupingType(GroupingType.FIRST, i);
                 }
             }

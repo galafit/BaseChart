@@ -12,11 +12,11 @@ class StringColumn {
         this.series = series;
     }
 
-    public int size() {
+    public long size() {
         return series.size();
     }
 
-    public String getString(int index) {
+    public String getString(long index) {
         return series.get(index);
     }
 

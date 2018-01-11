@@ -1,7 +1,6 @@
 package data;
 
 import base.Range;
-import data.series.IntSeries;
 
 /**
  * Created by galafit on 1/11/17.
@@ -24,25 +23,31 @@ public class RegularColumn implements NumberColumn{
     }
 
     @Override
-    public int size() {
+    public long size() {
         return Integer.MAX_VALUE;
     }
 
     @Override
-    public double getValue(int index) {
+    public double getValue(long index) {
         return startValue + dataInterval * index;
     }
 
     @Override
-    public Range getExtremes(int from, int length) {
+    public Range getExtremes(long from, int length) {
         double min = startValue;
         double max = startValue + (size() - 1) * dataInterval;
         return new Range(min, max);
     }
 
     @Override
-    public int upperBound(double value, int from, int length) {
-        int lowerBound = lowerBound(value, from, length);
+    public long lowerBound(double value, long from, int length) {
+        return (long) ((value - startValue) / dataInterval);
+    }
+
+
+    @Override
+    public long upperBound(double value, long from, int length) {
+        long lowerBound = lowerBound(value, from, length);
         if(value == getValue(lowerBound)) {
             return lowerBound;
         }
@@ -52,11 +57,6 @@ public class RegularColumn implements NumberColumn{
     @Override
     public void setGroupingType(GroupingType groupingType) {
         // DO NOTHING!!!
-    }
-
-    @Override
-    public int lowerBound(double value, int from, int length) {
-        return (int) ((value - startValue) / dataInterval);
     }
 
     @Override

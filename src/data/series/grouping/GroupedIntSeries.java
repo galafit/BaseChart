@@ -1,6 +1,7 @@
 package data.series.grouping;
 
 import data.series.IntSeries;
+import data.series.LongSeries;
 
 /**
  * Data grouping or data binning (banding) with aggregation.
@@ -38,7 +39,7 @@ import data.series.IntSeries;
  */
 public abstract class GroupedIntSeries implements IntSeries {
     protected IntSeries inputSeries;
-    protected IntSeries groupsStartIndexes;
+    protected LongSeries groupsStartIndexes;
 
     public GroupedIntSeries(IntSeries inputSeries) {
         this.inputSeries = inputSeries;
@@ -48,7 +49,7 @@ public abstract class GroupedIntSeries implements IntSeries {
      * Gets resultant number of groups/bins
      */
     @Override
-    public int size() {
+    public long size() {
         // last point we do not count because it will change on adding data
         return groupsStartIndexes.size() - 1;
     }
@@ -59,28 +60,28 @@ public abstract class GroupedIntSeries implements IntSeries {
      * @return aggregated value corresponding to the bin
      */
     @Override
-    public int get(int groupIndex) {
+    public int get(long groupIndex) {
         return getGroupedValue(groupIndex);
     }
 
-    protected abstract int getGroupedValue(int groupIndex);
+    protected abstract int getGroupedValue(long groupIndex);
 
 
     /**
      * Gets start or lower boundary of the groupByNumber/bin
      */
-  //  public abstract int getStartBoundary(int groupIndex);
+  //  public abstract long getStartBoundary(long groupIndex);
 
     /**
      * Gets start or upper boundary of the groupByNumber/bin
      */
-   // public abstract int getStopBoundary(int groupIndex);
+   // public abstract long getStopBoundary(long groupIndex);
 
     /**
      * Serves to synchronize groups(bins) of x and y data series
      * @return series containing start index of each bin
      */
-   /* public IntSeries getGroupsStartIndexes() {
+   /* public LongSeries getGroupsStartIndexes() {
         return groupsStartIndexes;
     }*/
 
@@ -91,7 +92,7 @@ public abstract class GroupedIntSeries implements IntSeries {
      * @param groupIndex index of the groupByNumber/bin
      * @return the name of the groupByNumber/bin
      */
-   /* public String getGroupName(int groupIndex) {
+   /* public String getGroupName(long groupIndex) {
         return new String("["+getStartBoundary(groupIndex)+" - "+getStopBoundary(groupIndex)+")");
     }*/
 

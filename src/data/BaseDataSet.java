@@ -20,8 +20,8 @@ public class BaseDataSet implements DataSet {
     StringColumn annotationColumn;
 
     // for subsets
-    int startIndex = 0;
-    int length = -1;
+    long startIndex = 0;
+    long length = -1;
 
     public BaseDataSet() {
     }
@@ -77,23 +77,23 @@ public class BaseDataSet implements DataSet {
 
 
     @Override
-    public int getYColumnsCounter() {
+    public int getYColumnsCount() {
         return yColumns.size();
     }
 
 
     @Override
-    public double getYValue(int index, int columnNumber) {
+    public double getYValue(long index, int columnNumber) {
         return yColumns.get(columnNumber).getValue(index + startIndex);
     }
 
     @Override
-    public double getXValue(int index) {
+    public double getXValue(long index) {
         return xColumn.getValue(index + startIndex);
     }
 
     @Override
-    public String getAnnotation(int index) {
+    public String getAnnotation(long index) {
         if (annotationColumn != null && index < annotationColumn.size()) {
             return annotationColumn.getString(index);
         }
@@ -110,7 +110,13 @@ public class BaseDataSet implements DataSet {
             double max = xColumn.getValue(startIndex + size() - 1);
             return new Range(min, max);
         } else {
-            return xColumn.getExtremes(startIndex, size());
+            long size = size();
+            if (size > Integer.MAX_VALUE) {
+                String errorMessage = "Error. Size must be integer during calculating X extremes for non ordered series. Size = {0}, Integer.MAX_VALUE = {1}.";
+                String formattedError = MessageFormat.format(errorMessage, size, Integer.MAX_VALUE);
+                throw new IllegalArgumentException(formattedError);
+            }
+            return xColumn.getExtremes(startIndex, (int) size);
         }
     }
 
@@ -119,12 +125,18 @@ public class BaseDataSet implements DataSet {
         if (size() == 0) {
             return null;
         }
-        return yColumns.get(yColumnNumber).getExtremes(startIndex, size());
+        long size = size();
+        if (size > Integer.MAX_VALUE) {
+            String errorMessage = "Error. Size must be integer during calculating Y extremes. Size = {0}, Integer.MAX_VALUE = {1}.";
+            String formattedError = MessageFormat.format(errorMessage, size, Integer.MAX_VALUE);
+            throw new IllegalArgumentException(formattedError);
+        }
+        return yColumns.get(yColumnNumber).getExtremes(startIndex, (int) size);
     }
 
 
     @Override
-    public int size() {
+    public long size() {
         if (length < 0) {
             return fullSize();
         }
@@ -132,11 +144,11 @@ public class BaseDataSet implements DataSet {
 
     }
 
-    private int fullSize() {
+    private long fullSize() {
         if (yColumns.size() == 0 && annotationColumn == null) {
             return 0;
         }
-        int size = xColumn.size();
+        long size = xColumn.size();
         for (NumberColumn column : yColumns) {
             size = Math.min(size, column.size());
         }
@@ -153,8 +165,14 @@ public class BaseDataSet implements DataSet {
      * @return index of nearest data item
      */
     @Override
-    public int findNearestData(double xValue) {
-        int lowerBoundIndex = xColumn.lowerBound(xValue, startIndex, size());
+    public long findNearestData(double xValue) {
+        long size = size();
+        if (size > Integer.MAX_VALUE) {
+            String errorMessage = "Error. Size must be integer during finding nearest data. Size = {0}, Integer.MAX_VALUE = {1}.";
+            String formattedError = MessageFormat.format(errorMessage, size, Integer.MAX_VALUE);
+            throw new IllegalArgumentException(formattedError);
+        }
+        long lowerBoundIndex = xColumn.lowerBound(xValue, startIndex, (int) size);
         lowerBoundIndex -= startIndex;
         if (lowerBoundIndex < 0) {
             return 0;
@@ -164,7 +182,7 @@ public class BaseDataSet implements DataSet {
         }
         double distance1 = xValue - getXValue(lowerBoundIndex);
         double distance2 = getXValue(lowerBoundIndex + 1) - xValue;
-        int nearestIndex = (distance1 <= distance2) ? lowerBoundIndex : lowerBoundIndex + 1;
+        long nearestIndex = (distance1 <= distance2) ? lowerBoundIndex : lowerBoundIndex + 1;
         return nearestIndex;
     }
 
@@ -175,17 +193,21 @@ public class BaseDataSet implements DataSet {
 
     public BaseDataSet getSubset(double startXValue, double endXValue, int shoulder) {
         if (endXValue < startXValue) {
-            String errorMessage = "Error during creating Data subset.Expected StartValue <= EndValue. StartValue = {0}, EndValue = {1}.";
+            String errorMessage = "Error during creating subset. Expected StartValue <= EndValue. StartValue = {0}, EndValue = {1}.";
             String formattedError = MessageFormat.format(errorMessage, startXValue, endXValue);
             throw new IllegalArgumentException(formattedError);
         }
         if (!isOrdered()) {
             return this;
         }
-        int subsetStartIndex = 0;
-        int subsetEndIndex = fullSize() - 1;
-        subsetStartIndex = xColumn.lowerBound(startXValue, 0, fullSize());
-        subsetEndIndex = xColumn.upperBound(endXValue, 0, fullSize());
+        long fullSize = fullSize();
+        if (!(xColumn instanceof RegularColumn) && fullSize > Integer.MAX_VALUE) {
+            String errorMessage = "Error during creating subset. Full size must be integer for no regular data sets. Full size = {0}, Integer.MAX_VALUE = {1}.";
+            String formattedError = MessageFormat.format(errorMessage, fullSize, Integer.MAX_VALUE);
+            throw new IllegalArgumentException(formattedError);
+        }
+        long subsetStartIndex = xColumn.lowerBound(startXValue, 0, (int)fullSize);
+        long subsetEndIndex = xColumn.upperBound(endXValue, 0, (int)fullSize);
         subsetStartIndex -= shoulder;
         subsetEndIndex += shoulder;
         BaseDataSet subset = new BaseDataSet(this);
@@ -245,7 +267,7 @@ public class BaseDataSet implements DataSet {
         }*/
 
         double avgDataInterval = getAverageDataInterval();
-        if(avgDataInterval > 0) {
+        if (avgDataInterval > 0) {
             int avgNumberOfItemsInGroups = (int) Math.round(groupingInterval / getAverageDataInterval());
             return groupByNumber(avgNumberOfItemsInGroups, isCachingEnable);
         }
@@ -254,10 +276,10 @@ public class BaseDataSet implements DataSet {
 
 
     public double getAverageDataInterval() {
-        if(xColumn instanceof RegularColumn) {
-            return ((RegularColumn)xColumn).getDataInterval();
+        if (xColumn instanceof RegularColumn) {
+            return ((RegularColumn) xColumn).getDataInterval();
         }
-        if(size() > 1) {
+        if (size() > 1) {
             return getXExtremes().length() / (size() - 1);
         }
         return -1;

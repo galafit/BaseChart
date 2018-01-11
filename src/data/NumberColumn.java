@@ -6,12 +6,12 @@ import base.Range;
  * Created by galafit on 17/9/17.
  */
 public interface NumberColumn {
-    public int size();
-    public double getValue(int index);
+    public long size();
+    public double getValue(long index);
 
-    public Range getExtremes(int from, int length);
-    public int upperBound(double value, int from, int length);
-    public int lowerBound(double value, int from, int length);
+    public Range getExtremes(long from, int length);
+    public long upperBound(double value, long from, int length);
+    public long lowerBound(double value, long from, int length);
     public NumberColumn copy();
     public void setGroupingType(GroupingType groupingType);
     public void groupByNumber(int numberOfElementsInGroups, boolean isCachingEnable);

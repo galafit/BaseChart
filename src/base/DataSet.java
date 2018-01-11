@@ -4,24 +4,24 @@ package base;
  * Created by galafit on 10/10/17.
  */
 public interface DataSet {
-    public double getYValue(int index, int yColumnNumber);
-
     /**
      * amount of Y columns
      */
-    public int getYColumnsCounter();
+    public int getYColumnsCount();
 
-    public double getXValue(int index);
+    public double getYValue(long index, int yColumnNumber);
 
-    public String getAnnotation(int index);
+    public double getXValue(long index);
 
-    public int size();
+    public String getAnnotation(long index);
+
+    public long size();
 
     public Range getXExtremes();
 
     public Range getYExtremes(int yColumnNumber);
 
-    public int findNearestData(double xValue);
+    public long findNearestData(double xValue);
 
     public double getAverageDataInterval();
 

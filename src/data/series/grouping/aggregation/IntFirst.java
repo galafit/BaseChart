@@ -7,7 +7,7 @@ import data.series.IntSeries;
  */
 public class IntFirst implements IntAggregateFunction {
     @Override
-    public int group(IntSeries series, int from, int length) {
+    public int group(IntSeries series, long from, int length) {
         return series.get(from);
     }
 }

@@ -1,5 +1,7 @@
 package data.series;
 
+import java.text.MessageFormat;
+
 /**
  * Class is designed to store/cache a computed input data and to give quick access to them.
  * Input data could be a filter, function and so on
@@ -13,13 +15,19 @@ public class CachingIntSeries implements IntSeries {
 
     public CachingIntSeries(IntSeries inputData) {
         this.inputData = inputData;
-        cachedData = new IntArrayList(inputData.size());
+        cachedData = new IntArrayList((int)inputData.size());
         cacheData();
     }
 
     private void cacheData() {
+        if(inputData.size() > Integer.MAX_VALUE) {
+            String errorMessage = "Error during caching data. Expected: inputData.size() is integer. inputData.size = {0}, Integer.MAX_VALUE = {1}.";
+            String formattedError = MessageFormat.format(errorMessage, inputData.size(), Integer.MAX_VALUE);
+            throw new RuntimeException(formattedError);
+
+        }
         if (cachedData.size()  < inputData.size()) {
-            for (int i = cachedData.size(); i < inputData.size(); i++) {
+            for (int i = (int)cachedData.size(); i < inputData.size(); i++) {
                 cachedData.add(inputData.get(i));
             }
         }
@@ -31,7 +39,7 @@ public class CachingIntSeries implements IntSeries {
     }
 
     @Override
-    public int get(int index) {
+    public int get(long index) {
         if(isCashingEnabled) {
             return cachedData.get(index);
         }
@@ -40,7 +48,7 @@ public class CachingIntSeries implements IntSeries {
 
 
     @Override
-    public int size() {
+    public long size() {
         if(isCashingEnabled) {
             cacheData();
             return cachedData.size();

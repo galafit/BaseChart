@@ -1,5 +1,7 @@
 package data.series;
 
+import java.text.MessageFormat;
+
 /**
  * Created by galafit on 25/11/17.
  */
@@ -11,13 +13,19 @@ public class CachingFloatSeries implements FloatSeries {
 
     public CachingFloatSeries(FloatSeries inputData) {
         this.inputData = inputData;
-        cachedData = new FloatArrayList(inputData.size());
+        cachedData = new FloatArrayList((int)inputData.size());
         cacheData();
     }
 
     private void cacheData() {
+        if(inputData.size() > Integer.MAX_VALUE) {
+            String errorMessage = "Error during caching data. Expected: inputData.size() is integer. inputData.size = {0}, Integer.MAX_VALUE = {1}.";
+            String formattedError = MessageFormat.format(errorMessage, inputData.size(), Integer.MAX_VALUE);
+            throw new RuntimeException(formattedError);
+
+        }
         if (cachedData.size()  < inputData.size()) {
-            for (int i = cachedData.size(); i < inputData.size(); i++) {
+            for (int i = (int)cachedData.size(); i < inputData.size(); i++) {
                 cachedData.add(inputData.get(i));
             }
         }
@@ -29,7 +37,7 @@ public class CachingFloatSeries implements FloatSeries {
     }
 
     @Override
-    public float get(int index) {
+    public float get(long index) {
         if(isCashingEnabled) {
             return cachedData.get(index);
         }
@@ -38,7 +46,7 @@ public class CachingFloatSeries implements FloatSeries {
 
 
     @Override
-    public int size() {
+    public long size() {
         if(isCashingEnabled) {
             cacheData();
             return cachedData.size();

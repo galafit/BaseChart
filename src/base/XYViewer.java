@@ -10,15 +10,15 @@ public class XYViewer {
         this.dataSet = dataSet;
     }
 
-    public int size() {
+    public long size() {
         return dataSet.size();
     }
 
-    public double getX(int index) {
+    public double getX(long index) {
         return dataSet.getXValue(index);
     }
 
-    public double getY(int index) {
+    public double getY(long index) {
         return dataSet.getYValue(index, 0);
     }
 
@@ -30,7 +30,7 @@ public class XYViewer {
         return dataSet.getXExtremes();
     }
 
-    public int findNearest(double xValue) {
+    public long findNearest(double xValue) {
         return dataSet.findNearestData(xValue);
     }
 

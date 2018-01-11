@@ -1,8 +1,10 @@
 package data.series.grouping;
 
 import data.series.FloatSeries;
-import data.series.IntSeries;
+import data.series.LongSeries;
 import data.series.grouping.aggregation.FloatAggregateFunction;
+
+import java.text.MessageFormat;
 
 /**
  * This class groups data in such a way that each group
@@ -11,21 +13,21 @@ import data.series.grouping.aggregation.FloatAggregateFunction;
  */
 public class GroupedByNumberFloatSeries implements FloatSeries {
     private FloatSeries inputSeries;
-    private IntSeries groupsStartIndexes;
+    private LongSeries groupsStartIndexes;
     private FloatAggregateFunction aggregateFunction;
 
     public GroupedByNumberFloatSeries(FloatSeries inputSeries, int numberOfPointsInEachGroup, FloatAggregateFunction aggregateFunction) {
         this.inputSeries = inputSeries;
         this.aggregateFunction = aggregateFunction;
 
-        groupsStartIndexes = new IntSeries() {
+        groupsStartIndexes = new LongSeries() {
             @Override
-            public int size() {
+            public long size() {
                 return inputSeries.size() / numberOfPointsInEachGroup;
             }
 
             @Override
-            public int get(int index) {
+            public long get(long index) {
                 return index * numberOfPointsInEachGroup;
             }
         };
@@ -35,18 +37,24 @@ public class GroupedByNumberFloatSeries implements FloatSeries {
      * Gets resultant number of groups/bins
      */
     @Override
-    public int size() {
+    public long size() {
         // last point we do not count because it will change on adding data
         return groupsStartIndexes.size();
     }
 
     @Override
-    public float get(int groupIndex) {
+    public float get(long groupIndex) {
         return getGroupedValue(groupIndex);
     }
 
-    protected float getGroupedValue(int groupIndex) {
-        return aggregateFunction.group(inputSeries, groupsStartIndexes.get(groupIndex), groupsStartIndexes.get(groupIndex + 1) - groupsStartIndexes.get(groupIndex));
+    protected float getGroupedValue(long groupIndex) {
+        long numberOfGroupingElements = groupsStartIndexes.get(groupIndex + 1) - groupsStartIndexes.get(groupIndex);
+        if(numberOfGroupingElements > Integer.MAX_VALUE) {
+            String errorMessage = "Error during calculation of grouped value. Expected: numberOfGroupingElements is integer. NumberOfGroupingElements = {0}, Integer.MAX_VALUE = {1}.";
+            String formattedError = MessageFormat.format(errorMessage, numberOfGroupingElements, Integer.MAX_VALUE);
+            throw new RuntimeException(formattedError);
+        }
+        return aggregateFunction.group(inputSeries, groupsStartIndexes.get(groupIndex), (int) numberOfGroupingElements);
     }
 
 }

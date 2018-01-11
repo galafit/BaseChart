@@ -7,7 +7,7 @@ import data.series.IntSeries;
  */
 public class IntAverage implements IntAggregateFunction {
     @Override
-    public int group(IntSeries series, int from, int length) {
+    public int group(IntSeries series, long from, int length) {
         long sum = 0;
         for (int i = from; i < from + length; i++) {
             sum += series.get(i);

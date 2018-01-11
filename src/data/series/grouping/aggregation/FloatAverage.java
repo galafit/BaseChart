@@ -7,9 +7,9 @@ import data.series.FloatSeries;
  */
 public class FloatAverage implements FloatAggregateFunction {
     @Override
-    public float group(FloatSeries series, int from, int length) {
+    public float group(FloatSeries series, long from, int length) {
         double sum = 0;
-        for (int i = from; i < from + length; i++) {
+        for (long i = from; i < from + length; i++) {
             sum += series.get(i);
         }
         return (float) (sum / length);
