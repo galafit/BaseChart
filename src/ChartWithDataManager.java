@@ -1,6 +1,6 @@
 import base.*;
 import base.config.SimpleChartConfig;
-import data.BaseDataSet;
+import data.BaseData;
 import data.GroupingType;
 
 import java.util.ArrayList;
@@ -21,12 +21,12 @@ public class ChartWithDataManager {
     private ScrollableChart scrollableChart;
     private BRectangle area;
 
-    private List<BaseDataSet> previewOriginalData;
-    private List<BaseDataSet> chartOriginalData;
+    private List<BaseData> previewOriginalData;
+    private List<BaseData> chartOriginalData;
 
-    private ArrayList<DataSet> previewData;
-    private ArrayList<DataSet> chartData;
-
+    private ArrayList<BaseData> previewProcessedData;
+    private ArrayList<BaseData> chartProcessedData;
+    
 
     public ChartWithDataManager(ChartConfig config, BRectangle area) {
         this.area = area;
@@ -38,19 +38,19 @@ public class ChartWithDataManager {
         chartOriginalData = config.getChartData();
         previewOriginalData = config.getPreviewData();
 
-        chartData = new ArrayList<DataSet>();
-        for (BaseDataSet data : chartOriginalData) {
+        chartProcessedData = new ArrayList<BaseData>();
+        for (BaseData data : chartOriginalData) {
             if(!config.isChartGroupedDatCachingEnable()) {
                 for (int i = 0; i < data.getYColumnsCount() ; i++) {
                    data.setYGroupingType(GroupingType.FIRST, i);
                 }
             }
-            chartData.add(data);
+            chartProcessedData.add(data);
         }
 
-        previewData = new ArrayList<DataSet>();
-        for (DataSet data : previewOriginalData) {
-            previewData.add(data);
+        previewProcessedData = new ArrayList<BaseData>();
+        for (BaseData data : previewOriginalData) {
+            previewProcessedData.add(data);
         }
 
         // create list of x axis used by some traces
@@ -89,7 +89,7 @@ public class ChartWithDataManager {
             }
         }
 
-        scrollableChart = new ScrollableChart(config, chartData, previewData, area);
+        scrollableChart = new ScrollableChart(config, createChartData(), createPreviewData(), area);
         for (Integer xAxisIndex : scrollableChart.getXAxisWithScroll()) {
             scrollableChart.addScrollListener(xAxisIndex, new ScrollListener() {
                 @Override
@@ -100,7 +100,7 @@ public class ChartWithDataManager {
                     if (config.isCropEnable()) {
                         cropChartData(xAxisIndex, new Range(scrollValue, scrollValue + scrollExtent));
                     }
-                    scrollableChart.setChartData(chartData);
+                    scrollableChart.setChartData(createChartData());
                     autoScaleChartY();
                 }
             });
@@ -109,7 +109,22 @@ public class ChartWithDataManager {
             autoScroll();
         }
     }
+    
+    private List<DataSet> createChartData() {
+       List<DataSet> chartData = new ArrayList<DataSet>();
+        for (BaseData chartProcessedDatum : chartProcessedData) {
+            chartData.add(chartProcessedDatum.getDataSet());
+        }
+        return chartData;
+    }
 
+    private List<DataSet> createPreviewData() {
+        List<DataSet> previewData = new ArrayList<DataSet>();
+        for (BaseData previewProcessedDatum : previewProcessedData) {
+            previewData.add(previewProcessedDatum.getDataSet());
+        }
+        return previewData;
+    }
 
     public ScrollableChart getChartWithPreview() {
         return scrollableChart;
@@ -123,9 +138,9 @@ public class ChartWithDataManager {
         for (int traceIndex = 0; traceIndex < chartConfig.getTraceCounter(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
-                BaseDataSet traceDataSet = (BaseDataSet) chartData.get(traceDataIndex);
-                DataSet subset = traceDataSet.getSubset(scrollExtremes.start(), scrollExtremes.end());
-                chartData.set(traceDataIndex, subset);
+                BaseData traceDataSet = chartProcessedData.get(traceDataIndex);
+                BaseData subset = traceDataSet.getSubset(scrollExtremes.start(), scrollExtremes.end());
+                chartProcessedData.set(traceDataIndex, subset);
             }
         }
     }
@@ -137,18 +152,18 @@ public class ChartWithDataManager {
         for (int traceIndex = 0; traceIndex < chartConfig.getTraceCounter(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
-                BaseDataSet traceData = (BaseDataSet) chartData.get(traceIndex);
+                BaseData traceData = chartProcessedData.get(traceIndex);
                 double dataInterval = traceData.getAverageDataInterval();
                 if (dataInterval > 0) {
                     int numberOfDataItemsToGroup = (int)(bestGroupingInterval / dataInterval);
                     if (numberOfDataItemsToGroup >= chartGroupingStep) {
-                        chartData.set(traceIndex, traceData.groupByNumber((int) numberOfDataItemsToGroup, isCachingEnable));
+                        chartProcessedData.set(traceIndex, traceData.groupByNumber(numberOfDataItemsToGroup, isCachingEnable));
                     }
                     if (numberOfDataItemsToGroup <= 1.0 / chartGroupingStep) {
-                        BaseDataSet traceOriginalData = (BaseDataSet) chartOriginalData.get(traceDataIndex);
+                        BaseData traceOriginalData = chartOriginalData.get(traceDataIndex);
                         double originalDataInterval = traceOriginalData.getAverageDataInterval();
                         numberOfDataItemsToGroup = (int)(bestGroupingInterval / originalDataInterval);
-                        chartData.set(traceIndex, traceOriginalData.groupByNumber((int) numberOfDataItemsToGroup, isCachingEnable));
+                        chartProcessedData.set(traceIndex, traceOriginalData.groupByNumber(numberOfDataItemsToGroup, isCachingEnable));
                     }
                 }
             }
@@ -171,11 +186,11 @@ public class ChartWithDataManager {
             groupingInterval = bestGroupingInterval;
         }
         boolean isCachingEnable = true;
-        for (int i = 0; i < previewData.size(); i++) {
-            double dataInterval = previewData.get(i).getAverageDataInterval();
+        for (int i = 0; i < previewProcessedData.size(); i++) {
+            double dataInterval = previewProcessedData.get(i).getAverageDataInterval();
             if (dataInterval > 0) {
                 int numberOfDataItemsToGroup = (int) (groupingInterval / dataInterval);
-                previewData.set(i, ((BaseDataSet) previewData.get(i)).groupByNumber(numberOfDataItemsToGroup, isCachingEnable));
+                previewProcessedData.set(i, (previewProcessedData.get(i)).groupByNumber(numberOfDataItemsToGroup, isCachingEnable));
             }
         }
     }
@@ -197,7 +212,7 @@ public class ChartWithDataManager {
 
     private Range calculateInitialPreviewMinMax(double[] scrollsExtents) {
         Range chartFullMinMax = null;
-        for (DataSet chartData : chartOriginalData) {
+        for (BaseData chartData : chartOriginalData) {
             chartFullMinMax = Range.max(chartFullMinMax, chartData.getXExtremes());
         }
 
@@ -227,7 +242,7 @@ public class ChartWithDataManager {
         for (int traceIndex = 0; traceIndex < chartConfig.getTraceCounter(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
-                DataSet traceData = chartData.get(traceDataIndex);
+                BaseData traceData = chartProcessedData.get(traceDataIndex);
                 if (traceData.size() > 1) {
                     double dataItemInterval = traceData.getAverageDataInterval();
                     if (dataItemInterval > 0) {
@@ -245,7 +260,7 @@ public class ChartWithDataManager {
         SimpleChartConfig chartConfig = config.getChartConfig();
         for (int traceIndex = 0; traceIndex < chartConfig.getTraceCounter(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
-            DataSet traceData = chartOriginalData.get(traceDataIndex);
+            BaseData traceData = chartOriginalData.get(traceDataIndex);
             minMax = Range.max(minMax, traceData.getXExtremes());
         }
         return minMax;
@@ -257,7 +272,7 @@ public class ChartWithDataManager {
         Range previewMinMax = Range.max(scrollableChart.getPreviewXMinMax(), getChartDataMinMax());
         groupPreviewData(previewMinMax);
         scrollableChart.setPreviewMinMax(previewMinMax);
-        scrollableChart.setPreviewData(previewData);
+        scrollableChart.setPreviewData(createPreviewData());
         autoScalePreviewY();
         if (isAutoScroll && isAllScrollsAtTheEnd) {
             autoScroll();

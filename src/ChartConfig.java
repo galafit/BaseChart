@@ -1,7 +1,7 @@
 
 import base.config.ScrollableChartConfig;
 import base.config.traces.TraceConfig;
-import data.BaseDataSet;
+import data.BaseData;
 import data.Data;
 
 import java.util.ArrayList;
@@ -17,8 +17,8 @@ public class ChartConfig extends ScrollableChartConfig {
     private boolean isDataCropEnable = true;
     private boolean isGroupingEnable = true;
     private ArrayList<Float> previewGroupingIntervals = new ArrayList<Float>();
-    private List<BaseDataSet> chartData = new ArrayList<BaseDataSet>();
-    private List<BaseDataSet> previewData = new ArrayList<BaseDataSet>();
+    private List<BaseData> chartData = new ArrayList<BaseData>();
+    private List<BaseData> previewData = new ArrayList<BaseData>();
     // true for pc and false for phone
     private boolean isChartGroupedDatCachingEnable = true;
 
@@ -65,11 +65,11 @@ public class ChartConfig extends ScrollableChartConfig {
         this.isGroupingEnable = isGroupingEnable;
     }
 
-    public List<BaseDataSet> getChartData() {
+    public List<BaseData> getChartData() {
         return chartData;
     }
 
-    public List<BaseDataSet> getPreviewData() {
+    public List<BaseData> getPreviewData() {
         return previewData;
     }
 
@@ -88,15 +88,22 @@ public class ChartConfig extends ScrollableChartConfig {
     /**
      * add trace to the last chart stack
      */
-    public void addTrace(TraceConfig traceConfig, Data data, String name) {
-        addTrace(traceConfig, data, name, false, false);
+    public void addTrace(TraceConfig traceConfig, Data traceData, boolean isXAxisOpposite, boolean isYAxisOpposite) {
+        addTrace(traceConfig, traceData, null, isXAxisOpposite, isYAxisOpposite);
     }
 
     /**
      * add trace to the last chart stack
      */
-    public void addTrace(TraceConfig traceConfig, Data data) {
-        addTrace(traceConfig, data, null, false, false);
+    public void addTrace(TraceConfig traceConfig, Data traceData, String name) {
+        addTrace(traceConfig, traceData, name, false, false);
+    }
+
+    /**
+     * add trace to the last chart stack
+     */
+    public void addTrace(TraceConfig traceConfig, Data traceData) {
+        addTrace(traceConfig, traceData, null, false, false);
     }
 
 

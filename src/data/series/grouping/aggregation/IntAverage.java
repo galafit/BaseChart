@@ -9,7 +9,7 @@ public class IntAverage implements IntAggregateFunction {
     @Override
     public int group(IntSeries series, long from, int length) {
         long sum = 0;
-        for (int i = from; i < from + length; i++) {
+        for (long i = from; i < from + length; i++) {
             sum += series.get(i);
         }
         return (int)(sum / length);

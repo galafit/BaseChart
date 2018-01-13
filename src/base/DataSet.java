@@ -9,19 +9,19 @@ public interface DataSet {
      */
     public int getYColumnsCount();
 
-    public double getYValue(long index, int yColumnNumber);
+    public double getYValue(int index, int yColumnNumber);
 
-    public double getXValue(long index);
+    public double getXValue(int index);
 
-    public String getAnnotation(long index);
+    public String getAnnotation(int index);
 
-    public long size();
+    public int size();
 
     public Range getXExtremes();
 
     public Range getYExtremes(int yColumnNumber);
 
-    public long findNearestData(double xValue);
+    public int findNearestData(double xValue);
 
     public double getAverageDataInterval();
 

@@ -129,7 +129,7 @@ public class ScrollableChart {
        return chartArea.contains(x, y);
     }
 
-    public void setChartData(ArrayList<DataSet> data) {
+    public void setChartData(List<DataSet> data) {
         chart.setData(data);
     }
 
@@ -233,7 +233,7 @@ public class ScrollableChart {
         return config.isPreviewEnable();
     }
 
-    public void setPreviewData(ArrayList<DataSet> data) {
+    public void setPreviewData(List<DataSet> data) {
         preview.setData(data);
     }
 

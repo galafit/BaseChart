@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Created by galafit on 19/9/17.
  */
-public class BaseDataSet implements DataSet {
+public class BaseData {
     boolean isOrdered = true;
     ArrayList<NumberColumn> yColumns = new ArrayList<NumberColumn>();
     NumberColumn xColumn = new RegularColumn();
@@ -23,10 +23,10 @@ public class BaseDataSet implements DataSet {
     long startIndex = 0;
     long length = -1;
 
-    public BaseDataSet() {
+    public BaseData() {
     }
 
-    public BaseDataSet(BaseDataSet dataSet) {
+    public BaseData(BaseData dataSet) {
         for (NumberColumn numberColumn : dataSet.yColumns) {
             yColumns.add(numberColumn.copy());
         }
@@ -76,23 +76,20 @@ public class BaseDataSet implements DataSet {
     }
 
 
-    @Override
+
     public int getYColumnsCount() {
         return yColumns.size();
     }
 
 
-    @Override
     public double getYValue(long index, int columnNumber) {
         return yColumns.get(columnNumber).getValue(index + startIndex);
     }
 
-    @Override
     public double getXValue(long index) {
         return xColumn.getValue(index + startIndex);
     }
 
-    @Override
     public String getAnnotation(long index) {
         if (annotationColumn != null && index < annotationColumn.size()) {
             return annotationColumn.getString(index);
@@ -100,7 +97,6 @@ public class BaseDataSet implements DataSet {
         return null;
     }
 
-    @Override
     public Range getXExtremes() {
         if (size() == 0) {
             return null;
@@ -120,7 +116,6 @@ public class BaseDataSet implements DataSet {
         }
     }
 
-    @Override
     public Range getYExtremes(int yColumnNumber) {
         if (size() == 0) {
             return null;
@@ -135,7 +130,6 @@ public class BaseDataSet implements DataSet {
     }
 
 
-    @Override
     public long size() {
         if (length < 0) {
             return fullSize();
@@ -164,7 +158,6 @@ public class BaseDataSet implements DataSet {
      * @param xValue
      * @return index of nearest data item
      */
-    @Override
     public long findNearestData(double xValue) {
         long size = size();
         if (size > Integer.MAX_VALUE) {
@@ -186,54 +179,113 @@ public class BaseDataSet implements DataSet {
         return nearestIndex;
     }
 
-    public BaseDataSet getSubset(double startXValue, double endXValue) {
-        return getSubset(startXValue, endXValue, 1);
+    public DataSet getDataSet() {
+        BaseData subset = new BaseData(this);
+        subset.startIndex = startIndex;
+        subset.length = size();
+        if(subset.length > Integer.MAX_VALUE) {
+            String errorMessage = "Error during creating DataSize. Resultant size must be integer. Resultant size = {0}, Integer.MAX_VALUE = {1}.";
+            String formattedError = MessageFormat.format(errorMessage, subset.length, Integer.MAX_VALUE);
+            throw new RuntimeException(formattedError);
+        }
+        return new DataSet() {
+            @Override
+            public int getYColumnsCount() {
+                return subset.getYColumnsCount();
+            }
+
+            @Override
+            public double getYValue(int index, int yColumnNumber) {
+                return subset.getYValue(index, yColumnNumber);
+            }
+
+            @Override
+            public double getXValue(int index) {
+                return subset.getXValue(index);
+            }
+
+            @Override
+            public String getAnnotation(int index) {
+                return subset.getAnnotation(index);
+            }
+
+            @Override
+            public int size() {
+                return (int) subset.size();
+            }
+
+            @Override
+            public Range getXExtremes() {
+                return subset.getXExtremes();
+            }
+
+            @Override
+            public Range getYExtremes(int yColumnNumber) {
+                return subset.getYExtremes(yColumnNumber);
+            }
+
+            @Override
+            public int findNearestData(double xValue) {
+                return (int)subset.findNearestData(xValue);
+            }
+
+            @Override
+            public double getAverageDataInterval() {
+                return subset.getAverageDataInterval();
+            }
+        };
     }
 
-
-    public BaseDataSet getSubset(double startXValue, double endXValue, int shoulder) {
+    public BaseData getSubset(double startXValue, double endXValue, int shoulder) {
         if (endXValue < startXValue) {
             String errorMessage = "Error during creating subset. Expected StartValue <= EndValue. StartValue = {0}, EndValue = {1}.";
             String formattedError = MessageFormat.format(errorMessage, startXValue, endXValue);
             throw new IllegalArgumentException(formattedError);
         }
-        if (!isOrdered()) {
-            return this;
-        }
         long fullSize = fullSize();
         if (!(xColumn instanceof RegularColumn) && fullSize > Integer.MAX_VALUE) {
             String errorMessage = "Error during creating subset. Full size must be integer for no regular data sets. Full size = {0}, Integer.MAX_VALUE = {1}.";
             String formattedError = MessageFormat.format(errorMessage, fullSize, Integer.MAX_VALUE);
-            throw new IllegalArgumentException(formattedError);
+            throw new RuntimeException(formattedError);
         }
-        long subsetStartIndex = xColumn.lowerBound(startXValue, 0, (int)fullSize);
-        long subsetEndIndex = xColumn.upperBound(endXValue, 0, (int)fullSize);
-        subsetStartIndex -= shoulder;
-        subsetEndIndex += shoulder;
-        BaseDataSet subset = new BaseDataSet(this);
-        if (subsetStartIndex >= fullSize() || subsetEndIndex < 0) {
-            subset.length = 0;
-            return subset;
+
+        long subsetLength = size();
+        long subsetStartIndex = 0;
+        if (isOrdered()) {
+            subsetStartIndex = xColumn.lowerBound(startXValue, 0, (int)fullSize);
+            long subsetEndIndex = xColumn.upperBound(endXValue, 0, (int)fullSize);
+            subsetStartIndex -= shoulder;
+            subsetEndIndex += shoulder;
+
+            if (subsetStartIndex < 0) {
+                subsetStartIndex = 0;
+            }
+            if (subsetEndIndex >= fullSize()) {
+                subsetEndIndex = fullSize() - 1;
+            }
+            subsetLength = subsetEndIndex - subsetStartIndex + 1;
+            if (subsetStartIndex >= fullSize() || subsetEndIndex < 0) {
+                subsetLength = 0;
+            }
         }
-        if (subsetStartIndex < 0) {
-            subsetStartIndex = 0;
-        }
-        if (subsetEndIndex >= fullSize()) {
-            subsetEndIndex = fullSize() - 1;
-        }
+        BaseData subset = new BaseData(this);
         subset.startIndex = subsetStartIndex;
-        subset.length = subsetEndIndex - subsetStartIndex + 1;
-        return subset;
+        subset.length = subsetLength;
+       return subset;
     }
 
-    /**
-     * Grouping by equal number of items in each group
-     *
-     * @param numberOfItemsInGroups
-     * @return DataSet with grouped data
-     */
-    public BaseDataSet groupByNumber(int numberOfItemsInGroups, boolean isCachingEnable) {
-        BaseDataSet groupedSet = new BaseDataSet(this);
+    public BaseData getSubset(double startXValue, double endXValue) {
+        return getSubset(startXValue, endXValue, 1);
+    }
+
+        /**
+         * Grouping by equal number of items in each group
+         *
+         * @param numberOfItemsInGroups
+         * @return DataSet with grouped data
+         */
+    public BaseData groupByNumber(int numberOfItemsInGroups, boolean isCachingEnable) {
+        BaseData groupedSet = new BaseData(this);
         if (numberOfItemsInGroups > 1) {
             for (NumberColumn numberColumn : groupedSet.yColumns) {
                 numberColumn.groupByNumber(numberOfItemsInGroups, isCachingEnable);
@@ -253,12 +305,12 @@ public class BaseDataSet implements DataSet {
      * @param groupingInterval
      * @return DataSet with grouped data
      */
-    public BaseDataSet groupByInterval(double groupingInterval, boolean isCachingEnable) {
+    public BaseData groupByInterval(double groupingInterval, boolean isCachingEnable) {
         // at the moment "grouping by equal interval" is not fully realized.
         // That is draft realisation
         // just for the case we will need it in the future
        /* if (!(xColumn instanceof RegularColumn)) {
-            BaseDataSet groupedSet = new BaseDataSet(this);
+            BaseData groupedSet = new BaseData(this);
             IntSeries groupsStartIndexes = groupedSet.xColumn.groupByInterval(groupingInterval);
             for (NumberColumn numberColumn : groupedSet.yColumns) {
                 numberColumn.groupCustom(groupsStartIndexes);
@@ -271,7 +323,7 @@ public class BaseDataSet implements DataSet {
             int avgNumberOfItemsInGroups = (int) Math.round(groupingInterval / getAverageDataInterval());
             return groupByNumber(avgNumberOfItemsInGroups, isCachingEnable);
         }
-        return new BaseDataSet(this);
+        return new BaseData(this);
     }
 
 

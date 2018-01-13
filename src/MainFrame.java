@@ -5,6 +5,8 @@ import data.series.IntArrayList;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Random;
 
 
@@ -53,7 +55,7 @@ public class MainFrame extends JFrame {
         ChartConfig config = new ChartConfig(false);
         config.addTrace(new LineTraceConfig(), xyData1);
         config.addChartStack(5);
-        config.addTrace(new LineTraceConfig(), xyData2);
+        config.addTrace(new LineTraceConfig(), xyData2, true, true);
 
        // config.setPreviewMinMax(new Range(0, 1000));
        // config.addScroll(0, 100);
@@ -96,7 +98,7 @@ public class MainFrame extends JFrame {
     public static void main(String[] args) {
         MainFrame mainFrame = new MainFrame();
 
-      /* final Timer timer = new Timer(1000, new ActionListener() {
+     /*  final Timer timer = new Timer(1000, new ActionListener() {
             int counter = 0;
             @Override
             public void actionPerformed(ActionEvent e) {

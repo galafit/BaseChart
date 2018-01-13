@@ -9,10 +9,10 @@ import java.util.List;
  * Created by galafit on 29/9/17.
  */
 public class XYData implements Data {
-    private BaseDataSet dataSet = new BaseDataSet();
+    private BaseData dataSet = new BaseData();
 
     @Override
-    public BaseDataSet getDataSet() {
+    public BaseData getDataSet() {
         return dataSet;
     }
 

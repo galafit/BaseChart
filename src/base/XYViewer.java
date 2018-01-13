@@ -10,15 +10,15 @@ public class XYViewer {
         this.dataSet = dataSet;
     }
 
-    public long size() {
+    public int size() {
         return dataSet.size();
     }
 
-    public double getX(long index) {
+    public double getX(int index) {
         return dataSet.getXValue(index);
     }
 
-    public double getY(long index) {
+    public double getY(int index) {
         return dataSet.getYValue(index, 0);
     }
 
