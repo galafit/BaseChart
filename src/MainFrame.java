@@ -1,12 +1,10 @@
 import base.config.traces.LineTraceConfig;
 import data.XYData;
-import data.series.FloatArrayList;
-import data.series.IntArrayList;
+import data.FloatArrayList;
+import data.IntArrayList;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Random;
 
 
@@ -15,7 +13,7 @@ import java.util.Random;
  */
 public class MainFrame extends JFrame {
     FloatArrayList yData1;
-    IntArrayList yData2;
+    FloatArrayList yData2;
     FloatArrayList xData;
     ChartPanel chartPanel;
 
@@ -31,7 +29,7 @@ public class MainFrame extends JFrame {
             yData1.add((float) Math.sin(i));
         }
 
-        yData2 = new IntArrayList();
+        yData2 = new FloatArrayList();
         for (int i = 0; i < 1600 ; i++) {
             yData2.add(i/2);
         }
@@ -55,7 +53,7 @@ public class MainFrame extends JFrame {
         ChartConfig config = new ChartConfig(false);
         config.addTrace(new LineTraceConfig(), xyData1);
         config.addChartStack(5);
-        config.addTrace(new LineTraceConfig(), xyData2, true, true);
+        config.addTrace(new LineTraceConfig(), xyData2);
 
        // config.setPreviewMinMax(new Range(0, 1000));
        // config.addScroll(0, 100);

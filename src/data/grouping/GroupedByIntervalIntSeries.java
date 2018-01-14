@@ -1,9 +1,9 @@
-package data.series.grouping;
+package data.grouping;
 
-import data.series.IntArrayList;
-import data.series.IntSeries;
-import data.series.LongArrayList;
-import data.series.LongSeries;
+import data.IntArrayList;
+import data.IntSeries;
+import data.LongArrayList;
+import data.LongSeries;
 
 /**
  * This class groups data dividing the hole data range on equal intervals.

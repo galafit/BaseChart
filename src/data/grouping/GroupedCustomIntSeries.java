@@ -1,9 +1,9 @@
-package data.series.grouping;
+package data.grouping;
 
-import data.series.IntSeries;
-import data.series.LongSeries;
-import data.series.grouping.aggregation.IntAggregateFunction;
-import data.series.grouping.aggregation.IntAverage;
+import data.IntSeries;
+import data.LongSeries;
+import data.grouping.aggregation.IntAverage;
+import data.grouping.aggregation.IntAggregateFunction;
 
 import java.text.MessageFormat;
 

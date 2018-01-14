@@ -1,8 +1,8 @@
-package data.series.grouping;
+package data.grouping;
 
-import data.series.FloatSeries;
-import data.series.LongSeries;
-import data.series.grouping.aggregation.FloatAggregateFunction;
+import data.FloatSeries;
+import data.LongSeries;
+import data.grouping.aggregation.FloatAggregateFunction;
 
 import java.text.MessageFormat;
 

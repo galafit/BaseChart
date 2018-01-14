@@ -66,6 +66,10 @@ public class Axis {
         setMinMax(minNew, maxNew);
     }
 
+    public String formatDomainValue(double value) {
+        return scale.formatDomainValue(value);
+    }
+
     public void setMinMax(double min, double max) {
         setMinMax(new Range(min, max));
     }

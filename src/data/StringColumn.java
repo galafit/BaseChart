@@ -1,7 +1,5 @@
 package data;
 
-import data.series.StringSeries;
-
 /**
  * Created by galafit on 28/9/17.
  */

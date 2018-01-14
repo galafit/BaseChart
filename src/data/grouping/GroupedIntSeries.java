@@ -1,7 +1,7 @@
-package data.series.grouping;
+package data.grouping;
 
-import data.series.IntSeries;
-import data.series.LongSeries;
+import data.IntSeries;
+import data.LongSeries;
 
 /**
  * Data grouping or data binning (banding) with aggregation.

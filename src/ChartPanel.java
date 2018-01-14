@@ -2,7 +2,6 @@
 import base.BColor;
 import base.BRectangle;
 import base.ScrollableChart;
-import base.SwingCanvas;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,29 +1,29 @@
-package data.series;
+package data;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
 
 /**
- * Created by galafit on 11/1/18.
+ * Created by galafit on 1/1/18.
  */
-public class LongArrayList implements LongSeries {
-    private long[] data;
+public class FloatArrayList implements FloatSeries {
+    private float[] data;
     private int size;
 
-    public LongArrayList(int initialCapacity) {
+    public FloatArrayList(int initialCapacity) {
         if (initialCapacity < 0) {
             throw new IllegalArgumentException("Illegal Capacity: "+ initialCapacity);
         }
-        data = new long[initialCapacity];
+        data = new float[initialCapacity];
     }
 
-    public LongArrayList() {
+    public FloatArrayList() {
         this(10);
     }
 
-    public LongArrayList(long[] source) {
+    public FloatArrayList(float[] source) {
         size = source.length;
-        data = new long[size];
+        data = new float[size];
         System.arraycopy(source, 0, data, 0, size);
     }
 
@@ -33,7 +33,7 @@ public class LongArrayList implements LongSeries {
     }
 
     @Override
-    public long get(long index) {
+    public float get(long index) {
         if(index > Integer.MAX_VALUE) {
             String errorMessage = "Error. Expected: index is integer. Index = {0}, Integer.MAX_VALUE = {1}.";
             String formattedError = MessageFormat.format(errorMessage, index, Integer.MAX_VALUE);
@@ -48,11 +48,11 @@ public class LongArrayList implements LongSeries {
     /**
      * Remove an element from the specified index
      */
-    public long remove(int index) {
+    public float remove(int index) {
         if (index < 0 || index >= size) {
             throw new ArrayIndexOutOfBoundsException(index);
         }
-        long entry = data[index];
+        float entry = data[index];
 //    int[] outgoing = new int[count - 1];
 //    System.arraycopy(data, 0, outgoing, 0, index);
 //    count--;
@@ -70,14 +70,14 @@ public class LongArrayList implements LongSeries {
     /**
      * Add a new element to the list.
      */
-    public void add(long value) {
+    public void add(float value) {
         ensureCapacity(size + 1);  // Increments modCount!!
         data[size] = value;
         size++;
     }
 
 
-    public void add(long... values) {
+    public void add(float[] values) {
         int numNew = values.length;
         ensureCapacity(size + numNew);  // Increments modCount
         System.arraycopy(values, 0, data, size, numNew);
@@ -87,7 +87,6 @@ public class LongArrayList implements LongSeries {
     public void ensureCapacity(int minCapacity) {
         int oldCapacity = data.length;
         if (minCapacity > oldCapacity) {
-            // int[] oldData = data;
             int newCapacity = (oldCapacity * 3)/2 + 1;
             if (newCapacity < minCapacity) {
                 newCapacity = minCapacity;

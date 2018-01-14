@@ -1,4 +1,4 @@
-package data.series;
+package data;
 
 import java.text.MessageFormat;
 import java.util.Arrays;

@@ -104,11 +104,11 @@ public class BPath {
         }
     }
 
-    boolean hasNext() {
+    public boolean hasNext() {
         return !(typeIdx >= numTypes);
     }
 
-    byte next(float[] coords) {
+    public byte next(float[] coords) {
         byte type = pointTypes[typeIdx];
         int numCoords = 0;
         switch (type) {

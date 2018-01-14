@@ -1,4 +1,4 @@
-package data.series;
+package data;
 
 import base.Range;
 

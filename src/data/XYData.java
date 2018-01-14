@@ -1,8 +1,5 @@
 package data;
 
-import data.series.FloatSeries;
-import data.series.IntSeries;
-
 import java.util.List;
 
 /**

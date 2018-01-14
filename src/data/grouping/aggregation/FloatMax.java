@@ -1,6 +1,6 @@
-package data.series.grouping.aggregation;
+package data.grouping.aggregation;
 
-import data.series.FloatSeries;
+import data.FloatSeries;
 
 /**
  * Created by galafit on 25/11/17.

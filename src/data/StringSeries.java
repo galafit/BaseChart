@@ -1,4 +1,4 @@
-package data.series;
+package data;
 
 /**
  * Created by galafit on 26/9/17.

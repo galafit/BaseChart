@@ -2,9 +2,6 @@ package data;
 
 import base.DataSet;
 import base.Range;
-import data.series.FloatSeries;
-import data.series.IntSeries;
-import data.series.StringSeries;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;

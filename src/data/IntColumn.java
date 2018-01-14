@@ -1,14 +1,11 @@
 package data;
 
 import base.Range;
-import data.series.CachingIntSeries;
-import data.series.IntSeries;
-import data.series.Processing;
-import data.series.grouping.GroupedByNumberIntSeries;
-import data.series.grouping.aggregation.IntAggregateFunction;
-import data.series.grouping.aggregation.IntAverage;
-import data.series.grouping.aggregation.IntFirst;
-import data.series.grouping.aggregation.IntMax;
+import data.grouping.GroupedByNumberIntSeries;
+import data.grouping.aggregation.IntAggregateFunction;
+import data.grouping.aggregation.IntAverage;
+import data.grouping.aggregation.IntFirst;
+import data.grouping.aggregation.IntMax;
 
 import java.text.MessageFormat;
 import java.util.List;

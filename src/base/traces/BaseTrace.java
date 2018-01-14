@@ -42,8 +42,10 @@ public abstract class BaseTrace extends Trace {
         }
         InfoItem[] infoItems = new InfoItem[3];
         infoItems[0] = new InfoItem(getName(), "", getLineColor());
-        infoItems[1] = new InfoItem("X: ", String.valueOf(xyData.getX(dataIndex)), null);
-        infoItems[2] = new InfoItem("Y: ", String.valueOf(xyData.getY(dataIndex)), null);
+        //infoItems[1] = new InfoItem("X: ", String.valueOf(xyData.getX(dataIndex)), null);
+        //infoItems[2] = new InfoItem("Y: ", String.valueOf(xyData.getY(dataIndex)), null);
+        infoItems[1] = new InfoItem("X: ", getXAxis().formatDomainValue(xyData.getX(dataIndex)), null);
+        infoItems[2] = new InfoItem("Y: ", getYAxis().formatDomainValue(xyData.getY(dataIndex)), null);
 
         return infoItems;
     }

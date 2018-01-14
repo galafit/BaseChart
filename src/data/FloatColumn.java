@@ -1,9 +1,11 @@
 package data;
 
 import base.Range;
-import data.series.*;
-import data.series.grouping.GroupedByNumberFloatSeries;
-import data.series.grouping.aggregation.*;
+import data.grouping.GroupedByNumberFloatSeries;
+import data.grouping.aggregation.FloatAggregateFunction;
+import data.grouping.aggregation.FloatAverage;
+import data.grouping.aggregation.FloatFirst;
+import data.grouping.aggregation.FloatMax;
 
 import java.text.MessageFormat;
 import java.util.List;
