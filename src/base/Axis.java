@@ -13,7 +13,7 @@ import java.util.List;
  * Created by galafit on 5/9/17.
  */
 public class Axis {
-    protected final int DEFAULT_TICK_COUNT = 10;
+    protected final int DEFAULT_TICK_COUNT = 30;
 
     private Scale scale;
     private Range rowMinMax; // without rounding
@@ -250,6 +250,7 @@ public class Axis {
         int axisWidth = config.getAxisLineStroke().getWidth();
         int labelPadding = config.getLabelPadding();
         int space = 2;// px
+        int charHalfWidth = tm.stringWidth("0")/2;
         if(config.isTop()) {
             if(config.isLabelInside()) {
                 int x = (int)scale(tick.getValue()) + space;
@@ -257,7 +258,10 @@ public class Axis {
                 return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.END, tm);
 
             } else {
-                int x = (int)scale(tick.getValue()) + space;
+                int x = (int)scale(tick.getValue()) - charHalfWidth;
+                if(x < getStart()) {
+                    x = getStart() + space;
+                }
                 int y = -axisWidth / 2 - config.getTickMarkOutsideSize() - labelPadding;
                 return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.START, tm);
             }
@@ -269,7 +273,10 @@ public class Axis {
                 return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.START, tm);
 
             } else {
-                int x = (int)scale(tick.getValue()) + space;
+                int x = (int)scale(tick.getValue()) - charHalfWidth;
+                if(x < getStart()) {
+                    x = getStart() + space;
+                }
                 int y = axisWidth / 2 + config.getTickMarkOutsideSize() + labelPadding;
                 return new Text(tick.getLabel(), x, y, TextAnchor.START, TextAnchor.END, tm);
             }
@@ -397,67 +404,65 @@ public class Axis {
             }
         }
         allTicks.add(tick);
-
         int tickDivider = getTicksDivider(canvas, allTicks);
-
         int MIN_TICK_NUMBER1 = 2;
         int MIN_TICK_NUMBER2 = 4;
-        // если есть округление и тиков мало то оставляем только первый и последний
         double tickSpaceCount = (allTicks.size() - 1) / tickDivider;
         if(config.isMinMaxRoundingEnable()) {
-            if(tickSpaceCount < MIN_TICK_NUMBER1) {
+            // если есть округление и тиков < MIN_TICK_NUMBER1 то оставляем только первый и последний
+            if (tickSpaceCount < MIN_TICK_NUMBER1) {
                 ArrayList<Tick> resultantTicks = new ArrayList<Tick>(2);
                 resultantTicks.add(allTicks.get(0));
                 resultantTicks.add(allTicks.get(allTicks.size() - 1));
                 scale.setDomain(resultantTicks.get(0).getValue(), resultantTicks.get(resultantTicks.size() - 1).getValue());
                 return resultantTicks;
             }
-            if(tickSpaceCount < MIN_TICK_NUMBER2 && tickSpaceCount >= MIN_TICK_NUMBER1) {
+            // если есть округление и тиков < MIN_TICK_NUMBER2 то оставляем  первый, последний и средний
+            if (tickSpaceCount < MIN_TICK_NUMBER2 && tickSpaceCount >= MIN_TICK_NUMBER1) {
                 ArrayList<Tick> resultantTicks = new ArrayList<Tick>(3);
-                if((allTicks.size() - 1) % 2 != 0) {
+                if ((allTicks.size() - 1) % 2 != 0) {
                     tickProvider.getUpperTick(allTicks.get(allTicks.size() - 1).getValue());
                     allTicks.add(tickProvider.getNextTick());
                 }
-                int middleTickNumber = (allTicks.size() -1) / 2;
+                int middleTickNumber = (allTicks.size() - 1) / 2;
                 resultantTicks.add(allTicks.get(0));
                 resultantTicks.add(allTicks.get(middleTickNumber));
                 resultantTicks.add(allTicks.get(allTicks.size() - 1));
                 scale.setDomain(resultantTicks.get(0).getValue(), resultantTicks.get(resultantTicks.size() - 1).getValue());
                 return resultantTicks;
             }
+            ArrayList<Tick> resultantTicks = new ArrayList<Tick>();
+            // если есть округление и тиков >= MIN_TICK_NUMBER2 оставляем только тики через tickDivider
+            for (int i = 0; i < allTicks.size(); i++) {
+                if (i % tickDivider == 0) {
+                    resultantTicks.add(allTicks.get(i));
+                }
+            }
+            tickProvider.getLowerTick(getMax());
+            if ((allTicks.size() - 1) % tickDivider > 0) {
+                for (int i = 0; i <= tickDivider - (allTicks.size() - 1) % tickDivider; i++) {
+                    tick = tickProvider.getNextTick();
+                }
+                resultantTicks.add(tick);
+            }
+            return resultantTicks;
         }
 
-        // если нет округления то добавляем вначале тики для их непрерывности при translate/scroll
-        if(!config.isMinMaxRoundingEnable()) {
-            int ticksBefore = 0;
-            if(lastMinTick != null) {
-                double tickPixelInterval = Math.abs(scale(allTicks.get(0).getValue()) - scale(allTicks.get(1).getValue()));
-                Tick minTick = allTicks.get(0);
-                double minTranslation = Math.abs(scale(lastMinTick.getValue()) - scale(minTick.getValue()));
-                long ticksBetween = Math.round(minTranslation / tickPixelInterval);
-                ticksBefore = (int)(ticksBetween % tickDivider);
-            }
-            tickProvider.getLowerTick(getMin());
-            for (int i = 0; i < ticksBefore; i++) {
-                allTicks.add(0, tickProvider.getPreviousTick());
-            }
-            lastMinTick = allTicks.get(0);
-        }
-        // оставляем только тики через tickDivider
+        // если нет округления то  увеличиваем  tick step в tickDivider раз
         ArrayList<Tick> resultantTicks = new ArrayList<Tick>();
-        for (int i = 0; i < allTicks.size(); i++) {
-            if(i % tickDivider == 0) {
-                resultantTicks.add(allTicks.get(i));
-            }
-        }
+        tickProvider.increaseTickStep(tickDivider);
+        resultantTicks = new ArrayList<Tick>();
 
-        tickProvider.getLowerTick(getMax());
-        if((allTicks.size() - 1) % tickDivider > 0) {
-            for (int i = 0; i <= tickDivider - (allTicks.size() -1) % tickDivider; i++) {
+        tick = tickProvider.getLowerTick(getMin());
+        for (int i = 0; i < maxTicksAmount; i++) {
+            if(tick.getValue() < getMax()) {
+                resultantTicks.add(tick);
                 tick = tickProvider.getNextTick();
+            } else {
+                break;
             }
-            resultantTicks.add(tick);
         }
+        resultantTicks.add(tick);
         return resultantTicks;
     }
 

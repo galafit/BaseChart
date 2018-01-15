@@ -106,7 +106,7 @@ public class ChartWithDataManager {
             });
         }
         if (isAutoScroll) {
-            autoScroll();
+          //  autoScroll();
         }
     }
     

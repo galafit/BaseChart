@@ -56,19 +56,20 @@ public class ScrollableChartConfig {
         }
 
         if(theme == DARK_THEME) {
-            BColor bgColor = new BColor(20, 20, 30);
-            BColor marginColor = new BColor(20, 20, 20);
-            BColor textColor = new BColor(200, 200, 200);
+            BColor bgColor = BColor.BLACK;
+            BColor marginColor = bgColor;
+            BColor textColor = BColor.BROWN;
             chartConfig.setBackground(bgColor);
             chartConfig.setMarginColor(marginColor);
             chartConfig.getLegendConfig().setBackgroundColor(bgColor);
             chartConfig.getLegendConfig().setTextColor(textColor);
             chartConfig.setTitleColor(textColor);
 
-            BColor previewBgColor = new BColor(25, 25, 25);
+            BColor previewBgColor = new BColor(10, 10, 25);
+            BColor previewMarginColor = previewBgColor;
             previewConfig.setBackground(previewBgColor);
-            previewConfig.setMarginColor(marginColor);
-            previewConfig.getLegendConfig().setBackgroundColor(bgColor);
+            previewConfig.setMarginColor(previewBgColor);
+            previewConfig.getLegendConfig().setBackgroundColor(previewBgColor);
             previewConfig.getLegendConfig().setTextColor(textColor);
             previewConfig.setTitleColor(textColor);
         }

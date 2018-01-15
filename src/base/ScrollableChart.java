@@ -197,8 +197,8 @@ public class ScrollableChart {
             chart.translateX(xAxisIndex, dx);
         } else {
             if(scrolls.get(xAxisIndex) != null) {
-                float chartTranslation = dx * scrolls.get(xAxisIndex).getWidth() / chartArea.width;
-                translateScrolls(chartTranslation);
+                float scrollTranslation = dx * scrolls.get(xAxisIndex).getWidth() / chartArea.width;
+                translateScrolls(scrollTranslation);
             }
          }
     }
@@ -264,7 +264,7 @@ public class ScrollableChart {
      * @return true if scrollValue was changed and false if newValue = current scroll value
      */
     public boolean setScrollsPosition(float x, float y) {
-        if (previewArea == null || !previewArea.contains(x, y)) {
+        if (previewArea == null) {
             return false;
         }
         boolean scrollsMoved = false;
@@ -303,8 +303,15 @@ public class ScrollableChart {
         return preview.getYAxisCounter();
     }
 
+    public boolean isPointInsidePreview(int x, int y) {
+        return previewArea.contains(x, y);
+    }
+
 
     public boolean isPointInsideScroll(int x, int y) {
+        if(!isPointInsidePreview(x, y)) {
+           return false;
+        }
         for (Integer key : scrolls.keySet()) {
             if(scrolls.get(key).isPointInsideScroll(x)) {
                 return true;

@@ -10,7 +10,9 @@ public class BColor {
     public static final BColor GRAY = new BColor(128, 128, 128);
     public static final BColor LIGHT_GRAY = new BColor(192, 192, 192);
     public static final BColor DARK_GRAY = new BColor(64, 64, 64);
-    public static final BColor BROWN = new BColor(200, 102, 0);
+    public static final BColor BROWN = new BColor(125, 81, 26);
+    public static final BColor BROWN_BRIGHT = new BColor(200, 102, 0);
+    public static final BColor BROWN_LIGHT = new BColor(92, 67, 31); // new BColor(64, 56, 40);
     public static final BColor ORANGE = new BColor(255, 153, 0);
     public static final BColor CYAN = new BColor(0, 255, 255);
     public static final BColor MAGENTA = new BColor(255, 0, 255);
