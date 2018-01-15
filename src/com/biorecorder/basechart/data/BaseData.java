@@ -56,6 +56,11 @@ public class BaseData {
         xColumn = new FloatColumn(series);
     }
 
+    public void addYData(IntSeries series, IntToDoubleFunction intToDoubleFunction) {
+        yColumns.add(new IntColumn(series, intToDoubleFunction));
+    }
+
+
     public void addYData(IntSeries series) {
         yColumns.add(new IntColumn(series));
     }

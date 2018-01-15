@@ -42,6 +42,11 @@ public class XYData implements Data {
         dataSet.setXData(startXValue, dataInterval);
     }
 
+    public void setYData(IntSeries data, IntToDoubleFunction intToDoubleFunction) {
+        removeYData();
+        dataSet.addYData(data, intToDoubleFunction);
+    }
+
     public void setYData(IntSeries data) {
         removeYData();
         dataSet.addYData(data);
