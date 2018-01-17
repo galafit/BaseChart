@@ -83,10 +83,6 @@ public class ScrollableChartConfig {
         return previewConfig;
     }
 
-    public boolean isPreviewEnable() {
-        return ! scrollExtents.isEmpty();
-    }
-
     public int getGapBetweenChartPreview() {
         return gapBetweenChartPreview;
     }

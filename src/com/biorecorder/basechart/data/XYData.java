@@ -38,13 +38,8 @@ public class XYData implements Data {
         dataSet.setXData(data);
     }
 
-    public void setXData(float startXValue, float dataInterval) {
+    public void setXData(double startXValue, double dataInterval) {
         dataSet.setXData(startXValue, dataInterval);
-    }
-
-    public void setYData(IntSeries data, IntToDoubleFunction intToDoubleFunction) {
-        removeYData();
-        dataSet.addYData(data, intToDoubleFunction);
     }
 
     public void setYData(IntSeries data) {

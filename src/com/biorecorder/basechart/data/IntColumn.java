@@ -16,15 +16,9 @@ import java.util.List;
 class IntColumn implements NumberColumn {
     private GroupingType groupingType = GroupingType.AVG;
     private IntSeries series;
-    private IntToDoubleFunction intToDoubleFunction;
-
-    public IntColumn(IntSeries series, IntToDoubleFunction intToDoubleFunction) {
-        this.series = series;
-        this.intToDoubleFunction = intToDoubleFunction;
-    }
 
     public IntColumn(IntSeries series) {
-        this(series, null);
+        this.series = series;
     }
 
     public IntColumn(int[] data) {
@@ -74,10 +68,7 @@ class IntColumn implements NumberColumn {
 
     @Override
     public double getValue(long index) {
-        if (intToDoubleFunction == null) {
-            return series.get(index);
-        }
-        return intToDoubleFunction.applyAsDouble(series.get(index));
+        return series.get(index);
     }
 
     @Override

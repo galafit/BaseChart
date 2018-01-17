@@ -24,7 +24,7 @@ public class ScrollableChart {
         SimpleChartConfig chartConfig = config.getChartConfig();
         Set<Integer> scrollableAxis = config.getXAxisWithScroll();
         calculateAreas(area);
-        if(!isPreviewEnable()) {
+        if (config.getScrollsExtents().length == 0) { // Chart without preview
             chart = new SimpleChart(chartConfig,chartData, chartArea);
         } else {
             SimpleChartConfig previewConfig = config.getPreviewConfig();
@@ -34,7 +34,6 @@ public class ScrollableChart {
                 for (Integer xAxisIndex : scrollableAxis) {
                     previewMinMax = Range.max(previewMinMax, chart.getXMinMax(xAxisIndex));
                 }
-                config.setPreviewMinMax(previewMinMax);
             }
 
             preview = new SimpleChart(previewConfig, previewData, previewArea);
@@ -88,7 +87,7 @@ public class ScrollableChart {
         }
         int width = area.width - left - right;
         int height = area.height -  top - bottom;
-        if (!isPreviewEnable()) {
+        if (config.getScrollsExtents().length == 0) { // Chart without preview
             chartArea = new BRectangle(area.x + left, area.y + top, width, height);
         } else {
             int gap = config.getGapBetweenChartPreview();
@@ -108,6 +107,7 @@ public class ScrollableChart {
             preview.setArea(previewArea);
         }
     }
+
 
     /**
      * =======================Base methods to interact with com.biorecorder.basechart.chart==========================
@@ -229,9 +229,6 @@ public class ScrollableChart {
      * =======================Base methods to interact with preview==========================
      **/
 
-    public boolean isPreviewEnable() {
-        return config.isPreviewEnable();
-    }
 
     public void setPreviewData(List<DataSet> data) {
         preview.setData(data);

@@ -14,6 +14,10 @@ public class RegularColumn implements NumberColumn{
         this.dataInterval = dataInterval;
     }
 
+    public double getStartValue() {
+        return startValue;
+    }
+
     public double getDataInterval() {
         return dataInterval;
     }
@@ -62,7 +66,7 @@ public class RegularColumn implements NumberColumn{
     @Override
     public void groupByNumber(int numberOfElementsInGroup, boolean isCachingEnable) {
         dataInterval = dataInterval * numberOfElementsInGroup;
-        startValue += dataInterval * (numberOfElementsInGroup - 1) / 2;
+        //startValue += dataInterval * (numberOfElementsInGroup - 1) / 2;
     }
 
     @Override

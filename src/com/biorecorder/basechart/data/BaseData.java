@@ -56,11 +56,6 @@ public class BaseData {
         xColumn = new FloatColumn(series);
     }
 
-    public void addYData(IntSeries series, IntToDoubleFunction intToDoubleFunction) {
-        yColumns.add(new IntColumn(series, intToDoubleFunction));
-    }
-
-
     public void addYData(IntSeries series) {
         yColumns.add(new IntColumn(series));
     }
@@ -101,21 +96,25 @@ public class BaseData {
 
     public Range getXExtremes() {
         if (size() == 0) {
+            if(xColumn instanceof RegularColumn){
+               double startValue =  ((RegularColumn) xColumn).getStartValue();
+               return new Range(startValue, startValue);
+            }
             return null;
         }
         if (isOrdered()) {
             double min = xColumn.getValue(startIndex);
             double max = xColumn.getValue(startIndex + size() - 1);
             return new Range(min, max);
-        } else {
-            long size = size();
-            if (size > Integer.MAX_VALUE) {
-                String errorMessage = "Error. Size must be integer during calculating X extremes for non ordered series. Size = {0}, Integer.MAX_VALUE = {1}.";
-                String formattedError = MessageFormat.format(errorMessage, size, Integer.MAX_VALUE);
-                throw new IllegalArgumentException(formattedError);
-            }
-            return xColumn.getExtremes(startIndex, (int) size);
         }
+        long size = size();
+        if (size > Integer.MAX_VALUE) {
+            String errorMessage = "Error. Size must be integer during calculating X extremes for non ordered series. Size = {0}, Integer.MAX_VALUE = {1}.";
+            String formattedError = MessageFormat.format(errorMessage, size, Integer.MAX_VALUE);
+            throw new IllegalArgumentException(formattedError);
+        }
+        return xColumn.getExtremes(startIndex, (int) size);
+
     }
 
     public Range getYExtremes(int yColumnNumber) {

@@ -23,15 +23,19 @@ public class ChartConfig extends ScrollableChartConfig {
     // true for pc and false for phone
     private boolean isChartGroupedDatCachingEnable = true;
 
-    public ChartConfig() {
-    }
-
     public ChartConfig(boolean isDateTime) {
         super(isDateTime);
     }
 
     public ChartConfig(int theme, boolean isDateTime) {
         super(theme, isDateTime);
+    }
+
+    public boolean isPreviewEnable() {
+        if(getScrollsExtents().length > 0 || getPreviewConfig().getTraceCounter() > 0) {
+            return true;
+        }
+        return false;
     }
 
     public boolean isChartGroupedDatCachingEnable() {
