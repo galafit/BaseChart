@@ -1,4 +1,4 @@
-package com.biorecorder.basechart.chart.traces;
+package com.biorecorder.basechart.chart;
 
 import java.text.MessageFormat;
 

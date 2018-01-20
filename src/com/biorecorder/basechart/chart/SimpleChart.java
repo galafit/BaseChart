@@ -8,7 +8,6 @@ import com.biorecorder.basechart.chart.config.traces.TraceConfig;
 import com.biorecorder.basechart.chart.scales.Scale;
 import com.biorecorder.basechart.chart.tooltip.Tooltip;
 import com.biorecorder.basechart.chart.tooltip.TooltipInfo;
-import com.biorecorder.basechart.chart.traces.RangeInt;
 import com.biorecorder.basechart.chart.traces.Trace;
 import com.biorecorder.basechart.chart.traces.TraceRegister;
 

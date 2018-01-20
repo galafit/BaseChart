@@ -2,7 +2,6 @@ package com.biorecorder.basechart.chart;
 
 import com.biorecorder.basechart.chart.config.ScrollableChartConfig;
 import com.biorecorder.basechart.chart.config.SimpleChartConfig;
-import com.biorecorder.basechart.chart.traces.RangeInt;
 
 import java.util.*;
 import java.util.List;
