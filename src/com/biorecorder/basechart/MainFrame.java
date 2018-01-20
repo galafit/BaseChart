@@ -6,6 +6,8 @@ import com.biorecorder.basechart.data.FloatArrayList;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Random;
 
 
@@ -22,23 +24,21 @@ public class MainFrame extends JFrame {
         int width = 500;
         int height = 500;
 
-        setTitle("Test com.biorecorder.basechart.chart");
+        setTitle("Test chart");
 
         yData1 = new FloatArrayList();
-        Random rand = new Random();
-        for (int i = 0; i < 800 ; i++) {
+        yData2 = new FloatArrayList();
+        xData = new FloatArrayList();
+
+      /*  for (int i = 0; i < 1600 ; i++) {
             yData1.add((float) Math.sin(i));
         }
-
-        yData2 = new FloatArrayList();
         for (int i = 0; i < 1600 ; i++) {
             yData2.add(i/2);
         }
-
-        xData = new FloatArrayList();
         for (int i = 0; i < 1600 ; i++) {
             xData.add(i/2);
-        }
+        }*/
 
 
         XYData xyData1 = new XYData();
@@ -61,7 +61,7 @@ public class MainFrame extends JFrame {
 
        config.addPreviewTrace(new LineTraceConfig(), xyData2);
        config.addPreviewTrace(new LineTraceConfig(), xyData3);
-       //config.addPreviewGroupingInterval(40);
+       config.addPreviewGroupingInterval(10);
 
 
         chartPanel = new ChartPanel(config);
@@ -76,19 +76,20 @@ public class MainFrame extends JFrame {
     }
 
     public void update() {
-        Random rand = new Random();
         for (int i = 1; i <= 800 ; i++) {
-            yData1.add(rand.nextInt(500));
+            yData1.add((float) Math.sin(i));
         }
 
+
         for (int i = 1; i <=800 ; i++) {
-            float lastValue = xData.get(xData.size() - 1);
+            float lastValue = 0;
+            if(xData.size() > 0) {
+                lastValue = xData.get(xData.size() - 1)+1;
+            }
             xData.add(lastValue + 1);
         }
         for (int i = 1; i <=800 ; i++) {
             yData2.add(i);
-            float lastValue = yData2.get(yData2.size() - 1);
-            //yData2.add(lastValue + 1);
         }
         chartPanel.update();
     }
@@ -97,7 +98,7 @@ public class MainFrame extends JFrame {
     public static void main(String[] args) {
         MainFrame mainFrame = new MainFrame();
 
-     /*  final Timer timer = new Timer(1000, new ActionListener() {
+       final Timer timer = new Timer(1000, new ActionListener() {
             int counter = 0;
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -108,8 +109,7 @@ public class MainFrame extends JFrame {
             }
         });
         timer.setInitialDelay(0);
-        timer.start();*/
+        timer.start();
 
     }
-
 }

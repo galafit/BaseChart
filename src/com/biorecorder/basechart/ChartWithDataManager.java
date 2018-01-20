@@ -29,7 +29,7 @@ public class ChartWithDataManager {
     private ArrayList<BaseData> previewProcessedData;
     private ArrayList<BaseData> chartProcessedData;
     boolean isChartConfigured = false;
-
+    boolean isAllScrollsAtTheEnd = true;
 
     public ChartWithDataManager(ChartConfig config, BRectangle area) {
         this.area = area;
@@ -119,11 +119,21 @@ public class ChartWithDataManager {
                         cropChartData(xAxisIndex, new Range(scrollValue, scrollValue + scrollExtent));
                     }
                     chart.setChartData(createChartData());
+                    isAllScrollsAtTheEnd = isScrollAtTheEnd(xAxisIndex);
                     autoScaleChartY();
                 }
             });
         }
         return chart;
+    }
+
+    private boolean isScrollAtTheEnd(int xAxisIndex) {
+        double dataMax = getChartDataMinMax().end();
+        double scrollEnd = scrollableChart.getScrollValue(xAxisIndex) + scrollableChart.getScrollExtent(xAxisIndex);
+        if (dataMax - scrollEnd > 0) {
+            return false;
+        }
+        return true;
     }
 
     private List<DataSet> createChartData() {
@@ -290,21 +300,11 @@ public class ChartWithDataManager {
             scrollableChart.setPreviewMinMax(previewMinMax);
             scrollableChart.setPreviewData(createPreviewData());
             autoScalePreviewY();
-        }
-        if (isAutoScroll && isAllScrollsAtTheEnd()) {
-            autoScroll();
-        }
-    }
-
-    private boolean isAllScrollsAtTheEnd() {
-        double previewMax = scrollableChart.getPreviewXMinMax().end();
-        for (Integer xAxisIndex : scrollableChart.getXAxisWithScroll()) {
-            double scrollEnd = scrollableChart.getScrollValue(xAxisIndex) + scrollableChart.getScrollExtent(xAxisIndex);
-            if (previewMax - scrollEnd > 0) {
-                return false;
+            if(isAutoScroll && isAllScrollsAtTheEnd) {
+                autoScroll();
             }
         }
-        return true;
+
     }
 
     private boolean autoScroll() {
