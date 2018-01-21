@@ -1,7 +1,6 @@
 package com.biorecorder.basechart.chart.traces;
 
 import com.biorecorder.basechart.chart.DataSet;
-import com.biorecorder.basechart.chart.config.traces.AreaTraceConfig;
 import com.biorecorder.basechart.chart.config.traces.LineTraceConfig;
 import com.biorecorder.basechart.chart.config.traces.TraceConfig;
 
@@ -14,8 +13,6 @@ public class TraceRegister {
         {
             case LINE:
                 return new LineTrace((LineTraceConfig) traceConfig, data);
-            case AREA:
-                return new AreaTrace((AreaTraceConfig) traceConfig, data);
         }
         return null;
     }

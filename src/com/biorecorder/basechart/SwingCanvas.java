@@ -186,33 +186,34 @@ public class SwingCanvas implements BCanvas {
 
     @Override
     public void drawPath(BPath path) {
-        g2.draw(createPath(path));
+        g2.draw(createAwtPath(path));
     }
 
     @Override
     public void fillPath(BPath path) {
-        g2.fill(createPath(path));
+        g2.fill(createAwtPath(path));
     }
 
-    private GeneralPath createPath(BPath pathInfo) {
+    private GeneralPath createAwtPath(BPath bPath) {
         GeneralPath path = new GeneralPath();
         float[] pointsCoords = new float[6];
-        while (pathInfo.hasNext()) {
-            byte type = pathInfo.next(pointsCoords);
+        BPathIterator pathIterator = bPath.getPathIterator();
+        while (pathIterator.hasNext()) {
+            int type = pathIterator.next(pointsCoords);
             switch (type) {
-                case BPath.SEG_MOVETO:
+                case BPathIterator.SEG_MOVETO:
                     path.moveTo(pointsCoords[0], pointsCoords[1]);
                     break;
-                case BPath.SEG_LINETO:
+                case BPathIterator.SEG_LINETO:
                     path.lineTo(pointsCoords[0], pointsCoords[1]);
                     break;
-                case BPath.SEG_QUADTO:
+                case BPathIterator.SEG_QUADTO:
                     path.quadTo(pointsCoords[0], pointsCoords[1], pointsCoords[2], pointsCoords[3]);
                     break;
-                case BPath.SEG_CUBICTO:
+                case BPathIterator.SEG_CUBICTO:
                     path.curveTo(pointsCoords[0], pointsCoords[1], pointsCoords[2], pointsCoords[3], pointsCoords[4], pointsCoords[5]);
                     break;
-                case BPath.SEG_CLOSE:
+                case BPathIterator.SEG_CLOSE:
                     path.closePath();
                     break;
             }

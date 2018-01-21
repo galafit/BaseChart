@@ -1,15 +1,16 @@
 package com.biorecorder.basechart.chart;
 import java.util.Arrays;
 
+
 /**
  * Created by galafit on 30/12/17.
  */
 public class BPath {
-    public static final byte SEG_MOVETO = 0;
-    public static final byte SEG_LINETO = 1;
-    public static final byte SEG_QUADTO = 2;
-    public static final byte SEG_CUBICTO = 3;
-    public static final byte SEG_CLOSE = 4;
+    private static final byte SEG_MOVETO = (byte) BPathIterator.SEG_MOVETO;
+    private static final byte SEG_LINETO = (byte) BPathIterator.SEG_LINETO;
+    private static final byte SEG_QUADTO = (byte) BPathIterator.SEG_QUADTO;
+    private static final byte SEG_CUBICTO = (byte) BPathIterator.SEG_CUBICTO;
+    private static final byte SEG_CLOSE = (byte) BPathIterator.SEG_CLOSE;
 
     private static final int INIT_SIZE = 20;
     private static final int EXPAND_MAX = 500;
@@ -19,9 +20,6 @@ public class BPath {
     private int numCoords;
     private byte[] pointTypes;
     private float[] pointCoords;
-
-    private int typeIdx;
-    private int pointIdx;
 
     public BPath() {
         this(INIT_SIZE);
@@ -104,30 +102,38 @@ public class BPath {
         }
     }
 
-    public boolean hasNext() {
-        return !(typeIdx >= numTypes);
-    }
+    public BPathIterator getPathIterator() {
+        return new BPathIterator() {
+            private int typeIdx;
+            private int pointIdx;
+            @Override
+            public boolean hasNext() {
+                return !(typeIdx >= numTypes);
+            }
 
-    public byte next(float[] coords) {
-        byte type = pointTypes[typeIdx];
-        int numCoords = 0;
-        switch (type) {
-            case BPath.SEG_MOVETO:
-            case BPath.SEG_LINETO:
-                numCoords = 2;
-                break;
-            case BPath.SEG_CUBICTO:
-                numCoords = 6;
-                break;
-            case BPath.SEG_QUADTO:
-                numCoords = 4;
-                break;
-        }
-        if (numCoords > 0) {
-            System.arraycopy(pointCoords, pointIdx, coords, 0, numCoords);
-        }
-        typeIdx++;
-        pointIdx += numCoords;
-        return type;
+            @Override
+            public int next(float[] coords) {
+                byte type = pointTypes[typeIdx];
+                int numCoords = 0;
+                switch (type) {
+                    case BPath.SEG_MOVETO:
+                    case BPath.SEG_LINETO:
+                        numCoords = 2;
+                        break;
+                    case BPath.SEG_CUBICTO:
+                        numCoords = 6;
+                        break;
+                    case BPath.SEG_QUADTO:
+                        numCoords = 4;
+                        break;
+                }
+                if (numCoords > 0) {
+                    System.arraycopy(pointCoords, pointIdx, coords, 0, numCoords);
+                }
+                typeIdx++;
+                pointIdx += numCoords;
+                return type;
+            }
+        };
     }
 }

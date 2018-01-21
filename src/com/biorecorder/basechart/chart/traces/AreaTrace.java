@@ -1,33 +1,24 @@
 package com.biorecorder.basechart.chart.traces;
 
-import com.biorecorder.basechart.chart.BCanvas;
-import com.biorecorder.basechart.chart.BColor;
-import com.biorecorder.basechart.chart.BPath;
-import com.biorecorder.basechart.chart.DataSet;
-import com.biorecorder.basechart.chart.config.traces.AreaTraceConfig;
+import com.biorecorder.basechart.chart.*;
+import com.biorecorder.basechart.chart.config.traces.LineTraceConfig;
 
 /**
  * Created by galafit on 20/9/17.
  */
-public class AreaTrace extends BaseTrace {
+public class AreaTrace {
+    LineTraceConfig traceConfig;
+    XYViewer xyData;
 
-    public AreaTrace(AreaTraceConfig traceConfig, DataSet dataSet) {
-        this.traceConfig = traceConfig;
-        setData(dataSet);
-    }
 
-    public BColor getFillColor() {
-        return new BColor(getLineColor().getRed(), getLineColor().getGreen(), getLineColor().getBlue(), 90);
-    }
 
-    @Override
     public void draw(BCanvas canvas) {
         if (xyData == null || xyData.size() == 0) {
             return;
         }
 
         BPath path = new BPath();
-
+/*
         int x_0 = (int) getXAxis().scale(xyData.getX(0));
         int y_0 = (int) getYAxis().scale(xyData.getY(0));
         int x = x_0;
@@ -52,6 +43,7 @@ public class AreaTrace extends BaseTrace {
         path.lineTo(x_0, y_0);
         canvas.setColor(getFillColor());
         canvas.fillPath(path);
+        */
     }
 
 }

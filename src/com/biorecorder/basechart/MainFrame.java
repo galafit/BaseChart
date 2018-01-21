@@ -8,7 +8,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Random;
 
 
 /**
@@ -30,15 +29,16 @@ public class MainFrame extends JFrame {
         yData2 = new FloatArrayList();
         xData = new FloatArrayList();
 
-      /*  for (int i = 0; i < 1600 ; i++) {
-            yData1.add((float) Math.sin(i));
-        }
         for (int i = 0; i < 1600 ; i++) {
-            yData2.add(i/2);
+            //yData1.add((float) Math.sin(i));
+            yData1.add(i);
         }
-        for (int i = 0; i < 1600 ; i++) {
-            xData.add(i/2);
-        }*/
+        for (int i = 100; i < 1600 ; i++) {
+            yData2.add(i + 100);
+        }
+        for (int i = 100; i < 1600 ; i++) {
+            xData.add(i);
+        }
 
 
         XYData xyData1 = new XYData();
@@ -53,15 +53,15 @@ public class MainFrame extends JFrame {
 
         ChartConfig config = new ChartConfig(false);
         config.addTrace(new LineTraceConfig(), xyData1);
-        config.addChartStack(5);
-        config.addTrace(new LineTraceConfig(), xyData2);
+        //config.addChartStack(5);
+        config.addTrace(new LineTraceConfig(true), xyData2);
 
        // config.setPreviewMinMax(new Range(0, 1000));
        // config.addScroll(0, 100);
 
        config.addPreviewTrace(new LineTraceConfig(), xyData2);
        config.addPreviewTrace(new LineTraceConfig(), xyData3);
-       config.addPreviewGroupingInterval(10);
+       //config.addPreviewGroupingInterval(10);
 
 
         chartPanel = new ChartPanel(config);
@@ -102,7 +102,7 @@ public class MainFrame extends JFrame {
             int counter = 0;
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(counter < 20) {
+                if(counter < 0) {
                     mainFrame.update();
                     counter++;
                 }
