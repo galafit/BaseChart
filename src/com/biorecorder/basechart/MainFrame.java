@@ -29,14 +29,14 @@ public class MainFrame extends JFrame {
         yData2 = new FloatArrayList();
         xData = new FloatArrayList();
 
-        for (int i = 0; i < 1600 ; i++) {
+        for (int i = 0; i < 1600; i++) {
             //yData1.add((float) Math.sin(i));
             yData1.add(i);
         }
-        for (int i = 100; i < 1600 ; i++) {
+        for (int i = 100; i < 1600; i++) {
             yData2.add(i + 100);
         }
-        for (int i = 100; i < 1600 ; i++) {
+        for (int i = 100; i < 1600; i++) {
             xData.add(i);
         }
 
@@ -52,22 +52,21 @@ public class MainFrame extends JFrame {
         xyData3.setYData(yData2);
 
         ChartConfig config = new ChartConfig(false);
-        config.addTrace(new LineTraceConfig(), xyData1);
+        config.addTrace(new LineTraceConfig(LineTraceConfig.VERTICAL_LINES, true), xyData1);
         //config.addChartStack(5);
         config.addTrace(new LineTraceConfig(true), xyData2);
 
-       // config.setPreviewMinMax(new Range(0, 1000));
-       // config.addScroll(0, 100);
-
-       config.addPreviewTrace(new LineTraceConfig(), xyData2);
-       config.addPreviewTrace(new LineTraceConfig(), xyData3);
-       //config.addPreviewGroupingInterval(10);
+        // config.setPreviewMinMax(new Range(0, 1000));
+        // config.addScroll(0, 100);
+        config.addPreviewTrace(new LineTraceConfig(), xyData3);
+        config.addPreviewTrace(new LineTraceConfig(), xyData2);
+        //config.addPreviewGroupingInterval(10);
 
 
         chartPanel = new ChartPanel(config);
 
         chartPanel.setPreferredSize(new Dimension(width, height));
-        add(chartPanel,BorderLayout.CENTER);
+        add(chartPanel, BorderLayout.CENTER);
         pack();
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         addKeyListener(chartPanel);
@@ -76,19 +75,19 @@ public class MainFrame extends JFrame {
     }
 
     public void update() {
-        for (int i = 1; i <= 800 ; i++) {
+        for (int i = 1; i <= 800; i++) {
             yData1.add((float) Math.sin(i));
         }
 
 
-        for (int i = 1; i <=800 ; i++) {
+        for (int i = 1; i <= 800; i++) {
             float lastValue = 0;
-            if(xData.size() > 0) {
-                lastValue = xData.get(xData.size() - 1)+1;
+            if (xData.size() > 0) {
+                lastValue = xData.get(xData.size() - 1) + 1;
             }
             xData.add(lastValue + 1);
         }
-        for (int i = 1; i <=800 ; i++) {
+        for (int i = 1; i <= 800; i++) {
             yData2.add(i);
         }
         chartPanel.update();
@@ -98,11 +97,12 @@ public class MainFrame extends JFrame {
     public static void main(String[] args) {
         MainFrame mainFrame = new MainFrame();
 
-       final Timer timer = new Timer(1000, new ActionListener() {
+        final Timer timer = new Timer(1000, new ActionListener() {
             int counter = 0;
+
             @Override
             public void actionPerformed(ActionEvent e) {
-                if(counter < 0) {
+                if (counter < 0) {
                     mainFrame.update();
                     counter++;
                 }

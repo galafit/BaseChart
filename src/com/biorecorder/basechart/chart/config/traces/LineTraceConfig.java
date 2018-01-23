@@ -9,9 +9,9 @@ import com.biorecorder.basechart.chart.BStroke;
 public class LineTraceConfig implements TraceConfig {
     public static final int LINEAR = 0;
     public static final int STEP = 1;
-    public static final int PAPA = 2;
+    public static final int VERTICAL_LINES = 2;
 
-    private MarkConfig markConfig = new MarkConfig();
+    private int markSize = 0; // point size
     private BStroke lineStroke = new BStroke();
     private BColor color;
     private int mode;
@@ -47,14 +47,6 @@ public class LineTraceConfig implements TraceConfig {
         return isFilled;
     }
 
-    public MarkConfig getMarkConfig() {
-        return markConfig;
-    }
-
-    public void setMarkConfig(MarkConfig markConfig) {
-        this.markConfig = markConfig;
-    }
-
     public BStroke getLineStroke() {
         return lineStroke;
     }
@@ -71,4 +63,11 @@ public class LineTraceConfig implements TraceConfig {
         this.color = color;
     }
 
+    public int getMarkSize() {
+        return markSize;
+    }
+
+    public void setMarkSize(int markSize) {
+        this.markSize = markSize;
+    }
 }

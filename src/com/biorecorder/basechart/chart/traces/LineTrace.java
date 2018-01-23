@@ -33,7 +33,7 @@ public class LineTrace extends Trace {
     }
 
     BColor getMarkColor() {
-        BColor markColor = traceConfig.getMarkConfig().getColor();
+        BColor markColor = traceConfig.getColor();
         if(markColor == null) {
             markColor = getLineColor();
         }
@@ -76,15 +76,35 @@ public class LineTrace extends Trace {
             return;
         }
 
-        BPath path = new BPath();
-        int x_0 = (int) getXAxis().scale(xyData.getX(0));
-        int y_0 = (int) getYAxis().scale(xyData.getY(0));
-        int x = x_0;
-        int y = y_0;
+        BPath path = null;
+        if(traceConfig.getMode() == LineTraceConfig.LINEAR) {
+            path = drawLinearPath(canvas);
+        }
+        if(traceConfig.getMode() == LineTraceConfig.STEP) {
+            path = drawStepPath(canvas);
+        }
+        if(traceConfig.getMode() == LineTraceConfig.VERTICAL_LINES) {
+            path = drawVerticalLinesPath(canvas);
+        }
 
+        if(path != null && traceConfig.isFilled()) {
+            int x_0 = (int) getXAxis().scale(xyData.getX(0));
+            int x_last = (int) getXAxis().scale(xyData.getX(xyData.size() - 1));
+            path.lineTo(x_last, getYAxis().getStart());
+            path.lineTo(x_0, getYAxis().getStart());
+            path.close();
+            canvas.setColor(getFillColor());
+            canvas.fillPath(path);
+        }
+    }
+
+    private BPath drawLinearPath(BCanvas canvas) {
+        BPath path = new BPath();
+        int x = (int) getXAxis().scale(xyData.getX(0));
+        int y = (int) getYAxis().scale(xyData.getY(0));
         path.moveTo(x, y);
         canvas.setColor(getMarkColor());
-        int pointRadius = traceConfig.getMarkConfig().getSize() / 2;
+        int pointRadius = traceConfig.getMarkSize() / 2;
         canvas.drawOval(x - pointRadius, y - pointRadius, 2 * pointRadius,2 * pointRadius);
         for (int i = 1; i < xyData.size(); i++) {
             x = (int) getXAxis().scale(xyData.getX(i));
@@ -95,14 +115,72 @@ public class LineTrace extends Trace {
         canvas.setColor(getLineColor());
         canvas.setStroke(traceConfig.getLineStroke());
         canvas.drawPath(path);
-        if(traceConfig.isFilled()) {
-            path.lineTo(x, getYAxis().getStart());
-            path.lineTo(x_0, getYAxis().getStart());
-            path.close();
-            canvas.setColor(getFillColor());
-            canvas.fillPath(path);
-        }
-
+        return path;
     }
 
+    private BPath drawStepPath(BCanvas canvas) {
+        BPath path = new BPath();
+        int x = (int) getXAxis().scale(xyData.getX(0));
+        int y = (int) getYAxis().scale(xyData.getY(0));
+        path.moveTo(x, y);
+        canvas.setColor(getMarkColor());
+        int pointRadius = traceConfig.getMarkSize()/ 2;
+        canvas.drawOval(x - pointRadius, y - pointRadius, 2 * pointRadius,2 * pointRadius);
+        for (int i = 1; i < xyData.size(); i++) {
+            x = (int) getXAxis().scale(xyData.getX(i));
+            path.lineTo(x, y);
+            y = (int) getYAxis().scale(xyData.getY(i));
+            path.lineTo(x, y);
+            canvas.drawOval(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius);
+        }
+        canvas.setColor(getLineColor());
+        canvas.setStroke(traceConfig.getLineStroke());
+        canvas.drawPath(path);
+        return path;
+    }
+
+    private BPath drawVerticalLinesPath(BCanvas canvas) {
+        int x = (int) getXAxis().scale(xyData.getX(0));
+        int y = (int) getYAxis().scale(xyData.getY(0));
+        canvas.setColor(getMarkColor());
+        int pointRadius = traceConfig.getMarkSize() / 2;
+        canvas.drawOval(x - pointRadius, y - pointRadius, 2 * pointRadius,2 * pointRadius);
+        VerticalLine vLine = new VerticalLine(y);
+        for (int i = 1; i < xyData.size(); i++) {
+            int x_prev = x;
+            x = (int) getXAxis().scale(xyData.getX(i));
+            y = (int) getYAxis().scale(xyData.getY(i));
+            // draw horizontal lines to avoid line breaking
+         /*   if(x > x_prev + 1) {
+                canvas.drawLine(x_prev, y, x, y);
+            }*/
+            vLine.setNewBounds(y);
+            // draw vertical line
+            canvas.drawLine(x, vLine.min, x, vLine.max);
+            canvas.drawOval(x - pointRadius,y - pointRadius, 2 * pointRadius,2 * pointRadius);
+        }
+        return null;
+    }
+
+    class VerticalLine {
+        int max;
+        int min;
+
+        public VerticalLine(int y) {
+            min = y;
+            max = y;
+        }
+
+        void setNewBounds(int y) {
+            if (y >= min && y <= max) {
+                min = max = y;
+            } else if (y > max) {
+                min = max + 1;
+                max = y;
+            } else if (y < min) {
+                max = min - 1;
+                min = y;
+            }
+        }
+    }
 }
