@@ -2,6 +2,7 @@ package com.biorecorder.basechart;
 
 import com.biorecorder.basechart.chart.config.ScrollableChartConfig;
 import com.biorecorder.basechart.chart.config.SimpleChartConfig;
+import com.biorecorder.basechart.chart.config.Theme;
 import com.biorecorder.basechart.chart.config.traces.TraceConfig;
 import com.biorecorder.basechart.data.BaseData;
 import com.biorecorder.basechart.data.Data;
@@ -25,7 +26,7 @@ public class ChartConfig extends ScrollableChartConfig {
         super(isDateTime);
     }
 
-    public ChartConfig(int theme, boolean isDateTime) {
+    public ChartConfig(Theme theme, boolean isDateTime) {
         super(theme, isDateTime);
     }
 
