@@ -144,6 +144,7 @@ public class SimpleChartConfig {
         traces.add(traceInfo);
     }
 
+
     public BColor getTitleColor() {
         return titleColor;
     }

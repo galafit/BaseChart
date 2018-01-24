@@ -117,6 +117,8 @@ class FloatColumn implements NumberColumn {
 
     @Override
     public NumberColumn copy() {
-        return new FloatColumn(series);
+        FloatColumn newColumn = new FloatColumn(series);
+        newColumn.groupingType = groupingType;
+        return newColumn;
     }
 }

@@ -1,6 +1,7 @@
 package com.biorecorder.basechart;
 
 import com.biorecorder.basechart.chart.config.ScrollableChartConfig;
+import com.biorecorder.basechart.chart.config.SimpleChartConfig;
 import com.biorecorder.basechart.chart.config.traces.TraceConfig;
 import com.biorecorder.basechart.data.BaseData;
 import com.biorecorder.basechart.data.Data;
@@ -12,9 +13,6 @@ import java.util.List;
  * Created by galafit on 6/10/17.
  */
 public class ChartConfig extends ScrollableChartConfig {
-    public static final int DARK_THEME = 1;
-    public static final int LIGHT_THEME = 2;
-
     private boolean isDataCropEnable = true;
     private boolean isGroupingEnable = true;
     private ArrayList<Float> previewGroupingIntervals = new ArrayList<Float>();
@@ -83,7 +81,7 @@ public class ChartConfig extends ScrollableChartConfig {
      *********************************************/
 
     /**
-     * add trace to the last com.biorecorder.basechart.chart stack
+     * add trace to the last chart stack
      */
     public void addTrace(TraceConfig traceConfig, Data traceData, String name, boolean isXAxisOpposite, boolean isYAxisOpposite) {
         chartData.add(traceData.getDataSet());
@@ -91,21 +89,38 @@ public class ChartConfig extends ScrollableChartConfig {
     }
 
     /**
-     * add trace to the last com.biorecorder.basechart.chart stack
+     * add trace to the last chart stack
+     */
+    public void addTrace(TraceConfig traceConfig, Data traceData, String name, String dataUnits, boolean isXAxisOpposite, boolean isYAxisOpposite) {
+        addTrace(traceConfig, traceData, name, isXAxisOpposite, isYAxisOpposite);
+
+        int traceYIndex = getChartConfig().getTraceYIndex(getChartConfig().getTraceCounter() - 1);
+        getChartConfig().getYConfig(traceYIndex).getLabelFormatInfo().setSuffix(dataUnits);
+    }
+
+    /**
+     * add trace to the last chart stack
      */
     public void addTrace(TraceConfig traceConfig, Data traceData, boolean isXAxisOpposite, boolean isYAxisOpposite) {
         addTrace(traceConfig, traceData, null, isXAxisOpposite, isYAxisOpposite);
     }
 
     /**
-     * add trace to the last com.biorecorder.basechart.chart stack
+     * add trace to the last chart stack
+     */
+    public void addTrace(TraceConfig traceConfig, Data traceData, String name, String dataUnits) {
+        addTrace(traceConfig, traceData, name, dataUnits, false, false);
+    }
+
+    /**
+     * add trace to the last chart stack
      */
     public void addTrace(TraceConfig traceConfig, Data traceData, String name) {
         addTrace(traceConfig, traceData, name, false, false);
     }
 
     /**
-     * add trace to the last com.biorecorder.basechart.chart stack
+     * add trace to the last chart stack
      */
     public void addTrace(TraceConfig traceConfig, Data traceData) {
         addTrace(traceConfig, traceData, null, false, false);
@@ -124,6 +139,24 @@ public class ChartConfig extends ScrollableChartConfig {
         previewData.add(traceData.getDataSet());
         getPreviewConfig().addTrace(traceConfig, previewData.size() - 1, name,  isXAxisOpposite, isYAxisOpposite);
     }
+
+    /**
+     * add trace to the last preview stack
+     */
+    public void addPreviewTrace(TraceConfig traceConfig, Data traceData, String name, String dataUnits, boolean isXAxisOpposite, boolean isYAxisOpposite) {
+        addPreviewTrace(traceConfig, traceData, name, isXAxisOpposite, isYAxisOpposite);
+
+        int traceYIndex = getPreviewConfig().getTraceYIndex(getPreviewConfig().getTraceCounter() - 1);
+        getPreviewConfig().getYConfig(traceYIndex).getLabelFormatInfo().setSuffix(dataUnits);
+    }
+
+    /**
+     * add trace to the last preview stack
+     */
+    public void addPreviewTrace(TraceConfig traceConfig, Data traceData, String name, String dataUnits) {
+        addPreviewTrace(traceConfig, traceData, name, dataUnits, false, false);
+    }
+
 
     /**
      * add trace to the last preview stack

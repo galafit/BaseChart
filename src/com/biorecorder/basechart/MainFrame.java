@@ -1,6 +1,7 @@
 package com.biorecorder.basechart;
 
 import com.biorecorder.basechart.chart.config.traces.LineTraceConfig;
+import com.biorecorder.basechart.data.GroupingType;
 import com.biorecorder.basechart.data.XYData;
 import com.biorecorder.basechart.data.FloatArrayList;
 
@@ -50,15 +51,30 @@ public class MainFrame extends JFrame {
 
         XYData xyData3 = new XYData();
         xyData3.setYData(yData2);
+        xyData3.setYGroupingType(GroupingType.MAX);
 
         ChartConfig config = new ChartConfig(false);
         config.addTrace(new LineTraceConfig(LineTraceConfig.VERTICAL_LINES, true), xyData1);
         //config.addChartStack(5);
-        config.addTrace(new LineTraceConfig(true), xyData2);
+        config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
+
+         config.addChartStack(5);
+        config.addTrace(new LineTraceConfig(LineTraceConfig.VERTICAL_LINES, true), xyData1);
+        config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
+
+
+        config.addChartStack(5);
+        config.addTrace(new LineTraceConfig(LineTraceConfig.VERTICAL_LINES, true), xyData1);
+        config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
+
+        config.addChartStack(5);
+        config.addTrace(new LineTraceConfig(LineTraceConfig.VERTICAL_LINES, true), xyData1);
+        config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
+
 
         // config.setPreviewMinMax(new Range(0, 1000));
         // config.addScroll(0, 100);
-        config.addPreviewTrace(new LineTraceConfig(), xyData3);
+        config.addPreviewTrace(new LineTraceConfig(), xyData3, "PREV", "kg");
         config.addPreviewTrace(new LineTraceConfig(), xyData2);
         //config.addPreviewGroupingInterval(10);
 

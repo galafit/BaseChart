@@ -18,7 +18,16 @@ import java.util.List;
  * Created by hdablin on 24.03.17.
  */
 public class SimpleChart {
-    private BColor[] traceColors = {BColor.CYAN, BColor.MAGENTA, BColor.PINK, BColor.RED, BColor.ORANGE};
+    private final BColor CYAN = new BColor(0, 200, 220);
+    private final BColor BLUE = new BColor(82, 126, 230);
+    private final BColor PINK = BColor.MAGENTA; //new BColor(165, 80, 190);
+    private final BColor GREEN = new BColor(93, 194, 123);//new BColor(77, 184, 118);//new BColor(0, 204, 31);
+    private final BColor RED = new BColor(184, 64, 82);//new BColor(179, 56, 50);//new BColor(191, 60, 54);//new BColor(161, 51, 45);
+    private final BColor ORANGE = new BColor(200, 102, 0);//new BColor(173, 105, 49);
+    private final BColor YELLOW = new BColor(252, 177, 48); // new BColor(200, 200, 100);
+    private final BColor GRAY = new BColor(180, 170, 170);
+
+    private BColor[] traceColors = {CYAN, PINK, BLUE, RED, GREEN, ORANGE, GRAY, YELLOW};
 
     private List<Axis> xAxisList = new ArrayList<Axis>(2);
     private List<Axis> yAxisList = new ArrayList<Axis>();
@@ -48,8 +57,6 @@ public class SimpleChart {
     private int hoverTraceIndex = -1;
 
     private List<DataSet> data;
-    int counter;
-
 
     public SimpleChart(SimpleChartConfig chartConfig, List<DataSet> data, BRectangle area) {
         this.data = data;

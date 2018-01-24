@@ -3,6 +3,7 @@ package com.biorecorder.basechart.chart.config;
 import com.biorecorder.basechart.chart.BColor;
 import com.biorecorder.basechart.chart.BStroke;
 import com.biorecorder.basechart.chart.TextStyle;
+import com.biorecorder.basechart.chart.scales.Unit;
 
 /**
  * Created by galafit on 5/9/17.
@@ -25,6 +26,7 @@ public class AxisConfig {
     private int tickMarkOutsideSize = 3; // px
     private boolean isTicksVisible = true;
     private float tickStep = 0; // in domain units
+    private Unit tickStepUnit = null;
 
     private String title;
     private TextStyle titleTextStyle = new TextStyle(TextStyle.DEFAULT, TextStyle.NORMAL, 14);
@@ -204,8 +206,17 @@ public class AxisConfig {
         return tickStep;
     }
 
-    public void setTickStep(float tickStep) {
+    public Unit getTickStepUnit() {
+        return tickStepUnit;
+    }
+
+    public void setTickStepUnit(Unit tickStepUnit) {
+        this.tickStepUnit = tickStepUnit;
+    }
+
+    public void setTickStep(float tickStep, Unit tickStepUnit) {
         this.tickStep = tickStep;
+        this.tickStepUnit = tickStepUnit;
     }
 
     /** ======================= Title ========================== **/

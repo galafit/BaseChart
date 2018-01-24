@@ -149,11 +149,12 @@ public class LineTrace extends Trace {
         for (int i = 1; i < xyData.size(); i++) {
             int x_prev = x;
             x = (int) getXAxis().scale(xyData.getX(i));
-            y = (int) getYAxis().scale(xyData.getY(i));
             // draw horizontal lines to avoid line breaking
-         /*   if(x > x_prev + 1) {
+            if(x > x_prev + 1) {
+                vLine.setNewBounds(y);
                 canvas.drawLine(x_prev, y, x, y);
-            }*/
+            }
+            y = (int) getYAxis().scale(xyData.getY(i));
             vLine.setNewBounds(y);
             // draw vertical line
             canvas.drawLine(x, vLine.min, x, vLine.max);
