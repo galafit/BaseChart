@@ -54,21 +54,21 @@ public class MainFrame extends JFrame {
         xyData3.setYGroupingType(GroupingType.MAX);
 
         ChartConfig config = new ChartConfig(false);
-        config.addTrace(new LineTraceConfig(LineTraceConfig.VERTICAL_LINES, true), xyData1);
+        config.addTrace(new LineTraceConfig(false), xyData1);
         //config.addChartStack(5);
         config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
 
          config.addChartStack(5);
-        config.addTrace(new LineTraceConfig(LineTraceConfig.VERTICAL_LINES, true), xyData1);
+        config.addTrace(new LineTraceConfig(false), xyData1);
         config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
 
 
         config.addChartStack(5);
-        config.addTrace(new LineTraceConfig(LineTraceConfig.VERTICAL_LINES, true), xyData1);
+        config.addTrace(new LineTraceConfig(false), xyData1);
         config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
 
         config.addChartStack(5);
-        config.addTrace(new LineTraceConfig(LineTraceConfig.VERTICAL_LINES, true), xyData1);
+        config.addTrace(new LineTraceConfig(false), xyData1);
         config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
 
 

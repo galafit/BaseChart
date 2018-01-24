@@ -1,8 +1,12 @@
 package com.biorecorder.basechart.chart.config.traces;
 
+import com.biorecorder.basechart.chart.BColor;
+
 /**
  * Created by galafit on 13/9/17.
  */
-public abstract interface TraceConfig {
-    public abstract TraceType getTraceType();
+public interface TraceConfig {
+    public  TraceType getTraceType();
+    public BColor getColor();
+    public void setColor(BColor color);
  }

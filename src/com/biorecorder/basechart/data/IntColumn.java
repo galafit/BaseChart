@@ -132,6 +132,8 @@ class IntColumn implements NumberColumn {
 
     @Override
     public NumberColumn copy() {
-        return new IntColumn(series);
+        IntColumn newColumn = new IntColumn(series);
+        newColumn.groupingType = groupingType;
+        return newColumn;
     }
 }

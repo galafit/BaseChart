@@ -11,7 +11,6 @@ public abstract class Trace {
     private Axis xAxis;
     private Axis yAxis;
     private String name;
-    private BColor defaultColor;
     private DataSet data;
 
     public void setData(DataSet data) {
@@ -46,17 +45,11 @@ public abstract class Trace {
         this.name = name;
     }
 
-    public BColor getDefaultColor() {
-        return defaultColor;
-    }
-
-    public void setDefaultColor(BColor defaultColor) {
-        this.defaultColor = defaultColor;
-    }
-
     public Range getXExtremes() {
         return data.getXExtremes();
     }
+
+    public abstract BColor getColor();
 
     public abstract Range getYExtremes();
 

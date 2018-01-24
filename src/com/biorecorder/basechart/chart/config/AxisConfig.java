@@ -11,9 +11,9 @@ import com.biorecorder.basechart.chart.scales.Unit;
 public class AxisConfig {
     private AxisOrientation orientation;
     private AxisType axisType = AxisType.LINEAR;
-    private BColor color =  BColor.BROWN; // BColor.GRAY;
-    private BColor gridColor = BColor.BROWN_LIGHT; //BColor(100, 100, 100);
-    private BColor minorGridColor = BColor.BROWN_LIGHT;//new BColor(80, 80, 80);
+    private BColor color =  BColor.GRAY; // BColor.GRAY;
+    private BColor gridColor = BColor.LIGHT_GRAY; //BColor(100, 100, 100);
+    private BColor minorGridColor = BColor.LIGHT_GRAY;//new BColor(80, 80, 80);
 
     private TextStyle labelTextStyle = new TextStyle(TextStyle.DEFAULT, TextStyle.NORMAL, 12);
     private int labelPadding; // px

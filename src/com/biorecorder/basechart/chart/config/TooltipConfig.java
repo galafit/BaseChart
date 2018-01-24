@@ -11,7 +11,7 @@ import com.biorecorder.basechart.chart.TextStyle;
 public class TooltipConfig {
     private TextStyle textStyle = new TextStyle(TextStyle.DEFAULT, TextStyle.NORMAL, 12);
     private BColor color = BColor.BLACK;
-    private BColor backgroundColor = new BColor(240, 230, 220);
+    private BColor backgroundColor = new BColor(240, 235, 230);
     private BColor borderColor = new BColor(100, 100, 100);
     private int borderWidth = 1;
     private Margin margin = new Margin((int)(getTextStyle().getSize() * 0.4),

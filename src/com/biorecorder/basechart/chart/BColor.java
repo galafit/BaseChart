@@ -6,18 +6,16 @@ package com.biorecorder.basechart.chart;
 public class BColor {
     public static final BColor BLACK = new BColor(0, 0, 0);
     public static final BColor WHITE = new BColor(255, 255, 255);
-
+    public static final BColor RED = new BColor(255, 0, 0);
+    public static final BColor GREEN = new BColor(0, 255, 0);
+    public static final BColor BLUE = new BColor(0, 0, 255);
+    public static final BColor CYAN = new BColor(0, 255, 255);
+    public static final BColor YELLOW = new BColor(255, 255, 0);
+    public static final BColor MAGENTA = new BColor(255, 0, 255);
+    public static final BColor PINK = new BColor(255, 175, 175);
     public static final BColor GRAY = new BColor(128, 128, 128);
     public static final BColor LIGHT_GRAY = new BColor(192, 192, 192);
     public static final BColor DARK_GRAY = new BColor(64, 64, 64);
-    public static final BColor BROWN = new BColor(130, 100, 70);//new BColor(120, 94, 50); //new BColor(145, 94, 32);//new BColor(163, 106, 36); //new BColor(125, 81, 26);
-    public static final BColor BROWN_BRIGHT = new BColor(200, 102, 0);
-    public static final BColor BROWN_LIGHT = new BColor(70, 55, 35); // new BColor(64, 56, 40);
-    public static final BColor ORANGE = new BColor(255, 153, 0);
-    public static final BColor CYAN = new BColor(0, 255, 255);
-    public static final BColor MAGENTA = new BColor(255, 0, 255);
-    public static final BColor PINK = new BColor(255, 175, 175);
-    public static final BColor RED = new BColor(255, 0, 0);
 
     private int r;
     private int g;

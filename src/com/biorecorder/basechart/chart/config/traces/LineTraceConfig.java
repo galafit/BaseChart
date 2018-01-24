@@ -39,6 +39,15 @@ public class LineTraceConfig implements TraceConfig {
         return TraceType.LINE;
     }
 
+    @Override
+    public BColor getColor() {
+        return color;
+    }
+
+    public void setColor(BColor color) {
+        this.color = color;
+    }
+
     public int getMode() {
         return mode;
     }
@@ -53,14 +62,6 @@ public class LineTraceConfig implements TraceConfig {
 
     public void setLineStroke(BStroke lineStroke) {
         this.lineStroke = lineStroke;
-    }
-
-    public BColor getColor() {
-        return color;
-    }
-
-    public void setColor(BColor color) {
-        this.color = color;
     }
 
     public int getMarkSize() {

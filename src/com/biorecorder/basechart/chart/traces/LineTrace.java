@@ -24,20 +24,17 @@ public class LineTrace extends Trace {
         xyData.setData(dataSet);
     }
 
+    @Override
+    public BColor getColor() {
+        return traceConfig.getColor();
+    }
+
     BColor getLineColor() {
-        BColor lineColor = traceConfig.getColor();
-        if(lineColor == null) {
-            lineColor = getDefaultColor();
-        }
-        return lineColor;
+        return traceConfig.getColor();
     }
 
     BColor getMarkColor() {
-        BColor markColor = traceConfig.getColor();
-        if(markColor == null) {
-            markColor = getLineColor();
-        }
-        return markColor;
+        return traceConfig.getColor();
     }
 
     public BColor getFillColor() {

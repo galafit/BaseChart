@@ -12,6 +12,8 @@ import java.util.*;
 public class SimpleChartConfig {
     public static final int DEFAULT_WEIGHT = 10;
 
+    private BColor[] defaultTraceColors = {BColor.MAGENTA, BColor.BLUE};
+
     private String title;
     private BColor background;
     private BColor marginColor;
@@ -75,7 +77,6 @@ public class SimpleChartConfig {
         this(isBottomAxisPrimary, isLeftAxisPrimary, null, null);
     }
 
-
     public SimpleChartConfig() {
         this( true, true, null, null);
     }
@@ -86,6 +87,10 @@ public class SimpleChartConfig {
         yAxisConfigs.add(leftConfig);
         yAxisConfigs.add(rightConfig);
         stackWeights.add(weight);
+    }
+
+    public void setDefaultTraceColors(BColor[] defaultTraceColors) {
+        this.defaultTraceColors = defaultTraceColors;
     }
 
     public int getSumWeight() {
@@ -115,6 +120,10 @@ public class SimpleChartConfig {
 
     // add trace to the last stack
     public void addTrace(TraceConfig traceConfig, int dataIndex, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {
+        if(traceConfig.getColor() == null) {
+            traceConfig.setColor(defaultTraceColors[traces.size() % defaultTraceColors.length]);
+        }
+
         boolean isBottomXAxis = true;
         boolean isLeftYAxis = true;
         if (isXAxisOpposite && isBottomAxisPrimary) {

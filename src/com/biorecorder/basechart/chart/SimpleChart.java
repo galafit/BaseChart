@@ -18,17 +18,6 @@ import java.util.List;
  * Created by hdablin on 24.03.17.
  */
 public class SimpleChart {
-    private final BColor CYAN = new BColor(0, 200, 230);
-    private final BColor BLUE = new BColor(100, 120, 250);
-    private final BColor PINK = new BColor(165, 80, 190); //new BColor(200, 40, 250);
-    private final BColor GREEN = new BColor(120, 250, 123);//new BColor(77, 184, 118);//new BColor(0, 204, 31);
-    private final BColor RED = new BColor(250, 64, 82);//new BColor(191, 60, 54);
-    private final BColor ORANGE = new BColor(200, 80, 0);//new BColor(173, 105, 49);
-    private final BColor YELLOW = new BColor(252, 177, 48);
-    private final BColor ROSE = new BColor(200, 150, 150);
-
-    private BColor[] traceColors = { BLUE,  PINK, ROSE, RED, ORANGE, YELLOW, GREEN, CYAN};
-
     private List<Axis> xAxisList = new ArrayList<Axis>(2);
     private List<Axis> yAxisList = new ArrayList<Axis>();
     private List<Trace> traces = new ArrayList<Trace>();
@@ -73,7 +62,6 @@ public class SimpleChart {
             Trace trace = TraceRegister.getTrace(traceConfig, data.get(chartConfig.getTraceDataIndex(i)));
             trace.setXAxis(xAxisList.get(chartConfig.getTraceXIndex(i)));
             trace.setYAxis(yAxisList.get(chartConfig.getTraceYIndex(i)));
-            trace.setDefaultColor(traceColors[traces.size() % traceColors.length]);
             trace.setName(chartConfig.getTraceName(i));
             traces.add(trace);
         }
@@ -88,7 +76,7 @@ public class SimpleChart {
 
         for (int i = 0; i < traces.size(); i++) {
             int stackIndex = getTraceYIndex(i) / 2;
-            ToggleBtn legendButton = new ToggleBtn(traces.get(i).getDefaultColor(), traces.get(i).getName());
+            ToggleBtn legendButton = new ToggleBtn(traces.get(i).getColor(), traces.get(i).getName());
             final int traceIndex = i;
             legendButton.addListener(new StateListener() {
                 @Override
