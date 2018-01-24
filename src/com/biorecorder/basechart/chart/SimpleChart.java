@@ -18,16 +18,16 @@ import java.util.List;
  * Created by hdablin on 24.03.17.
  */
 public class SimpleChart {
-    private final BColor CYAN = new BColor(0, 230, 230);
+    private final BColor CYAN = new BColor(0, 200, 230);
     private final BColor BLUE = new BColor(100, 120, 250);
-    private final BColor PINK = new BColor(200, 40, 250); //new BColor(165, 80, 190);
+    private final BColor PINK = new BColor(165, 80, 190); //new BColor(200, 40, 250);
     private final BColor GREEN = new BColor(120, 250, 123);//new BColor(77, 184, 118);//new BColor(0, 204, 31);
     private final BColor RED = new BColor(250, 64, 82);//new BColor(191, 60, 54);
-    private final BColor ORANGE = new BColor(200, 102, 0);//new BColor(173, 105, 49);
-    private final BColor YELLOW = new BColor(252, 177, 48); // new BColor(200, 200, 100);
-    private final BColor GRAY = new BColor(190, 170, 190);
+    private final BColor ORANGE = new BColor(200, 80, 0);//new BColor(173, 105, 49);
+    private final BColor YELLOW = new BColor(252, 177, 48);
+    private final BColor ROSE = new BColor(200, 150, 150);
 
-    private BColor[] traceColors = {BLUE, PINK, GRAY, RED, ORANGE, GREEN, YELLOW, CYAN};
+    private BColor[] traceColors = { BLUE,  PINK, ROSE, RED, ORANGE, YELLOW, GREEN, CYAN};
 
     private List<Axis> xAxisList = new ArrayList<Axis>(2);
     private List<Axis> yAxisList = new ArrayList<Axis>();
