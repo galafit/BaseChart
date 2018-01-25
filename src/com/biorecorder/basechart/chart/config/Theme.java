@@ -74,7 +74,7 @@ public enum Theme {
             axisColor = BROWN;
             gridColor = DARK_BROWN;
 
-            BColor[] colors = {BLUE, MAGENTA, PINK, RED, ORANGE, YELLOW, GREEN, CYAN};
+            BColor[] colors = {BLUE, RED, PINK, MAGENTA, ORANGE, YELLOW, GREEN, CYAN};
             traceColors = colors;
 
             crosshairColor = BColor.RED;
