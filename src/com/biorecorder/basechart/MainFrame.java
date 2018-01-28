@@ -1,8 +1,10 @@
 package com.biorecorder.basechart;
 
 import com.biorecorder.basechart.chart.Range;
+import com.biorecorder.basechart.chart.config.traces.BooleanTraceConfig;
 import com.biorecorder.basechart.chart.config.traces.LineTraceConfig;
 import com.biorecorder.basechart.data.GroupingType;
+import com.biorecorder.basechart.data.IntArrayList;
 import com.biorecorder.basechart.data.XYData;
 import com.biorecorder.basechart.data.FloatArrayList;
 
@@ -42,6 +44,20 @@ public class MainFrame extends JFrame {
             xData.add(i);
         }
 
+        IntArrayList bandYData = new IntArrayList();
+        int counter = 0;
+        for (int i = 0; i < 1600; i++) {
+            if(counter < 100) {
+               bandYData.add(1);
+            } else {
+                bandYData.add(0);
+            }
+            counter++;
+            if(counter > 200) {
+                counter = 0;
+            }
+        }
+
 
         XYData xyData1 = new XYData();
         xyData1.setYData(yData1);
@@ -54,10 +70,13 @@ public class MainFrame extends JFrame {
         xyData3.setYData(yData2);
         xyData3.setYGroupingType(GroupingType.MAX);
 
+        XYData bandData = new XYData();
+        bandData.setYData(bandYData);
+
         ChartConfig config = new ChartConfig(false);
         config.addTrace(new LineTraceConfig(false), xyData1);
         //config.addChartStack(5);
-        config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
+        config.addTrace(new BooleanTraceConfig(), bandData, "Band");
 
          config.addChartStack(5);
         config.addTrace(new LineTraceConfig(false), xyData1);

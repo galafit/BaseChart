@@ -28,10 +28,16 @@ public class ChartWithDataManager {
 
     private ArrayList<BaseData> previewProcessedData;
     private ArrayList<BaseData> chartProcessedData;
-    boolean isChartConfigured = false;
-    boolean isAllScrollsAtTheEnd = true;
+    private boolean isChartConfigured = false;
+    private boolean isAllScrollsAtTheEnd = true;
+    private TraceFactory traceFactory;
 
     public ChartWithDataManager(ChartConfig config, BRectangle area) {
+        this(config, area, new DefaultTraceFactory());
+    }
+
+
+    public ChartWithDataManager(ChartConfig config, BRectangle area, TraceFactory traceFactory) {
         this.area = area;
         this.config = config;
 
@@ -52,11 +58,11 @@ public class ChartWithDataManager {
         for (BaseData data : previewOriginalData) {
             previewProcessedData.add(data);
         }
-
-        scrollableChart = createScrollableChart();
+        this.traceFactory = traceFactory;
+        scrollableChart = createScrollableChart(traceFactory);
     }
 
-    private ScrollableChart createScrollableChart() {
+    private ScrollableChart createScrollableChart(TraceFactory traceFactory) {
         if (config.isPreviewEnable()) {
             boolean isOk = true;
             // create list of x axis used by some traces
@@ -107,7 +113,7 @@ public class ChartWithDataManager {
             }
         }
 
-        ScrollableChart chart = new ScrollableChart(config, createChartData(), createPreviewData(), area);
+        ScrollableChart chart = new ScrollableChart(config, createChartData(), createPreviewData(), area, traceFactory);
         for (Integer xAxisIndex : chart.getXAxisWithScroll()) {
             chart.addScrollListener(xAxisIndex, new ScrollListener() {
                 @Override
@@ -293,7 +299,7 @@ public class ChartWithDataManager {
 
     public void update() {
         if (!isChartConfigured) {
-            scrollableChart = createScrollableChart();
+            scrollableChart = createScrollableChart(traceFactory);
         } else {
             Range previewMinMax = Range.max(scrollableChart.getPreviewXMinMax(), getChartDataMinMax());
             groupPreviewData(previewMinMax);

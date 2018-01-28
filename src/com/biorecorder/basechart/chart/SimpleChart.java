@@ -9,7 +9,6 @@ import com.biorecorder.basechart.chart.scales.Scale;
 import com.biorecorder.basechart.chart.tooltip.Tooltip;
 import com.biorecorder.basechart.chart.tooltip.TooltipInfo;
 import com.biorecorder.basechart.chart.traces.Trace;
-import com.biorecorder.basechart.chart.traces.TraceRegister;
 
 import java.util.*;
 import java.util.List;
@@ -48,6 +47,11 @@ public class SimpleChart {
     private List<DataSet> data;
 
     public SimpleChart(SimpleChartConfig chartConfig, List<DataSet> data, BRectangle area) {
+        this(chartConfig, data, area, new DefaultTraceFactory());
+    }
+
+
+    public SimpleChart(SimpleChartConfig chartConfig, List<DataSet> data, BRectangle area, TraceFactory traceFactory) {
         this.data = data;
         this.chartConfig = chartConfig;
         this.fullArea = area;
@@ -59,7 +63,8 @@ public class SimpleChart {
         }
         for (int i = 0; i < chartConfig.getTraceCounter(); i++) {
             TraceConfig traceConfig = chartConfig.getTraceConfig(i);
-            Trace trace = TraceRegister.getTrace(traceConfig, data.get(chartConfig.getTraceDataIndex(i)));
+            Trace trace = traceFactory.getTrace(traceConfig);
+            trace.setData(data.get(chartConfig.getTraceDataIndex(i)));
             trace.setXAxis(xAxisList.get(chartConfig.getTraceXIndex(i)));
             trace.setYAxis(yAxisList.get(chartConfig.getTraceYIndex(i)));
             trace.setName(chartConfig.getTraceName(i));

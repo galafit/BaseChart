@@ -128,6 +128,11 @@ public class ChartConfig extends ScrollableChartConfig {
         addTrace(traceConfig, traceData, null, false, false);
     }
 
+    /**
+     * Set Min and Max of the 2 Y axis of the chart last stack
+     * @param yMinMax - min and max values. Can be null. If min == null
+     *  only max will be set and otherwise
+     */
     public void setYMinMax(Range yMinMax) {
         getChartConfig().setYMinMax(yMinMax);
     }
@@ -137,6 +142,11 @@ public class ChartConfig extends ScrollableChartConfig {
      *              PREVIEW CONFIG
      *********************************************/
 
+    /**
+     * Set Min and Max of the 2 Y axis of the preview last stack
+     * @param yMinMax  - min and max values. Can be null. If min == null
+     *  only max will be set and otherwise
+     */
     public void setPreviewYMinMax(Range yMinMax) {
         getPreviewConfig().setYMinMax(yMinMax);
     }

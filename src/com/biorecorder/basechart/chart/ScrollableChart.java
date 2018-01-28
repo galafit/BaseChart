@@ -19,15 +19,20 @@ public class ScrollableChart {
     private ScrollableChartConfig config;
 
     public ScrollableChart(ScrollableChartConfig config, List<DataSet> chartData, List<DataSet> previewData, BRectangle area) {
+        this(config, chartData, previewData, area, new DefaultTraceFactory());
+    }
+
+
+    public ScrollableChart(ScrollableChartConfig config, List<DataSet> chartData, List<DataSet> previewData, BRectangle area, TraceFactory traceFactory) {
         this.config = config;
         SimpleChartConfig chartConfig = config.getChartConfig();
         Set<Integer> scrollableAxis = config.getXAxisWithScroll();
         calculateAreas(area);
         if (config.getScrollsExtents().length == 0) { // Chart without preview
-            chart = new SimpleChart(chartConfig,chartData, chartArea);
+            chart = new SimpleChart(chartConfig,chartData, chartArea, traceFactory);
         } else {
             SimpleChartConfig previewConfig = config.getPreviewConfig();
-            chart = new SimpleChart(chartConfig, chartData, chartArea);
+            chart = new SimpleChart(chartConfig, chartData, chartArea, traceFactory);
             if(config.getPreviewMinMax() == null) {
                 Range previewMinMax = null;
                 for (Integer xAxisIndex : scrollableAxis) {
@@ -35,7 +40,7 @@ public class ScrollableChart {
                 }
             }
 
-            preview = new SimpleChart(previewConfig, previewData, previewArea);
+            preview = new SimpleChart(previewConfig, previewData, previewArea, traceFactory);
 
             for (Integer xAxisIndex : scrollableAxis) {
                 Scroll scroll = new Scroll(config.getScrollExtent(xAxisIndex), config.getScrollConfig(), preview.getXAxisScale(0));

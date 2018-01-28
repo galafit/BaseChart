@@ -35,15 +35,11 @@ public class LineTraceConfig implements TraceConfig {
     }
 
     @Override
-    public TraceType getTraceType() {
-        return TraceType.LINE;
-    }
-
-    @Override
     public BColor getColor() {
         return color;
     }
 
+    @Override
     public void setColor(BColor color) {
         this.color = color;
     }

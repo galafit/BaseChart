@@ -192,8 +192,9 @@ public class SimpleChartConfig {
     }
 
     /**
-     * Set Min and Max of the Y axis of the last stack
-     * @param yMinMax
+     * Set Min and Max of the 2 Y axis of the last stack
+     * @param yMinMax  - min and max values. Can be null. If min == null
+     *  only max will be set and otherwise
      */
     public void setYMinMax(Range yMinMax) {
         setYMinMax(yAxisConfigs.size() - 1, yMinMax);
