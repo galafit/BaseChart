@@ -132,6 +132,7 @@ public class Scroll {
         canvas.setColor(scrollConfig.getScrollColor());
         canvas.setStroke(new BStroke(1));
         Range scrollRange = getScrollRange();
-        canvas.drawRect((int)scrollRange.start(), area.y + 1, (int) scrollRange.length(), area.height - 2);
+        double scrollMin = scrollRange.getMin();
+        canvas.drawRect((int) scrollMin, area.y + 1, (int) scrollRange.length(), area.height - 2);
     }
 }

@@ -26,9 +26,9 @@ public class SimpleChartConfig {
 
     private ArrayList<Integer> stackWeights = new ArrayList<Integer>();
     /*
-     * 2 X-com.biorecorder.basechart.chart.axis: 0(even) - BOTTOM and 1(odd) - TOP
-     * 2 Y-com.biorecorder.basechart.chart.axis for every section(stack): even - LEFT and odd - RIGHT;
-     * All LEFT and RIGHT Y-com.biorecorder.basechart.chart.axis are stacked.
+     * 2 X-axis: 0(even) - BOTTOM and 1(odd) - TOP
+     * 2 Y-axis for every section(stack): even - LEFT and odd - RIGHT;
+     * All LEFT and RIGHT Y-axis are stacked.
      * If there is no trace associated with some axis... this axis is invisible.
      **/
     private ArrayList<AxisConfig> xAxisConfigs = new ArrayList<AxisConfig>();
@@ -81,6 +81,7 @@ public class SimpleChartConfig {
         this( true, true, null, null);
     }
 
+
     public void addStack(int weight) {
         AxisConfig leftConfig = new AxisConfig(leftAxisConfig);
         AxisConfig rightConfig = new AxisConfig(rightAxisConfig);
@@ -114,7 +115,7 @@ public class SimpleChartConfig {
 
         int end = area.y + area.height * weightSumTillYAxis / weightSum;
         int start = end + axisHeight;
-        return new RangeInt(start, end, true);
+        return new RangeInt(end, start);
     }
 
 
@@ -188,6 +189,15 @@ public class SimpleChartConfig {
 
     public void setYMinMax(int yAxisIndex, Range minMax) {
         yAxisExtremes.put(yAxisIndex, minMax);
+    }
+
+    /**
+     * Set Min and Max of the Y axis of the last stack
+     * @param yMinMax
+     */
+    public void setYMinMax(Range yMinMax) {
+        setYMinMax(yAxisConfigs.size() - 1, yMinMax);
+        setYMinMax(yAxisConfigs.size() - 2, yMinMax);
     }
 
     public Range getXMinMax(int xAxisIndex) {

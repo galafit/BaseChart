@@ -6,70 +6,45 @@ import java.text.MessageFormat;
  * Created by galafit on 8/1/18.
  */
 public class RangeInt {
-    private int start;
-    private int end;
-    private boolean isReversed = false;
+    private int min;
+    private int max;
 
-    public RangeInt(int start, int end, boolean isReversed) {
-        this.start = start;
-        this.end = end;
-        this.isReversed = isReversed;
-        if(isReversed) { // when start > end
-            if (end > start){
-                String errorMessage = "Error during creating Reversed Range. Expected Start >= End. Start = {0}, End = {1}.";
-                String formattedError = MessageFormat.format(errorMessage,start,end);
-                throw new IllegalArgumentException(formattedError);
-            }
-        } else {
-            if (start > end){
-                String errorMessage = "Error during creating Range. Expected Start <= End. Start = {0}, End = {1}.";
-                String formattedError = MessageFormat.format(errorMessage,start,end);
-                throw new IllegalArgumentException(formattedError);
-            }
+    public RangeInt(int min, int max) {
+        this.min = min;
+        this.max = max;
+        if (min > max){
+            String errorMessage = "Error during creating Range. Expected Start <= End. Start = {0}, End = {1}.";
+            String formattedError = MessageFormat.format(errorMessage, min, max);
+            throw new IllegalArgumentException(formattedError);
         }
-    }
-
-    public RangeInt(int start, int end) {
-        this(start, end, false);
     }
 
     public boolean contains(int value) {
-        if(isReversed && value >= end && value <= start) {
-            return true;
-        }
-        if(!isReversed && value >= start && value <= end) {
+        if(value >= min && value <= max) {
             return true;
         }
         return false;
     }
 
-    public  int start() {
-        return start;
+    public int getMin() {
+        return min;
     }
 
-    public int end() {
-        return end;
+    public int getMax() {
+        return max;
     }
 
     public int length() {
-        return Math.abs(end - start);
+        return max - min;
     }
 
     public static RangeInt max(RangeInt range1, RangeInt range2) {
-        return max(range1, range2, false);
-    }
-
-    public static RangeInt max(RangeInt range1, RangeInt range2, boolean isReversed) {
         if(range1 == null) {
             return range2;
         }
         if(range2 == null) {
             return range1;
         }
-        if(isReversed) {
-            return new RangeInt(Math.max(range1.start(), range2.start()), Math.min(range1.end(), range2.end()), true);
-
-        }
-        return new RangeInt(Math.min(range1.start(), range2.start()), Math.max(range1.end(), range2.end()));
+        return new RangeInt(Math.min(range1.min, range2.min), Math.max(range1.max, range2.max));
     }
 }

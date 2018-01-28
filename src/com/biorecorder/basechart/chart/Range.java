@@ -6,78 +6,67 @@ import java.text.MessageFormat;
  * Created by galafit on 11/7/17.
  */
 public class Range {
-    private double start;
-    private double end;
-    private boolean isReversed = false;
+    private Double min;
+    private Double max;
 
-    public Range(double start, double end, boolean isReversed) {
-        this.start = start;
-        this.end = end;
-        this.isReversed = isReversed;
-        if(isReversed) { // when start > end
-            if (end > start){
-                String errorMessage = "Error during creating Reversed Range. Expected Start >= End. Start = {0}, End = {1}.";
-                String formattedError = MessageFormat.format(errorMessage,start,end);
-                throw new IllegalArgumentException(formattedError);
-            }
-        } else {
-            if (start > end){
-                String errorMessage = "Error during creating Range. Expected Start <= End. Start = {0}, End = {1}.";
-                String formattedError = MessageFormat.format(errorMessage,start,end);
-                throw new IllegalArgumentException(formattedError);
-            }
+    public Range(Double min, Double max) {
+        this.min = min;
+        this.max = max;
+        if (max != null && min != null & min > max){
+            String errorMessage = "Error during creating Range. Expected Start <= End. Start = {0}, End = {1}.";
+            String formattedError = MessageFormat.format(errorMessage, min, max);
+            throw new IllegalArgumentException(formattedError);
         }
-    }
-
-    public Range(double start, double end) {
-       this(start, end, false);
     }
 
     public boolean contains(double value) {
-        if(isReversed && value >= end && value <= start) {
-            return true;
+        if(max == null || min == null) {
+            return false;
         }
-        if(!isReversed && value >= start && value <= end) {
+        if(value >= min && value <= max) {
             return true;
         }
         return false;
     }
 
-    public  double start() {
-        return start;
+    public  Double getMin() {
+        return min;
     }
 
-    public double end() {
-        return end;
+    public Double getMax() {
+        return max;
     }
 
     public double length() {
-        return Math.abs(end - start);
+        return max - min;
     }
 
     public static Range max(Range range1, Range range2) {
-        return max(range1, range2, false);
-    }
-
-    public static Range max(Range range1, Range range2, boolean isReversed) {
-        if(range1 == null) {
-            return range2;
+        if(range1 == null && range2 == null) {
+            return null;
         }
-        if(range2 == null) {
-            return range1;
+        Double min = null;
+        Double max = null;
+        if(range1 != null && range1.min != null) {
+            min = range1.min;
         }
-        if(isReversed) {
-            return new Range(Math.max(range1.start(), range2.start()), Math.min(range1.end(), range2.end()), true);
-
+        if(range2 != null && range2.min != null) {
+            min = (min == null) ? range2.min : Math.min(min, range2.min);
         }
-        return new Range(Math.min(range1.start(), range2.start()), Math.max(range1.end(), range2.end()));
+        if(range1 != null && range1.max != null) {
+            max = range1.max;
+        }
+        if(range2 != null && range2.max != null) {
+            max = (max == null) ? range2.max : Math.max(max, range2.max);
+        }
+        return new Range(min, max);
     }
 
     @Override
     public String toString() {
         return "Range{" +
-                "start=" + start +
-                ", end=" + end +
+                "getMin=" + min +
+                ", max=" + max +
                 '}';
     }
 }

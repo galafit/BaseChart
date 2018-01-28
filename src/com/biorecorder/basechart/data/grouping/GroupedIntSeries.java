@@ -16,7 +16,7 @@ import com.biorecorder.basechart.data.LongSeries;
  * It may be the number of element in the bin (for histogram)
  * or the midpoint of the bin interval (avg) and so on.
  * Some aggregation function specifies how we will calculate the "value" of each bin
- * (sum, average, count, min, max, first, last, center...)
+ * (sum, average, count, getMin, max, first, last, center...)
  * <p>
  * The most common "default" methods to divide com.biorecorder.basechart.data into bins:
  * <ol>

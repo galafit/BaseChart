@@ -1,5 +1,6 @@
 package com.biorecorder.basechart;
 
+import com.biorecorder.basechart.chart.Range;
 import com.biorecorder.basechart.chart.config.traces.LineTraceConfig;
 import com.biorecorder.basechart.data.GroupingType;
 import com.biorecorder.basechart.data.XYData;
@@ -68,6 +69,7 @@ public class MainFrame extends JFrame {
         config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
 
         config.addChartStack(5);
+        config.setYMinMax(new Range(-500.0, null));
         config.addTrace(new LineTraceConfig(false), xyData1);
         config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
 

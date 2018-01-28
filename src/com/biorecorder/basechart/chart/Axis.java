@@ -41,16 +41,16 @@ public class Axis {
      * @param zoomFactor
      */
     public void zoom(double zoomFactor) {
-        scale.setDomain(rowMinMax.start(), rowMinMax.end());
+        scale.setDomain(rowMinMax.getMin(), rowMinMax.getMax());
         int start = getStart();
         int end = getEnd();
         double min = getMin();
         int shift = (int)((end - start) * (zoomFactor - 1) / 2);
-        //int newStart = start - shift;
+        //int newStart = getMin - shift;
         int newEnd = end + 2 * shift;
         //setStartEnd(newStart, newEnd);
         setStartEnd(start, newEnd);
-       // double minNew = invert(start);
+       // double minNew = invert(getMin);
         double maxNew = invert(end);
         setMinMax(min, maxNew);
         scale.setRange(start, end);
@@ -77,8 +77,8 @@ public class Axis {
         if(minMaxRange == null) {
             return;
         }
-        double min = minMaxRange.start();
-        double max = minMaxRange.end();
+        double min = minMaxRange.getMin();
+        double max = minMaxRange.getMax();
         if (min > max){
             String errorMessage = "Error during setMinMax(). Expected Min < Max. Min = {0}, Max = {1}.";
             String formattedError = MessageFormat.format(errorMessage,min,max);
@@ -348,7 +348,7 @@ public class Axis {
         }
 
         double tickPixelInterval = Math.abs(scale(ticks.get(0).getValue()) - scale(ticks.get(1).getValue()));
-        // min space between labels = 1 symbols size (roughly)
+        // getMin space between labels = 1 symbols size (roughly)
         double labelSpace = 2 * config.getLabelTextStyle().getSize();
         double requiredSpace = labelsSize + labelSpace;
         int ticksDivider = (int) (requiredSpace / tickPixelInterval) + 1;

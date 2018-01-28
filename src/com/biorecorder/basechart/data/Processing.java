@@ -1,6 +1,7 @@
 package com.biorecorder.basechart.data;
 
 import com.biorecorder.basechart.chart.Range;
+import com.biorecorder.basechart.chart.RangeInt;
 
 /**
  * Created by galafit on 24/9/17.
@@ -20,7 +21,7 @@ public class Processing {
             min = Math.min(min, data.get(i));
             max = Math.max(max, data.get(i));
         }
-        return new Range(min, max);
+        return new Range(new Double(min), new Double(max));
     }
 
     public static Range minMaxRange(FloatSeries data, long from, int length) {
@@ -33,7 +34,7 @@ public class Processing {
             min = Math.min(min, data.get(i));
             max = Math.max(max, data.get(i));
         }
-        return new Range(min, max);
+        return new Range(new Double(min), new Double(max));
     }
 
     /******************************************************************

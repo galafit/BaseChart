@@ -1,5 +1,6 @@
 package com.biorecorder.basechart;
 
+import com.biorecorder.basechart.chart.Range;
 import com.biorecorder.basechart.chart.config.ScrollableChartConfig;
 import com.biorecorder.basechart.chart.config.SimpleChartConfig;
 import com.biorecorder.basechart.chart.config.Theme;
@@ -127,10 +128,18 @@ public class ChartConfig extends ScrollableChartConfig {
         addTrace(traceConfig, traceData, null, false, false);
     }
 
+    public void setYMinMax(Range yMinMax) {
+        getChartConfig().setYMinMax(yMinMax);
+    }
+
 
     /*********************************************
      *              PREVIEW CONFIG
      *********************************************/
+
+    public void setPreviewYMinMax(Range yMinMax) {
+        getPreviewConfig().setYMinMax(yMinMax);
+    }
 
 
     /**
