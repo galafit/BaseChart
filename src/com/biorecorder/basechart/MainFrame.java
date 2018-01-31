@@ -87,8 +87,7 @@ public class MainFrame extends JFrame {
         config.addTrace(new LineTraceConfig(false), xyData1);
         config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
 
-        config.addChartStack(5);
-        config.setYMinMax(new Range(-500.0, null));
+        config.addChartStack(5, new Range(-500.0, null));
         config.addTrace(new LineTraceConfig(false), xyData1);
         config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
 

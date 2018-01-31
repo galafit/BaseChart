@@ -2,7 +2,6 @@ package com.biorecorder.basechart;
 
 import com.biorecorder.basechart.chart.Range;
 import com.biorecorder.basechart.chart.config.ScrollableChartConfig;
-import com.biorecorder.basechart.chart.config.SimpleChartConfig;
 import com.biorecorder.basechart.chart.config.Theme;
 import com.biorecorder.basechart.chart.config.traces.TraceConfig;
 import com.biorecorder.basechart.data.BaseData;
@@ -32,7 +31,7 @@ public class ChartConfig extends ScrollableChartConfig {
     }
 
     public boolean isPreviewEnable() {
-        if(getScrollsExtents().length > 0 || getPreviewConfig().getTraceCounter() > 0) {
+        if(getScrollsExtents().length > 0 || getPreviewConfig().getTraceCount() > 0) {
             return true;
         }
         return false;
@@ -96,7 +95,7 @@ public class ChartConfig extends ScrollableChartConfig {
     public void addTrace(TraceConfig traceConfig, Data traceData, String name, String dataUnits, boolean isXAxisOpposite, boolean isYAxisOpposite) {
         addTrace(traceConfig, traceData, name, isXAxisOpposite, isYAxisOpposite);
 
-        int traceYIndex = getChartConfig().getTraceYIndex(getChartConfig().getTraceCounter() - 1);
+        int traceYIndex = getChartConfig().getTraceYIndex(getChartConfig().getTraceCount() - 1);
         getChartConfig().getYConfig(traceYIndex).getLabelFormatInfo().setSuffix(dataUnits);
     }
 
@@ -128,28 +127,11 @@ public class ChartConfig extends ScrollableChartConfig {
         addTrace(traceConfig, traceData, null, false, false);
     }
 
-    /**
-     * Set Min and Max of the 2 Y axis of the chart last stack
-     * @param yMinMax - min and max values. Can be null. If min == null
-     *  only max will be set and otherwise
-     */
-    public void setYMinMax(Range yMinMax) {
-        getChartConfig().setYMinMax(yMinMax);
-    }
-
 
     /*********************************************
      *              PREVIEW CONFIG
      *********************************************/
 
-    /**
-     * Set Min and Max of the 2 Y axis of the preview last stack
-     * @param yMinMax  - min and max values. Can be null. If min == null
-     *  only max will be set and otherwise
-     */
-    public void setPreviewYMinMax(Range yMinMax) {
-        getPreviewConfig().setYMinMax(yMinMax);
-    }
 
 
     /**
@@ -166,7 +148,7 @@ public class ChartConfig extends ScrollableChartConfig {
     public void addPreviewTrace(TraceConfig traceConfig, Data traceData, String name, String dataUnits, boolean isXAxisOpposite, boolean isYAxisOpposite) {
         addPreviewTrace(traceConfig, traceData, name, isXAxisOpposite, isYAxisOpposite);
 
-        int traceYIndex = getPreviewConfig().getTraceYIndex(getPreviewConfig().getTraceCounter() - 1);
+        int traceYIndex = getPreviewConfig().getTraceYIndex(getPreviewConfig().getTraceCount() - 1);
         getPreviewConfig().getYConfig(traceYIndex).getLabelFormatInfo().setSuffix(dataUnits);
     }
 

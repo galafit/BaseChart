@@ -73,7 +73,7 @@ public class ToggleBtn {
         }
         // draw background
         canvas.setColor(background);
-        canvas.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+      //  canvas.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
         canvas.setColor(color);
 
         // draw item

@@ -34,7 +34,7 @@ public class AxisConfig {
 
     private boolean isVisible = false;
     private BStroke axisLineStroke = new BStroke(1);
-    private BStroke gridLineStroke = new BStroke(0);
+    private BStroke gridLineStroke = new BStroke(1);
     private BStroke minorGridLineStroke = new BStroke(0);
     private int minorGridCounter = 3; // minor grid divider
 

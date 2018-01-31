@@ -67,7 +67,7 @@ public class ChartWithDataManager {
             boolean isOk = true;
             // create list of x axis used by some traces
             List<Integer> usedXAxisIndexes = new ArrayList<>();
-            for (int i = 0; i < config.getChartConfig().getTraceCounter(); i++) {
+            for (int i = 0; i < config.getChartConfig().getTraceCount(); i++) {
                 int xAxisIndex = config.getChartConfig().getTraceXIndex(i);
                 if (!usedXAxisIndexes.contains(xAxisIndex)) {
                     usedXAxisIndexes.add(xAxisIndex);
@@ -100,7 +100,7 @@ public class ChartWithDataManager {
         Range previewMinMax = config.getPreviewMinMax();
         if (previewMinMax != null) {
             if (config.isCropEnable()) { // cropData
-                for (int i = 0; i < config.getChartConfig().getNumberOfXAxis(); i++) {
+                for (int i = 0; i < config.getChartConfig().getXAxisCount(); i++) {
                     Double scrollExtent = config.getScrollExtent(i);
                     if (scrollExtent != null) {
                         cropChartData(i, new Range(previewMinMax.getMin(), previewMinMax.getMin() + scrollExtent));
@@ -167,7 +167,7 @@ public class ChartWithDataManager {
      */
     private void cropChartData(int xAxisIndex, Range scrollExtremes) {
         SimpleChartConfig chartConfig = config.getChartConfig();
-        for (int traceIndex = 0; traceIndex < chartConfig.getTraceCounter(); traceIndex++) {
+        for (int traceIndex = 0; traceIndex < chartConfig.getTraceCount(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
                 BaseData traceDataSet = chartProcessedData.get(traceDataIndex);
@@ -181,7 +181,7 @@ public class ChartWithDataManager {
         double bestGroupingInterval = minPixelsPerDataItem * scrollExtent / area.width;
         boolean isCachingEnable = config.isChartGroupedDatCachingEnable();
         SimpleChartConfig chartConfig = config.getChartConfig();
-        for (int traceIndex = 0; traceIndex < chartConfig.getTraceCounter(); traceIndex++) {
+        for (int traceIndex = 0; traceIndex < chartConfig.getTraceCount(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
                 BaseData traceData = chartProcessedData.get(traceIndex);
@@ -271,7 +271,7 @@ public class ChartWithDataManager {
     private double calculateChartExtent(int xAxisIndex) {
         SimpleChartConfig chartConfig = config.getChartConfig();
         double dataIntervalMin = 0;
-        for (int traceIndex = 0; traceIndex < chartConfig.getTraceCounter(); traceIndex++) {
+        for (int traceIndex = 0; traceIndex < chartConfig.getTraceCount(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
                 BaseData traceData = chartProcessedData.get(traceDataIndex);
@@ -288,7 +288,7 @@ public class ChartWithDataManager {
     private Range getChartDataMinMax() {
         Range minMax = null;
         SimpleChartConfig chartConfig = config.getChartConfig();
-        for (int traceIndex = 0; traceIndex < chartConfig.getTraceCounter(); traceIndex++) {
+        for (int traceIndex = 0; traceIndex < chartConfig.getTraceCount(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             BaseData traceData = chartOriginalData.get(traceDataIndex);
             minMax = Range.max(minMax, traceData.getXExtremes());

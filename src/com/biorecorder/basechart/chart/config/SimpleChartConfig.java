@@ -10,7 +10,7 @@ import java.util.*;
  * Created by galafit on 18/8/17.
  */
 public class SimpleChartConfig {
-    public static final int DEFAULT_WEIGHT = 10;
+    private static final int DEFAULT_WEIGHT = 10;
 
     private BColor[] defaultTraceColors = {BColor.MAGENTA, BColor.BLUE};
 
@@ -36,17 +36,53 @@ public class SimpleChartConfig {
     private Map<Integer, Range> xAxisExtremes = new HashMap<Integer, Range>();
     private Map<Integer, Range> yAxisExtremes = new HashMap<Integer, Range>();
     private AxisConfig leftAxisConfig = new AxisConfig(AxisOrientation.LEFT);
-    private AxisConfig rightAxisConfig = new AxisConfig(AxisOrientation.RIGHT);
+    private AxisConfig rightAxisConfig = new AxisConfig(AxisOrientation.RIGHT);;
     private boolean isLeftAxisPrimary = true;
     private boolean isBottomAxisPrimary = true;
 
     private ArrayList<TraceInfo> traces = new ArrayList<TraceInfo>();
 
-    public SimpleChartConfig(boolean isBottomAxisPrimary, boolean isLeftAxisPrimary, AxisConfig leftAxisConfig, AxisConfig rightAxisConfig) {
+    public SimpleChartConfig() {
+        xAxisConfigs.add(new AxisConfig(AxisOrientation.BOTTOM));
+        xAxisConfigs.add(new AxisConfig(AxisOrientation.TOP));
+    }
+
+    public void setLeftAxisPrimary(boolean isLeftAxisPrimary) {
         this.isLeftAxisPrimary = isLeftAxisPrimary;
+    }
+
+    public void setBottomAxisPrimary(boolean isBottomAxisPrimary) {
         this.isBottomAxisPrimary = isBottomAxisPrimary;
-        this.leftAxisConfig = leftAxisConfig;
-        this.rightAxisConfig = rightAxisConfig;
+    }
+
+    public AxisConfig getLeftAxisConfig() {
+        return leftAxisConfig;
+    }
+
+    public AxisConfig getRightAxisConfig() {
+        return rightAxisConfig;
+    }
+
+    public void addStack() {
+        addStack(DEFAULT_WEIGHT);
+    }
+
+    public void addStack(Range yMinMax) {
+        addStack(DEFAULT_WEIGHT, yMinMax);
+    }
+
+    /**
+     * Set Min and Max of both Y axis of the last stack
+     * @param yMinMax  - min and max values. Can be null. If min == null
+     *  only max will be set and vise versa
+     */
+    public void addStack(int weight, Range yMinMax) {
+        addStack(weight);
+        setYMinMax(yAxisConfigs.size() - 1, yMinMax);
+        setYMinMax(yAxisConfigs.size() - 2, yMinMax);
+    }
+
+    public void addStack(int weight) {
         if (leftAxisConfig == null) {
             this.leftAxisConfig = new AxisConfig(AxisOrientation.LEFT);
             if (isLeftAxisPrimary) {
@@ -59,30 +95,6 @@ public class SimpleChartConfig {
                 this.rightAxisConfig.setGridLineStroke(new BStroke(1));
             }
         }
-
-        AxisConfig bottomConfig = new AxisConfig(AxisOrientation.BOTTOM);
-        AxisConfig topConfig = new AxisConfig(AxisOrientation.TOP);
-        if (isBottomAxisPrimary) {
-            bottomConfig.setGridLineStroke(new BStroke(1));
-        } else {
-            topConfig.setGridLineStroke(new BStroke(1));
-        }
-        xAxisConfigs.add(bottomConfig);
-        xAxisConfigs.add(topConfig);
-
-        addStack(DEFAULT_WEIGHT);
-    }
-
-    public SimpleChartConfig(boolean isBottomAxisPrimary, boolean isLeftAxisPrimary) {
-        this(isBottomAxisPrimary, isLeftAxisPrimary, null, null);
-    }
-
-    public SimpleChartConfig() {
-        this( true, true, null, null);
-    }
-
-
-    public void addStack(int weight) {
         AxisConfig leftConfig = new AxisConfig(leftAxisConfig);
         AxisConfig rightConfig = new AxisConfig(rightAxisConfig);
         yAxisConfigs.add(leftConfig);
@@ -121,6 +133,9 @@ public class SimpleChartConfig {
 
     // add trace to the last stack
     public void addTrace(TraceConfig traceConfig, int dataIndex, String traceName, boolean isXAxisOpposite, boolean isYAxisOpposite) {
+        if(yAxisConfigs.size() == 0) {
+           addStack();
+        }
         if(traceConfig.getColor() == null) {
             traceConfig.setColor(defaultTraceColors[traces.size() % defaultTraceColors.length]);
         }
@@ -154,7 +169,6 @@ public class SimpleChartConfig {
         traces.add(traceInfo);
     }
 
-
     public BColor getTitleColor() {
         return titleColor;
     }
@@ -163,15 +177,15 @@ public class SimpleChartConfig {
         this.titleColor = titleColor;
     }
 
-    public int getNumberOfXAxis() {
+    public int getXAxisCount() {
         return xAxisConfigs.size();
     }
 
-    public int getNumberOfYAxis() {
+    public int getYAxisCount() {
         return yAxisConfigs.size();
     }
 
-    public int getTraceCounter() {
+    public int getTraceCount() {
         return traces.size();
     }
 
@@ -189,16 +203,6 @@ public class SimpleChartConfig {
 
     public void setYMinMax(int yAxisIndex, Range minMax) {
         yAxisExtremes.put(yAxisIndex, minMax);
-    }
-
-    /**
-     * Set Min and Max of the 2 Y axis of the last stack
-     * @param yMinMax  - min and max values. Can be null. If min == null
-     *  only max will be set and otherwise
-     */
-    public void setYMinMax(Range yMinMax) {
-        setYMinMax(yAxisConfigs.size() - 1, yMinMax);
-        setYMinMax(yAxisConfigs.size() - 2, yMinMax);
     }
 
     public Range getXMinMax(int xAxisIndex) {

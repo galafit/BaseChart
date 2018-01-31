@@ -30,13 +30,16 @@ public class ScrollableChartConfig {
     }
 
     public ScrollableChartConfig(Theme theme, boolean isDateTime) {
+        chartConfig = new SimpleChartConfig();
+        previewConfig = new SimpleChartConfig();
 
-        AxisConfig leftAxisConfig = new AxisConfig(AxisOrientation.LEFT);
-        AxisConfig rightAxisConfig = new AxisConfig(AxisOrientation.RIGHT);
+        AxisConfig leftAxisConfig = chartConfig.getLeftAxisConfig();
+        AxisConfig rightAxisConfig = chartConfig.getRightAxisConfig();
         leftAxisConfig.setMinMaxRoundingEnable(true);
         leftAxisConfig.setLabelInside(true);
         leftAxisConfig.setTickMarkInsideSize(3);
         leftAxisConfig.setTickMarkOutsideSize(0);
+        rightAxisConfig.setGridLineStroke(new BStroke(0));
         leftAxisConfig.setColor(theme.getAxisColor());
         leftAxisConfig.setGridColor(theme.getGridColor());
         leftAxisConfig.setMinorGridColor(theme.getGridColor());
@@ -45,13 +48,33 @@ public class ScrollableChartConfig {
         rightAxisConfig.setTickMarkInsideSize(3);
         rightAxisConfig.setTickMarkOutsideSize(0);
         rightAxisConfig.setMinMaxRoundingEnable(true);
-        rightAxisConfig.setGridLineStroke(new BStroke(1));
         rightAxisConfig.setColor(theme.getAxisColor());
         rightAxisConfig.setGridColor(theme.getGridColor());
         rightAxisConfig.setMinorGridColor(theme.getGridColor());
 
-        chartConfig = new SimpleChartConfig(false, false, leftAxisConfig, rightAxisConfig);
-        previewConfig = new SimpleChartConfig(true, false, leftAxisConfig, rightAxisConfig);
+        chartConfig.setBottomAxisPrimary(false);
+        chartConfig.setLeftAxisPrimary(false);
+
+        leftAxisConfig = previewConfig.getLeftAxisConfig();
+        rightAxisConfig = previewConfig.getRightAxisConfig();
+        leftAxisConfig.setMinMaxRoundingEnable(true);
+        leftAxisConfig.setLabelInside(true);
+        leftAxisConfig.setTickMarkInsideSize(3);
+        leftAxisConfig.setTickMarkOutsideSize(0);
+        rightAxisConfig.setGridLineStroke(new BStroke(0));
+        leftAxisConfig.setColor(theme.getAxisColor());
+        leftAxisConfig.setGridColor(theme.getGridColor());
+        leftAxisConfig.setMinorGridColor(theme.getGridColor());
+
+        rightAxisConfig.setLabelInside(true);
+        rightAxisConfig.setTickMarkInsideSize(3);
+        rightAxisConfig.setTickMarkOutsideSize(0);
+        rightAxisConfig.setMinMaxRoundingEnable(true);
+        rightAxisConfig.setColor(theme.getAxisColor());
+        rightAxisConfig.setGridColor(theme.getGridColor());
+        rightAxisConfig.setMinorGridColor(theme.getGridColor());
+
+        previewConfig.setLeftAxisPrimary(false);
 
         AxisConfig chartBottomAxisConfig = chartConfig.getXConfig(0);
         chartBottomAxisConfig.setColor(theme.getAxisColor());
@@ -124,7 +147,7 @@ public class ScrollableChartConfig {
 
     public void setPreviewMinMax(Range minMax) {
       previewMinMax = minMax;
-        for (int i = 0; i < previewConfig.getNumberOfXAxis(); i++) {
+        for (int i = 0; i < previewConfig.getXAxisCount(); i++) {
             previewConfig.setXMinMax(i, minMax);
         }
     }
@@ -159,12 +182,12 @@ public class ScrollableChartConfig {
         return scrollExtents.keySet();
     }
 
-    public void addPreviewStack(int weight) {
-        previewConfig.addStack(weight);
+    public void addChartStack(int weight, Range yMinMax) {
+        chartConfig.addStack(weight, yMinMax);
     }
 
-    public void addPreviewStack() {
-        addPreviewStack(SimpleChartConfig.DEFAULT_WEIGHT);
+    public void addChartStack(Range yMinMax) {
+        chartConfig.addStack(yMinMax);
     }
 
     public void addChartStack(int weight) {
@@ -173,6 +196,23 @@ public class ScrollableChartConfig {
     }
 
     public void addChartStack() {
-        addChartStack(SimpleChartConfig.DEFAULT_WEIGHT);
+        chartConfig.addStack();
+    }
+
+    public void addPreviewStack(int weight, Range yMinMax) {
+        previewConfig.addStack(weight, yMinMax);
+    }
+
+    public void addPreviewStack(Range yMinMax) {
+        previewConfig.addStack(yMinMax);
+    }
+
+
+    public void addPreviewStack(int weight) {
+        previewConfig.addStack(weight);
+    }
+
+    public void addPreviewStack() {
+        previewConfig.addStack();
     }
 }

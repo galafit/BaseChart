@@ -55,13 +55,13 @@ public class SimpleChart {
         this.data = data;
         this.chartConfig = chartConfig;
         this.fullArea = area;
-        for (int i = 0; i < chartConfig.getNumberOfXAxis(); i++) {
+        for (int i = 0; i < chartConfig.getXAxisCount(); i++) {
             xAxisList.add(new Axis(chartConfig.getXConfig(i)));
         }
-        for (int i = 0; i < chartConfig.getNumberOfYAxis(); i++) {
+        for (int i = 0; i < chartConfig.getYAxisCount(); i++) {
             yAxisList.add(new Axis(chartConfig.getYConfig(i)));
         }
-        for (int i = 0; i < chartConfig.getTraceCounter(); i++) {
+        for (int i = 0; i < chartConfig.getTraceCount(); i++) {
             TraceConfig traceConfig = chartConfig.getTraceConfig(i);
             Trace trace = traceFactory.getTrace(traceConfig);
             trace.setData(data.get(chartConfig.getTraceDataIndex(i)));
