@@ -13,13 +13,11 @@ import java.util.List;
  */
 public class ChartWithDataManager {
     private ChartConfig config;
-
-    private boolean isAutoScaleDuringScroll = true;
     private int minPixelsPerDataItem = 1;
     private float currentPreviewGroupingInterval = 0;
+
     private int chartGroupingStep = 2;
 
-    private boolean isAutoScroll = true;
     private ScrollableChart scrollableChart;
     private BRectangle area;
 
@@ -126,7 +124,9 @@ public class ChartWithDataManager {
                     }
                     chart.setChartData(createChartData());
                     isAllScrollsAtTheEnd = isScrollAtTheEnd(xAxisIndex);
-                    autoScaleChartY();
+                    if (config.isChartAutoScaleEnable()) {
+                        autoScaleChartY();
+                    }
                 }
             });
         }
@@ -228,10 +228,8 @@ public class ChartWithDataManager {
     }
 
     private void autoScaleChartY() {
-        if (isAutoScaleDuringScroll) {
-            for (int i = 0; i < scrollableChart.getChartYAxisCounter(); i++) {
-                scrollableChart.autoScaleChartY(i);
-            }
+        for (int i = 0; i < scrollableChart.getChartYAxisCounter(); i++) {
+            scrollableChart.autoScaleChartY(i);
         }
     }
 
@@ -239,7 +237,6 @@ public class ChartWithDataManager {
         for (int i = 0; i < scrollableChart.getPreviewYAxisCounter(); i++) {
             scrollableChart.autoScalePreviewY(i);
         }
-
     }
 
     private Range calculateInitialPreviewMinMax() {
@@ -305,8 +302,10 @@ public class ChartWithDataManager {
             groupPreviewData(previewMinMax);
             scrollableChart.setPreviewMinMax(previewMinMax);
             scrollableChart.setPreviewData(createPreviewData());
-            autoScalePreviewY();
-            if(isAutoScroll && isAllScrollsAtTheEnd) {
+            if(config.isPreviewAutoScaleEnable()) {
+                autoScalePreviewY();
+            }
+            if(config.isAutoScrollEnable() && isAllScrollsAtTheEnd) {
                 autoScroll();
             }
         }

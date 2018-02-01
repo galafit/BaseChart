@@ -98,7 +98,7 @@ public class ScrollableChart {
             int chartWeight = config.getChartConfig().getSumWeight();
             int previewWeight = config.getPreviewConfig().getSumWeight();
             int chartHeight = (height - gap) * chartWeight / (chartWeight + previewWeight);
-            int previewHeight = (height - gap) * previewWeight / (chartWeight + previewWeight);
+            int previewHeight = (height - gap) - chartHeight;
             chartArea = new BRectangle(area.x + left, area.y + top, width, chartHeight);
             previewArea = new BRectangle(area.x + left, area.y + chartHeight + top + gap, width, previewHeight);
         }

@@ -1,6 +1,5 @@
 package com.biorecorder.basechart;
 
-import com.biorecorder.basechart.chart.Range;
 import com.biorecorder.basechart.chart.config.ScrollableChartConfig;
 import com.biorecorder.basechart.chart.config.Theme;
 import com.biorecorder.basechart.chart.config.traces.TraceConfig;
@@ -22,6 +21,11 @@ public class ChartConfig extends ScrollableChartConfig {
     // true for pc and false for phone
     private boolean isChartGroupedDatCachingEnable = true;
 
+    private boolean autoScrollEnable = true;
+    private boolean chartAutoScaleEnable = true; // during scroll and update
+    private boolean previewAutoScaleEnable = true; // during update
+
+
     public ChartConfig(boolean isDateTime) {
         super(isDateTime);
     }
@@ -35,6 +39,30 @@ public class ChartConfig extends ScrollableChartConfig {
             return true;
         }
         return false;
+    }
+
+    public boolean isAutoScrollEnable() {
+        return autoScrollEnable;
+    }
+
+    public void setAutoScrollEnable(boolean autoScrollEnable) {
+        this.autoScrollEnable = autoScrollEnable;
+    }
+
+    public boolean isPreviewAutoScaleEnable() {
+        return previewAutoScaleEnable;
+    }
+
+    public void setPreviewAutoScaleEnable(boolean previewAutoScaleEnable) {
+        this.previewAutoScaleEnable = previewAutoScaleEnable;
+    }
+
+    public boolean isChartAutoScaleEnable() {
+        return chartAutoScaleEnable;
+    }
+
+    public void setChartAutoScaleEnable(boolean chartAutoScaleEnable) {
+        this.chartAutoScaleEnable = chartAutoScaleEnable;
     }
 
     public boolean isChartGroupedDatCachingEnable() {

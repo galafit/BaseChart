@@ -138,7 +138,7 @@ public class MainFrame extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (counter < 0) {
+                if (counter < 10) {
                     mainFrame.update();
                     counter++;
                 }
