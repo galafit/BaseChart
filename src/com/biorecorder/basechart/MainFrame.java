@@ -76,7 +76,7 @@ public class MainFrame extends JFrame {
         ChartConfig config = new ChartConfig(false);
         config.addTrace(new LineTraceConfig(false), xyData1);
         //config.addChartStack(5);
-        config.addTrace(new BooleanTraceConfig(), bandData, "Band");
+        config.addTrace(new LineTraceConfig(true), xyData2, "Band");
 
          config.addChartStack(5);
         config.addTrace(new LineTraceConfig(false), xyData1);
@@ -84,6 +84,10 @@ public class MainFrame extends JFrame {
 
 
         config.addChartStack(5);
+        config.addTrace(new LineTraceConfig(false), xyData1);
+        config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
+
+        config.addChartStack(5, new Range(-500.0, null));
         config.addTrace(new LineTraceConfig(false), xyData1);
         config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
 
@@ -138,7 +142,7 @@ public class MainFrame extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (counter < 10) {
+                if (counter < 0) {
                     mainFrame.update();
                     counter++;
                 }

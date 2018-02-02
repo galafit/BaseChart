@@ -271,7 +271,7 @@ public class ChartWithDataManager {
         for (int traceIndex = 0; traceIndex < chartConfig.getTraceCount(); traceIndex++) {
             int traceDataIndex = chartConfig.getTraceDataIndex(traceIndex);
             if (chartConfig.getTraceXIndex(traceIndex) == xAxisIndex) {
-                BaseData traceData = chartProcessedData.get(traceDataIndex);
+                BaseData traceData = chartOriginalData.get(traceDataIndex);
                 double dataItemInterval = traceData.getAverageDataInterval();
                 if (dataItemInterval > 0) {
                     dataIntervalMin = (dataIntervalMin == 0) ? dataItemInterval : Math.min(dataIntervalMin, dataItemInterval);
@@ -279,6 +279,7 @@ public class ChartWithDataManager {
             }
         }
         double extent = dataIntervalMin * area.width / minPixelsPerDataItem;
+       // System.out.println("interval: "+dataIntervalMin + "   width: "+area.width+ "  extent: "+extent);
         return extent;
     }
 

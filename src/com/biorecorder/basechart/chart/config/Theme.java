@@ -26,26 +26,28 @@ public enum Theme {
 
     Theme(int themeId) {
         if(themeId == 1) { // WHITE
-            final BColor DARK_CYAN = new BColor(60, 170, 180);
-            final BColor DARK_BLUE = new BColor(40, 120, 230); //new BColor(37, 100, 250);
-            final BColor DARK_MAGENTA = new BColor(150, 80, 150);
-            final BColor DARK_GREEN = new BColor(40, 180, 15);
-            final BColor DARK_RED = new BColor(200, 10, 70);
-            final BColor DARK_ORANGE = new BColor(138, 85, 74);//new BColor(173, 105, 49);
-            final BColor DARK_YELLOW = new BColor(255, 127, 15);
-            final BColor DARK_PINK = new BColor(100, 110, 140);
+            final BColor BLUE = new BColor(0, 130, 230);
+            final BColor ORANGE = new BColor(250, 100, 30);
+            final BColor GREEN_DARK = new BColor(0, 130, 0);
+            final BColor MAGENTA = new BColor(120, 50, 185);
+            final BColor RED = new BColor(230, 10, 60);
+            final BColor BLUE_DARK = new BColor(30, 30, 180);
+            final BColor PINK = new BColor(230, 0, 230);
+            final BColor RED_DARK = new BColor(130, 0, 0);
+            final BColor CYAN = new BColor(0, 160, 160);
+            final BColor GRAY = new BColor(80, 90, 120);
 
-            chartBgColor = new BColor(255, 255, 255);
+            BColor[] colors = {BLUE, ORANGE, RED, GREEN_DARK, MAGENTA, BLUE_DARK, PINK, RED_DARK, CYAN, GRAY};
+
+            chartBgColor =  BColor.WHITE;
             chartMarginColor = chartBgColor;
 
-            previewBgColor = new BColor(245, 245, 250);
+            previewBgColor = BColor.WHITE;
             previewMarginColor = previewBgColor;
 
-            titleColor =new BColor(110, 100, 80);// new BColor(90, 100, 120);
+            titleColor = new BColor(90, 80, 60);
             axisColor = titleColor;
-            gridColor = new BColor(215, 208, 200);
-
-            BColor[] colors = {DARK_BLUE, DARK_MAGENTA, DARK_PINK, DARK_RED, DARK_ORANGE, DARK_YELLOW, DARK_GREEN, DARK_CYAN};
+            gridColor = new BColor(200, 190, 180);
             traceColors = colors;
 
             crosshairColor = BColor.RED;
@@ -53,28 +55,30 @@ public enum Theme {
 
         }
         if(themeId == 2) { // DARK
-            final BColor CYAN = new BColor(0, 200, 230);
+            final BColor CYAN = new BColor(0, 200, 220);
             final BColor BLUE = new BColor(100, 120, 250);
-            final BColor MAGENTA = new BColor(165, 80, 190); //new BColor(200, 40, 250);
-            final BColor GREEN = new BColor(120, 250, 123);//new BColor(77, 184, 118);//new BColor(0, 204, 31);
-            final BColor RED = new BColor(250, 64, 82);//new BColor(191, 60, 54);
+            final BColor MAGENTA = new BColor(165, 80, 220);
+            final BColor GREEN = new BColor(110, 250, 110);
+            final BColor RED = new BColor(250, 64, 82);
             final BColor ORANGE = new BColor(200, 80, 0);//new BColor(173, 105, 49);
             final BColor YELLOW = new BColor(252, 177, 48);
-            final BColor PINK = BColor.PINK;
-            final BColor BROWN = new BColor(130, 110, 80);//new BColor(120, 94, 50); //new BColor(145, 94, 32);//new BColor(163, 106, 36); //new BColor(125, 81, 26);
-            final BColor DARK_BROWN = new BColor(60, 55, 35); // new BColor(64, 56, 40);
+            final BColor GRAY = new BColor(180, 180, 200);
+            final BColor PINK = new BColor(255, 50, 200);//new BColor(255, 60, 130); //new BColor(250, 0, 200);
+            final BColor GOLD = new BColor(190, 140, 110);
 
-            chartBgColor = BColor.BLACK;
+
+            BColor[] colors = {BLUE, RED, GRAY, MAGENTA, ORANGE, YELLOW, GREEN, CYAN, PINK, GOLD};
+
+            chartBgColor = new BColor(18, 15, 18);//BColor.BLACK;
             chartMarginColor = chartBgColor;
-            titleColor = BROWN;
+            titleColor = new BColor(160, 140, 110);
 
-            previewBgColor = new BColor(12, 18, 28);
+            previewBgColor = new BColor(25, 25, 30); //new BColor(28, 25, 28);
             previewMarginColor = previewBgColor;
 
-            axisColor = BROWN;
-            gridColor = DARK_BROWN;
+            axisColor = titleColor;
+            gridColor = new BColor(70, 65, 45);
 
-            BColor[] colors = {BLUE, RED, PINK, MAGENTA, ORANGE, YELLOW, GREEN, CYAN};
             traceColors = colors;
 
             crosshairColor = BColor.RED;
@@ -82,25 +86,31 @@ public enum Theme {
         }
         if(themeId == 3) { // GRAY
             final BColor BLUE = new BColor(0, 130, 230);
+            final BColor ORANGE = new BColor(250, 100, 30);
+            final BColor GREEN_DARK = new BColor(0, 130, 0);
+            final BColor MAGENTA = new BColor(120, 50, 185);
+            final BColor RED = new BColor(230, 10, 60);
             final BColor BLUE_DARK = new BColor(30, 30, 180);
-            final BColor SEA = new BColor(30, 130, 120);
+            final BColor PINK = new BColor(230, 0, 230);
+            final BColor RED_DARK = new BColor(130, 0, 0);
+            final BColor CYAN = new BColor(0, 160, 160);
+            final BColor GRAY = new BColor(80, 90, 120);
 
-            chartBgColor = new BColor(170, 175, 185);
+            BColor[] colors = {BLUE, ORANGE, RED, GREEN_DARK, MAGENTA, BLUE_DARK, PINK, RED_DARK, CYAN, GRAY};
+
+            chartBgColor = new BColor(245, 245, 250);
             chartMarginColor = chartBgColor;
 
-            previewBgColor = new BColor(170, 160, 170);
+            previewBgColor = BColor.WHITE;
             previewMarginColor = previewBgColor;
 
-            titleColor = BColor.BLACK;
-            axisColor = new BColor(70, 60, 40);
-            gridColor = new BColor(120, 110, 100);
-
-            BColor[] colors = {BLUE_DARK, BColor.RED, BColor.BLACK, BColor.MAGENTA, BLUE, BColor.GREEN, BColor.YELLOW, SEA};
+            titleColor = new BColor(90, 80, 60);
+            axisColor = titleColor;
+            gridColor = new BColor(200, 190, 180);
             traceColors = colors;
 
             crosshairColor = BColor.RED;
             scrollColor = BColor.RED;
-
         }
     }
 
