@@ -98,7 +98,7 @@ public enum Theme {
 
             BColor[] colors = {BLUE, ORANGE, RED, GREEN_DARK, MAGENTA, BLUE_DARK, PINK, RED_DARK, CYAN, GRAY};
 
-            chartBgColor = new BColor(245, 245, 250);
+            chartBgColor = new BColor(220, 218, 225);
             chartMarginColor = chartBgColor;
 
             previewBgColor = BColor.WHITE;
