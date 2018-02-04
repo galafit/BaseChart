@@ -37,7 +37,7 @@ public class LineTrace extends Trace {
     }
 
     public BColor getFillColor() {
-        return new BColor(getLineColor().getRed(), getLineColor().getGreen(), getLineColor().getBlue(), 90);
+        return new BColor(getLineColor().getRed(), getLineColor().getGreen(), getLineColor().getBlue(), 110);
     }
 
     @Override

@@ -24,9 +24,14 @@ public class AxisConfig {
     private int tickMarkWidth = 1; // px
     private int tickMarkInsideSize = 0; // px
     private int tickMarkOutsideSize = 3; // px
-    private boolean isTicksVisible = true;
+
     private float tickStep = 0; // in domain units
     private Unit tickStepUnit = null;
+
+    private int minorTickMarkWidth = 0; // px
+    private int minorTickMarkInsideSize = 1; // px
+    private int minorTickMarkOutsideSize = 1; // px
+
 
     private String title;
     private TextStyle titleTextStyle = new TextStyle(TextStyle.DEFAULT, TextStyle.NORMAL, 14);
@@ -35,7 +40,7 @@ public class AxisConfig {
     private boolean isVisible = false;
     private BStroke axisLineStroke = new BStroke(1);
     private BStroke gridLineStroke = new BStroke(1);
-    private BStroke minorGridLineStroke = new BStroke(0);
+    private BStroke minorGridLineStroke = new BStroke(0); //new BStroke(1, BStroke.DOT);
     private int minorGridCounter = 3; // minor grid divider
 
     private boolean isMinMaxRoundingEnable = false;
@@ -61,7 +66,6 @@ public class AxisConfig {
         tickMarkWidth = axisConfig.tickMarkWidth;
         tickMarkInsideSize = axisConfig.tickMarkInsideSize;
         tickMarkOutsideSize = axisConfig.tickMarkOutsideSize;
-        isTicksVisible = axisConfig.isTicksVisible();
         tickStep = axisConfig.tickStep;
 
         title = axisConfig.title;
@@ -194,14 +198,6 @@ public class AxisConfig {
         this.tickMarkOutsideSize = tickMarkOutsideSize;
     }
 
-    public boolean isTicksVisible() {
-        return isTicksVisible;
-    }
-
-    public void setTicksVisible(boolean ticksVisible) {
-        isTicksVisible = ticksVisible;
-    }
-
     public float getTickStep() {
         return tickStep;
     }
@@ -217,6 +213,31 @@ public class AxisConfig {
     public void setTickStep(float tickStep, Unit tickStepUnit) {
         this.tickStep = tickStep;
         this.tickStepUnit = tickStepUnit;
+    }
+
+    /** =======================Minor Ticks ========================== **/
+    public int getMinorTickMarkWidth() {
+        return minorTickMarkWidth;
+    }
+
+    public void setMinorTickMarkWidth(int minorTickMarkWidth) {
+        this.minorTickMarkWidth = minorTickMarkWidth;
+    }
+
+    public int getMinorTickMarkInsideSize() {
+        return minorTickMarkInsideSize;
+    }
+
+    public void setMinorTickMarkInsideSize(int minorTickMarkInsideSize) {
+        this.minorTickMarkInsideSize = minorTickMarkInsideSize;
+    }
+
+    public int getMinorTickMarkOutsideSize() {
+        return minorTickMarkOutsideSize;
+    }
+
+    public void setMinorTickMarkOutsideSize(int minorTickMarkOutsideSize) {
+        this.minorTickMarkOutsideSize = minorTickMarkOutsideSize;
     }
 
     /** ======================= Title ========================== **/
@@ -337,6 +358,20 @@ public class AxisConfig {
 
     public boolean isMinorGridVisible() {
         if(minorGridLineStroke.getWidth() > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isTicksVisible() {
+        if(tickMarkWidth > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isMinorTicksVisible() {
+        if(minorTickMarkWidth > 0) {
             return true;
         }
         return false;

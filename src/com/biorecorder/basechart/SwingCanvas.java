@@ -140,7 +140,7 @@ public class SwingCanvas implements BCanvas {
                     BasicStroke.JOIN_ROUND, 1.0f, dash, 2f);
         }
         if(stroke.getStyle() == BStroke.DOT) {
-            float[] dash = {1f, 1f, 1f};
+            float[] dash = {1f, 3f};
             awtStroke = new BasicStroke(stroke.getWidth(), BasicStroke.CAP_BUTT,
                     BasicStroke.JOIN_ROUND, 1.0f, dash, 2f);
         }

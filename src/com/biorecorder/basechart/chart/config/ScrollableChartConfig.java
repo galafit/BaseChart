@@ -26,7 +26,7 @@ public class ScrollableChartConfig {
     }
 
     public ScrollableChartConfig(boolean isDateTime) {
-        this(Theme.GRAY, isDateTime);
+        this(Theme.WHITE, isDateTime);
     }
 
     public ScrollableChartConfig(Theme theme, boolean isDateTime) {
@@ -39,7 +39,8 @@ public class ScrollableChartConfig {
         leftAxisConfig.setLabelInside(true);
         leftAxisConfig.setTickMarkInsideSize(3);
         leftAxisConfig.setTickMarkOutsideSize(0);
-        rightAxisConfig.setGridLineStroke(new BStroke(0));
+        leftAxisConfig.setGridLineStroke(new BStroke(0));
+        rightAxisConfig.setGridLineStroke(new BStroke(1));
         leftAxisConfig.setColor(theme.getAxisColor());
         leftAxisConfig.setGridColor(theme.getGridColor());
         leftAxisConfig.setMinorGridColor(theme.getGridColor());
@@ -61,7 +62,8 @@ public class ScrollableChartConfig {
         leftAxisConfig.setLabelInside(true);
         leftAxisConfig.setTickMarkInsideSize(3);
         leftAxisConfig.setTickMarkOutsideSize(0);
-        rightAxisConfig.setGridLineStroke(new BStroke(0));
+        leftAxisConfig.setGridLineStroke(new BStroke(0));
+        rightAxisConfig.setGridLineStroke(new BStroke(1));
         leftAxisConfig.setColor(theme.getAxisColor());
         leftAxisConfig.setGridColor(theme.getGridColor());
         leftAxisConfig.setMinorGridColor(theme.getGridColor());

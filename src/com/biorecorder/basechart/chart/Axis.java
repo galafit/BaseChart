@@ -20,6 +20,7 @@ public class Axis {
     private List<Tick> ticks;
     private List<Double> minorTicks;
     private List<Line> tickLines;
+    private List<Line> minorTickLines;
     private List<Text> tickLabels;
     private Line axisLine;
     private Text axisName;
@@ -245,6 +246,34 @@ public class Axis {
         return new Line(x1, y, x2, y);
     }
 
+    private Line minorTickToMarkLine(double minorTickValue) {
+        int axisWidth = config.getAxisLineStroke().getWidth();
+        if(config.isTop()) {
+            int x = (int)scale(minorTickValue);
+            int y1 = -axisWidth / 2 - config.getMinorTickMarkOutsideSize();
+            int y2 = axisWidth / 2 + config.getMinorTickMarkInsideSize();
+            return new Line(x, y1, x, y2);
+        }
+        if(config.isBottom()) {
+            int x = (int)scale(minorTickValue);
+            int y1 = axisWidth / 2 + config.getMinorTickMarkOutsideSize();
+            int y2 = -axisWidth / 2 - config.getMinorTickMarkInsideSize();
+            return new Line(x, y1, x, y2);
+        }
+        if(config.isLeft()) {
+            int y = (int)scale(minorTickValue);
+            int x1 = -axisWidth / 2 - config.getMinorTickMarkOutsideSize();
+            int x2 = axisWidth / 2 + config.getMinorTickMarkInsideSize();
+            return new Line(x1, y, x2, y);
+        }
+        // if config.isRight()
+        int y = (int)scale(minorTickValue);
+        int x1 = axisWidth / 2 + config.getMinorTickMarkOutsideSize();
+        int x2 = -axisWidth / 2 - config.getMinorTickMarkInsideSize();
+        return new Line(x1, y, x2, y);
+    }
+
+
     private Text tickToLabel(Tick tick, TextMetric tm) {
         int axisWidth = config.getAxisLineStroke().getWidth();
         int labelPadding = config.getLabelPadding();
@@ -364,16 +393,15 @@ public class Axis {
         if(config.isMinMaxRoundingEnable()) {
             getScale().setDomain(ticks.get(0).getValue(), ticks.get(ticks.size() - 1).getValue());
         }
-        if(config.isMinorGridVisible()) {
-            minorTicks = new ArrayList<Double>();
-            for (int i = 0; i < ticks.size() - 1; i++) {
-                double minorTickStep = (ticks.get(i+1).getValue() - ticks.get(i).getValue()) / config.getMinorGridCounter();
-                double minorTickValue =  ticks.get(i).getValue();
-                for (int j = 1; j < config.getMinorGridCounter(); j++) {
-                    minorTickValue += minorTickStep;
-                    if(minorTickValue >= getMin() && minorTickValue <=getMax()) {
-                        minorTicks.add(minorTickValue);
-                    }
+
+        minorTicks = new ArrayList<Double>();
+        for (int i = 0; i < ticks.size() - 1; i++) {
+            double minorTickStep = (ticks.get(i+1).getValue() - ticks.get(i).getValue()) / config.getMinorGridCounter();
+            double minorTickValue =  ticks.get(i).getValue();
+            for (int j = 1; j < config.getMinorGridCounter(); j++) {
+                minorTickValue += minorTickStep;
+                if(minorTickValue >= getMin() && minorTickValue <=getMax()) {
+                    minorTicks.add(minorTickValue);
                 }
             }
         }
@@ -466,14 +494,21 @@ public class Axis {
     }
 
     private void createAxisElements(BCanvas canvas) {
+        if(ticks == null) {
+            createTicks(canvas);
+        }
         // tick lines
         tickLines = new ArrayList<Line>();
         if(config.isTicksVisible()) {
-            if(ticks == null) {
-                createTicks(canvas);
-            }
             for (Tick tick : ticks) {
                 tickLines.add(tickToMarkLine(tick));
+            }
+        }
+        // minor tick lines
+        minorTickLines = new ArrayList<Line>();
+        if(config.isMinorTicksVisible()) {
+            for (Double minorTick : minorTicks) {
+                minorTickLines.add(minorTickToMarkLine(minorTick));
             }
         }
 
@@ -481,9 +516,6 @@ public class Axis {
         TextMetric tm = canvas.getTextMetric(config.getLabelTextStyle());
         tickLabels = new ArrayList<Text>();
         if(config.isLabelsVisible()) {
-            if(ticks == null) {
-                createTicks(canvas);
-            }
             for (Tick tick : ticks) {
                 tickLabels.add(tickToLabel(tick, tm));
             }
@@ -583,6 +615,10 @@ public class Axis {
         canvas.setStroke(new BStroke(config.getTickMarkWidth()));
         for (Line tickLine : tickLines) {
             canvas.drawLine(tickLine.getX1(), tickLine.getY1(), tickLine.getX2(), tickLine.getY2());
+        }
+        canvas.setStroke(new BStroke(config.getMinorTickMarkWidth()));
+        for (Line minorTickLine : minorTickLines) {
+            canvas.drawLine(minorTickLine.getX1(), minorTickLine.getY1(), minorTickLine.getX2(), minorTickLine.getY2());
         }
 
         if(config.isAxisLineVisible()) {

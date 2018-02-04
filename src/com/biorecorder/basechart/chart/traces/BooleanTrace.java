@@ -58,7 +58,7 @@ public class BooleanTrace extends Trace {
             return;
         }
         BColor color = getColor();
-        BColor resultantColor  = new BColor(color.getRed(), color.getGreen(), color.getBlue(), 60);
+        BColor resultantColor  = new BColor(color.getRed(), color.getGreen(), color.getBlue(), 110);
         canvas.setColor(resultantColor);
         for (int i = 0; i < xyData.size() - 1; i++) {
            if(xyData.getY(i) > 0) {

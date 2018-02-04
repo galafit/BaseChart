@@ -76,7 +76,7 @@ public class MainFrame extends JFrame {
         ChartConfig config = new ChartConfig(false);
         config.addTrace(new LineTraceConfig(false), xyData1);
         //config.addChartStack(5);
-        config.addTrace(new LineTraceConfig(true), xyData2, "Band");
+        config.addTrace(new BooleanTraceConfig(), bandData, "Band");
 
          config.addChartStack(5);
         config.addTrace(new LineTraceConfig(false), xyData1);
