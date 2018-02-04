@@ -279,7 +279,7 @@ public class ChartWithDataManager {
             }
         }
         double extent = dataIntervalMin * area.width / minPixelsPerDataItem;
-       // System.out.println("interval: "+dataIntervalMin + "   width: "+area.width+ "  extent: "+extent);
+        System.out.println("interval: "+dataIntervalMin + "   width: "+area.width+ "  extent: "+extent);
         return extent;
     }
 

@@ -27,17 +27,18 @@ public enum Theme {
     Theme(int themeId) {
         if(themeId == 1) { // WHITE
             final BColor BLUE = new BColor(0, 130, 230);
-            final BColor ORANGE = new BColor(250, 100, 30);
+            final BColor ORANGE = new BColor(235, 80, 0); //new BColor(250, 100, 30);
             final BColor GREEN_DARK = new BColor(0, 130, 0);
             final BColor MAGENTA = new BColor(120, 50, 185);
             final BColor RED = new BColor(230, 10, 60);
             final BColor BLUE_DARK = new BColor(30, 30, 180);
             final BColor PINK = new BColor(230, 0, 230);
-            final BColor RED_DARK = new BColor(130, 0, 0);
+            final BColor RED_DARK = new BColor(160, 0, 0);
             final BColor CYAN = new BColor(0, 160, 160);
             final BColor GRAY = new BColor(80, 90, 120);
 
-            BColor[] colors = {BLUE, ORANGE, RED, GREEN_DARK, MAGENTA, BLUE_DARK, PINK, RED_DARK, CYAN, GRAY};
+            //BColor[] colors = {BLUE, ORANGE, RED, GREEN_DARK, MAGENTA, BLUE_DARK, PINK, RED_DARK, CYAN, GRAY};
+            BColor[] colors = {BLUE_DARK, RED_DARK, GRAY, CYAN, PINK, BLUE, ORANGE, GREEN_DARK, MAGENTA, RED};
 
             chartBgColor =  BColor.WHITE;
             chartMarginColor = chartBgColor;
@@ -66,7 +67,6 @@ public enum Theme {
             final BColor PINK = new BColor(255, 50, 200);//new BColor(255, 60, 130); //new BColor(250, 0, 200);
             final BColor GOLD = new BColor(190, 140, 110);
 
-
             BColor[] colors = {BLUE, RED, GRAY, MAGENTA, ORANGE, YELLOW, GREEN, CYAN, PINK, GOLD};
 
             chartBgColor = new BColor(18, 15, 18);//BColor.BLACK;
@@ -86,27 +86,27 @@ public enum Theme {
         }
         if(themeId == 3) { // GRAY
             final BColor BLUE = new BColor(0, 130, 230);
-            final BColor ORANGE = new BColor(250, 100, 30);
+            final BColor ORANGE = new BColor(235, 80, 0); //new BColor(250, 100, 30);
             final BColor GREEN_DARK = new BColor(0, 130, 0);
             final BColor MAGENTA = new BColor(120, 50, 185);
             final BColor RED = new BColor(230, 10, 60);
             final BColor BLUE_DARK = new BColor(30, 30, 180);
             final BColor PINK = new BColor(230, 0, 230);
-            final BColor RED_DARK = new BColor(130, 0, 0);
+            final BColor RED_DARK = new BColor(160, 0, 0);
             final BColor CYAN = new BColor(0, 160, 160);
             final BColor GRAY = new BColor(80, 90, 120);
 
-            BColor[] colors = {BLUE, ORANGE, RED, GREEN_DARK, MAGENTA, BLUE_DARK, PINK, RED_DARK, CYAN, GRAY};
+            BColor[] colors = {BLUE_DARK, RED_DARK, GRAY, CYAN, PINK, BLUE, ORANGE, GREEN_DARK, MAGENTA, RED};
 
-            chartBgColor = new BColor(220, 218, 225);
+            chartBgColor = new BColor(210, 208, 215);
             chartMarginColor = chartBgColor;
 
-            previewBgColor = BColor.WHITE;
+            previewBgColor = new BColor(230, 228, 235);
             previewMarginColor = previewBgColor;
 
-            titleColor = new BColor(90, 80, 60);
+            titleColor = new BColor(70, 60, 40);
             axisColor = titleColor;
-            gridColor = new BColor(200, 190, 180);
+            gridColor = new BColor(185, 180, 170);
             traceColors = colors;
 
             crosshairColor = BColor.RED;
