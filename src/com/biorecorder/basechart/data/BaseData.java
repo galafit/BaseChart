@@ -329,10 +329,10 @@ public class BaseData {
 
 
     public double getAverageDataInterval() {
-        if (xColumn instanceof RegularColumn) {
-            return ((RegularColumn) xColumn).getDataInterval();
-        }
         if (size() > 1) {
+            if (xColumn instanceof RegularColumn) {
+                return ((RegularColumn) xColumn).getDataInterval();
+            }
             return getXExtremes().length() / (size() - 1);
         }
         return -1;

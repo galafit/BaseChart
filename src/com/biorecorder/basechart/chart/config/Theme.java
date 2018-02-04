@@ -38,7 +38,7 @@ public enum Theme {
             final BColor GRAY = new BColor(80, 90, 120);
 
             //BColor[] colors = {BLUE, ORANGE, RED, GREEN_DARK, MAGENTA, BLUE_DARK, PINK, RED_DARK, CYAN, GRAY};
-            BColor[] colors = {BLUE_DARK, RED_DARK, GRAY, CYAN, PINK, BLUE, ORANGE, GREEN_DARK, MAGENTA, RED};
+            BColor[] colors = {BLUE_DARK, RED_DARK, GRAY, MAGENTA , CYAN, ORANGE, BLUE,   PINK, GREEN_DARK, RED};
 
             chartBgColor =  BColor.WHITE;
             chartMarginColor = chartBgColor;
@@ -96,7 +96,7 @@ public enum Theme {
             final BColor CYAN = new BColor(0, 160, 160);
             final BColor GRAY = new BColor(80, 90, 120);
 
-            BColor[] colors = {BLUE_DARK, RED_DARK, GRAY, CYAN, PINK, BLUE, ORANGE, GREEN_DARK, MAGENTA, RED};
+            BColor[] colors = {BLUE_DARK, RED_DARK, GRAY, MAGENTA , CYAN, ORANGE, BLUE,   PINK, GREEN_DARK, RED};
 
             chartBgColor = new BColor(210, 208, 215);
             chartMarginColor = chartBgColor;
