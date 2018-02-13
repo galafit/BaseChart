@@ -38,6 +38,8 @@ public class ChartWithDataManager {
     public ChartWithDataManager(ChartConfig config, BRectangle area, TraceFactory traceFactory) {
         this.area = area;
         this.config = config;
+        System.out.println("areaWidth: "+area.width);
+
 
         chartOriginalData = config.getChartData();
         previewOriginalData = config.getPreviewData();
@@ -124,7 +126,7 @@ public class ChartWithDataManager {
                     }
                     chart.setChartData(createChartData());
                     isAllScrollsAtTheEnd = isScrollAtTheEnd(xAxisIndex);
-                    if (config.isChartAutoScaleEnable()) {
+                    if (config.isScrollAutosSaleEnable()) {
                         autoScaleChartY();
                     }
                 }
@@ -279,7 +281,6 @@ public class ChartWithDataManager {
             }
         }
         double extent = dataIntervalMin * area.width / minPixelsPerDataItem;
-        System.out.println("interval: "+dataIntervalMin + "   width: "+area.width+ "  extent: "+extent);
         return extent;
     }
 
@@ -303,14 +304,11 @@ public class ChartWithDataManager {
             groupPreviewData(previewMinMax);
             scrollableChart.setPreviewMinMax(previewMinMax);
             scrollableChart.setPreviewData(createPreviewData());
-            if(config.isPreviewAutoScaleEnable()) {
-                autoScalePreviewY();
-            }
+
             if(config.isAutoScrollEnable() && isAllScrollsAtTheEnd) {
                 autoScroll();
             }
         }
-
     }
 
     private boolean autoScroll() {

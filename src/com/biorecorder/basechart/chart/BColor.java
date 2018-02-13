@@ -41,7 +41,7 @@ public class BColor {
             rangeError = true;
             badComponentString = badComponentString + " Green";
         }
-        if ( rangeError == true ) {
+        if (rangeError == true) {
             throw new IllegalArgumentException("Color parameter outside of expected range:"
                             + badComponentString);
         }

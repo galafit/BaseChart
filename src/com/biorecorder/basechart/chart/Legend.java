@@ -93,7 +93,7 @@ public class Legend {
     }
 
     private int getInterItemSpace() {
-        return 2;
+        return 0;
     }
 }
 

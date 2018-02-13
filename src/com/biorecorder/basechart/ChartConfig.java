@@ -22,8 +22,7 @@ public class ChartConfig extends ScrollableChartConfig {
     private boolean isChartGroupedDatCachingEnable = true;
 
     private boolean autoScrollEnable = true;
-    private boolean chartAutoScaleEnable = true; // during scroll and update
-    private boolean previewAutoScaleEnable = true; // during update
+    private boolean scrollAutosSaleEnable = true; // chart Y auto scale during scrolling
 
 
     public ChartConfig(boolean isDateTime) {
@@ -49,20 +48,12 @@ public class ChartConfig extends ScrollableChartConfig {
         this.autoScrollEnable = autoScrollEnable;
     }
 
-    public boolean isPreviewAutoScaleEnable() {
-        return previewAutoScaleEnable;
+    public boolean isScrollAutosSaleEnable() {
+        return scrollAutosSaleEnable;
     }
 
-    public void setPreviewAutoScaleEnable(boolean previewAutoScaleEnable) {
-        this.previewAutoScaleEnable = previewAutoScaleEnable;
-    }
-
-    public boolean isChartAutoScaleEnable() {
-        return chartAutoScaleEnable;
-    }
-
-    public void setChartAutoScaleEnable(boolean chartAutoScaleEnable) {
-        this.chartAutoScaleEnable = chartAutoScaleEnable;
+    public void setScrollAutosSaleEnable(boolean scrollAutosSaleEnable) {
+        this.scrollAutosSaleEnable = scrollAutosSaleEnable;
     }
 
     public boolean isChartGroupedDatCachingEnable() {

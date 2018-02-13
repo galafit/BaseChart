@@ -30,12 +30,12 @@ public enum Theme {
             final BColor ORANGE = new BColor(235, 80, 0); //new BColor(250, 100, 30);
             final BColor GREEN_DARK = new BColor(0, 130, 0);
             final BColor MAGENTA = new BColor(120, 50, 185);
-            final BColor RED = new BColor(230, 10, 60);
+            final BColor RED = new BColor(250, 60, 90); //new BColor(230, 10, 60);
             final BColor BLUE_DARK = new BColor(30, 30, 180);
             final BColor PINK = new BColor(230, 0, 230);
-            final BColor RED_DARK = new BColor(160, 0, 0);
+            final BColor RED_DARK = new BColor(180, 0, 0);
             final BColor CYAN = new BColor(0, 160, 160);
-            final BColor GRAY = new BColor(80, 90, 120);
+            final BColor GRAY = new BColor(120, 56, 7); //new BColor(60, 70, 100);
 
             //BColor[] colors = {BLUE, ORANGE, RED, GREEN_DARK, MAGENTA, BLUE_DARK, PINK, RED_DARK, CYAN, GRAY};
             BColor[] colors = {BLUE_DARK, RED_DARK, GRAY, MAGENTA , CYAN, ORANGE, BLUE,   PINK, GREEN_DARK, RED};
@@ -46,14 +46,13 @@ public enum Theme {
             previewBgColor = BColor.WHITE;
             previewMarginColor = previewBgColor;
 
-            titleColor = new BColor(90, 80, 60);
+            titleColor = new BColor(60, 60, 60);
             axisColor = titleColor;
-            gridColor = new BColor(200, 190, 180);
+            gridColor = new BColor(220, 220, 220);
             traceColors = colors;
 
-            crosshairColor = BColor.RED;
-            scrollColor = BColor.RED;
-
+            crosshairColor = new BColor(30, 30, 30);
+            scrollColor = crosshairColor;
         }
         if(themeId == 2) { // DARK
             final BColor CYAN = new BColor(0, 200, 220);
@@ -81,36 +80,36 @@ public enum Theme {
 
             traceColors = colors;
 
-            crosshairColor = BColor.RED;
-            scrollColor = BColor.RED;
+            crosshairColor = new BColor(245, 226, 208); //new BColor(201, 182, 163); //new BColor(252, 242, 227);
+            scrollColor = crosshairColor;
         }
         if(themeId == 3) { // GRAY
             final BColor BLUE = new BColor(0, 130, 230);
             final BColor ORANGE = new BColor(235, 80, 0); //new BColor(250, 100, 30);
             final BColor GREEN_DARK = new BColor(0, 130, 0);
             final BColor MAGENTA = new BColor(120, 50, 185);
-            final BColor RED = new BColor(230, 10, 60);
+            final BColor RED = new BColor(250, 60, 90); //new BColor(230, 10, 60);
             final BColor BLUE_DARK = new BColor(30, 30, 180);
             final BColor PINK = new BColor(230, 0, 230);
-            final BColor RED_DARK = new BColor(160, 0, 0);
+            final BColor RED_DARK = new BColor(180, 0, 0);
             final BColor CYAN = new BColor(0, 160, 160);
-            final BColor GRAY = new BColor(80, 90, 120);
+            final BColor GRAY = new BColor(120, 56, 7); //new BColor(60, 70, 100);
 
             BColor[] colors = {BLUE_DARK, RED_DARK, GRAY, MAGENTA , CYAN, ORANGE, BLUE,   PINK, GREEN_DARK, RED};
 
-            chartBgColor = new BColor(210, 208, 215);
+            chartBgColor = new BColor(215, 210, 215);
             chartMarginColor = chartBgColor;
 
-            previewBgColor = new BColor(230, 228, 235);
+            previewBgColor = new BColor(230, 230, 230);
             previewMarginColor = previewBgColor;
 
-            titleColor = new BColor(70, 60, 40);
+            titleColor = new BColor(40, 40, 40); //new BColor(70, 60, 40);
             axisColor = titleColor;
-            gridColor = new BColor(185, 180, 170);
+            gridColor = new BColor(180, 180, 180);
             traceColors = colors;
 
-            crosshairColor = BColor.RED;
-            scrollColor = BColor.RED;
+            crosshairColor = new BColor(35, 10, 35);
+            scrollColor = crosshairColor;
         }
     }
 

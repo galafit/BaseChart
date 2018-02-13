@@ -1,4 +1,4 @@
-package com.biorecorder.basechart.chart.tooltip;
+package com.biorecorder.basechart.chart;
 
 import java.util.ArrayList;
 

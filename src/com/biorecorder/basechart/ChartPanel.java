@@ -19,7 +19,7 @@ public class ChartPanel extends JPanel implements KeyListener {
     private int pastX;
     private int pastY;
     private boolean isPressedInsideScroll;
-     private List<Integer> xAxisList = new ArrayList<>();
+    private List<Integer> xAxisList = new ArrayList<>();
     private List<Integer> yAxisList = new ArrayList<>();
     private List<Integer> yAxisListPreview = new ArrayList<>();
     private ChartWithDataManager chartDataManager;
@@ -73,8 +73,14 @@ public class ChartPanel extends JPanel implements KeyListener {
                 if (e.getClickCount() == 2) {
                     updateXAxisList();
                     updateYAxisList();
-                    autoscaleY();
-                    autoscaleX();
+                    if(chartDataManager.getScrollableChart().chartContains(e.getX(), e.getY())) {
+                        autoscaleChartY();
+                        autoscaleChartX();
+                    }
+                    if(chartDataManager.getScrollableChart().previewContains(e.getX(), e.getY())) {
+                        autoscalePreviewY();
+                    }
+
                     repaint();
                 }
                 if (e.getClickCount() == 1) {
@@ -300,16 +306,19 @@ public class ChartPanel extends JPanel implements KeyListener {
         }
     }
 
-    private void autoscaleX() {
+    private void autoscaleChartX() {
         for (Integer xAxisIndex : xAxisList) {
             chartDataManager.getScrollableChart().autoScaleChartX(xAxisIndex);
         }
     }
 
-    private void autoscaleY() {
+    private void autoscaleChartY() {
         for (Integer yAxisIndex : yAxisList) {
             chartDataManager.getScrollableChart().autoScaleChartY(yAxisIndex);
         }
+    }
+
+    private void autoscalePreviewY() {
         for (Integer yAxisIndex : yAxisListPreview) {
             chartDataManager.getScrollableChart().autoScalePreviewY(yAxisIndex);
         }

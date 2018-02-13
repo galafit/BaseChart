@@ -73,7 +73,7 @@ public class ToggleBtn {
         }
         // draw background
         canvas.setColor(background);
-      //  canvas.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+        canvas.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
         canvas.setColor(color);
 
         // draw item
@@ -84,7 +84,7 @@ public class ToggleBtn {
 
         if(model.isSelected()) {
             // draw border
-            canvas.drawRect(bounds.x, bounds.y, bounds.width, bounds.height);
+            canvas.drawRect(bounds.x, bounds.y, bounds.width - 1, bounds.height);
             // draw selection marker
             x = bounds.x + getPadding() + tm.stringWidth(label) + getColorMarkerPadding();
             y = bounds.y + bounds.height/2;

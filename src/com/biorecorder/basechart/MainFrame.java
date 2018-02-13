@@ -33,20 +33,21 @@ public class MainFrame extends JFrame {
         yData2 = new FloatArrayList();
         xData = new FloatArrayList();
 
-        for (int i = 0; i < 1600; i++) {
+        for (int i = 0; i < 800; i++) {
             //yData1.add((float) Math.sin(i));
             yData1.add(i);
         }
+        /*
         for (int i = 100; i < 1600; i++) {
             yData2.add(i + 100);
         }
         for (int i = 100; i < 1600; i++) {
             xData.add(i);
-        }
+        }*/
 
         IntArrayList bandYData = new IntArrayList();
         int counter = 0;
-        for (int i = 0; i < 1600; i++) {
+     /*   for (int i = 0; i < 1600; i++) {
             if(counter < 100) {
                bandYData.add(1);
             } else {
@@ -56,7 +57,7 @@ public class MainFrame extends JFrame {
             if(counter > 200) {
                 counter = 0;
             }
-        }
+        }*/
 
 
         XYData xyData1 = new XYData();
@@ -100,6 +101,8 @@ public class MainFrame extends JFrame {
         // config.addScroll(0, 100);
         config.addPreviewTrace(new LineTraceConfig(), xyData3, "PREV", "kg");
         config.addPreviewTrace(new LineTraceConfig(), xyData2);
+        config.addPreviewTrace(new LineTraceConfig(), xyData1);
+
         //config.addPreviewGroupingInterval(10);
 
 
@@ -115,19 +118,19 @@ public class MainFrame extends JFrame {
     }
 
     public void update() {
-        for (int i = 1; i <= 800; i++) {
+        for (int i = 1; i <= 80; i++) {
             yData1.add((float) Math.sin(i));
         }
 
 
-        for (int i = 1; i <= 800; i++) {
+        for (int i = 1; i <= 80; i++) {
             float lastValue = 0;
             if (xData.size() > 0) {
                 lastValue = xData.get(xData.size() - 1) + 1;
             }
             xData.add(lastValue + 1);
         }
-        for (int i = 1; i <= 800; i++) {
+        for (int i = 1; i <= 80; i++) {
             yData2.add(i);
         }
         chartPanel.update();
@@ -137,12 +140,12 @@ public class MainFrame extends JFrame {
     public static void main(String[] args) {
         MainFrame mainFrame = new MainFrame();
 
-        final Timer timer = new Timer(1000, new ActionListener() {
+        final Timer timer = new Timer(10, new ActionListener() {
             int counter = 0;
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (counter < 0) {
+                if (counter < 10) {
                     mainFrame.update();
                     counter++;
                 }

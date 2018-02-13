@@ -3,7 +3,7 @@ package com.biorecorder.basechart.chart.traces;
 
 import com.biorecorder.basechart.chart.*;
 import com.biorecorder.basechart.chart.config.traces.LineTraceConfig;
-import com.biorecorder.basechart.chart.tooltip.InfoItem;
+import com.biorecorder.basechart.chart.InfoItem;
 
 /**
  * Created by galafit on 11/10/17.

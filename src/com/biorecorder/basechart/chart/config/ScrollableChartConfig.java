@@ -26,7 +26,7 @@ public class ScrollableChartConfig {
     }
 
     public ScrollableChartConfig(boolean isDateTime) {
-        this(Theme.GRAY, isDateTime);
+        this(Theme.DARK, isDateTime);
     }
 
     public ScrollableChartConfig(Theme theme, boolean isDateTime) {

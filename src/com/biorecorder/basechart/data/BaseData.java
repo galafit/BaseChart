@@ -181,58 +181,59 @@ public class BaseData {
     }
 
     public DataSet getDataSet() {
-        BaseData subset = new BaseData(this);
-        subset.startIndex = startIndex;
-        subset.length = size();
-        if(subset.length > Integer.MAX_VALUE) {
+      /*  BaseData dataset = new BaseData(this);
+        dataset.startIndex = startIndex;
+        dataset.length = length;
+        if(dataset.length > Integer.MAX_VALUE) {
             String errorMessage = "Error during creating DataSize. Resultant size must be integer. Resultant size = {0}, Integer.MAX_VALUE = {1}.";
-            String formattedError = MessageFormat.format(errorMessage, subset.length, Integer.MAX_VALUE);
+            String formattedError = MessageFormat.format(errorMessage, dataset.length, Integer.MAX_VALUE);
             throw new RuntimeException(formattedError);
-        }
+        }*/
+        BaseData dataset = this;
         return new DataSet() {
             @Override
             public int getYColumnsCount() {
-                return subset.getYColumnsCount();
+                return dataset.getYColumnsCount();
             }
 
             @Override
             public double getYValue(int index, int yColumnNumber) {
-                return subset.getYValue(index, yColumnNumber);
+                return dataset.getYValue(index, yColumnNumber);
             }
 
             @Override
             public double getXValue(int index) {
-                return subset.getXValue(index);
+                return dataset.getXValue(index);
             }
 
             @Override
             public String getAnnotation(int index) {
-                return subset.getAnnotation(index);
+                return dataset.getAnnotation(index);
             }
 
             @Override
             public int size() {
-                return (int) subset.size();
+                return (int) dataset.size();
             }
 
             @Override
             public Range getXExtremes() {
-                return subset.getXExtremes();
+                return dataset.getXExtremes();
             }
 
             @Override
             public Range getYExtremes(int yColumnNumber) {
-                return subset.getYExtremes(yColumnNumber);
+                return dataset.getYExtremes(yColumnNumber);
             }
 
             @Override
             public int findNearestData(double xValue) {
-                return (int)subset.findNearestData(xValue);
+                return (int)dataset.findNearestData(xValue);
             }
 
             @Override
             public double getAverageDataInterval() {
-                return subset.getAverageDataInterval();
+                return dataset.getAverageDataInterval();
             }
         };
     }
@@ -243,6 +244,11 @@ public class BaseData {
             String formattedError = MessageFormat.format(errorMessage, startXValue, endXValue);
             throw new IllegalArgumentException(formattedError);
         }
+
+        if(size() == 0 || (startXValue <= getXValue(0) && endXValue >= getXValue(size() -1))) {
+           return  new BaseData(this);
+        }
+
         long fullSize = fullSize();
         if (!(xColumn instanceof RegularColumn) && fullSize > Integer.MAX_VALUE) {
             String errorMessage = "Error during creating subset. Full size must be integer for no regular com.biorecorder.basechart.data sets. Full size = {0}, Integer.MAX_VALUE = {1}.";

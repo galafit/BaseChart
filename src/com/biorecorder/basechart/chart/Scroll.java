@@ -129,10 +129,20 @@ public class Scroll {
     }
 
     public void draw(BCanvas canvas, BRectangle area) {
-        canvas.setColor(scrollConfig.getScrollColor());
-        canvas.setStroke(new BStroke(1));
         Range scrollRange = getScrollRange();
         double scrollMin = scrollRange.getMin();
-        canvas.drawRect((int) scrollMin, area.y + 1, (int) scrollRange.length(), area.height - 2);
+
+        BColor scrollColor = scrollConfig.getScrollColor();
+        BColor fillColor = new BColor(scrollColor.getRed(), scrollColor.getGreen(), scrollColor.getBlue(), 70);
+        canvas.setColor(fillColor);
+        canvas.fillRect((int) scrollMin, area.y + 1, (int) scrollRange.length(), area.height - 2);
+
+        BColor borderColor = new BColor(scrollColor.getRed(), scrollColor.getGreen(), scrollColor.getBlue(), 110);
+        canvas.setColor(borderColor);
+        canvas.setStroke(new BStroke(1));
+        canvas.drawRect((int) scrollMin, area.y + 1, (int) scrollRange.length() - 1, area.height - 2);
     }
+
+
+
 }

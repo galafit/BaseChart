@@ -6,8 +6,6 @@ import com.biorecorder.basechart.chart.button.StateListener;
 import com.biorecorder.basechart.chart.config.SimpleChartConfig;
 import com.biorecorder.basechart.chart.config.traces.TraceConfig;
 import com.biorecorder.basechart.chart.scales.Scale;
-import com.biorecorder.basechart.chart.tooltip.Tooltip;
-import com.biorecorder.basechart.chart.tooltip.TooltipInfo;
 import com.biorecorder.basechart.chart.traces.Trace;
 
 import java.util.*;
@@ -99,15 +97,73 @@ public class SimpleChart {
 
         // set min and max for x axis
         for (int i = 0; i < xAxisList.size(); i++) {
-            autoScaleX(i);
+            initialScaleX(i);
         }
         // set min and max for y axis
         for (int i = 0; i < yAxisList.size(); i++) {
-                autoScaleY(i);
+                initialScaleY(i);
         }
     }
 
+    public void initialScaleX(int xAxisIndex) {
+        Range minMax = chartConfig.getXMinMax(xAxisIndex);
+        if(minMax != null && minMax.getMin() != null && minMax.getMax() != null) {
+            xAxisList.get(xAxisIndex).setMinMax(minMax);
+            return;
+        }
 
+        Range tracesMinMax = null;
+        for (int i = 0; i < traces.size(); i++) {
+            if (getTraceXIndex(i) == xAxisIndex) {
+                tracesMinMax = Range.max(tracesMinMax, traces.get(i).getXExtremes());
+            }
+        }
+        if(minMax == null) {
+            xAxisList.get(xAxisIndex).setMinMax(tracesMinMax);
+            return;
+        }
+        if(tracesMinMax != null) {
+            Double min = minMax.getMin();
+            Double max = minMax.getMax();
+            if(min == null) {
+                min = tracesMinMax.getMin();
+            }
+            if(max == null) {
+                max = tracesMinMax.getMax();
+            }
+            xAxisList.get(xAxisIndex).setMinMax(new Range(min, max));
+        }
+    }
+
+    public void initialScaleY(int yAxisIndex) {
+        Range minMax = chartConfig.getYMinMax(yAxisIndex);
+        if(minMax != null && minMax.getMin() != null && minMax.getMax() != null) {
+            yAxisList.get(yAxisIndex).setMinMax(minMax);
+            return;
+        }
+
+        Range tracesMinMax = null;
+        for (int i = 0; i < traces.size(); i++) {
+            if (getTraceYIndex(i) == yAxisIndex) {
+                tracesMinMax = Range.max(tracesMinMax, traces.get(i).getYExtremes());
+            }
+        }
+        if(minMax == null) {
+            yAxisList.get(yAxisIndex).setMinMax(tracesMinMax);
+            return;
+        }
+        if(tracesMinMax != null) {
+            Double min = minMax.getMin();
+            Double max = minMax.getMax();
+            if(min == null) {
+                min = tracesMinMax.getMin();
+            }
+            if(max == null) {
+                max = tracesMinMax.getMax();
+            }
+            yAxisList.get(yAxisIndex).setMinMax(new Range(min, max));
+        }
+    }
 
     Margin getMargin(BCanvas canvas) {
         if (margin == null) {
@@ -399,61 +455,23 @@ public class SimpleChart {
     }
 
     public void autoScaleX(int xAxisIndex) {
-        Range minMax = chartConfig.getXMinMax(xAxisIndex);
-        if(minMax != null && minMax.getMin() != null && minMax.getMax() != null) {
-            xAxisList.get(xAxisIndex).setMinMax(minMax);
-            return;
-        }
-
         Range tracesMinMax = null;
         for (int i = 0; i < traces.size(); i++) {
             if (getTraceXIndex(i) == xAxisIndex) {
                 tracesMinMax = Range.max(tracesMinMax, traces.get(i).getXExtremes());
             }
         }
-        if(minMax == null) {
-            xAxisList.get(xAxisIndex).setMinMax(tracesMinMax);
-            return;
-        }
-        Double min = minMax.getMin();
-        Double max = minMax.getMax();
-        if(min == null) {
-            min = tracesMinMax.getMin();
-        }
-        if(max == null) {
-            max = tracesMinMax.getMax();
-        }
-        xAxisList.get(xAxisIndex).setMinMax(new Range(min, max));
+        xAxisList.get(xAxisIndex).setMinMax(tracesMinMax);
     }
 
     public void autoScaleY(int yAxisIndex) {
-        Range minMax = chartConfig.getYMinMax(yAxisIndex);
-        if(minMax != null && minMax.getMin() != null && minMax.getMax() != null) {
-            yAxisList.get(yAxisIndex).setMinMax(minMax);
-            return;
-        }
-
         Range tracesMinMax = null;
         for (int i = 0; i < traces.size(); i++) {
             if (getTraceYIndex(i) == yAxisIndex) {
                 tracesMinMax = Range.max(tracesMinMax, traces.get(i).getYExtremes());
             }
         }
-        if(minMax == null) {
-            yAxisList.get(yAxisIndex).setMinMax(tracesMinMax);
-            return;
-        }
-        if(tracesMinMax != null) {
-            Double min = minMax.getMin();
-            Double max = minMax.getMax();
-            if(min == null) {
-                min = tracesMinMax.getMin();
-            }
-            if(max == null) {
-                max = tracesMinMax.getMax();
-            }
-            yAxisList.get(yAxisIndex).setMinMax(new Range(min, max));
-        }
+        yAxisList.get(yAxisIndex).setMinMax(tracesMinMax);
     }
 
     public int getTraceYIndex(int traceIndex) {
