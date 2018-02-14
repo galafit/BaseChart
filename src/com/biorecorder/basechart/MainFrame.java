@@ -33,17 +33,17 @@ public class MainFrame extends JFrame {
         yData2 = new FloatArrayList();
         xData = new FloatArrayList();
 
-        for (int i = 0; i < 800; i++) {
+        for (int i = 0; i < 160000; i++) {
             //yData1.add((float) Math.sin(i));
             yData1.add(i);
         }
-        /*
-        for (int i = 100; i < 1600; i++) {
+
+        for (int i = 100; i < 160000; i++) {
             yData2.add(i + 100);
         }
-        for (int i = 100; i < 1600; i++) {
+        for (int i = 100; i < 160000; i++) {
             xData.add(i);
-        }*/
+        }
 
         IntArrayList bandYData = new IntArrayList();
         int counter = 0;
@@ -77,9 +77,9 @@ public class MainFrame extends JFrame {
         ChartConfig config = new ChartConfig(false);
         config.addTrace(new LineTraceConfig(false), xyData1);
         //config.addChartStack(5);
-        config.addTrace(new BooleanTraceConfig(), bandData, "Band");
+       // config.addTrace(new BooleanTraceConfig(), bandData, "Band");
 
-         config.addChartStack(5);
+        config.addChartStack(5);
         config.addTrace(new LineTraceConfig(false), xyData1);
         config.addTrace(new LineTraceConfig(true), xyData2, "EEG", "uVolts");
 
@@ -103,7 +103,7 @@ public class MainFrame extends JFrame {
         config.addPreviewTrace(new LineTraceConfig(), xyData2);
         config.addPreviewTrace(new LineTraceConfig(), xyData1);
 
-        //config.addPreviewGroupingInterval(10);
+        config.addPreviewGroupingInterval(1000);
 
 
         chartPanel = new ChartPanel(config);

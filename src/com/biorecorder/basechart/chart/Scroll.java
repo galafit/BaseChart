@@ -137,7 +137,7 @@ public class Scroll {
         canvas.setColor(fillColor);
         canvas.fillRect((int) scrollMin, area.y + 1, (int) scrollRange.length(), area.height - 2);
 
-        BColor borderColor = new BColor(scrollColor.getRed(), scrollColor.getGreen(), scrollColor.getBlue(), 110);
+        BColor borderColor = new BColor(scrollColor.getRed(), scrollColor.getGreen(), scrollColor.getBlue(), 130);
         canvas.setColor(borderColor);
         canvas.setStroke(new BStroke(1));
         canvas.drawRect((int) scrollMin, area.y + 1, (int) scrollRange.length() - 1, area.height - 2);

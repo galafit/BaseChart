@@ -40,7 +40,6 @@ public class ChartWithDataManager {
         this.config = config;
         System.out.println("areaWidth: "+area.width);
 
-
         chartOriginalData = config.getChartData();
         previewOriginalData = config.getPreviewData();
 
@@ -126,7 +125,7 @@ public class ChartWithDataManager {
                     }
                     chart.setChartData(createChartData());
                     isAllScrollsAtTheEnd = isScrollAtTheEnd(xAxisIndex);
-                    if (config.isScrollAutosSaleEnable()) {
+                    if (config.isAutosSaleEnableDuringScroll()) {
                         autoScaleChartY();
                     }
                 }

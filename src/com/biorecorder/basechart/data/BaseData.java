@@ -28,7 +28,9 @@ public class BaseData {
             yColumns.add(numberColumn.copy());
         }
         xColumn = dataSet.xColumn.copy();
-        annotationColumn = dataSet.annotationColumn;
+        if(dataSet.annotationColumn != null) {
+            annotationColumn = dataSet.annotationColumn.copy();
+        }
     }
 
     public boolean isOrdered() {
@@ -245,40 +247,48 @@ public class BaseData {
             throw new IllegalArgumentException(formattedError);
         }
 
-        if(size() == 0 || (startXValue <= getXValue(0) && endXValue >= getXValue(size() -1))) {
-           return  new BaseData(this);
+        BaseData subset = new BaseData(this);
+        subset.startIndex = 0;
+        subset.length = -1;
+        long fullSize = fullSize();
+        if(fullSize == 0 || (startXValue <= xColumn.getValue(0) && endXValue >= xColumn.getValue(fullSize -1))) {
+            System.out.println("full size "+fullSize());
+            return subset;
         }
 
-        long fullSize = fullSize();
+        if((startXValue > xColumn.getValue(fullSize - 1) || endXValue < xColumn.getValue(0))) {
+            System.out.println("size = 0");
+            subset.length = 0;
+            return subset;
+        }
+
         if (!(xColumn instanceof RegularColumn) && fullSize > Integer.MAX_VALUE) {
-            String errorMessage = "Error during creating subset. Full size must be integer for no regular com.biorecorder.basechart.data sets. Full size = {0}, Integer.MAX_VALUE = {1}.";
+            String errorMessage = "Error during creating subset. Full size must be integer for no regular data sets. Full size = {0}, Integer.MAX_VALUE = {1}.";
             String formattedError = MessageFormat.format(errorMessage, fullSize, Integer.MAX_VALUE);
             throw new RuntimeException(formattedError);
         }
 
-        long subsetLength = size();
-        long subsetStartIndex = 0;
         if (isOrdered()) {
-            subsetStartIndex = xColumn.lowerBound(startXValue, 0, (int)fullSize);
+            subset.startIndex = xColumn.lowerBound(startXValue, 0, (int)fullSize);
             long subsetEndIndex = xColumn.upperBound(endXValue, 0, (int)fullSize);
-            subsetStartIndex -= shoulder;
+            subset.startIndex -= shoulder;
             subsetEndIndex += shoulder;
 
-            if (subsetStartIndex < 0) {
-                subsetStartIndex = 0;
+            if (subset.startIndex < 0) {
+                subset.startIndex = 0;
             }
-            if (subsetEndIndex >= fullSize()) {
-                subsetEndIndex = fullSize() - 1;
+            if (subsetEndIndex >= fullSize) {
+                subsetEndIndex = fullSize - 1;
             }
-            subsetLength = subsetEndIndex - subsetStartIndex + 1;
-            if (subsetStartIndex >= fullSize() || subsetEndIndex < 0) {
-                subsetLength = 0;
+            subset.length = subsetEndIndex - subset.startIndex + 1;
+            if (subset.startIndex >= fullSize || subsetEndIndex < 0) {
+                subset.length = 0;
             }
+
+            System.out.println(subset.startIndex+" subset "+subset.length);
         }
-        BaseData subset = new BaseData(this);
-        subset.startIndex = subsetStartIndex;
-        subset.length = subsetLength;
-       return subset;
+
+        return subset;
     }
 
     public BaseData getSubset(double startXValue, double endXValue) {
