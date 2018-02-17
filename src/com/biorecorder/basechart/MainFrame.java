@@ -38,10 +38,10 @@ public class MainFrame extends JFrame {
             yData1.add(i);
         }
 
-        for (int i = 100; i < 160000; i++) {
+        for (int i = 0; i < 160000; i++) {
             yData2.add(i + 100);
         }
-        for (int i = 100; i < 160000; i++) {
+        for (int i = 0; i < 160000; i++) {
             xData.add(i);
         }
 
@@ -126,7 +126,7 @@ public class MainFrame extends JFrame {
         for (int i = 1; i <= 80; i++) {
             float lastValue = 0;
             if (xData.size() > 0) {
-                lastValue = xData.get(xData.size() - 1) + 1;
+                lastValue = xData.get(xData.size() - 1);
             }
             xData.add(lastValue + 1);
         }
@@ -145,7 +145,7 @@ public class MainFrame extends JFrame {
 
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (counter < 10) {
+                if (counter < 20) {
                     mainFrame.update();
                     counter++;
                 }

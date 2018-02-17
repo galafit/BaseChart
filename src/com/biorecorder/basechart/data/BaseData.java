@@ -248,16 +248,12 @@ public class BaseData {
         }
 
         BaseData subset = new BaseData(this);
-        subset.startIndex = 0;
-        subset.length = -1;
         long fullSize = fullSize();
         if(fullSize == 0 || (startXValue <= xColumn.getValue(0) && endXValue >= xColumn.getValue(fullSize -1))) {
-            System.out.println("full size "+fullSize());
             return subset;
         }
 
         if((startXValue > xColumn.getValue(fullSize - 1) || endXValue < xColumn.getValue(0))) {
-            System.out.println("size = 0");
             subset.length = 0;
             return subset;
         }
@@ -284,8 +280,6 @@ public class BaseData {
             if (subset.startIndex >= fullSize || subsetEndIndex < 0) {
                 subset.length = 0;
             }
-
-            System.out.println(subset.startIndex+" subset "+subset.length);
         }
 
         return subset;
